@@ -1,26 +1,238 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: #ffffff;
+  --color-fg: #1a1a1a;
+  --color-muted: #8a8a8a;
+  --color-border: #e8e8e8;
+  --color-periwinkle: #7c7fbf;
+  --color-green: #3a9d5e;
+  --color-soft-blue: #f3f1fa;
+  --font-sans: "Satoshi", Inter, system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "Menlo", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #8a8a8a;
+  --border: #e8e8e8;
+  --periwinkle: #7c7fbf;
+  --green: #3a9d5e;
+  --soft-blue: #f3f1fa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Satoshi", Inter, system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle gradient background */
+body {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #ffffff 50%,
+    #f3f1fa 100%
+  );
+  background-attachment: fixed;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d0d0d0;
+  border-radius: 3px;
+}
+
+::selection {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Shared edges and spacing; Tailwind owns the base margin/padding reset. */
+.portfolio-shell { max-width: 1280px; margin-inline: auto; }
+.portfolio-shell > header { min-height: 88px; }
+.portfolio-hero { padding-block: 96px 72px; }
+.hero-copy { max-width: 900px; }
+.hero-copy h1 { max-width: 900px; font-size: 28px; line-height: 1.5; font-weight: 600; letter-spacing: -0.02em; }
+.hero-num { vertical-align: super; font-size: 0.42em; font-weight: 600; line-height: 0; color: var(--periwinkle); letter-spacing: 0; margin-left: 0; margin-right: 0.05em; }
+.hero-icon { display: inline-flex; vertical-align: middle; margin: 0 0.12em 0 0.15em; }
+.hero-icon svg { width: 20px; height: 20px; }
+.portfolio-shell > section { scroll-margin-top: 110px; }
+.project-grid > div { min-width: 0; height: 100%; }
+.project-card { height: 100%; }
+.project-card h3 { margin-top: 10px; line-height: 1.35; }
+.project-card p { overflow-wrap: anywhere; }
+.project-card > div:last-child { opacity: 1; }
+@media (max-width: 767px) {
+  .portfolio-hero { padding-block: 56px 48px; }
+  .portfolio-shell > header { min-height: 76px; }
+  .portfolio-shell > section { padding-block: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .custom-cursor { display: none; }
+  body, a, button, [data-cursor-hover] { cursor: auto !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Nav links: animated underline on hover instead of flat color-only */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Hero superscript numbers: small, raised, top-right — Rebus "²" style */
+
+/* Project cards: lift + border highlight on hover, not just shadow */
+.project-card {
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.25s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+.project-card:hover,
+.project-card:focus-within {
+  transform: translateY(-4px);
+  border-color: #c9c9e8;
+  box-shadow: 0 24px 48px -24px rgba(20, 20, 30, 0.18);
+}
+/* Thumbnail zooms slightly within its frame on card hover — Lana Farkas style */
+.project-card img {
+  transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+.project-card:hover img,
+.project-card:focus-within img {
+  transform: scale(1.05) !important;
+}
+
+/* Custom cursor: JS-driven dot, instant follow + smooth scale on hover.
+   Purple dot (20px) at rest; grows to 30px on links/buttons; white circle
+   + arrow on project cards. */
+@media (pointer: fine) {
+  body, a, button, [data-cursor-hover] {
+    cursor: none;
+  }
+}
+.cc-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(177, 158, 248, 0.55);
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
+}
+.cc-arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
+}
+.custom-cursor[data-mode="grow"] .cc-dot {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+.custom-cursor[data-mode="arrow"] .cc-dot {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+}
+.custom-cursor[data-mode="arrow"] .cc-arrow {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+@media (max-width: 767px), (pointer: coarse) {
+  .custom-cursor { display: none; }
+  body, a, button, [data-cursor-hover] { cursor: auto; }
+}
+
+/* Logo hover: fade glyph to a gray silhouette + draw a frame around it
+   (liumichelle.com "blueprint" pattern) — no scale-up. */
+.logo-mark__glyph {
+  transition: opacity 0.2s ease;
+}
+.logo-mark__ghost {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.logo-mark__frame rect {
+  opacity: 0;
+  transform: scale(0.85);
+  transform-origin: center;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+.logo-mark:hover .logo-mark__glyph,
+.logo-mark:focus-visible .logo-mark__glyph {
+  opacity: 0;
+}
+.logo-mark:hover .logo-mark__ghost,
+.logo-mark:focus-visible .logo-mark__ghost {
+  opacity: 1;
+}
+.logo-mark:hover .logo-mark__frame rect,
+.logo-mark:focus-visible .logo-mark__frame rect {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Availability dot: steady dot + expanding glow ring (liumichelle-style "live" indicator) */
+@keyframes availability-glow {
+  0% { box-shadow: 0 0 0 0 rgba(58, 157, 94, 0.45); }
+  70%, 100% { box-shadow: 0 0 0 8px rgba(58, 157, 94, 0); }
+}
+.availability-dot {
+  animation: availability-glow 2.2s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .availability-dot { animation: none; }
 }
