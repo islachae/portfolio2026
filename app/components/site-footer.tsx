@@ -69,7 +69,7 @@ export default function SiteFooter() {
 
       <div className="mt-3 text-center text-xs text-[var(--muted)]">
         <a
-          href="https://github.com/islachae"
+          href="https://github.com/islachae/portfolio2026"
           target="_blank"
           rel="noopener noreferrer"
           className="transition-colors hover:text-[var(--fg)]"
