@@ -19,46 +19,25 @@ const values = [
 
 const quotes = [
   {
-    title: "Less is more.",
+    value: "less, but intentional",
     quote:
       "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.",
     author: "Antoine de Saint-Exupéry",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-        <path d="M10 2.5l1.8 5.7 5.7 1.8-5.7 1.8-1.8 5.7-1.8-5.7-5.7-1.8 5.7-1.8z" />
-      </svg>
-    ),
   },
   {
-    title: "Details make the design.",
+    value: "craft builds trust",
     quote: "The details are not the details. They make the design.",
     author: "Charles Eames",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-        <path d="M10 16.5c-3.5-2.8-6-5-6-7.7A3.3 3.3 0 0110 6.5a3.3 3.3 0 016 2.3c0 2.7-2.5 4.9-6 7.7z" />
-      </svg>
-    ),
   },
   {
-    title: "Design for people.",
+    value: "design for agency",
     quote: "People ignore design that ignores people.",
     author: "Frank Chimero",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-        <circle cx="10" cy="10" r="7" />
-        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5z" />
-      </svg>
-    ),
   },
   {
-    title: "Make ideas real.",
+    value: "prototype before overthinking",
     quote: "The best way to have a good idea is to have lots of ideas.",
     author: "Linus Pauling",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-        <path d="M11.5 2.5L5 11.5h4l-1 6 6.5-9h-4z" />
-      </svg>
-    ),
   },
 ];
 
@@ -315,19 +294,12 @@ export default function About() {
               + my design &amp; life philosophy
             </p>
 
-            <ul className="mt-10 space-y-10">
+            <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
               {quotes.map((q) => (
-                <li key={q.title} className="flex gap-5">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center text-[var(--periwinkle)]">
-                    {q.icon}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-medium text-[var(--fg)]">{q.title}</p>
-                    <p className="mt-1.5 max-w-xl leading-relaxed text-[var(--muted)]">
-                      {q.quote}
-                    </p>
-                    <p className="mt-2 text-sm text-[var(--muted)]">{q.author}</p>
-                  </div>
+                <li key={q.value} className="rounded-3xl bg-[var(--soft-blue)] p-6 sm:p-8">
+                  <p className="font-medium text-[var(--fg)]">{q.value}</p>
+                  <p className="mt-3 leading-relaxed text-[var(--muted)]">{q.quote}</p>
+                  <p className="mt-4 text-sm text-zinc-400">— {q.author}</p>
                 </li>
               ))}
             </ul>
