@@ -10,13 +10,6 @@ export const metadata: Metadata = {
     "Interactive artist turned product designer. Based across New York, Daejeon, and Seattle — designing with intention, craft, and a little hardcore energy.",
 };
 
-const values = [
-  "less, but intentional",
-  "craft builds trust",
-  "design for agency",
-  "prototype before overthinking",
-];
-
 const quotes = [
   {
     value: "less, but intentional",
@@ -267,31 +260,6 @@ export default function About() {
             </h2>
             <p className="mt-3 text-sm text-[var(--periwinkle)]">
               + my life core values
-            </p>
-
-            <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {values.map((v) => (
-                <div
-                  key={v}
-                  className="flex min-h-[140px] items-center rounded-xl bg-[var(--soft-blue)] px-6 py-6"
-                >
-                  <p className="text-lg font-medium tracking-tight sm:text-xl">
-                    {v}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </ScrollFade>
-        </section>
-
-        {/* ── Related Quotes ─────────────────────────────────────── */}
-        <section className="mt-40">
-          <ScrollFade>
-            <h2 className="text-2xl font-medium tracking-tight sm:text-3xl">
-              Related Quotes
-            </h2>
-            <p className="mt-3 text-sm text-[var(--periwinkle)]">
-              + my design &amp; life philosophy
             </p>
 
             <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
