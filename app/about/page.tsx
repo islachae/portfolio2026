@@ -259,7 +259,7 @@ export default function About() {
               My Design Philosophy
             </h2>
             <p className="mt-3 text-sm text-[var(--periwinkle)]">
-              + my life core values
+              + Words I live by
             </p>
 
             <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
