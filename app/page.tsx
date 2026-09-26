@@ -7,7 +7,9 @@ import LocalTime from "./components/local-time";
 import ParallaxImage from "./components/parallax-image";
 import TippingVisual from "./components/tipping-visual";
 import { PebboVisual } from "./components/pebbo-visuals";
+import { ZipflowHeroVisual } from "./components/zipflow-visual";
 import RevealOnScroll from "./components/reveal-on-scroll";
+import ShaderHero from "./components/shader-hero";
 import { workProjects } from "./data";
 
 export const metadata: Metadata = {
@@ -22,49 +24,20 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="portfolio-shell min-h-screen">
+      <ShaderHero />
       {/* ── Header ─────────────────────────────────────────────────── */}
       <SiteHeader />
 
       <main className="portfolio-hero px-6 sm:px-10">
         <section className="hero-copy">
-          <h1 className="max-w-2xl font-medium tracking-tight">
-            <span className="block">Chaewon is a designer and thinker who</span>
-            <span className="block">
-              <sup className="hero-num">1</sup>
-              <span className="hero-icon" aria-hidden="true">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
-                  <circle cx="12" cy="12" r="3.2" fill="#7c7fbf" stroke="none" />
-                </svg>
-              </span>{" "}
-              brings new perspective,
-            </span>
-            <span className="block">
-              <sup className="hero-num">2</sup>
-              <span className="hero-icon" aria-hidden="true">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="9.5" stroke="#1a1a1a" strokeWidth="1.6" />
-                  <path d="M12 6.5c.8 3 2.5 4.7 5.5 5.5-3 .8-4.7 2.5-5.5 5.5-.8-3-2.5-4.7-5.5-5.5 3-.8 4.7-2.5 5.5-5.5Z" fill="#7c7fbf" />
-                </svg>
-              </span>{" "}
-              shapes trust in AI, &amp;
-            </span>
-            <span className="block">
-              <sup className="hero-num">3</sup>
-              <span className="hero-icon" aria-hidden="true">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="#7c7fbf">
-                  <rect x="4" y="14" width="4.4" height="6" rx="1" />
-                  <rect x="9.8" y="9" width="4.4" height="11" rx="1" />
-                  <rect x="15.6" y="4" width="4.4" height="16" rx="1" />
-                </svg>
-              </span>{" "}
-              crafts intentional experiences that scale.
-            </span>
+          <h1>
+            <span className="block">Chaewon is a designer and thinker</span>
+            <span className="block">who shapes trust in AI into intuitive interactions</span>
           </h1>
         </section>
 
         {/* ── Status row: metadata + availability dot inline ───────── */}
-        <div className="mt-12 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--muted)]">
+        <div className="mt-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--muted)]">
           <span>Carnegie Mellon Univ. — MDES</span>
           <span aria-hidden="true">·</span>
           <span>NYC</span>
@@ -84,7 +57,7 @@ export default function Home() {
       {/* ── Work ───────────────────────────────────────────────────── */}
       <section
         id="work"
-        className="border-t border-solid border-[var(--border)] px-6 py-16 sm:px-10"
+        className="px-6 pt-32 pb-16 sm:px-10"
       >
         <div className="mb-10 flex items-baseline justify-between">
           <h2 className="text-2xl font-medium tracking-tight">Work</h2>
@@ -99,27 +72,43 @@ export default function Home() {
               <Link
                 href={p.link}
                 aria-label={`View case study: ${p.title}`}
-                data-cursor-hover
-                className="project-card group relative block rounded-2xl border border-solid border-[var(--border)] bg-white p-6"
+                className="project-card group relative block"
               >
-                <span className="absolute right-5 top-5 z-10 rounded-full border border-solid border-[var(--border)] bg-white/90 px-3 py-1 text-xs text-[var(--muted)]">
-                  {p.type}
-                </span>
+                <div className="relative overflow-hidden rounded-[20px] border border-solid border-[#e8e8e8] bg-[#fffaf8]">
+                  {p.link === "/case-studies/tipping" ? (
+                    <img
+                      src="/case-studies/tipping-thumb.png"
+                      alt={p.title}
+                      className="aspect-[678/368] w-full object-cover"
+                    />
+                  ) : p.link === "/case-studies/pebbo" ? (
+                    <img
+                      src="/case-studies/pebbo-thumb.png"
+                      alt={p.title}
+                      className="aspect-[678/368] w-full object-cover"
+                    />
+                  ) : p.link === "/case-studies/zipflow" ? (
+                    <img
+                      src="/case-studies/zipflow-thumb.png"
+                      alt={p.title}
+                      className="aspect-[678/368] w-full object-cover"
+                    />
+                  ) : (
+                    <ParallaxImage src={p.image} alt={p.title} />
+                  )}
+                  <span className="absolute right-3 top-3 z-10 rounded-full border border-solid border-[#e8e8e8] bg-white/85 px-3 py-0.5 text-[16px] font-medium leading-[24.3px] tracking-[-0.45px] text-[var(--fg)]">
+                    {p.type}
+                  </span>
+                </div>
 
-                {p.link === "/case-studies/tipping" ? (
-                  <TippingVisual />
-                ) : p.link === "/case-studies/pebbo" ? (
-                  <PebboVisual />
-                ) : (
-                  <ParallaxImage src={p.image} alt={p.title} />
-                )}
-
-                <div className="mt-5">
-                  <h3 className="text-lg font-medium leading-snug tracking-tight">
+                <div className="mt-4">
+                  <h3 className="text-[18px] font-medium leading-[24.3px] tracking-[-0.45px] text-[var(--fg)]">
                     {p.title}
                   </h3>
-                  <p className="mt-1 text-sm text-[var(--muted)]">{p.tag}</p>
-                  <p className="mt-1.5 text-xs text-[var(--muted)]">{p.readTime}</p>
+                  <div className="mt-1 flex items-baseline justify-between gap-4">
+                    <p className="text-[14px] leading-[20px] text-[var(--muted)]">{p.tag}</p>
+                    <p className="shrink-0 text-[14px] leading-[20px] text-[var(--muted)]">{p.readTime}</p>
+                  </div>
                 </div>
               </Link>
             </RevealOnScroll>

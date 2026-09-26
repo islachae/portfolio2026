@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trust-First Tipping — Interactive Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; font-family:'Lato',system-ui,sans-serif; background:#f3f1fa; }
+  .stage{ min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:14px 16px; }
+  .topbar{ display:flex; align-items:center; gap:14px; width:100%; max-width:402px; }
+  .back-btn{ flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; border:1px solid #e6ded7; background:#ffffff; color:#3a3a3a; font-family:'Lato'; font-size:14px; font-weight:600; padding:8px 15px; border-radius:100px; cursor:pointer; transition:transform .15s, box-shadow .2s, opacity .2s; }
+  .back-btn:hover{ transform:translateX(-2px); box-shadow:0 4px 12px rgba(0,0,0,.08); }
+  .back-btn:disabled{ opacity:.35; cursor:default; transform:none; box-shadow:none; }
+  .steps-label{ font-size:20px; font-weight:800; letter-spacing:.2px; color:#1c1c1e; }
+  .steps-label .step-num{ color:#fe754c; }
+  .phone-scale{ height:583px; overflow:hidden; }
+
+  .phone{ position:relative; width:402px; height:874px; background:#fefaf7; border-radius:54px; overflow:hidden; box-shadow:0 0 0 10px #1c1c1e, 0 24px 60px -18px rgba(0,0,0,.4); transform:scale(0.667); transform-origin:top center; }
+  .viewport{ position:absolute; inset:0; width:402px; height:874px; }
+
+  .screen{ position:absolute; left:0; top:0; width:402px; height:874px; overflow-y:auto; scrollbar-width:none; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .34s cubic-bezier(.2,.6,.2,1), transform .34s cubic-bezier(.2,.6,.2,1); transform:translateX(28px); }
+  .screen::-webkit-scrollbar{ display:none; }
+  .screen.active{ opacity:1; visibility:visible; pointer-events:auto; transform:translateX(0); }
+  .screen.leaving{ transform:translateX(-28px); }
+
+  /* ─── MICRO-INTERACTIONS ─── */
+  /* hoverable cards / buttons */
+  .tipcard, .thumb, .boosttip, .confirmtip, .view-reason{
+    transition: transform .22s cubic-bezier(.2,.6,.2,1), box-shadow .22s, border-color .22s, background .22s, filter .22s;
+  }
+  .tipcard:hover{ transform:translateY(-3px) scale(1.02); box-shadow:0 8px 24px rgba(0,0,0,.12); cursor:pointer; }
+  .tipcard--trust:hover{ border-color:#fe8763; }
+  .tipcard--custom:hover{ border-color:#fe8763; }
+  .thumb:hover{ transform:scale(1.12); filter:drop-shadow(0 4px 10px rgba(0,0,0,.15)); cursor:pointer; }
+  .thumb--up:hover{ transform:scale(1.12) rotate(-6deg); }
+  .thumb--down:hover{ transform:scale(1.12) rotate(6deg); }
+  .view-reason:hover{ color:#e05a30; text-decoration-thickness:2px; }
+  .boosttip:hover{ transform:translateY(-2px); background:#f0f0f0; box-shadow:0 6px 16px rgba(0,0,0,.14); }
+  .confirmtip:hover{ transform:translateY(-2px); background:#fe8a63; box-shadow:0 6px 16px rgba(254,117,76,.4); }
+
+  /* gentle pulse to hint the drop-off tooltip is hoverable */
+  @keyframes gentlePulse{
+    0%,100%{ transform:scale(1); opacity:1; }
+    50%{ transform:scale(1.06); opacity:.85; }
+  }
+  .pulse-hint{ animation:gentlePulse 2.2s ease-in-out infinite; }
+  .dropoff-tip{ transition:opacity .32s cubic-bezier(.2,.6,.2,1), transform .32s cubic-bezier(.2,.6,.2,1); }
+  .dropoff-tip.hidden{ opacity:0; transform:translateY(10px); pointer-events:none; }
+  @keyframes tipRise{ from{ opacity:0; transform:translateY(12px);} to{ opacity:1; transform:translateY(0);} }
+  .dropoff-tip.rising{ animation:tipRise .34s cubic-bezier(.2,.6,.2,1); }
+
+  /* subtle "next clickable" shimmer on the delivered hotspot */
+  @keyframes softGlow{
+    0%,100%{ box-shadow:0 0 0 0 rgba(254,117,76,0); }
+    50%{ box-shadow:0 0 0 6px rgba(254,117,76,.22); }
+  }
+  .next-hint{ animation:softGlow 2s ease-in-out infinite; border-radius:16px; }
+
+  /* ─── TIP PREFERENCE POPUP ─── */
+  .tippop{ position:absolute; inset:0; z-index:90; opacity:0; visibility:hidden; transition:opacity .28s; }
+  .tippop.open{ opacity:1; visibility:visible; }
+  .tippop-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.4); }
+  .tippop-panel{
+    position:absolute; left:0; right:0; bottom:0; max-height:88%;
+    background:#fefaf7; border-radius:24px 24px 0 0; padding:24px 20px 28px;
+    transform:translateY(100%); transition:transform .34s cubic-bezier(.2,.6,.2,1);
+    overflow-y:auto; scrollbar-width:none;
+  }
+  .tippop-panel::-webkit-scrollbar{ display:none; }
+  .tippop.open .tippop-panel{ transform:translateY(0); }
+  .tippop-title{ font-size:19px; font-weight:800; color:#000; margin-bottom:6px; }
+  .tippop-sub{ font-size:13px; color:#737373; line-height:1.4; margin-bottom:20px; }
+  .tippop-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px 10px; }
+  .tippop-opt{ display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; }
+  .tippop-circle{
+    position:relative; width:64px; height:64px; border-radius:50%;
+    background:#f8e3d7; display:flex; align-items:center; justify-content:center;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .tippop-opt:hover .tippop-circle{ transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,.14); }
+  .tippop-opt img{ width:34px; height:34px; object-fit:contain; }
+  .tippop-label{ font-size:11.5px; color:#444; text-align:center; line-height:1.25; max-width:96px; }
+  .tippop-badge{
+    position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%;
+    background:#f55c2d; color:#fff; font-size:11px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transform:scale(.4); transition:opacity .2s, transform .2s;
+  }
+  .tippop-opt.selected .tippop-badge{ opacity:1; transform:scale(1); }
+  .tippop-opt.selected .tippop-circle{ box-shadow:0 0 0 2.5px #f55c2d; }
+  .tippop-submit{
+    width:100%; margin-top:24px; height:48px; border:none; border-radius:14px;
+    background:#fe8763; color:#000; font-family:'Lato'; font-size:16px; font-weight:600;
+    cursor:pointer; transition:transform .15s, background .2s;
+  }
+  .tippop-submit:hover{ background:#fe8a63; }
+  .tippop-submit:active{ transform:scale(.98); }
+
+  /* ─── REASON SHEET (bottom sheet for view reason) ─── */
+  .reason-sheet{ position:absolute; inset:0; z-index:90; opacity:0; visibility:hidden; transition:opacity .28s; }
+  .reason-sheet.open{ opacity:1; visibility:visible; }
+  .reason-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.4); }
+  .reason-panel{
+    position:absolute; left:0; right:0; bottom:0; background:#fff;
+    border-radius:24px 24px 0 0; padding:14px 24px 26px;
+    max-height:58%; overflow-y:auto; scrollbar-width:none;
+    transform:translateY(100%); transition:transform .36s cubic-bezier(.2,.6,.2,1);
+  }
+  .reason-panel::-webkit-scrollbar{ display:none; }
+  .reason-sheet.open .reason-panel{ transform:translateY(0); }
+  .reason-grip{ width:40px; height:4px; border-radius:2px; background:#e3dcd5; margin:0 auto 14px; }
+
+  .hotspot{ position:absolute; cursor:pointer; background:transparent; border:none; z-index:70; }
+
+  /* ─── ONBOARDING GUIDE (signify hover/click affordance) ─── */
+  @keyframes guideGlow{
+    0%,100%{ box-shadow:0 0 0 0 rgba(254,117,76,0); }
+    50%{ box-shadow:0 0 0 9px rgba(254,117,76,.35), 0 0 20px rgba(254,117,76,.4); }
+  }
+  @keyframes guideScale{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.045); }
+  }
+  .guide{ animation:guideGlow 1.9s ease-in-out infinite; position:relative; z-index:5; border-radius:14px; }
+  .guide--circle{ border-radius:50%; }
+  .guide--scale{ animation:guideGlow 1.9s ease-in-out infinite, guideScale 1.9s ease-in-out infinite; }
+
+  /* custom tip: not clickable */
+  .tipcard--custom{ cursor:default !important; }
+  .tipcard--custom:hover{ transform:none !important; box-shadow:none !important; border-color:#ebe3db !important; }
+
+  /* s2 courier info: hidden until hover */
+  .courier-info{ transition:opacity .3s, transform .3s; }
+  .courier-info.hidden{ opacity:0; pointer-events:none; }
+  .map-hover-zone{ cursor:pointer; }
+
+  /* s4 "What did you like?" selectable options */
+  .fb-opt{ cursor:pointer; border-radius:50%; transition:box-shadow .2s, transform .2s; }
+  .fb-opt:hover{ transform:scale(1.08); }
+  .fb-opt.selected{ box-shadow:0 0 0 3px #fe754c; }
+  .fb-opt:not(.selected) img{ opacity:.75; }
+
+  /* slider drag */
+  .slider-handle{ cursor:grab; transition:transform .15s; }
+  .slider-handle:active{ cursor:grabbing; transform:scale(1.15); }
+  .slider-rail-hit{ cursor:pointer; }
+
+
+  .toast{ position:absolute; top:110px; left:50%; transform:translateX(-50%) translateY(-14px); background:rgba(28,28,30,0.72); -webkit-backdrop-filter:blur(16px) saturate(1.4); backdrop-filter:blur(16px) saturate(1.4); color:#fff; font-size:13.5px; font-weight:600; padding:11px 20px; border-radius:100px; border:1px solid rgba(255,255,255,0.14); box-shadow:0 12px 34px -8px rgba(0,0,0,0.4); opacity:0; pointer-events:none; transition:opacity .28s cubic-bezier(.2,.6,.2,1), transform .28s cubic-bezier(.2,.6,.2,1); z-index:200; letter-spacing:.1px; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn" disabled>← Back</button>
+    <div class="steps-label" id="stepLabel"><span class="step-num">Step 1</span> · Checkout</div>
+  </div>
+  <div class="phone-scale">
+  <div class="phone">
+    <div class="viewport">
+      <div class="screen active" id="s1" style="overflow:hidden"><div style="position:absolute;left:0;top:0;width:402px;height:1037px;background:#fefaf7;height:1037px;transform:scale(0.8428);transform-origin:top center;" data-name="iPhone 16 Pro - 331"><div style="position:absolute;background:#fefaf7;height:120px;left:0px;top:0px;width:402px;" data-name=""></div><div style="position:absolute;left:0px;top:120px;width:402px;" data-name=""><div style="position:absolute;inset:-0.5px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/fcda0.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;left:354px;width:24px;height:24px;top:189px;" data-name="ChevronDownOutline"><img src="/case-studies/tipping-demo/assets/db8d6.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;background:#ffffff;height:131px;left:0px;top:906px;width:402px;" data-name=""></div><div class="tipcard tipcard--trust guide--scale" style="position:absolute;background:#ffffff;border-color:#fe8763;border-width:2.5px;border-style:solid;height:130px;left:24px;border-radius:14px;top:621px;width:208px;" data-name=""></div><div class="tipcard tipcard--custom" style="position:absolute;background:#ffffff;border:1px solid;border-color:#ebe3db;border-style:solid;height:130px;left:244px;border-radius:14px;top:621px;width:134px;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:calc(50% - 28px);font-style:normal;color:#737373;font-size:12px;top:70px;white-space:nowrap;" data-name="">Checkout</p><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:calc(50% - 79px);font-style:normal;font-size:16px;color:#000000;top:86px;white-space:nowrap;" data-name="">Tatte Bakery & Cafe</p><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:24px;font-style:normal;font-size:16px;color:#000000;top:178px;white-space:nowrap;" data-name="">Tatte Bakery & Cafe</p><div style="position:absolute;left:24px;width:24px;height:24px;top:76px;" data-name="ArrowLeftOutline"><img src="/case-studies/tipping-demo/assets/eb132.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:800;line-height:normal;left:24px;font-style:normal;color:#f55c2d;font-size:16px;top:140px;white-space:nowrap;" data-name="">Cart Summary</p><p style="position:absolute;font-family:Lato;font-weight:800;line-height:normal;left:24px;font-style:normal;color:#f55c2d;font-size:16px;top:264px;white-space:nowrap;" data-name="">Price Summary</p><p style="position:absolute;font-family:Lato;font-weight:800;line-height:normal;left:24px;font-style:normal;color:#f55c2d;font-size:16px;top:565px;white-space:nowrap;" data-name="">Courier Tip</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;font-size:16px;color:#000000;top:302px;width:116px;" data-name="">Subtotal</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:58px;font-style:normal;font-size:16px;color:#000000;top:637px;width:136px;" data-name="">Trust-First Tipping</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:378px;font-style:normal;font-size:16px;color:#000000;text-align:right;top:302px;width:116px;" data-name="">$44.00</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;color:#a89b98;font-size:16px;top:340px;width:116px;" data-name="">Delivery fee</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:378px;font-style:normal;color:#a89b98;font-size:16px;text-align:right;top:340px;width:116px;" data-name="">$1.99</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;color:#a89b98;font-size:16px;top:374px;width:116px;" data-name="">Service fee</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:378px;font-style:normal;color:#a89b98;font-size:16px;text-align:right;top:374px;width:116px;" data-name="">$6.60</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;color:#a89b98;font-size:16px;top:408px;width:116px;" data-name="">Estimated tax</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:378px;font-style:normal;color:#a89b98;font-size:16px;text-align:right;top:408px;width:116px;" data-name="">$2.73</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;color:#f55c2d;font-size:16px;top:442px;width:116px;" data-name="">Discount</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:378px;font-style:normal;color:#f55c2d;font-size:16px;text-align:right;top:442px;width:116px;" data-name="">-$5.00</p><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:24px;font-style:normal;font-size:16px;color:#000000;top:922px;white-space:nowrap;" data-name="">Estimated Total</p><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:24px;font-style:normal;font-size:16px;color:#000000;top:496px;white-space:nowrap;" data-name="">Total before tip</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:378px;font-style:normal;font-size:16px;color:#000000;text-align:right;top:922px;white-space:nowrap;" data-name="">$56.32</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:378px;font-style:normal;font-size:16px;color:#000000;text-align:right;top:496px;width:116px;" data-name="">$50.32</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;font-size:12.5px;color:#000000;top:200px;white-space:nowrap;" data-name="">2 items</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;font-size:12px;color:#000000;top:589px;white-space:nowrap;" data-name="">100% of the tip goes to your courier</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:40px;font-style:normal;font-size:12px;color:#000000;top:663px;white-space:nowrap;" data-name="">AI will adjust after delivery →</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:40px;font-style:normal;font-size:12.5px;color:#000000;top:696px;white-space:nowrap;" data-name="">Pre-tip:</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:213px;font-style:normal;font-size:12.5px;color:#000000;text-align:right;top:696px;white-space:nowrap;" data-name="">$2.00</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:40px;font-style:normal;font-size:12.5px;color:#000000;top:716px;white-space:nowrap;" data-name="">Post-reward:</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:213px;font-style:normal;font-size:12.5px;color:#000000;text-align:right;top:716px;white-space:nowrap;" data-name="">+ $1.50 ~ $3.50</p><div style="position:absolute;left:40px;width:16px;height:16px;top:640px;" data-name="Sparkles"><img src="/case-studies/tipping-demo/assets/442b3.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;display:contents;left:111px;top:567.3px;" data-name=""><div style="position:absolute;left:111px;width:15.448px;height:15.448px;top:567.55px;" data-name=""><img src="/case-studies/tipping-demo/assets/ce423.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Open Sans;font-weight:700;height:14.161px;line-height:normal;left:117px;font-size:11.034px;color:#000000;top:567.3px;width:3.862px;" data-name="">i</p></div><div style="position:absolute;display:contents;left:194px;top:640px;" data-name=""><div style="position:absolute;left:194px;width:15.448px;height:15.448px;top:640.25px;" data-name=""><img src="/case-studies/tipping-demo/assets/ce423.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Open Sans;font-weight:700;height:14.161px;line-height:normal;left:200px;font-size:11.034px;color:#000000;top:640px;width:3.862px;" data-name="">i</p></div><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:260px;font-style:normal;font-size:16px;color:#000000;top:637px;white-space:nowrap;" data-name="">Custom tip</p><div style="position:absolute;left:24px;top:480px;width:354px;" data-name=""><div style="position:absolute;inset:-1.5px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/c0096.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;top:906px;width:401px;" data-name=""><div style="position:absolute;inset:-0.5px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/b2a24.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;display:contents;left:24px;top:960px;" data-name=""><div style="position:absolute;background:#fe8763;height:48px;left:24px;border-radius:14px;top:960px;width:354px;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:600;line-height:normal;left:157px;font-style:normal;font-size:16px;color:#000000;top:973px;white-space:nowrap;" data-name="">Place order</p></div><p style="position:absolute;font-family:Lato;font-weight:800;line-height:normal;left:24px;font-style:normal;color:#f55c2d;font-size:16px;top:801px;white-space:nowrap;" data-name="">Payment method</p><div style="position:absolute;display:contents;font-family:Open Sans;font-weight:400;line-height:normal;left:58px;color:#000000;top:839px;white-space:nowrap;" data-name=""><p style="position:absolute;left:58px;font-size:12.5px;top:863px;" data-name="">ahieldy2002@gmail.com</p><p style="position:absolute;left:58px;font-size:16px;top:839px;" data-name="">Paypal</p></div><div style="position:absolute;font-family:Lato;font-weight:400;line-height:0;left:260px;font-style:normal;font-size:12px;color:#000000;top:703px;width:107px;" data-name=""><p style="line-height:14px;margin-bottom:0;" data-name="">Can be adjusted</p><p style="line-height:14px;" data-name="">post-delivery</p></div><div style="position:absolute;display:flex;align-items:center;justify-content:center;left:354px;width:24px;height:24px;top:849px;" data-name=""><div style="transform:rotate(-90deg);flex:none;" data-name=""><div style="position:relative;width:24px;height:24px;" data-name="ChevronDownOutline"><img src="/case-studies/tipping-demo/assets/bff14.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div></div><div style="position:absolute;height:45px;left:4px;top:837px;width:60px;" data-name="image 245"><img src="/case-studies/tipping-demo/assets/ae8b2.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;height:47px;left:0px;overflow:clip;top:0px;width:402px;" data-name="StatusBar"><div style="transform:translateX(-50%);position:absolute;height:32px;left:50%;top:0px;width:172px;" data-name="Notch"><img src="/case-studies/tipping-demo/assets/09328.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(16.67% - 11px);top:14px;" data-name="Left Side"></div><div style="transform:translateX(-50%);position:absolute;height:13px;left:calc(83.33% - 0.3px);top:19px;width:77.401px;" data-name="Right Side"><img src="/case-studies/tipping-demo/assets/9065f.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div></div>
+</div>
+      <div class="screen" id="s2" style="overflow:hidden"><div style="position:absolute;left:0;top:0;width:402px;height:933px;background:#fefaf7;height:933px;transform:scale(0.9368);transform-origin:top center;" data-name="iPhone 16 Pro - 332"><div style="transform:translateX(-50%);position:absolute;height:277px;left:50%;top:232px;width:402px;" data-name="Map 1"><div style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;overflow:hidden;pointer-events:none;" data-name=""><img src="/case-studies/tipping-demo/assets/9a238.png" alt="" style="position:absolute;height:218.41%;left:-4.96%;max-width:none;top:-66.43%;width:113.4%;" data-name=""></div></div><div style="position:absolute;height:162.5px;left:79.5px;top:250px;width:163px;" data-name=""><div style="position:absolute;inset:-0.62% -0.61%;" data-name=""><img src="/case-studies/tipping-demo/assets/b5a2e.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;height:89.5px;left:79.5px;top:323px;width:109.5px;" data-name=""><div style="position:absolute;inset:-1.12% -0.91%;" data-name=""><img src="/case-studies/tipping-demo/assets/0e9bc.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;left:24px;width:24px;height:24px;top:76px;" data-name="XOutline"><img src="/case-studies/tipping-demo/assets/69212.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:343px;font-style:normal;font-size:16px;color:#000000;top:77px;white-space:nowrap;" data-name="">Help</p><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:24px;font-style:normal;font-size:24px;color:#000000;top:126px;white-space:nowrap;" data-name="">Gustavo is heading to you...</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;font-size:16px;color:#000000;top:163px;white-space:nowrap;" data-name="">Arrives between 9:48PM ~ 2:54PM</p><p class="courier-info" style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:24px;font-style:normal;font-size:16px;color:#000000;top:525px;white-space:nowrap;" data-name="">Gustavo</p><div style="position:absolute;display:contents;left:282px;top:541px;" data-name=""><div class="courier-info" style="position:absolute;left:282px;width:22px;height:22px;top:541px;" data-name="Phone"><img src="/case-studies/tipping-demo/assets/173ed.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div class="courier-info" style="position:absolute;left:344px;width:25px;height:25px;top:538px;" data-name=""><img src="/case-studies/tipping-demo/assets/17617.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:-1px;top:608px;width:402px;" data-name=""><div style="position:absolute;inset:-6px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/75093.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="transform:translateX(-50%);position:absolute;left:50%;top:232px;width:402px;" data-name=""><div style="position:absolute;inset:-0.5px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/fcda0.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;display:contents;left:24px;top:199px;" data-name=""><div style="position:absolute;height:16px;left:24px;top:199px;width:352px;" data-name=""><img src="/case-studies/tipping-demo/assets/63c84.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;height:38px;left:173px;top:371px;width:32px;" data-name=""><img src="/case-studies/tipping-demo/assets/fcc7c.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;display:contents;left:24px;top:628px;" data-name=""><div style="position:absolute;display:flex;align-items:center;justify-content:center;left:354px;width:24px;height:24px;top:628px;" data-name=""><div style="flex:none;transform:rotate(180deg);" data-name=""><div style="position:relative;width:24px;height:24px;" data-name="ChevronDownOutline"><img src="/case-studies/tipping-demo/assets/d897c.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div></div><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:24px;font-style:normal;font-size:16px;color:#000000;top:628px;white-space:nowrap;" data-name="">Tatte Bakery & Cafe</p></div><div style="position:absolute;display:contents;left:226px;top:242px;" data-name=""><div style="position:absolute;display:contents;left:226px;top:242px;" data-name=""><div style="position:absolute;height:38px;left:226px;top:242px;width:32px;" data-name=""><img src="/case-studies/tipping-demo/assets/fcc7c.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;display:contents;left:232px;top:248px;" data-name=""><div style="position:absolute;left:232px;width:20px;height:20px;top:248px;" data-name="Home"><img src="/case-studies/tipping-demo/assets/bebe9.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div></div><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:42px;font-style:normal;font-size:16px;color:#000000;top:877px;white-space:nowrap;" data-name="">Trust-First Tip</p><div style="position:absolute;left:24px;width:8px;height:8px;top:883px;" data-name=""><img src="/case-studies/tipping-demo/assets/77d05.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:337px;font-style:normal;font-size:16px;color:#000000;top:877px;white-space:nowrap;" data-name="">$3.00</p><div style="position:absolute;display:contents;left:24px;top:553px;" data-name=""><div style="position:absolute;left:24px;width:36px;height:36px;top:553px;" data-name=""><img src="/case-studies/tipping-demo/assets/bc2c6.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div class="courier-info" style="position:absolute;left:29px;width:26px;height:26px;top:558px;" data-name="Smiling"><img src="/case-studies/tipping-demo/assets/6f849.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;display:contents;left:75px;top:553px;" data-name=""><div style="position:absolute;left:75px;width:36px;height:36px;top:553px;" data-name=""><img src="/case-studies/tipping-demo/assets/bc2c6.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div class="courier-info" style="position:absolute;height:26px;left:79px;top:558px;width:27px;" data-name="Location Off"><img src="/case-studies/tipping-demo/assets/e4404.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:87px;width:10px;height:10px;top:566px;" data-name=""><img src="/case-studies/tipping-demo/assets/1fd24.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;height:10px;left:87px;top:566px;width:11px;" data-name="Location"><img src="/case-studies/tipping-demo/assets/72469.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div></div><div class="dropoff-tip" style="position:absolute;height:39.922px;left:76px;top:509px;width:121px;" data-name="Union"><div style="position:absolute;inset:-5.01% -1.65%;" data-name=""><img src="/case-studies/tipping-demo/assets/331d9.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><p class="dropoff-tip dropoff-tip--text" style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:86px;font-style:normal;font-size:12.5px;color:#ffffff;top:519px;letter-spacing:0.0125px;white-space:nowrap;" data-name="">Drop-off Precision</p><div style="position:absolute;left:250px;width:12px;height:12px;top:290px;" data-name=""><div style="position:absolute;inset:-50%;" data-name=""><img src="/case-studies/tipping-demo/assets/5d8d3.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;display:contents;left:177px;top:377px;" data-name=""><div style="position:absolute;height:18px;left:177px;top:377px;width:24px;" data-name="Online Shop Shopping Bag"><img src="/case-studies/tipping-demo/assets/a07a0.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;background:#ffffff;height:2px;left:183px;top:380px;width:5px;" data-name=""></div></div><div style="position:absolute;left:119px;width:30px;height:30px;top:308px;" data-name=""><img src="/case-studies/tipping-demo/assets/cb8fd.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:125px;width:18px;height:18px;top:314px;" data-name="Delivery Scooter"><img src="/case-studies/tipping-demo/assets/3823b.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:378px;font-style:normal;font-size:16px;color:#000000;text-align:right;top:845px;white-space:nowrap;" data-name="">Est. $45.32</p><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:327px;font-style:normal;font-size:16px;color:#000000;top:684px;white-space:nowrap;" data-name="">$12.00</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:378px;font-style:normal;font-size:16px;color:#000000;text-align:right;top:757px;white-space:nowrap;" data-name="">$33.32</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:23px;font-style:normal;font-size:16px;color:#000000;top:845px;white-space:nowrap;" data-name="">Subtotal</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:122px;font-style:normal;font-size:16px;color:#000000;top:681px;white-space:nowrap;" data-name="">Bacon, egg, and chee..</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:122px;font-style:normal;font-size:16px;color:#000000;top:754px;white-space:nowrap;" data-name="">Green Shakshuka</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:24px;font-style:normal;font-size:12.5px;color:#000000;top:652px;white-space:nowrap;" data-name="">2 items</p><div style="position:absolute;border:1px solid;border-color:#ebe3db;border-style:solid;height:57px;left:24px;border-radius:8px;top:681px;width:87px;" data-name=""><div style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;pointer-events:none;border-radius:8px;" data-name=""><div style="position:absolute;background:#f0f0f0;top:0px;right:0px;bottom:0px;left:0px;border-radius:8px;" data-name=""></div><img src="/case-studies/tipping-demo/assets/2899e.png" alt="" style="position:absolute;max-width:none;object-fit:cover;border-radius:8px;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;border:1px solid;border-color:#ebe3db;border-style:solid;height:57px;left:24px;border-radius:8px;top:754px;width:87px;" data-name=""><div style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;pointer-events:none;border-radius:8px;" data-name=""><div style="position:absolute;background:#f0f0f0;top:0px;right:0px;bottom:0px;left:0px;border-radius:8px;" data-name=""></div><img src="/case-studies/tipping-demo/assets/5bed4.png" alt="" style="position:absolute;max-width:none;object-fit:cover;border-radius:8px;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;display:contents;left:151px;top:879px;" data-name=""><div style="position:absolute;left:151px;width:15.448px;height:15.448px;top:879.25px;" data-name=""><img src="/case-studies/tipping-demo/assets/ce423.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Open Sans;font-weight:700;height:14.161px;line-height:normal;left:157px;font-size:11.034px;color:#000000;top:879px;width:3.862px;" data-name="">i</p></div><div style="position:absolute;height:47px;left:0px;overflow:clip;top:0px;width:402px;" data-name="StatusBar"><div style="transform:translateX(-50%);position:absolute;height:32px;left:50%;top:0px;width:172px;" data-name="Notch"><img src="/case-studies/tipping-demo/assets/09328.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(16.67% - 11px);top:14px;" data-name="Left Side"></div><div style="transform:translateX(-50%);position:absolute;height:13px;left:calc(83.33% - 0.3px);top:19px;width:77.401px;" data-name="Right Side"><img src="/case-studies/tipping-demo/assets/9065f.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div></div></div>
+      <div class="screen" id="s3"><div style="position:absolute;left:0;top:0;width:402px;height:874px;background:#fefaf7;height:874px;" data-name="iPhone 16 Pro - 349"><div style="transform:translateX(-50%);position:absolute;left:50%;width:124px;height:124px;top:168px;" data-name=""><img src="/case-studies/tipping-demo/assets/df085.png" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name="" height="124" width="124"></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(50% - 1px);top:738px;" data-name=""><div class="thumb thumb--up" style="position:absolute;left:230px;width:72px;height:72px;top:738px;" data-name=""><img src="/case-studies/tipping-demo/assets/3257a.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div class="thumb thumb--down" style="position:absolute;left:98px;width:72px;height:72px;top:738px;" data-name=""><img src="/case-studies/tipping-demo/assets/5d17e.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;left:24px;width:24px;height:24px;top:76px;" data-name="XOutline"><img src="/case-studies/tipping-demo/assets/69212.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:calc(50% - 149px);font-style:normal;font-size:24px;color:#000000;top:324px;white-space:nowrap;" data-name="">How was Gustavo’s service?</p><div style="position:absolute;border:1px solid;border-color:#d0d0d0;border-style:solid;display:flex;flex-direction:column;font-family:Lato;font-weight:400;gap:12px;align-items:flex-start;line-height:normal;left:24px;font-style:normal;padding-left:24px;padding-right:24px;padding-top:15px;padding-bottom:15px;border-radius:24px;font-size:16px;color:#000000;top:367px;width:352px;" data-name=""><div style="display:flex;gap:28px;align-items:flex-start;position:relative;flex-shrink:0;" data-name=""><p style="position:relative;flex-shrink:0;width:93px;" data-name="">ETA: 2:45PM</p><p style="position:relative;flex-shrink:0;width:145px;" data-name="">Actual time: 2:55PM</p></div><p style="min-width:100%;position:relative;flex-shrink:0;width:min-content;" data-name="">Verified drop-off · Responsive · E-bike</p></div><div style="transform:translateX(-50%);position:absolute;font-family:Lato;font-weight:400;line-height:0;left:calc(50% + 1.5px);font-style:normal;font-size:14px;color:#000000;text-align:center;top:670px;white-space:nowrap;" data-name=""><p style="line-height:20px;margin-bottom:0;" data-name="">Review this order to adjust your tip.</p><p style="line-height:20px;" data-name="">If not, the final charge apply automatically.</p></div><div style="position:absolute;border:1px solid;border-color:#bebebe;border-style:solid;display:flex;flex-direction:column;align-items:flex-start;left:24px;padding-left:24px;padding-right:24px;padding-top:16px;padding-bottom:16px;border-radius:24px;top:451px;width:352px;" data-name=""><div style="display:flex;flex-direction:column;font-family:Lato;font-weight:400;gap:12px;align-items:flex-start;line-height:normal;font-style:normal;position:relative;flex-shrink:0;width:100%;" data-name=""><p style="min-width:100%;position:relative;flex-shrink:0;font-size:16px;color:#000000;width:min-content;" data-name="">Total: $56.32</p><p style="min-width:100%;position:relative;flex-shrink:0;font-size:16px;color:#000000;width:min-content;" data-name="">Trust Tip applied $4.50</p><p class="view-reason" style="text-decoration-style:solid;position:relative;flex-shrink:0;color:#fe754c;font-size:12.5px;text-decoration:underline;white-space:nowrap;cursor:pointer;" data-name="">View reason</p></div></div><div style="position:absolute;left:0px;top:626px;width:402px;" data-name=""><div style="position:absolute;inset:-4px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/a6dcf.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;height:47px;left:0px;overflow:clip;top:0px;width:402px;" data-name="StatusBar"><div style="transform:translateX(-50%);position:absolute;height:32px;left:50%;top:0px;width:172px;" data-name="Notch"><img src="/case-studies/tipping-demo/assets/09328.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(16.67% - 11px);top:14px;" data-name="Left Side"></div><div style="transform:translateX(-50%);position:absolute;height:13px;left:calc(83.33% - 0.3px);top:19px;width:77.401px;" data-name="Right Side"><img src="/case-studies/tipping-demo/assets/9065f.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div></div></div>
+      <div class="screen" id="s4"><div style="position:absolute;left:0;top:0;width:402px;height:874px;background:#fefaf7;height:874px;" data-name="iPhone 16 Pro - 350"><div style="transform:translateX(-50%);position:absolute;left:50%;width:124px;height:124px;top:168px;" data-name=""><img src="/case-studies/tipping-demo/assets/df085.png" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name="" height="124" width="124"></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(50% - 1px);top:737px;" data-name=""><div style="position:absolute;left:230px;width:72px;height:72px;top:737px;" data-name=""><img src="/case-studies/tipping-demo/assets/3257a.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:98px;width:72px;height:72px;top:737px;" data-name=""><img src="/case-studies/tipping-demo/assets/5d17e.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;left:24px;width:24px;height:24px;top:76px;" data-name="XOutline"><img src="/case-studies/tipping-demo/assets/69212.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:calc(50% - 149px);font-style:normal;font-size:24px;color:#000000;top:324px;white-space:nowrap;" data-name="">How was Gustavo’s service?</p><div style="position:absolute;border:1px solid;border-color:#d0d0d0;border-style:solid;display:flex;flex-direction:column;font-family:Lato;font-weight:400;gap:12px;align-items:flex-start;line-height:normal;left:24px;font-style:normal;padding-left:24px;padding-right:24px;padding-top:15px;padding-bottom:15px;border-radius:24px;font-size:16px;color:#000000;top:367px;width:352px;" data-name=""><div style="display:flex;gap:28px;align-items:flex-start;position:relative;flex-shrink:0;" data-name=""><p style="position:relative;flex-shrink:0;width:93px;" data-name="">ETA: 2:45PM</p><p style="position:relative;flex-shrink:0;width:145px;" data-name="">Actual time: 2:55PM</p></div><p style="min-width:100%;position:relative;flex-shrink:0;width:min-content;" data-name="">Verified drop-off · Responsive · E-bike</p></div><div style="transform:translateX(-50%);position:absolute;font-family:Lato;font-weight:400;line-height:0;left:calc(50% + 1.5px);font-style:normal;font-size:14px;color:#000000;text-align:center;top:663px;white-space:nowrap;" data-name=""><p style="line-height:24px;margin-bottom:0;" data-name="">Review this order to adjust your tip.</p><p style="line-height:24px;" data-name="">If not, the final charge apply automatically.</p></div><div style="position:absolute;border:1px solid;border-color:#bebebe;border-style:solid;display:flex;flex-direction:column;align-items:flex-start;left:24px;padding-left:24px;padding-right:24px;padding-top:16px;padding-bottom:16px;border-radius:24px;top:451px;width:352px;" data-name=""><div style="display:flex;flex-direction:column;font-family:Lato;font-weight:400;gap:12px;align-items:flex-start;line-height:normal;font-style:normal;position:relative;flex-shrink:0;width:100%;" data-name=""><p style="min-width:100%;position:relative;flex-shrink:0;font-size:16px;color:#000000;width:min-content;" data-name="">Total: $56.32</p><p style="min-width:100%;position:relative;flex-shrink:0;font-size:16px;color:#000000;width:min-content;" data-name="">Trust Tip applied $4.50</p><p style="text-decoration-style:solid;position:relative;flex-shrink:0;color:#fe754c;font-size:12.5px;text-decoration:underline;white-space:nowrap;cursor:pointer;" class="view-reason" data-name="">View reason</p></div></div><div style="transform:translateX(-50%);position:absolute;left:calc(50% + 0.5px);top:626px;width:391px;" data-name=""><div style="position:absolute;inset:-1px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/a1d2d.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;height:47px;left:0px;overflow:clip;top:0px;width:402px;" data-name="StatusBar"><div style="transform:translateX(-50%);position:absolute;height:32px;left:50%;top:0px;width:172px;" data-name="Notch"><img src="/case-studies/tipping-demo/assets/09328.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(16.67% - 11px);top:14px;" data-name="Left Side"></div><div style="transform:translateX(-50%);position:absolute;height:13px;left:calc(83.33% - 0.3px);top:19px;width:77.401px;" data-name="Right Side"><img src="/case-studies/tipping-demo/assets/9065f.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="transform:translateX(-50%);position:absolute;background:#ffffff;bottom:0px;filter:drop-shadow(0px_-1px_6px_rgba(0,0,0,0.1));height:327px;left:50%;border-top-left-radius:24px;border-top-right-radius:24px;width:402px;" data-name=""><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:107.5px;font-style:normal;font-size:20px;color:#000000;top:26px;white-space:nowrap;" data-name="">Thanks for feedback!</p><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:135px;font-style:normal;font-size:16px;color:#000000;top:75px;white-space:nowrap;" data-name="">What did you like?</p><div style="position:absolute;display:contents;left:31.59px;top:119px;" data-name=""><p style="transform:translateX(-50%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:80.93px;font-style:normal;font-size:12.5px;color:#000000;text-align:center;top:207px;width:98.684px;" data-name="">Quick & Efficient</p><p style="transform:translateX(-50%);position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:200.45px;font-style:normal;font-size:12.5px;color:#000000;text-align:center;top:207px;width:98.684px;" data-name="">Careful Handling</p><p style="transform:translateX(-50%);position:absolute;font-family:Lato;font-weight:400;line-height:13.158px;left:321.07px;font-style:normal;font-size:12.5px;color:#000000;text-align:center;top:207px;width:98.684px;" data-name="">Clear Communication</p><div class="fb-opt" data-fb="0" style="position:absolute;left:40.59px;width:80px;height:80px;top:119px;" data-name=""><img src="/case-studies/tipping-demo/assets/2467c.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div class="fb-opt" data-fb="1" style="position:absolute;left:159.59px;width:80px;height:80px;top:119px;" data-name=""><img src="/case-studies/tipping-demo/assets/167ad.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div class="fb-opt selected" data-fb="2" style="position:absolute;left:280.59px;width:80px;height:80px;top:119px;" data-name=""><img src="/case-studies/tipping-demo/assets/9a552.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;height:37.281px;left:40.74px;top:137.74px;width:43.482px;" data-name=""><img src="/case-studies/tipping-demo/assets/009e2.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;height:16.447px;left:75.45px;top:125.68px;width:18.64px;" data-name="Quick Mode On"><img src="/case-studies/tipping-demo/assets/27621.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:61.2px;width:39.474px;height:39.474px;top:139.93px;" data-name="In Transit"><img src="/case-studies/tipping-demo/assets/616d5.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:303.52px;width:37.281px;height:37.281px;top:144.41px;" data-name="Messaging"><img src="/case-studies/tipping-demo/assets/5cef9.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:312.29px;width:18.64px;height:18.64px;top:127.96px;" data-name="Cellular Network"><img src="/case-studies/tipping-demo/assets/6f001.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:191.68px;width:24.123px;height:24.123px;top:138.83px;" data-name=""><img src="/case-studies/tipping-demo/assets/1b548.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:178.52px;width:38.377px;height:38.377px;top:139.93px;" data-name="Trust"><img src="/case-studies/tipping-demo/assets/6f74c.png" alt="" style="position:absolute;top:0px;right:0px;bottom:0px;left:0px;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;" data-name=""></div></div><div class="confirmtip" style="position:absolute;background:#fe754c;display:flex;align-items:center;justify-content:center;left:146px;padding-left:71px;padding-right:71px;padding-top:13px;padding-bottom:13px;border-radius:14px;top:256px;width:226px;cursor:pointer;" data-name=""><p style="font-family:Lato;font-weight:600;line-height:normal;font-style:normal;position:relative;flex-shrink:0;font-size:16px;color:#000000;white-space:nowrap;" data-name="">Confirm</p></div><div class="boosttip" style="position:absolute;background:#e7e7e7;display:flex;align-items:center;justify-content:center;left:30px;padding-left:71px;padding-right:71px;padding-top:13px;padding-bottom:13px;border-radius:14px;top:256px;width:104px;cursor:pointer;" data-name=""><p style="font-family:Lato;font-weight:600;line-height:normal;font-style:normal;position:relative;flex-shrink:0;font-size:16px;color:#000000;white-space:nowrap;" data-name="">Boost Tip</p></div><div style="position:absolute;left:354px;width:24px;height:24px;top:24px;" data-name="XOutline"><img src="/case-studies/tipping-demo/assets/69212.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div></div></div>
+      <div class="screen" id="s5"><div style="position:absolute;left:0;top:0;width:402px;height:874px;background:#fefaf7;height:874px;" data-name="iPhone 16 Pro - 351"><div style="transform:translateX(-50%);position:absolute;left:50%;width:124px;height:124px;top:168px;" data-name=""><img src="/case-studies/tipping-demo/assets/df085.png" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name="" height="124" width="124"></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(50% - 1px);top:737px;" data-name=""><div style="position:absolute;left:230px;width:72px;height:72px;top:737px;" data-name=""><img src="/case-studies/tipping-demo/assets/3257a.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:98px;width:72px;height:72px;top:737px;" data-name=""><img src="/case-studies/tipping-demo/assets/5d17e.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;left:24px;width:24px;height:24px;top:76px;" data-name="XOutline"><img src="/case-studies/tipping-demo/assets/69212.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:calc(50% - 149px);font-style:normal;font-size:24px;color:#000000;top:324px;white-space:nowrap;" data-name="">How was Gustavo’s service?</p><div style="position:absolute;border:1px solid;border-color:#d0d0d0;border-style:solid;display:flex;flex-direction:column;font-family:Lato;font-weight:400;gap:12px;align-items:flex-start;line-height:normal;left:24px;font-style:normal;padding-left:24px;padding-right:24px;padding-top:15px;padding-bottom:15px;border-radius:24px;font-size:16px;color:#000000;top:367px;width:352px;" data-name=""><div style="display:flex;gap:28px;align-items:flex-start;position:relative;flex-shrink:0;" data-name=""><p style="position:relative;flex-shrink:0;width:93px;" data-name="">ETA: 2:45PM</p><p style="position:relative;flex-shrink:0;width:145px;" data-name="">Actual time: 2:55PM</p></div><p style="min-width:100%;position:relative;flex-shrink:0;width:min-content;" data-name="">Verified drop-off · Responsive · E-bike</p></div><div style="transform:translateX(-50%);position:absolute;font-family:Lato;font-weight:400;line-height:0;left:calc(50% + 1.5px);font-style:normal;font-size:14px;color:#000000;text-align:center;top:663px;white-space:nowrap;" data-name=""><p style="line-height:24px;margin-bottom:0;" data-name="">Review this order to adjust your tip.</p><p style="line-height:24px;" data-name="">If not, the final charge apply automatically.</p></div><div style="position:absolute;border:1px solid;border-color:#bebebe;border-style:solid;display:flex;flex-direction:column;align-items:flex-start;left:24px;padding-left:24px;padding-right:24px;padding-top:16px;padding-bottom:16px;border-radius:24px;top:451px;width:352px;" data-name=""><div style="display:flex;flex-direction:column;font-family:Lato;font-weight:400;gap:12px;align-items:flex-start;line-height:normal;font-style:normal;position:relative;flex-shrink:0;width:100%;" data-name=""><p style="min-width:100%;position:relative;flex-shrink:0;font-size:16px;color:#000000;width:min-content;" data-name="">Total: $56.32</p><p style="min-width:100%;position:relative;flex-shrink:0;font-size:16px;color:#000000;width:min-content;" data-name="" id="s5TipApplied">Trust Tip applied $4.50</p><p style="text-decoration-style:solid;position:relative;flex-shrink:0;color:#fe754c;font-size:12.5px;text-decoration:underline;white-space:nowrap;cursor:pointer;" class="view-reason" data-name="">View reason</p></div></div><div style="transform:translateX(-50%);position:absolute;left:calc(50% + 0.5px);top:626px;width:391px;" data-name=""><div style="position:absolute;inset:-1px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/a1d2d.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="position:absolute;height:47px;left:0px;overflow:clip;top:0px;width:402px;" data-name="StatusBar"><div style="transform:translateX(-50%);position:absolute;height:32px;left:50%;top:0px;width:172px;" data-name="Notch"><img src="/case-studies/tipping-demo/assets/09328.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="transform:translateX(-50%);position:absolute;display:contents;left:calc(16.67% - 11px);top:14px;" data-name="Left Side"></div><div style="transform:translateX(-50%);position:absolute;height:13px;left:calc(83.33% - 0.3px);top:19px;width:77.401px;" data-name="Right Side"><img src="/case-studies/tipping-demo/assets/9065f.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div></div><div style="transform:translateX(-50%);position:absolute;background:#ffffff;bottom:0px;filter:drop-shadow(0px_-1px_6px_rgba(0,0,0,0.1));height:327px;left:50%;border-top-left-radius:24px;border-top-right-radius:24px;width:402px;" data-name=""><p style="position:absolute;font-family:Lato;font-weight:700;line-height:normal;left:calc(50% - 126px);font-style:normal;font-size:20px;color:#000000;top:26px;white-space:nowrap;" data-name="">Would you like to adjust tip?</p><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:calc(50% - 65px);font-style:normal;font-size:16px;color:#000000;top:86px;white-space:nowrap;" data-name="">Total Price: $56.32</p><div style="transform:translateX(-50%);position:absolute;display:contents;left:50%;top:116px;" data-name=""><div style="transform:translateX(-50%);position:absolute;display:contents;left:50%;top:116px;" data-name=""><p style="position:absolute;font-family:Lato;font-weight:400;line-height:normal;left:calc(50% - 55px);font-style:normal;font-size:16px;color:#000000;top:116px;white-space:nowrap;" data-name="" id="s5TipVal">Trust Tip: $4.50</p></div><p style="position:absolute;text-decoration-style:solid;font-family:Lato;font-weight:400;line-height:normal;left:167px;font-style:normal;color:#fe754c;font-size:12.5px;top:145px;text-decoration:underline;white-space:nowrap;cursor:pointer;" class="view-reason" data-name="">View reason</p></div><div class="slider-rail-hit" id="sliderRail" style="position:absolute;background:#e7e7e7;height:16px;left:32px;border-radius:100px;top:225px;width:329px;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:600;line-height:normal;left:181px;font-style:normal;font-size:16px;color:#000000;top:195px;white-space:nowrap;" data-name="">$5.5</p><p style="position:absolute;font-family:Lato;font-weight:600;line-height:normal;left:256px;font-style:normal;font-size:16px;color:#000000;top:195px;white-space:nowrap;" data-name="">$6.5</p><p style="position:absolute;font-family:Lato;font-weight:600;line-height:normal;left:331px;font-style:normal;font-size:16px;color:#000000;top:195px;white-space:nowrap;" data-name="">$7.5</p><p style="position:absolute;font-family:Lato;font-weight:600;line-height:normal;left:106px;font-style:normal;font-size:16px;color:#000000;top:180px;white-space:nowrap;" data-name="">$4.5</p><p style="position:absolute;font-family:Lato;font-weight:600;line-height:normal;left:31px;font-style:normal;font-size:16px;color:#000000;top:195px;white-space:nowrap;" data-name="">$3.5</p><div style="position:absolute;left:43px;width:8px;height:8px;top:229px;" data-name=""><img src="/case-studies/tipping-demo/assets/222e3.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:118px;width:8px;height:8px;top:229px;" data-name=""><img src="/case-studies/tipping-demo/assets/222e3.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:193px;width:8px;height:8px;top:229px;" data-name=""><img src="/case-studies/tipping-demo/assets/222e3.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:268px;width:8px;height:8px;top:229px;" data-name=""><img src="/case-studies/tipping-demo/assets/222e3.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div style="position:absolute;left:343px;width:8px;height:8px;top:229px;" data-name=""><img src="/case-studies/tipping-demo/assets/222e3.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><div class="slider-handle" id="sliderHandle" style="position:absolute;left:99px;width:45px;height:45px;top:209px;" data-name=""><img src="/case-studies/tipping-demo/assets/f59cf.svg" alt="" style="position:absolute;display:block;top:0px;right:0px;bottom:0px;left:0px;max-width:none;width:100%;height:100%;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:600;line-height:normal;left:calc(50% - 76px);font-style:normal;font-size:16px;color:#000000;top:284px;white-space:nowrap;" data-name="">Enter number instead</p></div></div></div>
+    
+<div class="reason-sheet" id="reasonSheet"><div class="reason-backdrop"></div><div class="reason-panel"><div class="reason-grip"></div><div style="position:relative;width:266.351px;height:349.012px;margin:0 auto;" data-name=""><div style="position:absolute;background:#ffffff;border-color:#dcd3ce;border-width:0.87px;border-style:solid;height:349.012px;left:0.000px;top:0.000px;width:266.351px;" data-name=""></div><p style="position:absolute;font-family:Lato;font-weight:700;height:14.913px;line-height:normal;left:19.360px;font-style:normal;font-size:12.574px;color:#000000;top:15.930px;width:178.959px;" data-name="">Trust-First Tipping breakdown</p><div style="position:absolute;font-family:Lato;font-weight:400;height:29.827px;line-height:0;left:19.960px;font-style:normal;font-size:12.579px;color:#000000;top:45.920px;width:72.436px;" data-name=""><p style="line-height:normal;margin-bottom:0;" data-name="">Pre-tip</p><p style="line-height:normal;" data-name="">Post-reward</p></div><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;color:#808080;font-size:12.579px;top:108.370px;width:104.393px;" data-name="">On-time accuracy</p><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;color:#808080;font-size:12.579px;top:218.600px;width:93.741px;" data-name="">Communication</p><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;color:#808080;font-size:12.579px;top:273.700px;width:74.566px;" data-name="">Eco-friendly:</p><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;color:#808080;font-size:12.579px;top:163.480px;width:51.131px;" data-name="">Drop-off</p><div style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;height:29.827px;line-height:0;left:246.920px;font-style:normal;font-size:12.579px;color:#000000;text-align:right;top:45.920px;width:34.087px;" data-name=""><p style="line-height:normal;margin-bottom:0;" data-name="">$2.00</p><p style="line-height:normal;" data-name="">$2.50</p></div><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:247.800px;font-style:normal;color:#f55c2d;font-size:12.579px;text-align:right;top:132.260px;width:40.479px;" data-name="">-$1.50</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:248.090px;font-style:normal;color:#2da62d;font-size:12.579px;text-align:right;top:242.470px;width:42.609px;" data-name="">+$2.00</p><p style="transform:translateX(-100%);position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:248.090px;font-style:normal;color:#2da62d;font-size:12.579px;text-align:right;top:297.580px;width:42.609px;" data-name="">+$1.00</p><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;font-size:12.579px;color:#000000;top:132.260px;width:57.523px;" data-name="">5 min late</p><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;font-size:12.579px;color:#000000;top:242.470px;width:104.393px;" data-name="">Responsive driver</p><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;font-size:12.579px;color:#000000;top:297.580px;width:72.436px;" data-name="">Electric bike</p><p style="position:absolute;font-family:Lato;font-weight:400;height:14.913px;line-height:normal;left:19.960px;font-style:normal;font-size:12.579px;color:#000000;top:187.370px;width:174.698px;" data-name="">Correct door (photo matched)</p><div style="position:absolute;left:20.210px;top:93.680px;width:227.776px;" data-name=""><div style="position:absolute;inset:-1.39px 0 0 0;" data-name=""><img src="/case-studies/tipping-demo/assets/cac37.svg" alt="" style="display:block;max-width:none;width:100%;height:100%;" data-name=""></div></div></div></div></div>
+<div class="tippop" id="tipPop">
+  <div class="tippop-backdrop"></div>
+  <div class="tippop-panel">
+    <div class="tippop-title">Tip Selection Priority</div>
+    <div class="tippop-sub">Select top 3 priorities in judging tip. You can adjust this selection in profile setting.</div>
+    <div class="tippop-grid" id="tipGrid"></div>
+    <button class="tippop-submit" id="tipSubmit">Submit</button>
+  </div>
+</div>
+</div>
+    <div class="toast" id="toast"></div>
+  </div>
+  </div>
+</div>
+
+
+<script>
+  var step = 0;
+  var screens = [
+    {id:'s1', title:'Checkout',      h:1037},
+    {id:'s2', title:'Tracking',      h:933},
+    {id:'s3', title:'Rate delivery', h:874},
+    {id:'s4', title:'Feedback',      h:874},
+    {id:'s5', title:'Adjust tip',    h:874},
+  ];
+
+  function go(i){
+    var next = Math.max(0, Math.min(screens.length-1, i));
+    if(next === step) return;
+    var cur = document.querySelector('.screen.active');
+    var nxt = document.getElementById(screens[next].id);
+    if(cur){ cur.classList.remove('active'); cur.classList.add('leaving'); setTimeout(function(){ cur.classList.remove('leaving'); }, 350); }
+    nxt.classList.add('active'); nxt.scrollTop = 0;
+    step = next;
+    document.getElementById('stepLabel').innerHTML = '<span class="step-num">Step '+(step+1)+'</span> · '+screens[step].title;
+    document.getElementById('backBtn').disabled = (step === 0);
+    updateGuide();
+  }
+
+  document.getElementById('backBtn').addEventListener('click', function(){ go(step-1); });
+
+  function showToast(msg){
+    var t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); }, 1600);
+  }
+
+  /* ── 1. TIP PREFERENCE POPUP ── */
+  var tipOptions = [
+    {label:'Quick & Efficient',       icon:'27621.png'},
+    {label:'Careful Handling',        icon:'6f74c.png'},
+    {label:'Clear Communication',     icon:'5cef9.png'},
+    {label:'Friendly service',        icon:'6f849.png'},
+    {label:'Drop-off Precision',      icon:'72469.png'},
+    {label:'Temperature Control',     icon:'616d5.png'},
+    {label:'Eco-friendly Ride',       icon:'3823b.png'},
+    {label:'Extra Effort (stairs, weather)', icon:'a07a0.png'},
+  ];
+  var tipSelection = [];
+  var ASSETS = '/case-studies/tipping-demo/assets/';
+  var tipSubmitted = false;
+
+  function buildTipGrid(){
+    var grid = document.getElementById('tipGrid');
+    tipOptions.forEach(function(opt, idx){
+      var el = document.createElement('div');
+      el.className = 'tippop-opt';
+      el.setAttribute('data-idx', idx);
+      el.innerHTML =
+        '<div class="tippop-circle">'+
+          '<img src="'+ASSETS+opt.icon+'" alt="">'+
+          '<div class="tippop-badge"></div>'+
+        '</div>'+
+        '<div class="tippop-label">'+opt.label+'</div>';
+      el.addEventListener('click', function(){ toggleTip(idx); });
+      grid.appendChild(el);
+    });
+    updateBadges();
+  }
+
+  function toggleTip(idx){
+    var pos = tipSelection.indexOf(idx);
+    if(pos >= 0){ tipSelection.splice(pos,1); }
+    else if(tipSelection.length < 3){ tipSelection.push(idx); }
+    else { showToast('Top 3 already selected'); return; }
+    updateBadges();
+  }
+
+  function updateBadges(){
+    var opts = document.querySelectorAll('#tipGrid .tippop-opt');
+    opts.forEach(function(el){
+      var idx = +el.getAttribute('data-idx');
+      var pos = tipSelection.indexOf(idx);
+      el.classList.toggle('selected', pos>=0);
+      el.querySelector('.tippop-badge').textContent = pos>=0 ? (pos+1) : '';
+    });
+  }
+
+  function openTipPop(){ document.getElementById('tipPop').classList.add('open'); }
+  function closeTipPop(){ document.getElementById('tipPop').classList.remove('open'); }
+
+  document.querySelector('.tipcard--trust').addEventListener('click', openTipPop);
+  document.getElementById('tipSubmit').addEventListener('click', function(){
+    tipSubmitted = true;
+    closeTipPop();
+    showToast('Priorities saved — tap Place order');
+    updateGuide();
+  });
+  document.getElementById('tipPop').addEventListener('click', function(e){
+    if(e.target.classList.contains('tippop-backdrop')) closeTipPop();
+  });
+
+  /* ── 2. DROP-OFF TOOLTIP (hover the location icon on s2) ── */
+  var dropTips = document.querySelectorAll('.dropoff-tip');
+  dropTips.forEach(function(t){ t.classList.add('hidden'); });
+
+  function showDropTip(){
+    dropTips.forEach(function(t){ t.classList.remove('hidden'); t.classList.add('rising'); });
+  }
+  function hideDropTip(){
+    dropTips.forEach(function(t){ t.classList.add('hidden'); t.classList.remove('rising'); });
+  }
+
+  /* ── 3. REASON SHEET ── */
+  function openReason(){ document.getElementById('reasonSheet').classList.add('open'); }
+  function closeReason(){ document.getElementById('reasonSheet').classList.remove('open'); }
+  document.querySelectorAll('.view-reason').forEach(function(vr){
+    vr.addEventListener('click', openReason);
+  });
+  document.getElementById('reasonSheet').addEventListener('click', function(e){
+    if(e.target.classList.contains('reason-backdrop')) closeReason();
+  });
+
+  /* ── 4. HOTSPOTS (appended to the inner content div so scaling aligns them) ── */
+  var hotspots = [
+    {id:'placeOrder', screen:'s1', x:24, y:960, w:354, h:48, to:1},
+    {id:'delivered',  screen:'s2', x:0,  y:0,   w:402, h:933, to:2},
+    {id:'thumbUpHot', screen:'s3', x:220,y:728, w:92,  h:92,  to:3},
+    {id:'thumbDownHot', screen:'s3', x:90, y:728, w:92, h:92, to:3},
+    {id:'boostTipHot', screen:'s4', x:30, y:803, w:104, h:45, to:4},
+    {id:'confirmHot', screen:'s4', x:146, y:803, w:226, h:45, to:2},
+  ];
+  function innerOf(id){
+    var s = document.getElementById(id);
+    return s ? s.firstElementChild : null;
+  }
+  hotspots.forEach(function(hs){
+    var target = innerOf(hs.screen);
+    if(!target) return;
+    var b = document.createElement('button');
+    b.id = hs.id; b.className='hotspot';
+    b.style.cssText = 'left:'+hs.x+'px;top:'+hs.y+'px;width:'+hs.w+'px;height:'+hs.h+'px;';
+    b.addEventListener('click', function(){ go(hs.to); });
+    target.appendChild(b);
+  });
+
+  // location icon hover zone (crosshair+pin around left 74-105, top 548-592 in s2 inner space)
+  var locZone = document.createElement('button');
+  locZone.id = 'locZone';
+  locZone.style.cssText = 'position:absolute;left:70px;top:545px;width:48px;height:48px;background:transparent;border:none;z-index:75;cursor:pointer;';
+  locZone.addEventListener('mouseenter', showDropTip);
+  locZone.addEventListener('mouseleave', hideDropTip);
+  locZone.addEventListener('click', function(){ go(2); });
+  var s2inner = innerOf('s2');
+  if(s2inner) s2inner.appendChild(locZone);
+
+  /* ── 5. S4 FEEDBACK OPTIONS (single-select, last pre-selected) ── */
+  var fbOpts = document.querySelectorAll('#s4 .fb-opt');
+  function selectFb(idx){
+    fbOpts.forEach(function(x, i){ x.classList.toggle('selected', i === idx); });
+    showToast('Thanks for feedback!');
+  }
+  fbOpts.forEach(function(el){
+    el.addEventListener('click', function(){ selectFb(+el.getAttribute('data-fb')); });
+  });
+  // decorative icon overlays + labels inside the sheet sit on top of the circles;
+  // make icon divs click-through, and let labels also select their circle.
+  var fbContainer = fbOpts.length ? fbOpts[0].parentElement : null;
+  if(fbContainer){
+    var labelIdx = 0;
+    Array.prototype.forEach.call(fbContainer.children, function(ch){
+      if(ch.classList.contains('fb-opt')) return;
+      if(ch.tagName === 'P'){
+        var idx = labelIdx++;
+        ch.style.cursor = 'pointer';
+        ch.addEventListener('click', function(){ selectFb(idx); });
+      } else {
+        ch.style.pointerEvents = 'none';
+      }
+    });
+  }
+
+  /* ── ONBOARDING GUIDE: glow the element the user should act on next ── */
+  function updateGuide(){
+    document.querySelectorAll('.guide-mark').forEach(function(el){ el.classList.remove('guide-mark','guide--scale','guide','guide--circle'); });
+    document.querySelectorAll('.hotspot').forEach(function(h){ h.classList.remove('guide','guide--scale','guide--circle'); });
+    if(locZone) locZone.classList.remove('guide','guide--circle');
+    var sl = document.getElementById('sliderHandle');
+    if(sl) sl.classList.remove('guide','guide--circle');
+
+    if(step === 0){
+      if(!tipSubmitted){
+        var trust = document.querySelector('.tipcard--trust');
+        if(trust){ trust.classList.add('guide-mark','guide'); }
+      } else {
+        var po = document.getElementById('placeOrder');
+        if(po) po.classList.add('guide','guide--scale');
+      }
+    }
+    else if(step === 1){
+      if(locZone) locZone.classList.add('guide','guide--circle');
+    }
+    else if(step === 2){
+      var tu = document.getElementById('thumbUpHot');
+      if(tu) tu.classList.add('guide','guide--scale','guide--circle');
+    }
+    else if(step === 3){
+      var bt = document.getElementById('boostTipHot');
+      if(bt) bt.classList.add('guide','guide--scale');
+    }
+    else if(step === 4){
+      if(sl) sl.classList.add('guide','guide--circle');
+    }
+  }
+
+  /* ── 6. SLIDER (snap to the 5 tick values; update the tip text) ── */
+  var sliderHandle = document.getElementById('sliderHandle');
+  var sliderRail = document.getElementById('sliderRail');
+  var tipVals = [3.5, 4.5, 5.5, 6.5, 7.5];
+  // handle left positions (handle is 45px; centers align to the 5 dots at left 47/122/197/272/347)
+  var snapLeft = [24.5, 99.5, 174.5, 249.5, 324.5];
+  var sliderDragging = false;
+
+  function idxFromX(clientX){
+    var rect = sliderRail.getBoundingClientRect();
+    var frac = (clientX - rect.left) / rect.width;
+    frac = Math.max(0, Math.min(1, frac));
+    return Math.round(frac * (tipVals.length - 1));
+  }
+
+  function setTip(idx){
+    var val = tipVals[idx];
+    var v = val.toFixed(2);
+    sliderHandle.style.left = snapLeft[idx] + 'px';
+    var tv = document.getElementById('s5TipVal');
+    if(tv) tv.textContent = 'Trust Tip: $' + v;
+    var ta = document.getElementById('s5TipApplied');
+    if(ta) ta.textContent = 'Trust Tip applied $' + v;
+    showToast('Tip set to $' + v);
+  }
+
+  if(sliderHandle && sliderRail){
+    sliderHandle.addEventListener('pointerdown', function(e){
+      sliderDragging = true;
+      sliderHandle.setPointerCapture(e.pointerId);
+      setTip(idxFromX(e.clientX));
+      e.preventDefault();
+    });
+    sliderHandle.addEventListener('pointermove', function(e){
+      if(!sliderDragging) return;
+      setTip(idxFromX(e.clientX));
+    });
+    sliderHandle.addEventListener('pointerup', function(){ sliderDragging = false; });
+    sliderRail.addEventListener('pointerdown', function(e){
+      setTip(idxFromX(e.clientX));
+    });
+  }
+
+  buildTipGrid();
+  go(0);
+</script>
+
+</body>
+</html>

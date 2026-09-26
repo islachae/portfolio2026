@@ -74,7 +74,7 @@ export default function SiteFooter() {
           rel="noopener noreferrer"
           className="transition-colors hover:text-[var(--fg)]"
         >
-          CHANGELOG: 09-25-26
+          CHANGELOG: 09-26-26
         </a>
       </div>
     </footer>

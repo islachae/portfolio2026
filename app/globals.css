@@ -75,7 +75,7 @@ body {
 /* Shared edges and spacing; Tailwind owns the base margin/padding reset. */
 .portfolio-shell { max-width: 1280px; margin-inline: auto; }
 .portfolio-shell > header { min-height: 88px; }
-.portfolio-hero { padding-block: 96px 72px; }
+.portfolio-hero { padding-block: 144px 96px; }
 .hero-copy { max-width: 900px; }
 .hero-copy h1 { max-width: 900px; font-size: 28px; line-height: 1.5; font-weight: 600; letter-spacing: -0.02em; }
 .hero-num { vertical-align: super; font-size: 0.42em; font-weight: 600; line-height: 0; color: var(--periwinkle); letter-spacing: 0; margin-left: 0; margin-right: 0.05em; }
@@ -123,19 +123,7 @@ body {
 
 /* Hero superscript numbers: small, raised, top-right — Rebus "²" style */
 
-/* Project cards: lift + border highlight on hover, not just shadow */
-.project-card {
-  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 0.25s cubic-bezier(0.2, 0, 0, 1),
-    border-color 0.25s cubic-bezier(0.2, 0, 0, 1);
-}
-.project-card:hover,
-.project-card:focus-within {
-  transform: translateY(-4px);
-  border-color: #c9c9e8;
-  box-shadow: 0 24px 48px -24px rgba(20, 20, 30, 0.18);
-}
-/* Thumbnail zooms slightly within its frame on card hover — Lana Farkas style */
+/* Project cards: subtle image zoom on hover — no box/shadow (boxless style) */
 .project-card img {
   transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -144,9 +132,9 @@ body {
   transform: scale(1.05) !important;
 }
 
-/* Custom cursor: JS-driven dot, instant follow + smooth scale on hover.
-   Purple dot (20px) at rest; grows to 30px on links/buttons; white circle
-   + arrow on project cards. */
+/* Custom cursor (liumichelle-style): a subtle translucent circle driven by JS
+   so it can scale smoothly. 40px circle at rest; grows to 46px + more opaque
+   over links/buttons; white circle + arrow over project cards. */
 @media (pointer: fine) {
   body, a, button, [data-cursor-hover] {
     cursor: none;
@@ -156,19 +144,20 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(177, 158, 248, 0.55);
+  background: rgba(238, 238, 238, 0.4);
+  border: 1.333px solid #e3e3e9;
   transform: translate(-50%, -50%) scale(1);
-  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1), background 0.28s ease, border-color 0.28s ease, opacity 0.2s ease;
 }
 .cc-arrow {
   position: absolute;
   top: 0;
   left: 0;
-  width: 42px;
-  height: 42px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: #ffffff;
   color: #1a1a1a;
@@ -181,7 +170,9 @@ body {
   transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
 }
 .custom-cursor[data-mode="grow"] .cc-dot {
-  transform: translate(-50%, -50%) scale(1.5);
+  transform: translate(-50%, -50%) scale(1.15);
+  background: rgba(245, 245, 247, 0.6);
+  border-color: #d9d9e2;
 }
 .custom-cursor[data-mode="arrow"] .cc-dot {
   opacity: 0;

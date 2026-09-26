@@ -26,51 +26,61 @@ export default function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 flex items-center justify-between border-b border-solid border-[var(--border)] bg-white/70 backdrop-blur-sm px-6 py-4 transition-transform duration-300 ease-out sm:px-10 ${
+      className={`sticky top-0 z-50 transition-transform duration-300 ease-out ${
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
-      <Logo />
+      {/* Full-bleed background bar — spans the whole viewport so the
+          white/blur doesn't stop at the 1280px shell edge */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-y-0 -z-10 border-b border-solid border-[var(--border)] bg-white/40 backdrop-blur-sm"
+        style={{ left: "50%", width: "100vw", transform: "translateX(-50%)" }}
+      />
 
-      <nav className="hidden items-center gap-8 sm:flex">
-        <Link
-          href="/#work"
-          className="nav-link text-sm text-[var(--fg)]/60 transition-colors duration-200 hover:text-[var(--periwinkle)]"
-        >
-          work
-        </Link>
-        <Link
-          href="/about"
-          className="nav-link text-sm text-[var(--fg)]/60 transition-colors duration-200 hover:text-[var(--periwinkle)]"
-        >
-          about
-        </Link>
-        <Link
-          href="/contact"
-          className="nav-link text-sm text-[var(--fg)]/60 transition-colors duration-200 hover:text-[var(--periwinkle)]"
-        >
-          contact
-        </Link>
-      </nav>
+      <div className="flex items-center justify-between px-6 py-4 sm:px-10">
+        <Logo />
 
-      <MobileNav />
+        <nav className="hidden items-center gap-8 sm:flex">
+          <Link
+            href="/#work"
+            className="nav-link text-sm text-[var(--fg)]/60 transition-colors duration-200 hover:text-[var(--periwinkle)]"
+          >
+            work
+          </Link>
+          <Link
+            href="/about"
+            className="nav-link text-sm text-[var(--fg)]/60 transition-colors duration-200 hover:text-[var(--periwinkle)]"
+          >
+            about
+          </Link>
+          <Link
+            href="/contact"
+            className="nav-link text-sm text-[var(--fg)]/60 transition-colors duration-200 hover:text-[var(--periwinkle)]"
+          >
+            contact
+          </Link>
+        </nav>
 
-      <div className="hidden sm:flex items-center gap-5">
-        <a
-          href="https://www.linkedin.com/in/chaewon-lim-7591891a4/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm font-medium text-[var(--fg)] transition-colors hover:opacity-70"
-        >
-          Linkedin
-        </a>
-        <a
-          href="/resume.pdf"
-          download
-          className="text-sm font-medium text-[var(--fg)] transition-colors hover:opacity-70"
-        >
-          Resume
-        </a>
+        <MobileNav />
+
+        <div className="hidden sm:flex items-center gap-5">
+          <a
+            href="https://www.linkedin.com/in/chaewon-lim-7591891a4/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-[var(--fg)] transition-colors hover:opacity-70"
+          >
+            Linkedin
+          </a>
+          <a
+            href="/resume.pdf"
+            download
+            className="text-sm font-medium text-[var(--fg)] transition-colors hover:opacity-70"
+          >
+            Resume
+          </a>
+        </div>
       </div>
     </header>
   );
