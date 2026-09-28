@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rethinking tipping case study</title>
+<!-- Claude Design-artifact runtime script removed for this static export; see BRIEF.md -->
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Satoshi';src:url('assets/fonts/de05f6e6867ce5a545458d79fcaf867e.woff') format('woff');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/57a48a71739f1200f6d01fba537a8253.woff') format('woff');font-weight:300;font-style:italic;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/37d38c5d6953f9815157ad0b8a9c89c9.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/09ffed4a46f9bae23559ac4bd44b86f0.woff') format('woff');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/84637746feaf2b7a1ee04ac61de16fab.woff') format('woff');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/49cc841a3ec7749e86396e7b91dc4a38.woff') format('woff');font-weight:500;font-style:italic;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/32374c927d76fdf93a427708b0a4a579.woff') format('woff');font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/c00657223d53fbb8e9dc0328b6991049.woff') format('woff');font-weight:700;font-style:italic;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/ad0ddade41c64b27e94f2587458f3847.woff') format('woff');font-weight:900;font-style:normal;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/e4b54c70354ea9115d620603977670ec.woff') format('woff');font-weight:900;font-style:italic;font-display:swap}
+body{margin:0;font-family:'Satoshi',system-ui,sans-serif;background:#ffffff;color:#1a1a1a}
+.s{position:absolute;left:256px;width:768px}
+.eb{font-size:14px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:#5b5fa6;margin:0;line-height:20px}
+.h2{font-size:30px;line-height:36px;font-weight:400;letter-spacing:-0.015em;margin:12px 0 0 0;color:#1a1a1a}
+.h3{font-size:18px;line-height:normal;font-weight:500;letter-spacing:-0.01em;color:#1a1a1a;margin:0}
+.bd{font-size:16px;line-height:26px;font-weight:400;color:#666666;margin:0}
+.bd2{font-size:16px;line-height:22.4px;font-weight:400;color:#666666;margin:0}
+.meta{font-size:14px;line-height:20px;font-weight:400;letter-spacing:0;color:#6b6b6b;margin:0}
+button{font-family:inherit}
+@keyframes dotPulse{0%{box-shadow:0 0 0 0 currentColor}70%{box-shadow:0 0 0 9px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
+.dot-pulse{animation:dotPulse 1.8s ease-out infinite}
+@keyframes panelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.panel-anim{animation:panelIn 400ms ease-out both}
+.tip-btn{transition:filter 150ms ease, transform 150ms ease}
+.tip-btn:hover{filter:brightness(0.93)}
+.tip-btn:active{transform:scale(0.98)}
+.wn2-panel{flex:1;min-width:0;box-sizing:border-box;background:#faf8f6;border:1px solid #e6e1db;border-radius:16px;padding:28px 26px 32px}
+.wn2-eb{font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#f55c2d;margin:0}
+.wn2-h{font-size:26px;line-height:1.18;font-weight:400;color:#1a1a1a;margin:12px 0 0 0}
+.wn2-pay-stage{position:relative;height:230px;margin-top:28px;width:310px;max-width:100%}
+.wn2-tile{position:absolute;width:88px;text-align:center;opacity:0;transform:translateY(12px);transition:opacity 700ms ease-out,transform 700ms ease-out}
+.wn2-in .wn2-tile{opacity:1;transform:translateY(0)}
+.wn2-cash{left:0;top:142px}
+.wn2-card{left:110px;top:71px}
+.wn2-contactless{left:220px;top:0}
+.wn2-box{width:88px;height:88px;border-radius:16px;background:#ffffff;border:1px solid #e6e1db;display:flex;align-items:center;justify-content:center;box-sizing:border-box;position:relative;z-index:1}
+.wn2-halo{position:absolute;left:-8px;top:-8px;width:104px;height:104px;border-radius:20px;background:rgba(245,92,45,0.10);opacity:0;transition:opacity 700ms ease-out}
+.wn2-in .wn2-contactless .wn2-halo{opacity:1}
+.wn2-icon{width:auto;height:auto;max-width:60px;max-height:56px;object-fit:contain;display:block}
+.wn2-label{margin-top:10px;font-size:14px;color:#1a1a1a}
+.wn2-dine-grid{margin-top:28px;display:grid;grid-template-columns:repeat(2,88px);row-gap:24px;justify-content:space-between;max-width:320px}
+.wn2-dtile{text-align:center}
+.wn2-dtile .wn2-box{background:#ffffff}
+.wn2-dtile.wn2-hi .wn2-box{background:rgba(245,92,45,0.10);border-color:transparent}
+.wn2-dt-anim{opacity:0;transition:opacity 700ms ease-out,transform 700ms ease-out}
+.wn2-in .wn2-dt-anim{opacity:1;transform:translate(0,0) !important}
+.wn2-dt-takeout{transform:translateX(-14px)}
+.wn2-dt-drive{transform:translateY(-14px)}
+.wn2-dt-delivery{transform:translate(-10px,-10px)}
+@media (max-width: 680px){
+.wn2{flex-direction:column}
+.wn2-pay-stage{position:static;height:auto;width:auto;display:flex;flex-wrap:wrap;gap:20px 16px}
+.wn2-pay-stage .wn2-tile{position:static}
+.wn2-dine-grid{grid-template-columns:repeat(2,1fr);max-width:none}
+}
+.st-node{border:1.5px solid #e5e2df;background:#ffffff;transition:border-color 150ms ease, background 150ms ease}
+.st-node:hover{border-color:#f3c7ae}
+.st-node:focus-visible{outline:2px solid #f55c2d;outline-offset:2px}
+.st-node.sel{border-color:#f55c2d;background:#fbede8}
+.st-icon{color:#1a1a1a;display:flex}
+.st-node.sel .st-icon{color:#f55c2d}
+.st-name{font-size:15px;font-weight:700;color:#1a1a1a;line-height:18px;margin:0}
+.st-node.sel .st-name{color:#f55c2d}
+.st-sub{font-size:12px;color:#767676;line-height:15px;margin:0}
+.st-node.sel .st-sub{color:#f55c2d}
+.st-dot{display:none;position:absolute;right:14px;top:14px;width:9px;height:9px;border-radius:5px;background:#f55c2d}
+.st-node.sel .st-dot{display:block}
+@keyframes stFade{from{opacity:0}to{opacity:1}}
+.st-panel-fade{animation:stFade 300ms ease both}
+@media (prefers-reduced-motion: reduce){
+.wn2-tile,.wn2-dt-anim,.wn2-halo,.panel-anim,.st-panel-fade,.dot-pulse,.st-node,.st-node *{transition:none !important;animation:none !important}
+}
+</style>
+</helmet>
+<div style="position: relative; width: 1280px; height: 10015px; background: #ffffff; overflow: hidden">
+
+<!-- HEADER -->
+<div class="s" style="top: 135px">
+<p class="eb">Trust in AI · Design strategy · UX/UI design</p>
+<h1 style="margin: 12px 0 0 0; font-size: 48px; line-height: 55.2px; font-weight: 500; letter-spacing: -2px">Rethinking tipping for the age of AI</h1>
+<p style="margin: 14px 0 0 0; font-size: 18px; font-weight: 300; color: #6b6b6b">No more guessing. Tip for what actually happened.</p>
+<div style="display: flex; gap: 0; margin-top: 42px; align-items: flex-start">
+<div style="width: 213px"><div class="meta">Role</div><div style="font-size: 16px; margin-top: 8px">Product Designer</div></div>
+<div style="width: 249px"><div class="meta">Timeline</div><div style="font-size: 16px; margin-top: 8px">120 hours · March 2025</div></div>
+<div style="width: 190px"><div class="meta">Type</div><div style="font-size: 16px; margin-top: 8px">Independent study</div></div>
+<div><div class="meta" style="display: flex; align-items: center; gap: 6px">Reading time</div><div style="font-size: 16px; margin-top: 8px; color: #f55c2d">7 min</div></div>
+</div>
+</div>
+<img class="s" src="assets/images/02633b5af19bd29f924dc16ad1b66b0c.png" alt="Two phone screens: checkout with Trust-First Tipping and the post-delivery feedback sheet" style="top: 395px; height: 417px; object-fit: cover">
+<p class="s bd" style="top: 830px">Delivery apps ask users to tip before the service is even complete, turning appreciation into a high-pressure decision. This project reimagines the tipping experience through an AI-assisted flow that allows users to adjust their tips after delivery, while considering the broader implications for couriers and platforms.</p>
+
+<!-- PROBLEM -->
+<div class="s" style="top: 1022px">
+<p class="eb">Problem</p>
+<h2 class="h2" style="margin-top: 14px">Tipping is essentially a guess.<br>Not a UI problem.</h2>
+</div>
+<div class="s" style="top: 1176px; display: flex; gap: 0">
+<div style="width: 408px; padding-left: 40px; box-sizing: border-box">
+<div id="cu-58" style="font-size: 38px; font-weight: 300; color: #f55c2d">0%</div>
+<div class="bd" style="margin-top: 14px; font-size: 15px; width: 260px">say tipping experience push them to eat home instead of delivery</div>
+<div class="meta" style="margin-top: 12px; margin-left: 108px; color: #C8C8C8">Pew Research Center, 2023</div>
+</div>
+<div style="width: 360px; padding-left: 40px; box-sizing: border-box">
+<div id="cu-23" style="font-size: 38px; font-weight: 300; color: #f55c2d">0/3</div>
+<div class="bd" style="margin-top: 14px; font-size: 15px; width: 260px">US adults feel unsure about when and how much to tip</div>
+<div class="meta" style="margin-top: 12px; margin-left: 38px; color: #C8C8C8">Modern Restaurant Management, 2023</div>
+</div>
+</div>
+
+<!-- QUESTION BLOCK -->
+<div class="s" style="top: 1378px; height: 415px; background: #fefaf7" data-om-label="receipt">
+<div class="h3" style="position: absolute; left: 52px; top: 40px; line-height: 25px">How much would you tip<br>for delivery you haven’t received?</div>
+<div style="position: absolute; left: 52px; top: 118px; width: 279px; height: 222px; box-sizing: border-box; background: #ffffff; border: 1px solid #dcd3ce; border-radius: 3px">
+<div style="display: flex; justify-content: space-between; margin: 27px 30px 0 30px; font-size: 13px; letter-spacing: 1px; color: #767676"><span>YOUR ORDER</span><span>01</span></div>
+<div style="display: flex; justify-content: space-between; margin: 16px 30px 0 30px; font-size: 14px; color: #767676"><span>Chicken Teriyaki</span><span>$24.00</span></div>
+<div style="margin: 20px 30px 0 30px; border-top: 1px dashed #cccccc"></div>
+<div style="margin: 24px 30px 0 30px; font-size: 13px; letter-spacing: 1px; color: #625853">ADD A TIP</div>
+<div style="display: flex; gap: 7px; margin: 14px 30px 0 30px">
+<div style="width: 68px; height: 36px; box-sizing: border-box; border: 1px solid #dcd3ce; border-radius: 3px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #625853">$3</div>
+<div style="width: 68px; height: 36px; box-sizing: border-box; border: 1px solid #dcd3ce; border-radius: 3px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #625853">$5</div>
+<div style="width: 68px; height: 36px; box-sizing: border-box; border: 1px solid #dcd3ce; border-radius: 3px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #625853">$7</div>
+</div>
+</div>
+<div style="position: absolute; left: 394px; top: 132px; width: 350px">
+<div style="font-size: 13px; letter-spacing: 0.8px; color: #6b6b6b">WHAT YOU KNOW SO FAR</div>
+<div style="margin-top: 18px; padding-bottom: 12px; border-bottom: 1px solid #ebebeb"><div style="font-size: 13px; color: #8a8a8a">Arrival / Food quality</div><div style="margin-top: 4px; font-size: 15px; color: {{knowColor}}">{{arrivalVal}}</div></div>
+<div style="margin-top: 12px; padding-bottom: 12px; border-bottom: 1px solid #ebebeb"><div style="font-size: 13px; color: #8a8a8a">Courier communication</div><div style="margin-top: 4px; font-size: 15px; color: {{knowColor}}">{{courierVal}}</div></div>
+<div style="margin-top: 12px"><div style="font-size: 13px; color: #8a8a8a">Previous tip amount</div><div style="margin-top: 4px; font-size: 15px; color: {{knowColor}}">{{tipVal}}</div></div>
+</div>
+</div>
+<div class="s" style="top: 1825px; display: flex; justify-content: center">
+<button class="tip-btn" onClick="{{toggleDelivery}}" aria-pressed="{{afterDelivery}}" style="width: 212px; height: 52px; box-sizing: border-box; border-radius: 12px; background: {{deliveryBtnBg}}; border: 1px solid {{deliveryBtnBorder}}; color: {{deliveryBtnFg}}; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center">{{deliveryBtnLabel}}</button>
+</div>
+
+<!-- DEEPER PROBLEM -->
+<div class="s" style="top: 2109px">
+<p class="eb">Deeper problem</p>
+<h2 class="h2" style="margin-top: 14px">What else makes tipping<br>uncomfortable?</h2>
+</div>
+<div class="s" style="top: 2268px; display: flex; gap: 24px">
+<div style="flex: 1; box-sizing: border-box; padding: 30px; background: #faf8f6; border: 1px solid #efe8e2; border-radius: 16px">
+<div style="width: 12px; height: 12px; border-radius: 17px; background: #f55c2d; color: #ffffff; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center"><br></div>
+<div class="h3" style="margin-top: 20px">No reference point</div>
+<div class="bd" style="margin-top: 10px; font-size: 14px; line-height: 21px">Without past tipping history or clear standards, users have to decide how much to tip every time.</div>
+</div>
+<div style="flex: 1; box-sizing: border-box; padding: 30px; background: #faf8f6; border: 1px solid #efe8e2; border-radius: 16px">
+<div style="width: 12px; height: 12px; border-radius: 17px; background: #f55c2d; color: #ffffff; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center"><br></div>
+<div class="h3" style="margin-top: 20px">Best effort leads to random tip</div>
+<div class="bd" style="margin-top: 10px; font-size: 14px; line-height: 21px">Couriers who provide better service may earn less in tips than those who provide poorer service, because tips are determined before delivery.</div>
+</div>
+</div>
+
+<!-- KEY QUESTION -->
+<div class="s" style="top: 2672px; text-align: center">
+<p class="eb">Key question</p>
+<h2 class="h2" style="margin-top: 22px; font-weight: 700">How might we redesign tipping <span style="color: #f55c2d">clearer for customers</span><br>and <span style="color: #f55c2d">fairer for couriers?</span></h2>
+</div>
+<div class="s" style="top: 2848px; text-align: center"><a href="#solution" onClick="{{scrollToSolution}}" style="font-size: 14px; letter-spacing: 1.4px; color: #5b5fa6; text-decoration: underline">SKIP TO SOLUTION</a></div>
+
+<!-- WHY NOW -->
+<div class="s" style="top: 3107px">
+<p class="eb">Why now?</p>
+<h2 class="h2" style="margin-top: 14px">Dining and payments evolved.<br>Tipping hasn't caught up.</h2>
+<p class="bd" style="margin-top: 16px; width: 520px; font-size: 15px">Service quality remains the strongest driver of tipping: <b id="cu-77" style="color: #1a1a1a; font-weight: 600">0%</b>. Yet as dining and payments took digital form, the micro human interactions that guided tip decisions disappeared.</p>
+</div>
+<div class="s wn2" id="wn2" style="top: 3325px; display: flex; gap: 24px; align-items: stretch">
+<div class="wn2-panel" id="wn2-pay">
+<p class="wn2-eb">01 / HOW WE PAY</p>
+<h3 class="wn2-h">Payment<br>evolved.</h3>
+<div class="wn2-pay-stage">
+<div class="wn2-tile wn2-cash" style="transition-delay: 0ms">
+<div class="wn2-box"><img class="wn2-icon" src="assets/images/51c1016e137e1d98e472c8cb392de7a6.png" alt="Stack of cash"></div>
+<div class="wn2-label">Cash</div>
+</div>
+<div class="wn2-tile wn2-card" style="transition-delay: 260ms">
+<div class="wn2-box"><img class="wn2-icon" src="assets/images/643c930fa17c924561e16fd9024fa440.png" alt="Credit card"></div>
+<div class="wn2-label">Card</div>
+</div>
+<div class="wn2-tile wn2-contactless" style="transition-delay: 520ms">
+<div class="wn2-halo"></div>
+<div class="wn2-box"><img class="wn2-icon" src="assets/images/a5b740ea9c528f64ff7e766d88204ef9.png" alt="Phone showing a contactless payment symbol"></div>
+<div class="wn2-label">Contactless</div>
+</div>
+</div>
+</div>
+<div class="wn2-panel" id="wn2-dine">
+<p class="wn2-eb">02 / HOW WE DINE</p>
+<h3 class="wn2-h">Dining<br>expanded.</h3>
+<div class="wn2-dine-grid">
+<div class="wn2-dtile">
+<div class="wn2-box"><img class="wn2-icon" src="assets/images/54b22b5ce0bd19655ff4637ef07ce7c0.png" alt="Restaurant dining booth with a set table"></div>
+<div class="wn2-label">Dine-in</div>
+</div>
+<div class="wn2-dt-anim wn2-dt-takeout" style="transition-delay: 0ms">
+<div class="wn2-dtile wn2-hi">
+<div class="wn2-box"><img class="wn2-icon" src="assets/images/d82f04a2d3729c599d1b4c5d02054132.png" alt="Paper takeout bag"></div>
+<div class="wn2-label">Takeout</div>
+</div>
+</div>
+<div class="wn2-dt-anim wn2-dt-drive" style="transition-delay: 220ms">
+<div class="wn2-dtile wn2-hi">
+<div class="wn2-box"><img class="wn2-icon" src="assets/images/57f1888038b632753c1efdb201d4bcf7.png" alt="Car pulling up to a drive-through payment kiosk"></div>
+<div class="wn2-label">Drive-through</div>
+</div>
+</div>
+<div class="wn2-dt-anim wn2-dt-delivery" style="transition-delay: 440ms">
+<div class="wn2-dtile wn2-hi">
+<div class="wn2-box"><img class="wn2-icon" src="assets/images/3aeb937242beecebbb631234bb0ec15e.png" alt="Delivery bike with a food bag"></div>
+<div class="wn2-label">Delivery</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- DESIGN PRINCIPLE -->
+<div class="s" style="top: 4055px">
+<p class="eb">Design principle</p>
+<h2 class="h2" style="margin-top: 14px">Users want predictability and transparency.</h2>
+<p class="bd" style="margin-top: 14px; width: 530px; font-size: 16px">I examined two successful UX case studies and identified predictability and transparency as key principles in payment experiences. I used these insights to define design opportunities for a more trustworthy tipping experience.</p>
+</div>
+<!-- Uber Eats card -->
+<div class="s" style="top: 4249px; height: 461px">
+<div style="position: absolute; left: 0; top: 0; width: 542px; height: 460px; box-sizing: border-box; border: 1px solid #e8e8e8; border-radius: 13px; overflow: hidden">
+<div class="h3" style="position: absolute; left: 20px; top: 21px">Real-time tracking</div>
+<div style="position: absolute; right: 20px; top: 26px; font-size: 12px; letter-spacing: 1.2px; color: #767676">UBER EATS</div>
+<div style="position: absolute; left: 20px; top: 56px; width: 193px; height: 402px; border-radius: 6px; overflow: hidden; background: #f0eeec">
+<img src="assets/images/6d20eca37eebf374ab2fc2f3b33f76f5.png" alt="Uber Eats live tracking screen with the ETA banner highlighted" style="width: 193px; height: 402px; display: block">
+<div style="position: absolute; left: 12px; top: 52px; width: 168px; height: 186px; box-sizing: border-box; border: 3.5px solid #fe754c"></div>
+</div>
+<div style="position: absolute; left: 232px; top: 100px; width: 280px">
+<div style="font-size: 13px; color: #5b5fa6">Core value</div>
+<div style="font-size: 13px; line-height: 19px; color: #666666; margin-top: 6px">Reduces "where's my food?" anxiety</div>
+<div style="font-size: 13px; color: #5b5fa6; margin-top: 14px">Features</div>
+<div style="font-size: 13px; line-height: 19px; color: #666666; margin-top: 6px">Live GPS map • clear status stages • visual cues on delays</div>
+<div style="font-size: 13px; color: #5b5fa6; margin-top: 14px">Evidence</div>
+<div style="font-size: 13px; line-height: 19px; color: #666666; margin-top: 6px">Reduced customer inquiries by 20—35%</div>
+<div style="margin-top: 22px; padding-top: 14px; border-top: 1px solid #e8e8e8; font-size: 13px; line-height: 19px; color: #1a1a1a">Users value predictability. Yet tipping is decided before any service quality is known.</div>
+</div>
+</div>
+<button onClick="{{toggleDd}}" aria-expanded="{{ddOpen}}" style="position: absolute; left: 542px; top: 0; width: 226px; height: 460px; box-sizing: border-box; border: 1px solid #e8e8e8; border-radius: 13px; background: #ffffff; cursor: pointer; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #1a1a1a">
+<span style="font-size: 12px; letter-spacing: 1.2px; color: #767676">DOORDASH</span>
+<span class="h3">Savings transparency</span>
+<sc-if value="{{ddClosed}}" hint-placeholder-val="{{ true }}"><span style="font-size: 13px; color: #767676">click to expand →</span></sc-if>
+<sc-if value="{{ddOpen}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; line-height: 19px; color: #666666; text-align: left">[Core value, features and evidence for the DoorDash example]</span></sc-if>
+</button>
+</div>
+
+<!-- MECHANISM -->
+<div id="solution" class="s" style="top: 4951px">
+<p class="eb">Mechanism</p>
+<h2 class="h2" style="margin-top: 14px">Agentic AI automates the repetitive parts of tipping, using actual delivery quality and individual priorities</h2>
+<p style="margin: 18px 0 0 0; width: 479px; font-size: 16px; line-height: 23px; font-style: italic; font-weight: 300; color: #666666">Harvard Business school’s research insight stated that customers <b style="color: #1a1a1a; font-weight: 600">tend to tip more</b> after confirming service quality, because <b style="color: #1a1a1a; font-weight: 600">outcome-based tipping feels more justified.</b></p>
+</div>
+<div class="s" style="top: 5210px; display: flex; justify-content: space-between; font-size: 16px; color: #6b6b6b; font-weight: 300">
+<div style="display: flex; gap: 24px; margin-left: 22px"><span style="display: flex; align-items: center; gap: 8px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #a5a29e"></span>Existing flow</span><span style="display: flex; align-items: center; gap: 8px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #f55c2d"></span>New touchpoint</span></div>
+<span>Select an orange dot to explore</span>
+</div>
+<div class="s" style="top: 5306px; height: 2px; margin-top: -1px; background: #d9d6d2; left: 305px; width: 686px"></div>
+<sc-for list="{{steps}}" as="st" hint-placeholder-count="8">
+<div class="s" style="top: 5262px; left: {{st.left}}px; width: 98px; height: 130px; transform: translateX(-49px); text-align: center">
+<div style="height: 22px; margin-top: 0; font-size: 15px; color: #f55c2d; line-height: 22px">{{st.num}}</div>
+<button onClick="{{st.pick}}" aria-label="{{st.aria}}" aria-pressed="{{st.active}}" style="display: block; margin: 12px auto 0 auto; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 10px; background: transparent; cursor: pointer; position: relative"><span style="position: absolute; left: 0; top: 0; width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: {{st.activeRing}}"></span><span class="{{st.dotClass}}" style="position: absolute; left: 4px; top: 4px; width: 12px; height: 12px; border-radius: 6px; background: {{st.dot}}; color: {{st.dot}}"></span></button>
+<div style="margin-top: 16px; font-size: 15px; line-height: 19px; color: {{st.textColor}}; font-weight: 300; white-space: pre-line">{{st.label}}</div>
+</div>
+</sc-for>
+
+
+<!-- Detail panel -->
+<div data-dc-group="" style="box-sizing: border-box; position: absolute; left: {{connLeft}}px; top: 5382px; width: 2px; height: 100px; transition: left 250ms ease" data-om-label="indicating bar"><div class="s" style="top: 0px; left: 0px; width: 2px; height: 100px; pointer-events: none; background-color: #DCD3CE"><div style="box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 6px; height: 6px; background-color: #f55c2d; border-radius: 50%; position: absolute; left: -2px; top: -3px"></div></div></div><div class="s" style="top: 5429px; height: 648px; box-sizing: border-box; background: #fefaf7; border: 1px solid #dcd3ce">
+<sc-if value="{{show1}}" hint-placeholder-val="{{ true }}">
+<div class="panel-anim" style="position: absolute; inset: 0">
+<div class="h3" style="position: absolute; left: 34px; top: 26px"><span style="color: #f55c2d; font-size: 16px; margin-right: 10px">01</span>Start Small, Adjust After Delivery</div>
+<div style="position: absolute; left: 60px; top: 84px; font-size: 15px; letter-spacing: 0.6px; color: #f55c2d">CUSTOMER</div>
+<div style="position: absolute; left: 408px; top: 84px; font-size: 15px; letter-spacing: 0.6px; color: #f55c2d">COURIER</div>
+<div style="position: absolute; left: 59px; top: 115px; width: 300px; height: 312px; box-sizing: border-box; background: #ffffff; border: 1px solid #b9b5b1; overflow: hidden">
+<div style="position: absolute; left: 31px; top: 0; width: 238px; height: 284px; overflow: hidden"><img src="assets/images/b4b1f40e6ecb6c105cad83c0cfb81f67.png" alt="Customer checkout phone screen with Trust-First Tipping" style="display: block; width: 238px; height: 600px; margin-top: -316px"></div>
+</div>
+<div style="position: absolute; left: 407px; top: 115px; width: 300px; height: 312px; box-sizing: border-box; background: #ffffff; border: 1px solid #b9b5b1; overflow: hidden">
+<div style="position: absolute; left: 31px; top: 0; width: 238px; height: 284px; overflow: hidden"><img src="assets/images/30cd11767d8a249483f436a6f699eec4.png" alt="Courier order offer screen with guaranteed base tip and potential reward" style="display: block; width: 238px; height: 506px; margin-top: -223px"></div>
+</div>
+<div class="h3" style="position: absolute; left: 60px; top: 447px; width: 290px; line-height: 23px">Set your priorities and a minimum tip at checkout.</div>
+<div style="position: absolute; left: 60px; top: 501px; width: 296px" class="bd">Customers set their tipping priorities once, lock in a minimum tip, and pre-authorize a maximum amount for adjustment after delivery.</div>
+<div class="h3" style="position: absolute; left: 408px; top: 447px; width: 290px; line-height: 23px">See customer priorities and potential tips upfront.</div>
+<div style="position: absolute; left: 408px; top: 501px; width: 296px" class="bd">View the guaranteed base tip and potential post-delivery reward, along with the customer's priorities, before accepting the order.</div>
+</div>
+</sc-if>
+<sc-if value="{{show2}}" hint-placeholder-val="{{ false }}">
+<div class="panel-anim" style="position: absolute; inset: 0">
+<div class="h3" style="position: absolute; left: 34px; top: 26px"><span style="color: #f55c2d; font-size: 16px; margin-right: 10px">02</span>Reward What Actually Happened</div>
+<div style="position: absolute; left: 60px; top: 84px; font-size: 15px; letter-spacing: 0.6px; color: #f55c2d">CUSTOMER</div>
+<div style="position: absolute; left: 408px; top: 84px; font-size: 15px; letter-spacing: 0.6px; color: #f55c2d">COURIER</div>
+
+<div style="position: absolute; left: 59px; top: 115px; width: 300px; height: 312px; box-sizing: border-box; background: #ffffff; border: 1px solid #b9b5b1; overflow: hidden"><img src="assets/images/dd303b3cb1ed223bf2f52655ca2b3935.png" alt="Trust-First Tipping breakdown card showing pre-tip, post-reward, and itemized service adjustments" style="display: block; width: 300px; height: 312px"></div>
+
+<div style="position: absolute; left: 407px; top: 115px; width: 300px; height: 312px; box-sizing: border-box; background: #ffffff; border: 1px solid #b9b5b1; overflow: hidden"><img src="assets/images/69fe1b1d2842be9b9c26a9805046b6b3.png" alt="Courier map screen with a Drop-off Precision tag, Gustavo's profile, and the Tatte Bakery and Cafe order" style="display: block; width: 300px; height: 312px"></div>
+
+<div class="h3" style="position: absolute; left: 60px; top: 447px; width: 300px; line-height: 23px">Let AI adjust your tip based on service details and your priorities.</div>
+<div style="position: absolute; left: 60px; top: 501px; width: 300px; font-size: 14px; line-height: 21px" class="bd">AI agent considers arrival time, drop-off accuracy, and communication alongside your priorities. Customers and couriers see a concise summary without overwhelming live updates.</div>
+<div class="h3" style="position: absolute; left: 408px; top: 447px; width: 300px; line-height: 23px">Earn achievement badges that recognize your service strengths.</div>
+<div style="position: absolute; left: 408px; top: 501px; width: 300px; font-size: 14px; line-height: 21px" class="bd">Badges highlight strengths such as accurate drop-offs, careful handling, and clear communication, helping customers recognize what you do well.</div>
+</div>
+</sc-if>
+<sc-if value="{{show3}}" hint-placeholder-val="{{ false }}">
+<div class="panel-anim" style="position: absolute; inset: 0">
+<div class="h3" style="position: absolute; left: 34px; top: 26px"><span style="color: #f55c2d; font-size: 16px; margin-right: 10px">03</span>Let an Agent Handle Delivery Issues</div>
+<div style="position: absolute; left: 60px; top: 84px; font-size: 15px; letter-spacing: 0.6px; color: #f55c2d">CUSTOMER</div>
+<div style="position: absolute; left: 408px; top: 84px; font-size: 15px; letter-spacing: 0.6px; color: #f55c2d">COURIER</div>
+
+<div style="position: absolute; left: 59px; top: 115px; width: 300px; height: 312px; box-sizing: border-box; background: #ffffff; border: 1px solid #b9b5b1; overflow: hidden"><img src="assets/images/0e9dedca12092769df483d1da83e29f3.png" alt="Order claim card showing the AI claim summary, estimated vs. delivered time, and claim status with a Done button" style="display: block; width: 300px; height: 312px"></div>
+
+<div style="position: absolute; left: 407px; top: 115px; width: 300px; height: 312px; box-sizing: border-box; background: #ffffff; border: 1px solid #b9b5b1; overflow: hidden"><img src="assets/images/123edf4985829816c3ccf651d338c3a9.png" alt="Courier earnings screen showing total earnings, base pay, tips, and a claim update notice" style="display: block; width: 300px; height: 312px"></div>
+
+<div class="h3" style="position: absolute; left: 60px; top: 447px; width: 300px; line-height: 23px">Let AI handle the claim and avoid unnecessary back-and-forth.</div>
+<div style="position: absolute; left: 60px; top: 501px; width: 300px; font-size: 14px; line-height: 21px" class="bd">With one tap, the AI agent summarizes the issue using delivery records, submits a claim under platform policy, and keeps you updated on its progress.</div>
+<div class="h3" style="position: absolute; left: 408px; top: 447px; width: 300px; line-height: 23px">See your earnings and understand every adjustment.</div>
+<div style="position: absolute; left: 408px; top: 501px; width: 300px; font-size: 14px; line-height: 21px" class="bd">View base pay, tips, and claim updates in one place. Any claim-related tip changes appear with a clear explanation in the delivery breakdown.</div>
+</div>
+</sc-if>
+</div>
+
+<!-- USER TESTING -->
+<div class="s" style="top: 6317px">
+<p class="eb">USER TESTING &amp; ITERATION</p>
+<h2 class="h2" style="margin-top: 14px; color: #1a1a1a">Initial proposal tested by <span style="color: #1a1a1a"><span id="cu-24">0</span> users</span>.</h2>
+<p class="bd" style="margin-top: 18px; width: 529px; font-size: 16px">Users appreciated the reduced tipping stress and said they'd keep using the system, as long as the AI gives clearer reasoning and adjusts tips within an understandable, predictable range.</p>
+</div>
+<div class="s" style="top: 6523px">
+<div style="font-size: 14px; color: #625853">feedback pattern 1</div>
+<div style="margin-top: 4px; font-size: 18px; font-weight: 700; color: #625853">"View reason" still feels unclear. Need stronger evidence behind tip adjustments.</div>
+</div>
+<div class="s" style="top: 6602px; height: 440px">
+<div style="position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: 0.6px; color: #625853"><span style="width: 8px; height: 8px; border-radius: 4px; background: #9c857a"></span>TESTED VER.</div>
+<div style="position: absolute; left: 407px; top: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: 0.6px; color: #f55c2d"><span style="width: 8px; height: 8px; border-radius: 4px; background: rgb(245, 92, 45)"></span>ITERATED VER.</div>
+<div style="position: absolute; left: 0; top: 39px; width: 361px; height: 260px; background: #f4f2f0; overflow: hidden">
+<img src="assets/images/6ecc6e8290216f5a9ec2fa9246a0a770.png" alt="Tested version of the post-delivery rating screen with a plain grey avatar placeholder" style="position: absolute; left: 20px; top: 22px; width: 182px; height: 210px; object-fit: cover; object-position: top">
+<div style="position: absolute; left: 150px; top: 205px; width: 60px; border-top: 1px dashed #8a8a8a"></div>
+<div style="position: absolute; left: 238px; top: 202px; font-size: 13px; color: #767676">view reason button</div>
+</div>
+<div style="position: absolute; left: 0; top: 319px; width: 361px; font-size: 16px; font-weight: 700; color: #625853">Hard to trust AI when its reasoning is buried</div>
+<div class="bd2" style="position: absolute; left: 0; top: 348.8px; width: 361px">Users appreciated the concept, but the "View reason" button was easy to miss, leaving the tip adjustment unclear.</div>
+<div style="position: absolute; left: 407px; top: 39px; width: 361px; height: 262px; background: #FBEDE8; overflow: hidden">
+<div style="position: absolute; left: 32px; top: 16px; width: 181px; height: 230px; overflow: hidden"><img src="assets/images/7e3c4173e8f22a2a09cf7193876f769c.png" alt="Proposed rating screen showing ETA, verified drop-off and an expandable Trust Tip explanation" style="display: block; width: 181px; height: 230px; object-fit: cover; object-position: top"></div>
+<div style="position: absolute; left: 92px; top: 207px; width: 165px; border-top: 1px solid #f55c2d"></div>
+<div style="position: absolute; left: 262px; top: 192px; width: 90px; font-size: 13px; line-height: 15px; color: #f55c2d">more visible explanation</div>
+</div>
+<div style="position: absolute; left: 407px; top: 321px; width: 361px; font-size: 16px; font-weight: 700; color: #F55C2D">Make the "why" instantly clear</div>
+<div class="bd2" style="position: absolute; left: 407px; top: 350.4px; width: 361px; color: #F55C2D">Made "View reason" more visible beside the final tip and added a breakdown of the service details behind the adjustment.</div>
+</div>
+<div class="s" style="top: 7162px">
+
+<div style="font-size: 14px; color: #625853">feedback pattern 2</div><div style="margin-top: 4px; font-size: 18px; font-weight: 700; color: #625853">The feedback step feels slightly high-effort, adding extra steps after delivery.</div>
+</div>
+<div class="s" style="top: 7241px; height: 420px">
+<div style="position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: 0.6px; color: #625853"><span style="width: 8px; height: 8px; border-radius: 4px; background: #9c857a"></span>TESTED VER.</div>
+<div style="position: absolute; left: 407px; top: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: 0.6px; color: #f55c2d"><span style="width: 8px; height: 8px; border-radius: 4px; background: rgb(245, 92, 45)"></span><span style="letter-spacing: 0.6px">ITERATED<span style="letter-spacing: 0.6px">&nbsp;VER.</span></span></div>
+<div style="position: absolute; left: 0; top: 39px; width: 361px; height: 262px; background: #f4f2f0; overflow: hidden"><img src="assets/images/b3b8b2a38b23f3132b53d662879f4a08.png" alt="Tested flow: feedback panel with a Confirm button, then a full-screen prompt to adjust tip or do it later" style="position: absolute; left: 14px; top: 69px; width: 332px; height: 124px"></div>
+<div style="position: absolute; left: 0; top: 321px; width: 361px; font-size: 16px; font-weight: 700; color: #625853">Too many steps led users to drop off</div>
+<div class="bd2" style="position: absolute; left: 0; top: 350.4px; width: 361px">Giving feedback after delivery required too many steps and a final confirmation.</div>
+<div style="position: absolute; left: 407px; top: 39px; width: 361px; height: 262px; background: #FBEDE8; overflow: hidden"><img src="assets/images/70588d2a4634f2acc4a452c9914b5b3a.png" alt="Proposed flow: feedback sheet with a Boost Tip option, then a slider to adjust the tip" style="position: absolute; left: 14px; top: 66px; width: 332px; height: 130px"></div>
+<div style="position: absolute; left: 407px; top: 321px; width: 361px; font-size: 16px; font-weight: 700; color: #f55c2d">3 depth → 2 depth</div>
+<div class="bd2" style="position: absolute; left: 407px; top: 350.4px; width: 361px; color: #F55C2D">Shortened the flow and saved feedback automatically, while leaving tip adjustment available when users want it.</div>
+</div>
+
+<!-- FINAL DESIGN -->
+<div class="s" style="top: 7819px">
+<p class="eb">Final design</p>
+<h2 class="h2" style="margin-top: 14px">Try the flow. Tip for what actually happened.</h2>
+</div>
+<div class="s" style="top: 7927px; height: 491px; background: #f4f4f4">
+<div role="tablist" style="position: absolute; left: 0; right: 0; top: 24px; display: flex; justify-content: center; gap: 10px">
+<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="3">
+<button role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="height: 40px; padding: 0 20px; border-radius: 20px; border: 1px solid {{tb.border}}; background: {{tb.bg}}; color: {{tb.fg}}; font-size: 14px; cursor: pointer">{{tb.label}}</button>
+</sc-for>
+</div>
+<div style="position: absolute; left: 0; right: 0; top: 88px; height: 380px; display: flex; align-items: center; justify-content: center">
+<img src="{{stageSrc}}" alt="{{stageAlt}}" style="display: block; height: {{stageH}}px; border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.12)">
+</div>
+</div>
+
+<!-- SYSTEMIC THINKING -->
+<div class="s" style="top: 8658px">
+<p class="eb">Systemic thinking</p>
+<h2 class="h2" style="margin-top: 14px">A Self-reinforcing loop, not a customer-only solution</h2>
+<p class="bd" style="margin-top: 16px; width: 540px; font-size: 15px">Explore how clearer, outcome-based tipping creates better incentives for every part of the system.</p>
+</div>
+<div class="s" style="top: 8865px; display: flex; gap: 28px; align-items: flex-start">
+
+<!-- Ecosystem loop -->
+<div style="position: relative; width: 428px; height: 500px; flex-shrink: 0">
+<svg style="position: absolute; left: 0; top: 0; pointer-events: none" width="428" height="500" viewBox="0 0 428 500" fill="none">
+<defs><marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" stroke-width="1.5" fill="none" stroke="context-stroke"></path></marker></defs>
+<path d="M108 170 Q116 100 172 130" stroke="{{arc0.stroke}}" stroke-width="{{arc0.sw}}" marker-end="url(#ah2)"></path>
+<path d="M256 130 Q312 100 320 170" stroke="{{arc1.stroke}}" stroke-width="{{arc1.sw}}" marker-end="url(#ah2)"></path>
+<path d="M320 292 Q312 360 256 330" stroke="{{arc2.stroke}}" stroke-width="{{arc2.sw}}" marker-end="url(#ah2)"></path>
+<path d="M172 330 Q116 360 108 292" stroke="{{arc3.stroke}}" stroke-width="{{arc3.sw}}" marker-end="url(#ah2)"></path>
+</svg>
+<div style="position: absolute; left: 4px; top: 78px; width: 96px; font-size: 12px; line-height: 15px; font-weight: 600; color: {{arc0.stroke}}; opacity: {{arc0.op}}; transition: opacity 250ms ease">Better service decisions</div>
+<div style="position: absolute; left: 328px; top: 78px; width: 96px; font-size: 12px; line-height: 15px; font-weight: 600; text-align: right; color: {{arc1.stroke}}; opacity: {{arc1.op}}; transition: opacity 250ms ease">Fair, transparent tips</div>
+<div style="position: absolute; left: 328px; top: 296px; width: 96px; font-size: 12px; line-height: 15px; font-weight: 600; text-align: right; color: {{arc2.stroke}}; opacity: {{arc2.op}}; transition: opacity 250ms ease">Verified service quality</div>
+<div style="position: absolute; left: 4px; top: 296px; width: 96px; font-size: 12px; line-height: 15px; font-weight: 600; color: {{arc3.stroke}}; opacity: {{arc3.op}}; transition: opacity 250ms ease">Clearer issue signals</div>
+
+<button id="st-node-1" class="{{node1.cls}}" onClick="{{node1.pick}}" onKeyDown="{{node1.onKey}}" aria-pressed="{{node1.pressed}}" aria-label="Customers: Less guesswork" style="position: absolute; left: 139px; top: 20px; width: 150px; height: 116px; box-sizing: border-box; border-radius: 22px; cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: inherit">
+<span class="st-dot"></span>
+<span class="st-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+<span class="st-name">Customers</span>
+<span class="st-sub">Less guesswork</span>
+</button>
+
+<button id="st-node-0" class="{{node0.cls}}" onClick="{{node0.pick}}" onKeyDown="{{node0.onKey}}" aria-pressed="{{node0.pressed}}" aria-label="Platform: Better service insights" style="position: absolute; left: 6px; top: 172px; width: 150px; height: 116px; box-sizing: border-box; border-radius: 22px; cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: inherit">
+<span class="st-dot"></span>
+<span class="st-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg></span>
+<span class="st-name">Platform</span>
+<span class="st-sub">Better service insights</span>
+</button>
+
+<button id="st-node-2" class="{{node2.cls}}" onClick="{{node2.pick}}" onKeyDown="{{node2.onKey}}" aria-pressed="{{node2.pressed}}" aria-label="Couriers: Service recognized" style="position: absolute; left: 272px; top: 172px; width: 150px; height: 116px; box-sizing: border-box; border-radius: 22px; cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: inherit">
+<span class="st-dot"></span>
+<span class="st-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"></circle><circle cx="5.5" cy="17.5" r="3.5"></circle><circle cx="15" cy="5" r="1"></circle><path d="M12 17.5V14l-3-3 4-3 2 3h2"></path></svg></span>
+<span class="st-name">Couriers</span>
+<span class="st-sub">Service recognized</span>
+</button>
+
+<button id="st-node-3" class="{{node3.cls}}" onClick="{{node3.pick}}" onKeyDown="{{node3.onKey}}" aria-pressed="{{node3.pressed}}" aria-label="Restaurants: Clearer issue attribution" style="position: absolute; left: 139px; top: 324px; width: 150px; height: 116px; box-sizing: border-box; border-radius: 22px; cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: inherit">
+<span class="st-dot"></span>
+<span class="st-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l1.5-4h17L22 7"></path><path d="M2 7v13a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V7"></path><path d="M2 7h20"></path></svg></span>
+<span class="st-name">Restaurants</span>
+<span class="st-sub">Clearer issue attribution</span>
+</button>
+
+<div style="position: absolute; left: 4px; top: 456px; display: flex; align-items: center; gap: 8px; font-size: 14px; color: #767676">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path></svg>
+Select a stakeholder to explore
+</div>
+</div>
+
+<!-- Detail panel -->
+<div style="width: 312px; min-height: 460px; box-sizing: border-box; background: #fbede8; border-radius: 20px; padding: 36px 32px; position: relative; overflow: hidden">
+<sc-if value="{{stShow0}}" hint-placeholder-val="{{ true }}">
+<div class="st-panel-fade">
+<div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600; letter-spacing: 1.2px; color: #f55c2d">PLATFORM</span><span style="font-size: 13px; color: #9a9a9a">01 / 04</span></div>
+<div style="margin-top: 18px; font-size: 26px; line-height: 32px; font-weight: 700; color: #1a1a1a">Turn service feedback into better decisions.</div>
+<div class="bd" style="margin-top: 16px; font-size: 15px; line-height: 22px">Delivery outcomes and claim patterns help the platform understand delivery quality, improve matching, and resolve issues more effectively.</div>
+<div style="margin-top: 24px; border-top: 1px solid #efe8e2"></div>
+<div style="margin-top: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #f55c2d">POTENTIAL BENEFITS</div>
+<div style="margin-top: 14px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Fewer repetitive support requests</span></div>
+<div style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Better signals for service matching</span></div>
+</div>
+</sc-if>
+<sc-if value="{{stShow1}}" hint-placeholder-val="{{ false }}">
+<div class="st-panel-fade">
+<div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600; letter-spacing: 1.2px; color: #f55c2d">CUSTOMERS</span><span style="font-size: 13px; color: #9a9a9a">02 / 04</span></div>
+<div style="margin-top: 18px; font-size: 26px; line-height: 32px; font-weight: 700; color: #1a1a1a">Tip with confidence in what you received.</div>
+<div class="bd" style="margin-top: 16px; font-size: 15px; line-height: 22px">Tips reflect your priorities and the service delivered, with clear explanations for adjustments and an agent to help handle issues.</div>
+<div style="margin-top: 24px; border-top: 1px solid #efe8e2"></div>
+<div style="margin-top: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #f55c2d">POTENTIAL BENEFITS</div>
+<div style="margin-top: 14px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Less tipping anxiety and guesswork</span></div>
+<div style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Less effort to resolve delivery issues</span></div>
+</div>
+</sc-if>
+<sc-if value="{{stShow2}}" hint-placeholder-val="{{ false }}">
+<div class="st-panel-fade">
+<div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600; letter-spacing: 1.2px; color: #f55c2d">COURIERS</span><span style="font-size: 13px; color: #9a9a9a">03 / 04</span></div>
+<div style="margin-top: 18px; font-size: 26px; line-height: 32px; font-weight: 700; color: #1a1a1a">Let good service earn recognition.</div>
+<div class="bd" style="margin-top: 16px; font-size: 15px; line-height: 22px">Service strengths translate into tip rewards and achievement badges, helping couriers understand what customers value and build their reputation.</div>
+<div style="margin-top: 24px; border-top: 1px solid #efe8e2"></div>
+<div style="margin-top: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #f55c2d">POTENTIAL BENEFITS</div>
+<div style="margin-top: 14px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Rewards tied to service quality</span></div>
+<div style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Recognition that builds over time</span></div>
+</div>
+</sc-if>
+<sc-if value="{{stShow3}}" hint-placeholder-val="{{ false }}">
+<div class="st-panel-fade">
+<div style="display: flex; align-items: center; justify-content: space-between"><span style="font-size: 13px; font-weight: 600; letter-spacing: 1.2px; color: #f55c2d">RESTAURANTS</span><span style="font-size: 13px; color: #9a9a9a">04 / 04</span></div>
+<div style="margin-top: 18px; font-size: 26px; line-height: 32px; font-weight: 700; color: #1a1a1a">Know which issues need your attention.</div>
+<div class="bd" style="margin-top: 16px; font-size: 15px; line-height: 22px">Separating food and packing issues from delivery performance helps restaurants identify what to improve and respond to customer concerns.</div>
+<div style="margin-top: 24px; border-top: 1px solid #efe8e2"></div>
+<div style="margin-top: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #f55c2d">POTENTIAL BENEFITS</div>
+<div style="margin-top: 14px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Clearer feedback on food and preparation</span></div>
+<div style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f55c2d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg><span style="font-size: 14px; line-height: 20px; color: #1a1a1a">Opportunities to build repeat business</span></div>
+</div>
+</sc-if>
+</div>
+</div>
+
+<!-- TAKEAWAYS -->
+<div class="s" style="top: 9482px; border-top: 1px solid #e6e6e6; padding-top: 56px">
+<p class="eb" style="font-size: 15px">Takeaways</p>
+<div style="margin-top: 36px; font-size: 20px; font-weight: 400">Trust needs a reason, not just an outcome</div>
+<p class="bd" style="margin-top: 10px">Users accepted AI-adjusted tips only once they could trace the adjustment to something concrete. Silent automation, even when correct, read as untrustworthy.</p>
+<div style="margin-top: 42px; font-size: 20px; font-weight: 400">Fixing tipping means fixing timing, not just UI</div>
+<p class="bd" style="margin-top: 10px">The core dysfunction wasn't the tip screen's design — it was that tipping happens before the thing being tipped for. Any fix had to move the decision point, not just restyle it.</p>
+</div>
+
+</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#f55c2d&quot;,&quot;options&quot;:[&quot;#d2431a&quot;,&quot;#c2410c&quot;,&quot;#b45309&quot;,&quot;#4f46e5&quot;]},&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:10015}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 1, dd: false, tab: 0, afterDelivery: false, stakeholder: 0 };
+    this._animated = {};
+  }
+  componentDidMount() {
+    const specs = [
+      { id: 'cu-58', target: 58, suffix: '%' },
+      { id: 'cu-23', target: 2, suffix: '/3' },
+      { id: 'cu-77', target: 77, suffix: '%' },
+      { id: 'cu-24', target: 24, suffix: '' }
+    ];
+    this._io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !this._animated[entry.target.id]) {
+          this._animated[entry.target.id] = true;
+          const spec = specs.find((s) => s.id === entry.target.id);
+          if (spec) this._countUp(entry.target, spec.target, spec.suffix);
+        }
+      });
+    }, { threshold: 0.4 });
+    specs.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) this._io.observe(el);
+    });
+    const wn2Ids = ['wn2-pay', 'wn2-dine'];
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      wn2Ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('wn2-in');
+      });
+    } else {
+      this._io2 = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !this._animated[entry.target.id]) {
+            this._animated[entry.target.id] = true;
+            const target = entry.target;
+            setTimeout(() => { target.classList.add('wn2-in'); }, 500);
+          }
+        });
+      }, { threshold: 0.2 });
+      wn2Ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) this._io2.observe(el);
+      });
+    }
+  }
+  componentWillUnmount() {
+    if (this._io) this._io.disconnect();
+    if (this._io2) this._io2.disconnect();
+  }
+  _countUp(el, target, suffix, duration = 1200) {
+    const start = performance.now();
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+    const step = (now) => {
+      const p = Math.min((now - start) / duration, 1);
+      const val = Math.round(easeOutCubic(p) * target);
+      el.textContent = val + suffix;
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = target + suffix;
+    };
+    requestAnimationFrame(step);
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#d2431a';
+    const S = this.state;
+    const defs = [
+      { l: 'Menu selection', n: '', k: 0 },
+      { l: 'Trust-first\npre tip', n: '01', k: 1 },
+      { l: 'Payment', n: '', k: 0 },
+      { l: 'In delivery', n: '', k: 0 },
+      { l: 'Dynamic adjustment', n: '02', k: 2 },
+      { l: 'Delivery complete', n: '', k: 0 },
+      { l: 'Final tip settlement', n: '', k: 0 },
+      { l: 'Claim resolution', n: '03', k: 3 }
+    ];
+    const steps = defs.map((d, i) => {
+      const isNew = d.k > 0;
+      const active = d.k === S.step;
+      return {
+        left: 305 + i * 98,
+        num: d.n,
+        label: d.l,
+        aria: isNew ? 'Explore touchpoint ' + d.n + ': ' + d.l : d.l,
+        dot: isNew ? accent : '#a5a29e',
+        dotClass: isNew ? 'dot-pulse' : '',
+        activeRing: active ? '1.5px solid ' + accent : 'none',
+        active,
+        textColor: isNew ? accent : '#767676',
+        pick: () => { if (isNew) this.setState({ step: d.k }); }
+      };
+    });
+    const conn = [0, 403, 697, 991][S.step];
+    const tabDefs = [
+      { label: 'Checkout', src: 'assets/images/b4b1f40e6ecb6c105cad83c0cfb81f67.png', h: 380, alt: 'Checkout screen with Trust-First Tipping' },
+      { label: 'Delivery feedback', src: 'assets/images/6eedbc732c8e1778c7e365e914feda24.png', h: 380, alt: 'Delivery feedback screen with verified drop-off details' },
+      { label: 'Adjust tip', src: 'assets/images/642e59fe717b7a9b97c5ca4c536aaa52.png', h: 200, alt: 'Adjust tip slider after delivery' }
+    ];
+    const tabs = tabDefs.map((t, i) => ({
+      label: t.label,
+      on: S.tab === i,
+      bg: S.tab === i ? '#1a1a1a' : '#ffffff',
+      fg: S.tab === i ? '#ffffff' : '#1a1a1a',
+      border: S.tab === i ? '#1a1a1a' : '#cfcfcf',
+      pick: () => this.setState({ tab: i })
+    }));
+    const cur = tabDefs[S.tab];
+    const afterDelivery = S.afterDelivery;
+    const purple = accent;
+    const selSt = S.stakeholder;
+    const nodeAt = (i) => ({
+      cls: selSt === i ? 'st-node sel' : 'st-node',
+      pressed: selSt === i,
+      pick: () => this.setState({ stakeholder: i }),
+      onKey: (e) => {
+        let next = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % 4;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i + 3) % 4;
+        if (next !== null) {
+          e.preventDefault();
+          const n = next;
+          this.setState({ stakeholder: n });
+          requestAnimationFrame(() => {
+            const el = document.getElementById('st-node-' + n);
+            if (el) el.focus();
+          });
+        }
+      }
+    });
+    const arcAt = (i) => ({
+      stroke: selSt === i ? purple : '#c7c4c0',
+      sw: selSt === i ? 2 : 1.5,
+      op: selSt === i ? 1 : 0
+    });
+    return {
+      accent,
+      steps,
+      connLeft: 256 + conn - 2 - 256 + 256 - 256 + 0,
+      show1: S.step === 1,
+      show2: S.step === 2,
+      show3: S.step === 3,
+      ddOpen: S.dd,
+      ddClosed: !S.dd,
+      toggleDd: () => this.setState({ dd: !S.dd }),
+      tabs,
+      stageSrc: cur.src,
+      stageAlt: cur.alt,
+      stageH: cur.h,
+      afterDelivery,
+      knowColor: afterDelivery ? '#1c8a4c' : accent,
+      arrivalVal: afterDelivery ? '6:52 PM · On time' : 'Not yet known',
+      courierVal: afterDelivery ? 'Quick, clear updates' : 'Not yet known',
+      tipVal: afterDelivery ? '$5.00 · Last order' : 'Not known',
+      deliveryBtnLabel: afterDelivery ? 'Back to checkout' : 'See after delivery',
+      deliveryBtnBg: afterDelivery ? '#eeeeee' : accent,
+      deliveryBtnFg: afterDelivery ? '#1a1a1a' : '#ffffff',
+      deliveryBtnBorder: afterDelivery ? '#dddddd' : 'rgba(0,0,0,0.1)',
+      toggleDelivery: () => this.setState({ afterDelivery: !S.afterDelivery }),
+      node0: nodeAt(0),
+      node1: nodeAt(1),
+      node2: nodeAt(2),
+      node3: nodeAt(3),
+      arc0: arcAt(0),
+      arc1: arcAt(1),
+      arc2: arcAt(2),
+      arc3: arcAt(3),
+      stShow0: selSt === 0,
+      stShow1: selSt === 1,
+      stShow2: selSt === 2,
+      stShow3: selSt === 3,
+      scrollToSolution: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const target = document.getElementById('solution');
+        if (!target) return;
+        const startY = window.scrollY || window.pageYOffset || 0;
+        const endY = target.getBoundingClientRect().top + startY;
+        const duration = 800;
+        const startTime = performance.now();
+        const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+        const step = (now) => {
+          const p = Math.min((now - startTime) / duration, 1);
+          window.scrollTo(0, startY + (endY - startY) * easeInOutCubic(p));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

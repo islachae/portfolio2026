@@ -5,6 +5,7 @@ import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
 import LocalTime from "./components/local-time";
 import ParallaxImage from "./components/parallax-image";
+import CardMedia from "./components/card-media";
 import TippingVisual from "./components/tipping-visual";
 import { PebboVisual } from "./components/pebbo-visuals";
 import { ZipflowHeroVisual } from "./components/zipflow-visual";
@@ -29,16 +30,24 @@ export default function Home() {
       <SiteHeader />
 
       <main className="portfolio-hero px-6 sm:px-10">
-        <section className="hero-copy">
+        <section className="hero-copy fade-up" style={{ animationDelay: "calc(var(--reveal-base))" }}>
           <h1>
-            <span className="block">Chaewon is a designer and thinker</span>
-            <span className="block">who shapes trust in AI into intuitive interactions</span>
+            <span className="block">Hi! I&apos;m Chaewon,</span>
+            <span className="block">
+              a designer with an artist&apos;s curiosity<img src="/icons/curiosity.png" alt="" className="mx-[6px] inline-block h-[46px] w-[46px] object-cover align-[-12px]" />, a
+            </span>
+            <span className="block">
+              baker&apos;s joy of sharing<img src="/icons/sharing.png" alt="" className="mx-[6px] inline-block h-[46px] w-[46px] object-cover align-[-12px]" />, and a thinker&apos;s
+            </span>
+            <span className="block">
+              drive to make AI worthy of trust<img src="/icons/trust.png" alt="" className="mx-[6px] inline-block h-[46px] w-[46px] object-cover align-[-12px]" />.
+            </span>
           </h1>
         </section>
 
         {/* ── Status row: metadata + availability dot inline ───────── */}
-        <div className="mt-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--muted)]">
-          <span>Carnegie Mellon Univ. — MDES</span>
+        <div className="mt-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--muted)] fade-up" style={{ animationDelay: "calc(var(--reveal-base) + 0.15s)" }}>
+          <span>Carnegie Mellon Univ. MDES</span>
           <span aria-hidden="true">·</span>
           <span>NYC</span>
           <span aria-hidden="true">·</span>
@@ -57,7 +66,8 @@ export default function Home() {
       {/* ── Work ───────────────────────────────────────────────────── */}
       <section
         id="work"
-        className="px-6 pt-32 pb-16 sm:px-10"
+        className="px-6 pt-32 pb-16 sm:px-10 fade-up"
+        style={{ animationDelay: "calc(var(--reveal-base) + 0.3s)" }}
       >
         <div className="mb-10 flex items-baseline justify-between">
           <h2 className="text-2xl font-medium tracking-tight">Work</h2>
@@ -67,38 +77,29 @@ export default function Home() {
         </div>
 
         <div className="project-grid grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2">
-          {workProjects.map((p, i) => (
-            <RevealOnScroll key={p.title} delay={i * 90}>
-              <Link
-                href={p.link}
-                aria-label={`View case study: ${p.title}`}
-                className="project-card group relative block"
-              >
-                <div className="relative overflow-hidden rounded-[20px] border border-solid border-[#e8e8e8] bg-[#fffaf8]">
+          {workProjects.map((p, i) => {
+            const inner = (
+              <>
+                <div className="relative overflow-hidden rounded-[20px] border border-solid border-[#e8e8e8] bg-[#eeeeee]">
                   {p.link === "/case-studies/tipping" ? (
-                    <img
-                      src="/case-studies/tipping-thumb.png"
-                      alt={p.title}
-                      className="aspect-[678/368] w-full object-cover"
-                    />
+                    <CardMedia src="/case-studies/tipping-thumb.png" alt={p.title} />
                   ) : p.link === "/case-studies/pebbo" ? (
-                    <img
-                      src="/case-studies/pebbo-thumb.png"
-                      alt={p.title}
-                      className="aspect-[678/368] w-full object-cover"
-                    />
+                    <CardMedia src="/case-studies/pebbo-thumb.png" alt={p.title} />
                   ) : p.link === "/case-studies/zipflow" ? (
-                    <img
-                      src="/case-studies/zipflow-thumb.png"
-                      alt={p.title}
-                      className="aspect-[678/368] w-full object-cover"
-                    />
+                    <CardMedia src="/case-studies/zipflow-thumb.png" alt={p.title} />
+                  ) : p.link === "/case-studies/scotty" ? (
+                    <CardMedia src="/case-studies/scotty-thumb.png" alt={p.title} />
                   ) : (
                     <ParallaxImage src={p.image} alt={p.title} />
                   )}
-                  <span className="absolute right-3 top-3 z-10 rounded-full border border-solid border-[#e8e8e8] bg-white/85 px-3 py-0.5 text-[16px] font-medium leading-[24.3px] tracking-[-0.45px] text-[var(--fg)]">
+                  <span className="absolute right-3 top-3 z-10 rounded-full border border-solid border-[#e8e8e8] bg-white/85 px-3 py-0.5 text-[16px] font-medium leading-[24.3px] tracking-[-0.45px] text-[var(--muted)] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     {p.type}
                   </span>
+                  {p.comingSoon && (
+                    <span className="absolute bottom-3 left-3 z-10 rounded-full bg-[#2b2b2b]/85 px-3 py-1 text-[12px] font-medium leading-[16px] text-white">
+                      coming soon {p.comingSoon}
+                    </span>
+                  )}
                 </div>
 
                 <div className="mt-4">
@@ -110,9 +111,25 @@ export default function Home() {
                     <p className="shrink-0 text-[14px] leading-[20px] text-[var(--muted)]">{p.readTime}</p>
                   </div>
                 </div>
-              </Link>
-            </RevealOnScroll>
-          ))}
+              </>
+            );
+
+            return (
+              <RevealOnScroll key={p.title} delay={i * 90}>
+                {p.comingSoon ? (
+                  <div className="project-card group relative block cursor-default" data-soon>{inner}</div>
+                ) : (
+                  <Link
+                    href={p.link}
+                    aria-label={`View case study: ${p.title}`}
+                    className="project-card group relative block"
+                  >
+                    {inner}
+                  </Link>
+                )}
+              </RevealOnScroll>
+            );
+          })}
         </div>
       </section>
 

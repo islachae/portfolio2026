@@ -6,7 +6,20 @@
 // project line (not a full paragraph) + a small tag underneath, with a
 // project-type badge ("case study", "ux/ui design", etc.) top-right.
 
-export const workProjects = [
+export interface WorkProject {
+  title: string;
+  tag: string;
+  type: string;
+  org: string;
+  year: string;
+  readTime: string;
+  comingSoon?: string;
+  tools: string[];
+  link: string;
+  image: string;
+}
+
+export const workProjects: WorkProject[] = [
   {
     title: "rethinking tipping for the age of ai",
     tag: "UX research · Design strategy · UXUI Design",
@@ -39,6 +52,18 @@ export const workProjects = [
     tools: ["UX/UI Design", "Design Strategy", "AI Prototyping", "Figma"],
     link: "/case-studies/zipflow",
     image: "/placeholder-1.png",
+  },
+  {
+    title: "Aye, Scotty! - school communication tailored to what matters to you",
+    tag: "UX Research · Service Design · AI Interaction",
+    type: "Communication UX",
+    org: "Carnegie Mellon University",
+    year: "Oct 2026",
+    readTime: "7 min",
+    comingSoon: "Oct 07 2026",
+    tools: ["UX Research", "Service Design", "AI Interaction", "Figma"],
+    link: "/case-studies/scotty",
+    image: "/case-studies/scotty-thumb.png",
   },
 ];
 

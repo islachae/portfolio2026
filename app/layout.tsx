@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import CustomCursor from "./components/custom-cursor";
+import LoadingScreen from "./components/loading-screen";
 
 export const metadata: Metadata = {
   title: "Chaewon Lim — Product Designer",
@@ -27,6 +28,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-[var(--bg)] text-[var(--fg)]">
         <CustomCursor />
+        <LoadingScreen />
         {children}
       </body>
     </html>

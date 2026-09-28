@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 export default function CustomCursor() {
   const ref = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
-  const [mode, setMode] = useState<"dot" | "grow" | "arrow">("dot");
+  const [mode, setMode] = useState<"dot" | "grow" | "arrow" | "soon">("dot");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -35,7 +35,8 @@ export default function CustomCursor() {
 
     const onOver = (e: Event) => {
       const t = e.target as HTMLElement;
-      if (t.closest(".project-card")) setMode("arrow");
+      if (t.closest("[data-soon]")) setMode("soon");
+      else if (t.closest(".project-card")) setMode("arrow");
       else if (t.closest("a, button, [role='button'], .cursor-pointer")) setMode("grow");
       else setMode("dot");
     };
@@ -61,6 +62,10 @@ export default function CustomCursor() {
       aria-hidden="true"
     >
       <div className="cc-dot" />
+      <div className="cc-soon">
+        <span>coming</span>
+        <span>soon</span>
+      </div>
       <div className="cc-arrow">
         <svg
           width="16"

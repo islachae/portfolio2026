@@ -104,13 +104,13 @@ export default function About() {
         <section className="grid grid-cols-1 gap-12 lg:grid-cols-[352px_1fr] lg:gap-8">
           {/* Left: photo cluster — Figma positions */}
           {/* Mobile: simple stack */}
-          <div className="space-y-6 lg:hidden">
+          <div className="space-y-6 lg:hidden fade-up" style={{ animationDelay: "calc(var(--reveal-base))" }}>
             <Img src="/about/portrait.jpg" alt="Chaewon in Tokyo" ratio="aspect-[3/4]" className="rounded-xl" />
             <Img src="/about/daejeon.jpg" alt="Daejeon Expo Bridge, South Korea" ratio="aspect-[4/5]" className="rounded-xl" />
             <Img src="/about/student-id.png" alt="CMU student ID" ratio="aspect-[4/3]" className="rounded-md border border-solid border-[var(--border)] shadow-sm" />
           </div>
           {/* Desktop: absolute Figma coords */}
-          <div className="relative hidden h-[700px] lg:block">
+          <div className="relative hidden h-[700px] lg:block fade-up" style={{ animationDelay: "calc(var(--reveal-base))" }}>
             <div className="absolute left-0 top-0 w-[290px]">
               <ScrollParallax speed={48} className="lg:-rotate-2">
                 <Img src="/about/portrait.jpg" alt="Chaewon in Tokyo" ratio="aspect-[3/4]" className="rounded-xl" />
@@ -133,7 +133,7 @@ export default function About() {
           </div>
 
           {/* Right: heading + bio, then Daejeon + ID photos */}
-          <div className="lg:pt-20">
+          <div className="lg:pt-20 fade-up" style={{ animationDelay: "calc(var(--reveal-base) + 0.15s)" }}>
             <ScrollFade>
               <h1 className="text-[28px] font-semibold leading-[1.5] tracking-[-0.02em]">
                 안녕! I&apos;m Chaewon
@@ -181,7 +181,7 @@ export default function About() {
         </section>
 
         {/* ── Exhibitions (artist career) ────────────────────────────── */}
-        <section className="mt-[120px]">
+        <section className="mt-[120px] fade-up" style={{ animationDelay: "calc(var(--reveal-base) + 0.3s)" }}>
             <h2 className="text-2xl font-medium tracking-tight sm:text-3xl">
               Exhibitions
             </h2>
@@ -253,7 +253,7 @@ export default function About() {
         </section>
 
         {/* ── Design Philosophy ─────────────────────────────────────── */}
-        <section className="mt-40">
+        <section className="mt-40 fade-up" style={{ animationDelay: "calc(var(--reveal-base) + 0.45s)" }}>
           <ScrollFade>
             <h2 className="text-2xl font-medium tracking-tight sm:text-3xl">
               My Design Philosophy
@@ -275,7 +275,7 @@ export default function About() {
         </section>
 
         {/* ── Off the clock (taped, staggered collage) ───────────────── */}
-        <section className="mt-40">
+        <section className="mt-40 fade-up" style={{ animationDelay: "calc(var(--reveal-base) + 0.6s)" }}>
           <ScrollFade>
             <h2 className="text-2xl font-medium tracking-tight sm:text-3xl">
               off the clock
@@ -371,7 +371,7 @@ export default function About() {
         </section>
 
         {/* ── CTA (handwritten note) ───────────────────────────────── */}
-        <section className="mt-96 flex justify-center px-4">
+        <section className="mt-96 flex justify-center px-4 fade-up" style={{ animationDelay: "calc(var(--reveal-base) + 0.75s)" }}>
           <ScrollFade>
             <div className="relative w-full max-w-md -rotate-2">
               <span

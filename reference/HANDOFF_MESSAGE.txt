@@ -1,0 +1,11 @@
+아래 첨부한 "Rethinking tipping for the age of AI" 케이스 스터디 페이지를 우리 웹사이트에 반영해줘.
+
+첨부 구성:
+- BRIEF.md — 섹션 구성, 디자인 토큰(색상/폰트), 다시 구현해야 하는 인터랙션 목록 정리
+- reference/case-study-reference.html — 레이아웃/CSS/카피 참고용 정적 소스 (그대로 실행되는 코드는 아님, BRIEF.md 참고)
+- assets/images/ — 사용된 이미지 21개
+- assets/fonts/ — Satoshi 폰트 10개 (woff)
+
+원본 디자인은 여기서 직접 볼 수 있어(로그인 필요): https://claude.ai/artifact/CVgA8MV3npWM16okmnJqnq
+
+우리 사이트 기존 스택/컴포넌트 구조에 맞춰서 새로 구현해줘. 레이아웃, 색상, 폰트, 카피는 reference html 그대로 따라가되, BRIEF.md의 "다시 구현해야 하는 인터랙션" 목록(스텝 네비게이션 + 인디케이터 바, 탭 전환, 스크롤 애니메이션, 카운트업, 노드 선택 등)은 우리 프레임워크 방식으로 새로 짜줘. 애매한 부분 있으면 원본 링크에서 직접 확인해줘.

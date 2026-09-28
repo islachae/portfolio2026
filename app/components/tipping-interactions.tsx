@@ -4,7 +4,7 @@ import { useState } from "react";
 
 // ── Tipping case study — interactive section components ─────────────
 
-const salmon = "#E8876B";
+const salmon = "#f55c2d";
 const green = "#5AA66A";
 const purple = "#8471B5";
 
@@ -46,8 +46,8 @@ export function TipGuessDemo() {
                   onClick={() => setTip(t)}
                   className={`rounded-lg border px-6 py-2.5 text-sm font-bold transition-colors ${
                     tip === t
-                      ? "border-[#E8876B] bg-[#E8876B]/10 text-[#E8876B]"
-                      : "border-[var(--border)] bg-white text-[var(--fg)] hover:border-[#E8876B]"
+                      ? "border-[#f55c2d] bg-[#f55c2d]/10 text-[#f55c2d]"
+                      : "border-[var(--border)] bg-white text-[var(--fg)] hover:border-[#f55c2d]"
                   }`}
                 >
                   ${t}
@@ -74,7 +74,7 @@ export function TipGuessDemo() {
               <span className="text-sm text-[var(--muted)]">{row.label}</span>
               <span
                 className={`text-sm font-medium transition-colors ${
-                  delivered ? "text-[#5AA66A]" : "text-[#E8876B]"
+                  delivered ? "text-[#5AA66A]" : "text-[#f55c2d]"
                 }`}
               >
                 {delivered ? row.after : row.before}
@@ -88,7 +88,7 @@ export function TipGuessDemo() {
           className={`mt-4 rounded-full px-5 py-2 text-xs font-semibold transition-colors ${
             delivered
               ? "border border-solid border-[var(--border)] bg-white text-[var(--fg)]"
-              : "bg-[#E8876B] text-white"
+              : "bg-[#f55c2d] text-white"
           }`}
         >
           {delivered ? "Reset" : "See after delivery"}
@@ -279,14 +279,14 @@ export function AgenticAIFlow() {
 
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Customer card */}
-          <div className="rounded-2xl border border-solid border-[#E8876B]/30 bg-white p-5 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#E8876B]">{tp.customer.label}</p>
+          <div className="rounded-2xl border border-solid border-[#f55c2d]/30 bg-white p-5 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#f55c2d]">{tp.customer.label}</p>
             <ul className="mt-3 space-y-2">
               {tp.customer.details.map((d) => (
                 <li key={d} className="text-sm text-[var(--muted)]">{d}</li>
               ))}
             </ul>
-            <p className="mt-4 rounded-full bg-[#E8876B] px-4 py-2 text-center text-xs font-semibold text-white">
+            <p className="mt-4 rounded-full bg-[#f55c2d] px-4 py-2 text-center text-xs font-semibold text-white">
               {tp.customer.btn}
             </p>
           </div>
