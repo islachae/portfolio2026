@@ -1,0 +1,5 @@
+# Not needed to build the site — keeps `vercel` CLI uploads small
+artifacts
+resume-placeholder.txt
+.next
+out
