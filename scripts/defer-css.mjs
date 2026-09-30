@@ -35,3 +35,21 @@ for (const file of htmlFiles(OUT)) {
   n++;
 }
 console.log(`defer-css: ${n} page(s)`);
+
+// The Home gradient (three.js + shadergradient, ~260 KB gzipped) now starts only after the intro
+// (components/ShaderHero.tsx). Prefetch its chunk once the page has loaded (the intro is still
+// playing) — lowest priority, and it isn't run — so it's in the cache by then. Home visits only.
+const CHUNKS = join(OUT, "_next/static/chunks");
+const index = join(OUT, "index.html");
+const home = readFileSync(index, "utf8");
+const gl = readdirSync(CHUNKS).filter(
+  (f) => f.endsWith(".js") && !home.includes(f) && readFileSync(join(CHUNKS, f), "utf8").includes("WebGLRenderer"),
+);
+if (gl.length) {
+  // Same prefix the page's own scripts use ("/" normally, "./site/" in the preview build)
+  const prefix = (home.match(/src="([^"]*)_next\/static\/chunks\//) || [, "/"])[1];
+  const hrefs = JSON.stringify(gl.map((f) => `${prefix}_next/static/chunks/${f}`));
+  const pre = `<script>(function(h){if(h&&h!=="#"&&h!=="#home")return;addEventListener("load",function(){${hrefs}.forEach(function(u){var l=document.createElement("link");l.rel="prefetch";l.href=u;document.head.appendChild(l)})},{once:true})})(location.hash)</script>`;
+  writeFileSync(index, home.replace("</head>", `${pre}</head>`));
+}
+console.log(`prefetch gradient: ${gl.join(", ") || "none found"}`);

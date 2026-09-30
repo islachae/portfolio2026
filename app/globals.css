@@ -7762,13 +7762,13 @@ html[data-motion="reduced"] .hi-fly {
   background: #ffffff;
   pointer-events: none;
 }
+/* It arrives after the intro (components/ShaderHero.tsx) and fades in once it has drawn */
 .shader-hero canvas {
-  animation: shader-in 0.9s ease-out both;
+  opacity: 0;
+  transition: opacity 0.9s ease-out;
 }
-@keyframes shader-in {
-  from {
-    opacity: 0;
-  }
+.shader-hero[data-live] canvas {
+  opacity: 1;
 }
 .page--home .cover {
   z-index: 1;

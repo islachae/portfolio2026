@@ -13,6 +13,11 @@
  *    into the name chip (or the phone bar's mark), and the page is simply there under it.
  *    Reduced motion: the signature is just there, the dot appears, it all fades.
  *    ⌘K → “Replay the intro” runs it again (window.cwIntro).
+ *    It plays while React is waking the page up, so everything in it moves with transform and
+ *    opacity only (the signature is revealed by a window sliding over it, the ring by two
+ *    half-arcs turning in, the backdrop by fading a layer): those run on the compositor and
+ *    don't stall when the main thread is busy. The Home gradient (three.js) waits until the
+ *    intro is over (components/ShaderHero.tsx); compiling its shader used to freeze the flight.
  * 2. The outline (#cw-skel): a link straight to /#case/… or /#about/story draws the long-read
  *    frame (bar, table of contents, title and hero placeholders) until the page itself is ready.
  */
@@ -30,21 +35,33 @@ html[data-theme=dark] #cw-boot,html[data-theme=dark] #cw-skel{${dark}}
 @media (prefers-color-scheme:dark){html:not([data-theme=light]) #cw-boot,html:not([data-theme=light]) #cw-skel{${dark}}}
 html[data-boot]{overflow:hidden}
 html[data-boot] #cw-boot{display:flex}
-#cw-boot{position:fixed;inset:0;z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:28px;background:var(--bg)}
+#cw-boot{position:fixed;inset:0;z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:28px}
+.cwb-bg{position:absolute;inset:0;background:var(--bg)}
 .cwb-sig{position:relative;width:min(300px,76vw);color:var(--i)}
-.cwb-sig svg{display:block;width:100%;height:auto;clip-path:inset(0 100% 0 0)}
-html[data-boot] .cwb-sig svg{animation:cwb-write .8s .1s both}
+.cwb-win,.cwb-ink{display:block}
+.cwb-win{overflow:hidden;transform:translateX(-100%)}
+.cwb-ink{transform:translateX(100%)}
+.cwb-ink svg{display:block;width:100%;height:auto}
+html[data-boot] .cwb-win,html[data-boot] .cwb-ink,html[data-boot] .cwb-arc,html[data-boot] .cwb-mono{will-change:transform}
+html[data-boot] .cwb-win{animation:cwb-win .8s .1s both}
+html[data-boot] .cwb-ink{animation:cwb-ink .8s .1s both}
 html[data-boot=on] .cwb-mark,html[data-boot=on] .cwb-sig{animation:cwb-in .3s ease-out both}
 @keyframes cwb-in{from{opacity:0;transform:translateY(4px)}}
-@keyframes cwb-write{0%{clip-path:inset(0 100% 0 0);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}46%{clip-path:inset(0 47% 0 0);animation-timing-function:linear}54%{clip-path:inset(0 46% 0 0);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}100%{clip-path:inset(0 -2% 0 0)}}
+@keyframes cwb-win{0%{transform:translateX(-100%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}46%{transform:translateX(-47%);animation-timing-function:linear}54%{transform:translateX(-46%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}100%{transform:none}}
+@keyframes cwb-ink{0%{transform:translateX(100%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}46%{transform:translateX(47%);animation-timing-function:linear}54%{transform:translateX(46%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}100%{transform:none}}
 .cwb-dot{position:absolute;left:calc(100% + 2px);top:calc(61.3% - 4px);width:5px;height:5px;border-radius:50%;background:var(--v);transform:scale(0)}
 html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:cwb-dot .34s cubic-bezier(.3,1.7,.5,1) both}
 @keyframes cwb-dot{from{transform:scale(0)}to{transform:scale(1)}}
 .cwb-mark{position:relative;width:112px;height:112px}
-.cwb-ring{position:absolute;inset:0;width:112px;height:112px;overflow:visible;transform:rotate(-90deg)}
-.cwb-track,.cwb-prog{fill:none;stroke-width:1.5}
+.cwb-ring{position:absolute;inset:0}
+.cwb-ring svg{position:absolute;top:0;left:0;width:112px;height:112px;overflow:visible}
+.cwb-ring circle,.cwb-ring path{fill:none;stroke-width:1.5}
 .cwb-track{stroke:var(--l)}
-.cwb-prog{stroke:var(--i);stroke-dasharray:100px 100px;stroke-dashoffset:calc((1 - var(--cwb-p,0)) * 100px);transition:stroke-dashoffset .45s cubic-bezier(.3,.7,.2,1)}
+.cwb-half{position:absolute;top:0;width:56px;height:112px;overflow:hidden}
+.cwb-half--l{left:0}
+.cwb-half--r{left:56px}
+.cwb-half--r svg{left:-56px}
+.cwb-ring .cwb-arc{stroke:var(--i);transform-origin:56px 56px}
 .cwb-mono{position:absolute;left:24px;top:24px;width:64px;height:64px;display:block}
 html[data-boot=out] .me-chip-mark,html[data-boot=out] .mobilebar-home svg{visibility:hidden}
 html[data-booting=case] #cw-skel{display:block}
@@ -70,11 +87,10 @@ html[data-booting=case] #cw-skel{display:block}
 @media (max-width:1199px){.cws-toc{display:none}}
 @media (max-width:799px){.cws-li{display:none}.cws-bar{padding:0 16px}.cws-col{padding:48px 16px 0}#cw-skel .cws-h1{height:30px}#cw-skel .cws-meta i{width:90px}}
 html[data-motion=reduced] #cw-skel .cws-fig{animation:none}
-html[data-motion=reduced] .cwb-prog{transition:none}
-html[data-motion=reduced] .cwb-sig svg{animation:none;clip-path:none}
+html[data-motion=reduced] .cwb-win,html[data-motion=reduced] .cwb-ink{animation:none;transform:none}
 html[data-motion=reduced] .cwb-mark,html[data-motion=reduced] .cwb-sig{animation:none}
 html[data-motion=reduced][data-boot=done] .cwb-dot,html[data-motion=reduced][data-boot=out] .cwb-dot{animation:none;transform:none}
-@media (prefers-reduced-motion:reduce){#cw-skel .cws-fig{animation:none}.cwb-prog{transition:none}html[data-boot] .cwb-sig svg{animation:none;clip-path:none}html[data-boot] .cwb-mark,html[data-boot] .cwb-sig{animation:none}html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:none;transform:none}}
+@media (prefers-reduced-motion:reduce){#cw-skel .cws-fig{animation:none}html[data-boot] .cwb-win,html[data-boot] .cwb-ink{animation:none;transform:none}html[data-boot] .cwb-mark,html[data-boot] .cwb-sig{animation:none}html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:none;transform:none}}
 `.replace(/\n/g, "");
 
 /**
@@ -92,9 +108,21 @@ if(CL.length){d.setAttribute("data-cssw","");for(var i=0;i<CL.length;i++){CL[i].
 
 /** Runs inside bootScript's function, where d = <html>, W = window, h = location.hash. */
 export const introScript = `
-var P=0,shown=0,busy=0;
+var P=0,shown=0,busy=0,RA=0,LA=0,A0=0,A1=0;
 function reduce(){return d.dataset.motion==="reduced"||!!(W.matchMedia&&W.matchMedia("(prefers-reduced-motion: reduce)").matches)}
-function setP(p){if(p>P){P=p;d.style.setProperty("--cwb-p",String(p))}}
+/* The ring fills clockwise from 12 o'clock with transforms only (two half-arcs turning in behind
+   two half-windows), so it keeps moving on the compositor while the page's JavaScript is busy.
+   A new step starts from wherever the last one had got to. */
+function arcs(){var b=document.getElementById("cw-boot");return b?[b.querySelector(".cwb-half--r .cwb-arc"),b.querySelector(".cwb-half--l .cwb-arc")]:[]}
+function rot(a){return"rotate("+a+"deg)"}
+function ring(p){var a=arcs(),r=a[0],l=a[1];if(!r||!l)return;
+  var q=A1;if(RA){try{var c=RA.effect.getComputedTiming().progress;if(c!=null)q=A0+(A1-A0)*c}catch(e){}RA.cancel();LA.cancel();RA=LA=0}
+  A0=q;A1=p;var f0=Math.min(q,.5)*360,f1=Math.max(q-.5,0)*360,t0=Math.min(p,.5)*360,t1=Math.max(p-.5,0)*360;
+  if(reduce()||!r.animate){r.style.transform=rot(t0);l.style.transform=rot(t1);return}
+  var k=p>q?Math.min(1,Math.max(0,(.5-q)/(p-q))):1,o={duration:450,fill:"forwards",easing:"cubic-bezier(.3,.7,.2,1)"};
+  RA=r.animate([{transform:rot(f0),offset:0},{transform:rot(t0),offset:k},{transform:rot(t0),offset:1}],o);
+  LA=l.animate([{transform:rot(f1),offset:0},{transform:rot(f1),offset:k},{transform:rot(t1),offset:1}],o)}
+function setP(p){if(p>P){P=p;ring(p)}}
 function stylesIn(){if(d.hasAttribute("data-cssw"))return false;var l=document.querySelectorAll('link[rel="stylesheet"]');if(!l.length)return false;for(var i=0;i<l.length;i++)if(!l[i].sheet||l[i].media==="print")return false;return true}
 function whenReady(cb){var t0=Date.now();(function poll(){
   if(document.readyState!=="loading")setP(.35);
@@ -103,21 +131,24 @@ function whenReady(cb){var t0=Date.now();(function poll(){
   if(Date.now()-t0>10000){setP(1);return cb()}
   setTimeout(poll,50)})()}
 function target(){var e=document.querySelectorAll(".me-chip-mark, .mobilebar-home svg");for(var i=0;i<e.length;i++){var r=e[i].getBoundingClientRect();if(r.width>0&&r.height>0&&r.bottom>0)return r}return null}
-function finish(){d.removeAttribute("data-boot");d.style.removeProperty("--cwb-p");P=0;busy=0}
+function reset(){var box=document.getElementById("cw-boot");if(box&&box.getAnimations)box.getAnimations({subtree:true}).forEach(function(a){a.cancel()});
+  RA=LA=0;A0=A1=P=0;var a=arcs();for(var i=0;i<a.length;i++)if(a[i])a[i].style.transform=""}
+function finish(){d.removeAttribute("data-boot");reset();busy=0}
 function done(){d.dataset.boot="done";setTimeout(out,reduce()?120:260)}
+/* Everything that moves here is transform or opacity, so it runs on the compositor: a busy
+   main thread (React waking the page up) can't make the monogram stall mid-flight. */
 function out(){var box=document.getElementById("cw-boot");if(!box)return finish();
-  var mono=box.querySelector(".cwb-mono"),ring=box.querySelector(".cwb-ring"),sig=box.querySelector(".cwb-sig");
+  var mono=box.querySelector(".cwb-mono"),ring=box.querySelector(".cwb-ring"),sig=box.querySelector(".cwb-sig"),bg=box.querySelector(".cwb-bg");
   d.dataset.boot="out";var t=target(),r=mono.getBoundingClientRect();
   if(!reduce()&&t&&mono.animate){
     var dx=(t.left+t.width/2)-(r.left+r.width/2),dy=(t.top+t.height/2)-(r.top+r.height/2),k=t.width/r.width;
-    ring.animate([{opacity:1,transform:"rotate(-90deg) scale(1)"},{opacity:0,transform:"rotate(-90deg) scale(.86)"}],{duration:240,fill:"forwards",easing:"ease-in"});
+    ring.animate([{opacity:1,transform:"scale(1)"},{opacity:0,transform:"scale(.86)"}],{duration:240,fill:"forwards",easing:"ease-in"});
     if(sig)sig.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(6px)"}],{duration:260,fill:"forwards",easing:"ease-in"});
     mono.animate([{transform:"none"},{transform:"translate("+dx+"px,"+dy+"px) scale("+k+")"}],{duration:760,delay:160,fill:"forwards",easing:"cubic-bezier(.65,0,.25,1)"});
-    box.animate([{backgroundColor:getComputedStyle(box).backgroundColor},{backgroundColor:"rgba(0,0,0,0)"}],{duration:560,delay:300,fill:"forwards",easing:"ease-out"});
+    if(bg)bg.animate([{opacity:1},{opacity:0}],{duration:560,delay:300,fill:"forwards",easing:"ease-out"});
     setTimeout(finish,930)}
   else{if(box.animate)box.animate([{opacity:1},{opacity:0}],{duration:260,fill:"forwards"});setTimeout(finish,280)}}
-function reset(){var box=document.getElementById("cw-boot");if(box&&box.getAnimations)box.getAnimations({subtree:true}).forEach(function(a){a.cancel()})}
-W.cwIntro=function(){if(busy)return;busy=1;reset();P=0;d.style.setProperty("--cwb-p","0");d.dataset.boot="on";
+W.cwIntro=function(){if(busy)return;busy=1;reset();d.dataset.boot="on";
   setTimeout(function(){setP(.35)},120);setTimeout(function(){setP(.72)},420);setTimeout(function(){setP(1)},700);setTimeout(done,950)};
 /* Home only (a link to a project, a case study or About skips it).
    First visit on this browser: it plays as the intro, whatever the speed (about 1.4s).

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Component, useEffect, useState, type ReactNode } from "react";
+import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { reducedMotion } from "./shell-context";
 
 /**
@@ -57,10 +57,51 @@ function useDark() {
   return dark;
 }
 
+/**
+ * True once the intro (#cw-boot, lib/boot.ts) is over and the browser has a quiet moment.
+ * Starting WebGL means downloading three.js and compiling the shader, one long stall of the
+ * main thread (and the GPU); during the intro it landed right on the monogram's flight.
+ * On visits without the intro this is simply "after the page has woken up".
+ */
+function useAfterIntro() {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    const html = document.documentElement;
+    let idle = 0;
+    let timer = 0;
+    const go = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idle = window.requestIdleCallback(() => setOk(true), { timeout: 1200 });
+      } else {
+        timer = window.setTimeout(() => setOk(true), 250);
+      }
+    };
+    const mo = new MutationObserver(() => {
+      if (html.hasAttribute("data-boot")) return;
+      mo.disconnect();
+      go();
+    });
+    if (html.hasAttribute("data-boot")) {
+      mo.observe(html, { attributes: true, attributeFilter: ["data-boot"] });
+    } else {
+      go();
+    }
+    return () => {
+      mo.disconnect();
+      if (idle) window.cancelIdleCallback?.(idle);
+      window.clearTimeout(timer);
+    };
+  }, []);
+  return ok;
+}
+
 export function ShaderHero({ active }: { active: boolean }) {
   const dark = useDark();
+  const ready = useAfterIntro();
   const [mounted, setMounted] = useState(false);
+  const [live, setLive] = useState(false);
   const [still, setStill] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setStill(reducedMotion());
@@ -70,19 +111,37 @@ export function ShaderHero({ active }: { active: boolean }) {
     return () => mo.disconnect();
   }, []);
 
-  // Mount on Home; let it go a moment after leaving (a quick scroll back doesn't restart WebGL)
+  // Mount on Home (once the intro is over); let it go a moment after leaving (a quick scroll
+  // back doesn't restart WebGL)
   useEffect(() => {
-    if (active) {
+    if (active && ready) {
       setMounted(true);
       return;
     }
+    if (active) return;
     const t = window.setTimeout(() => setMounted(false), 1500);
     return () => window.clearTimeout(t);
-  }, [active]);
+  }, [active, ready]);
+
+  // Fade the gradient in once it has actually drawn: a few frames after the canvas appears
+  // (the first one waits for the shader to compile), not the moment the empty canvas is added.
+  useEffect(() => {
+    setLive(false);
+    if (!mounted) return;
+    let raf = 0;
+    let frames = 0;
+    const tick = () => {
+      if (box.current?.querySelector("canvas")) frames++;
+      if (frames >= 3) return setLive(true);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [mounted]);
 
   const colors = dark ? DARK : LIGHT;
   return (
-    <div className="shader-hero" aria-hidden>
+    <div className="shader-hero" aria-hidden ref={box} data-live={live ? "" : undefined}>
       {mounted && (
         <Quiet>
           <ShaderGradientCanvas

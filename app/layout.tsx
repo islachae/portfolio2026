@@ -98,20 +98,40 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {/* The monogram loader: first visit to Home, only when the page is slow (lib/boot.ts) */}
         <div id="cw-boot" aria-hidden="true">
+          {/* The backdrop is its own layer so it can fade with opacity (compositor-only) */}
+          <i className="cwb-bg" />
           <div className="cwb-mark">
-            <svg className="cwb-ring" viewBox="0 0 120 120">
-              <circle className="cwb-track" cx="60" cy="60" r="58" />
-              <circle className="cwb-prog" cx="60" cy="60" r="58" pathLength={100} />
-            </svg>
+            {/* The ring: a grey track, and two half-arcs that turn in behind a right and a left
+                half-window as the page gets ready (transforms only; lib/boot.ts ring()) */}
+            <span className="cwb-ring">
+              <svg viewBox="0 0 120 120">
+                <circle className="cwb-track" cx="60" cy="60" r="58" />
+              </svg>
+              <span className="cwb-half cwb-half--r">
+                <svg className="cwb-arc" viewBox="0 0 120 120">
+                  <path d="M60 118A58 58 0 0 1 60 2" />
+                </svg>
+              </span>
+              <span className="cwb-half cwb-half--l">
+                <svg className="cwb-arc" viewBox="0 0 120 120">
+                  <path d="M60 2A58 58 0 0 1 60 118" />
+                </svg>
+              </span>
+            </span>
             <Monogram size={64} className="cwb-mono" />
           </div>
-          {/* “curiously, chaewon”, signed; the violet full stop lands when the page is ready */}
+          {/* “curiously, chaewon”, signed: a window slides open over it (and the ink slides the
+              other way, so it stays put); the violet full stop lands when the page is ready */}
           <div className="cwb-sig">
-            <svg viewBox={`0 0 ${SIGNATURE.w} ${SIGNATURE.h}`}>
-              <g transform={SIGNATURE.transform} fill="currentColor">
-                <path d={SIGNATURE.d} />
-              </g>
-            </svg>
+            <span className="cwb-win">
+              <span className="cwb-ink">
+                <svg viewBox={`0 0 ${SIGNATURE.w} ${SIGNATURE.h}`}>
+                  <g transform={SIGNATURE.transform} fill="currentColor">
+                    <path d={SIGNATURE.d} />
+                  </g>
+                </svg>
+              </span>
+            </span>
             <i className="cwb-dot" />
           </div>
         </div>
@@ -125,7 +145,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Back
             </span>
             <span className="cws-links">
-              <span className="cws-box">RESUME ↗</span>
+              <span className="cws-box">ABOUT</span>
+              <span>RESUME ↗</span>
               <span className="cws-li">LINKEDIN ↗</span>
             </span>
           </div>
