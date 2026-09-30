@@ -1,0 +1,57 @@
+<svg width="95" height="94" viewBox="0 0 95 94" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_fn_2479_14283)">
+<ellipse cx="36.5928" cy="35.9762" rx="36.5928" ry="35.9762" transform="matrix(0.996406 0.0847109 -0.0642895 0.997931 12.9922 7.86133)" fill="url(#paint0_radial_2479_14283)"/>
+</g>
+<g filter="url(#filter1_d_2479_14283)">
+<ellipse cx="27.5215" cy="26.9245" rx="27.5215" ry="26.9245" transform="matrix(0.984791 -0.173745 0.132513 0.991181 19.0156 27.541)" fill="url(#paint1_radial_2479_14283)" shape-rendering="crispEdges"/>
+</g>
+<path d="M54.7988 44.6183C54.7707 44.502 54.7313 44.3929 54.6823 44.2905C53.8208 42.4917 51.531 44.4546 51.4892 46.4486C51.4491 48.36 53.2309 49.9957 54.2758 48.3946C54.3471 48.2853 54.4061 48.1873 54.4552 48.1089C54.7825 47.5868 55.2217 46.3669 54.7988 44.6183Z" fill="black"/>
+<path d="M47.3672 40.8613C48.0945 39.9383 49.3672 38.3613 50.3672 37.8613" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M47.3672 37.8613C47.8857 38.225 50.1894 40.2068 50.3672 40.8613" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M56.3672 40.8613C57.0945 39.9383 58.3672 38.3613 59.3672 37.8613" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M56.3672 37.8613C56.8857 38.225 59.1894 40.2068 59.3672 40.8613" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+<defs>
+<filter id="filter0_fn_2479_14283" x="0.605469" y="0.826172" width="93.0703" height="92.0742" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="5" result="effect1_foregroundBlur_2479_14283"/>
+<feTurbulence type="fractalNoise" baseFrequency="1.25 1.25" stitchTiles="stitch" numOctaves="3" result="noise" seed="9872" />
+<feColorMatrix in="noise" type="luminanceToAlpha" result="alphaNoise" />
+<feComponentTransfer in="alphaNoise" result="coloredNoise1">
+<feFuncA type="discrete" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "/>
+</feComponentTransfer>
+<feComposite operator="in" in2="effect1_foregroundBlur_2479_14283" in="coloredNoise1" result="noise1Clipped" />
+<feComponentTransfer in="alphaNoise" result="coloredNoise2">
+<feFuncA type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 "/>
+</feComponentTransfer>
+<feComposite operator="in" in2="effect1_foregroundBlur_2479_14283" in="coloredNoise2" result="noise2Clipped" />
+<feFlood flood-color="rgba(73, 49, 49, 0.3)" result="color1Flood" />
+<feComposite operator="in" in2="noise1Clipped" in="color1Flood" result="color1" />
+<feFlood flood-color="rgba(82, 46, 50, 0.3)" result="color2Flood" />
+<feComposite operator="in" in2="noise2Clipped" in="color2Flood" result="color2" />
+<feMerge result="effect2_noise_2479_14283">
+<feMergeNode in="effect1_foregroundBlur_2479_14283" />
+<feMergeNode in="color1" />
+<feMergeNode in="color2" />
+</feMerge>
+</filter>
+<filter id="filter1_d_2479_14283" x="14.3477" y="18.3301" width="70.6797" height="70.2324" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="4"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2479_14283"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2479_14283" result="shape"/>
+</filter>
+<radialGradient id="paint0_radial_2479_14283" cx="0" cy="0" r="1" gradientTransform="matrix(-14.3417 -53.6399 54.5591 -19.1917 40.9574 46.6121)" gradientUnits="userSpaceOnUse">
+<stop offset="0.483948" stop-color="#959595"/>
+<stop offset="1" stop-color="#C7E4FF"/>
+</radialGradient>
+<radialGradient id="paint1_radial_2479_14283" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(27.5728 26.9747) rotate(90) scale(43.8213 44.7929)">
+<stop stop-color="#EBEBEB" stop-opacity="0"/>
+<stop offset="1" stop-color="white"/>
+</radialGradient>
+</defs>
+</svg>

@@ -1,34 +1,148 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
-import CustomCursor from "./components/custom-cursor";
-import LoadingScreen from "./components/loading-screen";
+import { Monogram } from "@/components/Monogram";
+import { bootCss, cssScript, introScript } from "@/lib/boot";
+import { SIGNATURE } from "@/lib/signature";
+
+// Geist for UI and reading, Satoshi for headlines, Geist Mono for small labels.
+const sans = localFont({
+  src: "./fonts/Geist.woff2",
+  variable: "--font-sans",
+  weight: "100 900",
+  display: "swap",
+});
+
+// Satoshi (Indian Type Foundry, Fontshare free license) for display and headings.
+const display = localFont({
+  src: [
+    { path: "./fonts/Satoshi-Regular.woff2", style: "normal", weight: "400" },
+    { path: "./fonts/Satoshi-Italic.woff2", style: "italic", weight: "400" },
+    { path: "./fonts/Satoshi-Medium.woff2", style: "normal", weight: "500" },
+    { path: "./fonts/Satoshi-MediumItalic.woff2", style: "italic", weight: "500" },
+    { path: "./fonts/Satoshi-Bold.woff2", style: "normal", weight: "700" },
+  ],
+  variable: "--font-satoshi",
+  display: "swap",
+});
+
+// Barlow + Barlow Semi Condensed (SIL OFL): the Pebbo app's typefaces, used only inside the
+// “Try Pebbo” phone, so they are not preloaded.
+const barlow = localFont({
+  src: [
+    { path: "./fonts/Barlow-Regular.woff2", weight: "400" },
+    { path: "./fonts/Barlow-Medium.woff2", weight: "500" },
+    { path: "./fonts/Barlow-SemiBold.woff2", weight: "600" },
+  ],
+  variable: "--font-barlow",
+  display: "swap",
+  preload: false,
+});
+const barlowSC = localFont({
+  src: "./fonts/BarlowSemiCondensed-Bold.woff2",
+  weight: "700",
+  variable: "--font-barlow-sc",
+  display: "swap",
+  preload: false,
+});
+
+const mono = localFont({
+  src: "./fonts/GeistMono.woff2",
+  variable: "--font-mono",
+  weight: "100 900",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Chaewon Lim — Product Designer",
+  // The live address, so share previews (Open Graph) resolve to chaewon.works
+  metadataBase: new URL("https://chaewon.works"),
+  title: "Chaewon Lim · Product Designer",
   description:
-    "Research-driven product designer combining craft, systems thinking, and AI to transform complex information into clear, scalable digital experiences. MDES candidate at Carnegie Mellon University.",
-  icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%232b2b2b' stroke='black' stroke-width='3'/><text x='50' y='68' text-anchor='middle' dominant-baseline='auto' font-size='52' font-weight='700' font-family='PingFang SC, Noto Sans SC, system-ui' fill='white'>採</text></svg>",
+    "Product designer at Carnegie Mellon (MDes), designing AI that takes the repetitive work and leaves the judgment to people. Open to Summer 2027 internships in New York.",
+  openGraph: {
+    title: "Chaewon Lim · Product Designer",
+    description: "Designing AI that people can trust. Open to Summer 2027 internships in NYC.",
+    type: "website",
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FAFCFD" },
+    { media: "(prefers-color-scheme: dark)", color: "#0E0F11" },
+  ],
+};
+
+// Runs in <head> before anything paints (the stylesheet can take seconds on a slow phone):
+// 1. saved theme/motion, so there's no flash;
+// 2. a link straight to a case study or the About page: hide the deck and draw that page's outline;
+// 3. the first visit to Home in a session: the monogram loader (only if the page isn't ready in 0.3s).
+const bootScript = `(function(){var d=document.documentElement,W=window,h=location.hash;
+try{var s=JSON.parse(localStorage.getItem("cw-settings")||"{}");if(s.theme==="light"||s.theme==="dark")d.dataset.theme=s.theme;if(s.motion==="reduced")d.dataset.motion="reduced";}catch(e){}
+if(/^#case\\//.test(h)||/^#about\\/story$/.test(h))d.dataset.booting="case";
+try{${cssScript}}catch(e){d.removeAttribute("data-cssw");var q=document.querySelectorAll("link[data-cw-css]");for(var j=0;j<q.length;j++)q[j].media="all"}
+try{${introScript}}catch(e){d.removeAttribute("data-boot")}
+})();`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable}`}>
       <head>
-        <link rel="preconnect" href="https://api.fontshare.com" />
-        <link
-          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap"
-          rel="stylesheet"
-        />
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
+        {/* Inline, so the loader and the outline can paint before the stylesheet arrives */}
+        <style dangerouslySetInnerHTML={{ __html: bootCss }} />
       </head>
-      <body className="font-sans antialiased bg-[var(--bg)] text-[var(--fg)]">
-        <CustomCursor />
-        <LoadingScreen />
+      <body>
+        {/* The monogram loader: first visit to Home, only when the page is slow (lib/boot.ts) */}
+        <div id="cw-boot" aria-hidden="true">
+          <div className="cwb-mark">
+            <svg className="cwb-ring" viewBox="0 0 120 120">
+              <circle className="cwb-track" cx="60" cy="60" r="58" />
+              <circle className="cwb-prog" cx="60" cy="60" r="58" pathLength={100} />
+            </svg>
+            <Monogram size={64} className="cwb-mono" />
+          </div>
+          {/* “curiously, chaewon”, signed; the violet full stop lands when the page is ready */}
+          <div className="cwb-sig">
+            <svg viewBox={`0 0 ${SIGNATURE.w} ${SIGNATURE.h}`}>
+              <g transform={SIGNATURE.transform} fill="currentColor">
+                <path d={SIGNATURE.d} />
+              </g>
+            </svg>
+            <i className="cwb-dot" />
+          </div>
+        </div>
+        {/* A case study or About opened from a link: the page's outline until it's ready */}
+        <div id="cw-skel" aria-hidden="true">
+          <div className="cws-bar">
+            <span className="cws-back">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+              Back
+            </span>
+            <span className="cws-links">
+              <span className="cws-box">RESUME ↗</span>
+              <span className="cws-li">LINKEDIN ↗</span>
+            </span>
+          </div>
+          <div className="cws-toc">
+            <i /><i /><i /><i /><i /><i /><i />
+          </div>
+          <div className="cws-col">
+            <i className="cws-e" />
+            <i className="cws-h1" />
+            <i className="cws-h1 cws-h1b" />
+            <i className="cws-sub" />
+            <span className="cws-meta">
+              <i /><i /><i />
+            </span>
+            <i className="cws-fig" />
+          </div>
+        </div>
         {children}
       </body>
     </html>

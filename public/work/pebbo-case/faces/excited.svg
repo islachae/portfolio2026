@@ -1,0 +1,61 @@
+<svg width="89" height="102" viewBox="0 0 89 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_fn_2479_14273)">
+<ellipse cx="44.5" cy="51" rx="41" ry="34.5" transform="rotate(90 44.5 51)" fill="url(#paint0_radial_2479_14273)"/>
+</g>
+<g filter="url(#filter1_d_2479_14273)">
+<ellipse cx="44.5" cy="51" rx="31" ry="26.5" transform="rotate(90 44.5 51)" fill="url(#paint1_radial_2479_14273)" shape-rendering="crispEdges"/>
+</g>
+<circle cx="39.5" cy="38.5" r="1.5" fill="black"/>
+<circle cx="50.0156" cy="38.5" r="1.5" fill="black"/>
+<path d="M40.1794 48.2606L40.7317 49.4703C41.6449 51.4701 44.0568 52.4237 45.8255 51.1181C48.0899 49.4466 48.7834 47.8865 49.1643 47.1443C49.694 46.1125 50.0936 44.1217 47.9569 42.6269C46.8852 41.8772 44.4184 42.4263 42.1318 43.2371C40.0995 43.9577 39.2837 46.2991 40.1794 48.2606Z" fill="black"/>
+<path d="M66 25C66.7619 23.8889 68.6286 21.5333 70 21" stroke="black" stroke-linecap="round"/>
+<path d="M68 28C69.1111 27.2 71.4667 25.48 72 25" stroke="black" stroke-linecap="round"/>
+<path d="M69 31C70.0417 31 72.5 30.6 74 29" stroke="black" stroke-linecap="round"/>
+<path d="M10.5781 32.8281C12.3236 33.2322 15.9402 34.1204 16.4433 34.4405" stroke="black" stroke-linecap="round"/>
+<path d="M8.07812 37.5938L15.0409 38.3144" stroke="black" stroke-linecap="round"/>
+<path d="M9.45034 43.7706C11.1596 43.4449 14.5885 42.6939 14.6297 42.296" stroke="black" stroke-linecap="round"/>
+<defs>
+<filter id="filter0_fn_2479_14273" x="0" y="0" width="89" height="102" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="5" result="effect1_foregroundBlur_2479_14273"/>
+<feTurbulence type="fractalNoise" baseFrequency="1.25 1.25" stitchTiles="stitch" numOctaves="3" result="noise" seed="9872" />
+<feColorMatrix in="noise" type="luminanceToAlpha" result="alphaNoise" />
+<feComponentTransfer in="alphaNoise" result="coloredNoise1">
+<feFuncA type="discrete" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "/>
+</feComponentTransfer>
+<feComposite operator="in" in2="effect1_foregroundBlur_2479_14273" in="coloredNoise1" result="noise1Clipped" />
+<feComponentTransfer in="alphaNoise" result="coloredNoise2">
+<feFuncA type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 "/>
+</feComponentTransfer>
+<feComposite operator="in" in2="effect1_foregroundBlur_2479_14273" in="coloredNoise2" result="noise2Clipped" />
+<feFlood flood-color="rgba(234, 142, 75, 0.3)" result="color1Flood" />
+<feComposite operator="in" in2="noise1Clipped" in="color1Flood" result="color1" />
+<feFlood flood-color="rgba(218, 105, 91, 0.3)" result="color2Flood" />
+<feComposite operator="in" in2="noise2Clipped" in="color2Flood" result="color2" />
+<feMerge result="effect2_noise_2479_14273">
+<feMergeNode in="effect1_foregroundBlur_2479_14273" />
+<feMergeNode in="color1" />
+<feMergeNode in="color2" />
+</feMerge>
+</filter>
+<filter id="filter1_d_2479_14273" x="10" y="16" width="69" height="78" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="4"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2479_14273"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2479_14273" result="shape"/>
+</filter>
+<radialGradient id="paint0_radial_2479_14273" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(44.5 51) rotate(90) scale(34.5 41)">
+<stop offset="0.798077" stop-color="#E898C8"/>
+<stop offset="1" stop-color="#EDC855" stop-opacity="0.4"/>
+</radialGradient>
+<radialGradient id="paint1_radial_2479_14273" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(44.5577 51.0493) rotate(90) scale(43.1304 50.4544)">
+<stop stop-color="#EBEBEB" stop-opacity="0"/>
+<stop offset="1" stop-color="white"/>
+</radialGradient>
+</defs>
+</svg>
