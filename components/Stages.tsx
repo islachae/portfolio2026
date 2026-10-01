@@ -580,8 +580,36 @@ export function WishStage() {
 const tilts = [-4, 3, -2, 5];
 const REDACT = { recipe: [92, 70, 84, 58, 76], spot: [80, 52, 66] };
 
-/** The back of a polaroid: a recipe card (with its secret ingredient blacked out), or the brunch
- *  tip. Empty = "classified". */
+/** Where the secret ingredient would be: a strip of mosaic tiles, like a pixelated-out word.
+ *  The tones come from an integer hash, so the server and the browser draw the same tiles. */
+const MOSAIC = ["#2a2a33", "#4c4c56", "#787880", "#a6a5aa", "#cfcdcb", "#ece9e3"];
+function Mosaic({ cols }: { cols: number }) {
+  const tile = (r: number, c: number) => {
+    let h = Math.imul(cols * 131 + r * 31 + c * 17 + 7, 0x9e3779b1);
+    h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+    const u = ((h ^ (h >>> 13)) >>> 0) / 2 ** 32;
+    // the middle row runs darker, like the body of the letters
+    return MOSAIC[Math.min(MOSAIC.length - 1, Math.floor(u * (r === 1 ? 4 : 6)) + (r === 1 ? 0 : 1))];
+  };
+  return (
+    <svg
+      className="bake-mosaic"
+      width={cols * 5}
+      height={15}
+      viewBox={`0 0 ${cols} 3`}
+      shapeRendering="crispEdges"
+      role="img"
+      aria-label="pixelated out"
+    >
+      {[0, 1, 2].flatMap((r) =>
+        Array.from({ length: cols }, (_, c) => <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill={tile(r, c)} />),
+      )}
+    </svg>
+  );
+}
+
+/** The back of a polaroid: a recipe card (with its secret ingredient pixelated out), or the
+ *  pancake place. Empty = "classified". */
 function BakeBack({ bake }: { bake: Bake }) {
   const b = bake.back;
   const filled = b.kind === "recipe" ? b.ingredients.length > 0 || b.method.length > 0 : !!b.name;
@@ -609,7 +637,8 @@ function BakeBack({ bake }: { bake: Bake }) {
             {b.secret > 0 && (
               <p className="bake-secret">
                 <span className="bake-secret-k">Secret ingredient</span>
-                <span className="bake-secret-bar" role="img" aria-label="blacked out" style={{ width: `${b.secret}ch` }} />
+                <Mosaic cols={b.secret} />
+                <span className="bake-secret-ask">{b.ask}</span>
               </p>
             )}
           </div>
@@ -659,7 +688,7 @@ export function BakeryStage() {
             const b = bakes[idx];
             const top = pos === 0;
             const flipped = top && flip;
-            const what = b.back.kind === "recipe" ? "Secret recipe" : "Brunch spot";
+            const what = b.back.kind === "recipe" ? "Secret recipe" : "Pancake spot";
             return (
               <motion.figure
                 key={b.src}

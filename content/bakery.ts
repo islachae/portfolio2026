@@ -3,11 +3,13 @@
  * Tap (or press Enter on) the top photo to flip it over.
  *
  * The recipes are ROUGH PLACEHOLDERS (plausible, not tested): Chaewon, swap in the real amounts.
- * The back holds 4 ingredients (two rows of two), 3 one-line steps and the secret-ingredient line,
- * so keep each ingredient to about 13 characters and each step to about 30, or it gets cut off.
- * The secret ingredient is never written here: `secret` is only how wide the black bar is.
- * TODO(Chaewon): the brunch spot's `name` / `area` / `order`. While it's empty that card shows its
- * "classified" version (redacted lines + the `sealed` line), so nothing looks broken.
+ * The back holds 4 ingredients (two rows of two), 3 one-line steps, then “Secret ingredient”, a
+ * mosaic where the word would be, and “Ask Chaewon!” under it. Keep each ingredient to about 13
+ * characters and each step to about 30, or it gets cut off.
+ * The secret ingredient is never written here: `secret` is only how wide the mosaic is.
+ * The pancakes card is a place, not a recipe: Five Leaves, Brooklyn. (`order` comes from the
+ * photo's own caption; change it if you order something else.) A back with nothing filled in
+ * shows its "classified" version (redacted lines + the `sealed` line).
  */
 export type RecipeBack = {
   kind: "recipe";
@@ -16,8 +18,10 @@ export type RecipeBack = {
   ingredients: string[];
   /** One short step per line */
   method: string[];
-  /** The secret ingredient, blacked out: the bar's width in characters (0 = no such line) */
+  /** The secret ingredient, pixelated out: how many mosaic tiles wide (0 = no such line) */
   secret: number;
+  /** What it says under the mosaic */
+  ask: string;
   sealed: string;
 };
 export type SpotBack = {
@@ -39,6 +43,7 @@ const recipe = (ingredients: string[], method: string[], secret: number): Recipe
   ingredients,
   method,
   secret,
+  ask: "Ask Chaewon!",
   sealed: "Classified. Ask me in person.",
 });
 
@@ -50,7 +55,7 @@ export const bakes: Bake[] = [
     back: recipe(
       ["250g berries", "200ml cream", "60g sugar", "6g gelatin"],
       ["Purée berries with sugar.", "Melt in gelatin, fold in cream.", "Chill overnight, then glaze."],
-      9,
+      12,
     ),
   },
   {
@@ -60,7 +65,7 @@ export const bakes: Bake[] = [
     back: recipe(
       ["115g butter", "150g sugar", "1 egg", "180g flour"],
       ["Brown the butter, let it cool.", "Mix; fold in 200g chocolate.", "Chill a day. Bake 11 min, 180°C."],
-      6,
+      9,
     ),
   },
   {
@@ -70,7 +75,7 @@ export const bakes: Bake[] = [
     back: recipe(
       ["4 eggs", "100g sugar", "100g flour", "200ml cream"],
       ["Whip eggs and sugar till pale.", "Bake thin: 180°C, 12 min.", "Roll warm. Fill with berries."],
-      8,
+      11,
     ),
   },
   {
@@ -79,10 +84,10 @@ export const bakes: Bake[] = [
     alt: "Chaewon holding a plate of pancakes with berries and banana",
     back: {
       kind: "spot",
-      title: "The best brunch spot in NYC",
-      name: "",
-      area: "",
-      order: "",
+      title: "The best pancake place in NYC",
+      name: "Five Leaves",
+      area: "Brooklyn",
+      order: "Pancakes, extra fruit",
       sealed: "Ask me over brunch.",
     },
   },

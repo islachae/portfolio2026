@@ -7551,11 +7551,13 @@ html[data-motion="reduced"] .hi-fly {
 .bake-back-list--steps {
   font-size: 13.5px;
 }
-/* the secret ingredient: named, then blacked out (one ruled line below the steps) */
+/* the secret ingredient: named, then pixelated out, and “Ask Chaewon!” on the line under it
+   (one ruled line below the steps) */
 .bake-secret {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  column-gap: 8px;
   margin-top: 26px;
 }
 .bake-secret-k {
@@ -7566,11 +7568,22 @@ html[data-motion="reduced"] .hi-fly {
   text-transform: uppercase;
   white-space: nowrap;
 }
-.bake-secret-bar {
-  flex: 0 1 auto;
-  min-width: 0;
-  height: 14px;
-  background: #2a2a33;
+.bake-mosaic {
+  flex: none;
+  display: block;
+}
+.bake-secret-ask {
+  flex-basis: 100%;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-style: italic;
+}
+/* phones: the card is narrower, so the title is a size down and stays on one line */
+@media (max-width: 799px) {
+  .bake-back-h {
+    font-size: 18px;
+    line-height: 24px;
+  }
 }
 .bake-back-row b {
   font-weight: 600;
