@@ -46,7 +46,7 @@ export const profile = {
   name: "Chaewon Lim",
   firstName: "Chaewon",
   role: "Product Designer",
-  status: "Open to Summer ’27 internships in NYC",
+  status: "Open to Summer ’27 internships",
   meta: ["Carnegie Mellon Univ. MDes", "NYC"],
   email: "chaewon2@andrew.cmu.edu",
   links: {

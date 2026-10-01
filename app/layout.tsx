@@ -57,10 +57,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://chaewon.works"),
   title: "Chaewon Lim · Product Designer",
   description:
-    "Product designer at Carnegie Mellon (MDes), designing AI that takes the repetitive work and leaves the judgment to people. Open to Summer 2027 internships in New York.",
+    "Product designer at Carnegie Mellon (MDes), designing AI that takes the repetitive work and leaves the judgment to people. Open to Summer 2027 internships.",
   openGraph: {
     title: "Chaewon Lim · Product Designer",
-    description: "Designing AI that people can trust. Open to Summer 2027 internships in NYC.",
+    description: "Designing AI that people can trust. Open to Summer 2027 internships.",
     type: "website",
   },
 };
