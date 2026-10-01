@@ -173,41 +173,19 @@ export const melonCase = {
   // ── The student survey (Google Form, Sept 19–21, 2026; 12 responses). Counts are of the students
   //    who answered each question; most questions were “choose everything that applies”.
   survey: {
-    label: "Survey",
+    label: "Survey · 12 students",
     title: ["The answers are out there.", "Students want certainty, with Donna behind it."],
-    intro: "In September we surveyed 12 School of Design students. 10 of them had written to Donna with a question. Three answers shaped Melon.",
-    /** The three answers the design leans on: the evidence (a count, drawn one square per student),
-     *  what it means, and where it shows up in Melon. */
+    /** The three answers the design leans on: a count (drawn one square per student who
+     *  answered), what it means in a few words, and where it shows up in Melon. */
     findings: [
-      {
-        n: 5,
-        of: 9,
-        unit: "wanted Donna’s confirmation",
-        h: "They write to Donna to be sure, not because the answer is missing.",
-        note: "Only 3 of the 9 couldn’t find it. 4 found it, but it was unclear.",
-        melon: "Summary first, source one tap away: every answer links back to Donna’s own email.",
-      },
-      {
-        n: 6,
-        of: 8,
-        unit: "asked another student instead",
-        h: "A question held back goes to a classmate, and Donna never sees it.",
-        note: "5 of the 8 felt they should be able to find it themselves.",
-        melon: "The advisor view shows Donna what students asked Melon, grouped by topic.",
-      },
-      {
-        n: 6,
-        of: 7,
-        unit: "want an AI to say when it’s unsure",
-        h: "An assistant earns trust by admitting doubt and handing over.",
-        note: "5 of the 7 also want a way to ask Donna directly.",
-        melon: "The middle lane: when Melon isn’t confident, it says so and sends the student to Donna.",
-      },
+      { n: 5, of: 9, unit: "wanted Donna’s confirmation", h: "Ask Donna to be sure, not because it’s missing", melon: "Answers link to her own email" },
+      { n: 6, of: 8, unit: "asked another student instead", h: "Unasked questions go to classmates", melon: "Donna sees what students ask" },
+      { n: 6, of: 7, unit: "want an AI to say when it’s unsure", h: "Trust an AI that admits doubt", melon: "Unsure? It hands over to Donna" },
     ],
     melonLabel: "In Melon",
     open: {
       k: "Still open",
-      v: "Funding was one of the top reasons to write to Donna (4 of 9), and the topic fewest students were comfortable hearing from an AI (1 of 6). Funding questions may belong with Donna, not Melon.",
+      v: "Funding: a top reason to ask Donna (4 of 9), and the topic fewest would trust an AI with (1 of 6).",
     },
     allLabel: "All answers",
     charts: [
@@ -258,7 +236,7 @@ export const melonCase = {
         ],
       },
     ],
-    foot: "12 responses, not a representative sample. Counts are of the students who answered each question; most questions allowed more than one answer.",
+    foot: "12 responses, September 2026. Not a representative sample; counts are of the students who answered each question.",
   },
 
   frame: {

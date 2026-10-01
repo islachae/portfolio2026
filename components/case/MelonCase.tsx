@@ -309,10 +309,10 @@ function Heard() {
 /* ───────────── Survey ───────────── */
 
 /**
- * The survey, by what it means for the design: three findings, each with its evidence (the count
- * and one square per student who answered, the ones that matter in Melon red), the finding itself,
- * and where it shows up in Melon. The funding question we haven't settled follows, and every
- * answer stays one click away under “All answers” (bar charts, count at the tip, share on hover).
+ * The survey in three numbers. Each column: the count, one square per student who answered (the
+ * ones counted in Melon red), what it means in a few words, and where it shows up in Melon. The
+ * funding question we haven't settled is one line under it, and every answer stays one click away
+ * under “All answers” (bar charts, count at the tip, share on hover).
  */
 function Survey() {
   const v = C.survey;
@@ -321,32 +321,25 @@ function Survey() {
       <h2 className="cs-h2">
         <Lines lines={v.title} />
       </h2>
-      <p className="cs-body cs-measure">{v.intro}</p>
       <ol className="ml-finds">
         {v.findings.map((f) => (
           <li key={f.h}>
             <div className="ml-find-ev" role="img" aria-label={`${f.n} of ${f.of} ${f.unit}`}>
               <span className="ml-find-n" aria-hidden>
                 {f.n}
-                <small> of {f.of}</small>
+                <small>/{f.of}</small>
               </span>
               <span className="ml-units" aria-hidden>
                 {Array.from({ length: f.of }, (_, k) => (
                   <i key={k} data-on={k < f.n || undefined} />
                 ))}
               </span>
-              <span className="ml-find-unit" aria-hidden>
-                {f.unit}
-              </span>
             </div>
-            <div className="ml-find-body">
-              <h3 className="ml-find-h">{f.h}</h3>
-              <p className="ml-find-note">{f.note}</p>
-              <p className="ml-find-melon">
-                <b>{v.melonLabel}</b>
-                <span>{f.melon}</span>
-              </p>
-            </div>
+            <h3 className="ml-find-h">{f.h}</h3>
+            <p className="ml-find-melon">
+              <b>{v.melonLabel}</b>
+              <span>{f.melon}</span>
+            </p>
           </li>
         ))}
       </ol>
@@ -356,7 +349,7 @@ function Survey() {
       <details className="ml-all">
         <summary>
           {v.allLabel}
-          <span>12 students</span>
+          <span>4 charts</span>
         </summary>
         <div className="ml-charts">
           {v.charts.map((c) => (

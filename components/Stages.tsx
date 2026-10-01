@@ -84,32 +84,32 @@ const TIP_STEPS: TipStep[] = [
     label: "Minimum",
     caption: "Pay a $2 minimum now. The rest waits until your food arrives.",
     say: "Checkout: Trust-First Tipping sets a $2.00 pre-tip and a post-delivery reward of $1.50 to $3.50.",
-    ms: 4600,
-    zoom: { x: 32, y: 60, s: 1.9 },
+    ms: 5600,
+    zoom: { x: 32, y: 60, s: 1.55 },
     ring: { l: 5.5, t: 52.3, w: 53, h: 16 },
   },
   {
     label: "Delivered",
     caption: "After delivery the tip settles at $4.50, with the reason one tap away.",
     say: "Delivered: ETA 2:45 PM, actual 2:55 PM, verified drop-off, responsive, e-bike. Trust Tip applied: $4.50, with a View reason link.",
-    ms: 4400,
-    zoom: { x: 50, y: 52.5, s: 1.6 },
+    ms: 5400,
+    zoom: { x: 50, y: 52.5, s: 1.45 },
     ring: { l: 5, t: 42.6, w: 89.5, h: 19.4 },
   },
   {
     label: "Feedback",
     caption: "Feedback is one tap and saves on its own. No confirm step.",
     say: "Feedback sheet: Quick & Efficient, Careful Handling, Clear Communication. Careful Handling is tapped.",
-    ms: 4000,
-    zoom: { x: 50, y: 79, s: 1.4 },
+    ms: 5000,
+    zoom: { x: 50, y: 79, s: 1.3 },
     tap: { x: 49, y: 80.6 },
   },
   {
     label: "Your call",
     caption: "The AI suggests, you decide: slide it up or down.",
     say: "Adjust tip sheet: the Trust Tip of $4.50 on a slider from $3.50 to $7.50.",
-    ms: 4000,
-    zoom: { x: 50, y: 86.5, s: 1.65 },
+    ms: 5000,
+    zoom: { x: 50, y: 86.5, s: 1.45 },
     ring: { l: 6, t: 83, w: 88, h: 8 },
     nudge: { x: 30.4, y: 88.8 },
   },
@@ -117,14 +117,20 @@ const TIP_STEPS: TipStep[] = [
     label: "Courier",
     caption: "Couriers see the tip range and your priorities before they accept.",
     say: "Courier view: base pay $6.00, a trust tip range of $2 to $4, and the customer’s preferences.",
-    ms: 4600,
-    zoom: { x: 72, y: 56.5, s: 1.85 },
+    ms: 5600,
+    zoom: { x: 72, y: 56.5, s: 1.55 },
     ring: { l: 49.5, t: 48, w: 46.5, h: 17.5 },
   },
 ];
-/** When the camera leans in after a step starts, and how long before the step ends it leans out. */
-const ZOOM_IN_AT = 520;
-const ZOOM_OUT_BEFORE = 560;
+/**
+ * The camera's rhythm in each step (the move itself is 0.9s, ease-in-out, in globals.css):
+ * the new screen fades in and is seen whole for a moment, the camera leans in, holds with the
+ * ring on, leans out, and the screen only changes once it's fully back (so the zoom origin never
+ * jumps mid-move). Before: a 0.72s ease-out that covered 64% of the way in 0.15s, and the next
+ * dive 0.18s after the new screen appeared.
+ */
+const ZOOM_IN_AT = 850;
+const ZOOM_OUT_BEFORE = 1300;
 
 export function TippingStage() {
   const active = useActive("tipping");
@@ -132,8 +138,21 @@ export function TippingStage() {
   const [playing, setPlaying] = useState(false);
   const [zoomed, setZoomed] = useState(false);
   const [still, setStill] = useState(false);
+  // A step picked by hand cuts straight to the new screen (no lean-out from the old one, whose
+  // zoom origin would jump mid-move), then leans in as usual
+  const [cut, setCut] = useState(false);
   // A pause the visitor chose sticks when they leave and come back
   const held = useRef(false);
+  const pick = (i: number) => {
+    setCut(true);
+    setZoomed(false);
+    setStep(i);
+  };
+  useEffect(() => {
+    if (!cut) return;
+    const r = requestAnimationFrame(() => requestAnimationFrame(() => setCut(false)));
+    return () => cancelAnimationFrame(r);
+  }, [cut]);
 
   useEffect(() => setStill(reducedMotion()), []);
   // Plays while the page is on screen; never on its own with reduced motion
@@ -164,7 +183,7 @@ export function TippingStage() {
 
   return (
     <>
-      <div className="stage-visual tipproto-stage" data-zoomed={zoomed || undefined}>
+      <div className="stage-visual tipproto-stage" data-zoomed={zoomed || undefined} data-cut={cut || undefined}>
         <div
           className="tp-phone"
           role="img"
@@ -210,7 +229,7 @@ export function TippingStage() {
         <Pills
           name="Step through the prototype"
           value={step}
-          onChange={setStep}
+          onChange={pick}
           options={TIP_STEPS.map((s, i) => ({ value: i, label: s.label }))}
         />
         <button className="stage-btn" onClick={toggle} aria-label={playing ? "Pause the walkthrough" : "Play the walkthrough"}>
