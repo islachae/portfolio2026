@@ -3,24 +3,35 @@
  * app/layout.tsx). On a slow phone the stylesheet alone takes ~3s and a case-study link waited
  * on all the JavaScript (~14s on 3G) with a white screen; these fill that gap.
  *
- * 1. The monogram loader (#cw-boot): on Home only. The first visit on a browser plays it as a short
- *    intro (~1.4s, localStorage "cw-intro"), whatever the speed; later visits show it only if the
- *    page isn't ready after 0.3s. Any click, tap, scroll or key skips it once the page is ready. The ring fills with real steps (page parsed → styles in → fonts in, waiting
- *    at most 0.4s for fonts; they swap in after), never a timer. Under it, “curiously, chaewon”
- *    writes itself in her handwriting (lib/signature.ts), with a breath after the comma. When the
- *    page is ready and the signature has finished, the full stop lands as a small violet dot
- *    (data-boot="done"); 0.3s later the ring fades, the signature sinks away and the monogram flies
- *    into the name chip (or the phone bar's mark), and the page is simply there under it.
+ * 1. The monogram loader (#cw-boot): on Home only. The first visit on a browser plays it as an
+ *    intro (~4.9s with the flight, localStorage "cw-intro"), whatever the speed; later visits show
+ *    it only if the page isn't ready after 0.3s. Any click, tap, scroll or key skips it once the
+ *    page is ready. The ring fills with real steps (page parsed → styles in → fonts in, waiting
+ *    at most 0.4s for fonts; they swap in after), never a timer. Under it, “Curiously, Chaewon”
+ *    writes itself again the way she wrote it (lib/signature.ts, traced from a recording of her
+ *    hand: stroke order, pace and pen lifts, ~3.5s, with a breath after the comma). When the page
+ *    is ready and the writing has finished, the full stop lands as a small violet dot where she
+ *    put hers (data-boot="done"); 0.26s later the ring fades, the signature sinks away and the
+ *    monogram flies into the name chip (or the phone bar's mark), and the page is simply there
+ *    under it. On a later visit, if the page gets ready mid-word, the rest is written 4× faster.
  *    Reduced motion: the signature is just there, the dot appears, it all fades.
  *    ⌘K → “Replay the intro” runs it again (window.cwIntro).
- *    It plays while React is waking the page up, so everything in it moves with transform and
- *    opacity only (the signature is revealed by a window sliding over it, the ring by two
- *    half-arcs turning in, the backdrop by fading a layer): those run on the compositor and
- *    don't stall when the main thread is busy. The Home gradient (three.js) waits until the
+ *    It plays while React is waking the page up, so nothing in it may wait for the main thread:
+ *    the pen draws on a canvas from a worker (OffscreenCanvas; on the main thread only where
+ *    that's missing), the ring fills by two half-arcs turning in, the backdrop fades as a layer
+ *    (transforms and opacity, on the compositor). The Home gradient (three.js) waits until the
  *    intro is over (components/ShaderHero.tsx); compiling its shader used to freeze the flight.
  * 2. The outline (#cw-skel): a link straight to /#case/… or /#about/story draws the long-read
  *    frame (bar, table of contents, title and hero placeholders) until the page itself is ready.
  */
+
+import { PACE, SIGNATURE } from "./signature";
+
+// Her full stop, as a share of the drawing: the violet dot lands there, a little wider than the pen
+const pct = (v: number) => Math.round(v * 1e4) / 100;
+const dotX = pct(SIGNATURE.stop[0] / SIGNATURE.w);
+const dotY = pct(SIGNATURE.stop[1] / SIGNATURE.h);
+const dotD = pct((SIGNATURE.pen * 1.25) / SIGNATURE.w);
 
 const light = "--v:#6c4fe0;--bg:#fafcfd;--i:#32404f;--t:#6a737e;--l:#e2e5e8;--s:#eef0f2;--s2:#f9fafb;--mono-bg:#2b2b2b;--mono-fg:#ffffff;";
 const dark = "--v:#a996ff;--bg:#0e0f11;--i:#f7f7f8;--t:#9e9fa0;--l:#353537;--s:#1b1c1e;--s2:#26272a;--mono-bg:#ececef;--mono-fg:#0b0b0c;";
@@ -37,19 +48,12 @@ html[data-boot]{overflow:hidden}
 html[data-boot] #cw-boot{display:flex}
 #cw-boot{position:fixed;inset:0;z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:28px}
 .cwb-bg{position:absolute;inset:0;background:var(--bg)}
-.cwb-sig{position:relative;width:min(300px,76vw);color:var(--i)}
-.cwb-win,.cwb-ink{display:block}
-.cwb-win{overflow:hidden;transform:translateX(-100%)}
-.cwb-ink{transform:translateX(100%)}
-.cwb-ink svg{display:block;width:100%;height:auto}
-html[data-boot] .cwb-win,html[data-boot] .cwb-ink,html[data-boot] .cwb-arc,html[data-boot] .cwb-mono{will-change:transform}
-html[data-boot] .cwb-win{animation:cwb-win .8s .1s both}
-html[data-boot] .cwb-ink{animation:cwb-ink .8s .1s both}
+.cwb-sig{position:relative;width:min(195px,49.4vw);color:var(--i)}
+.cwb-pen{display:block;width:100%;height:auto;aspect-ratio:${SIGNATURE.w}/${SIGNATURE.h}}
+html[data-boot] .cwb-arc,html[data-boot] .cwb-mono{will-change:transform}
 html[data-boot=on] .cwb-mark,html[data-boot=on] .cwb-sig{animation:cwb-in .3s ease-out both}
 @keyframes cwb-in{from{opacity:0;transform:translateY(4px)}}
-@keyframes cwb-win{0%{transform:translateX(-100%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}46%{transform:translateX(-47%);animation-timing-function:linear}54%{transform:translateX(-46%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}100%{transform:none}}
-@keyframes cwb-ink{0%{transform:translateX(100%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}46%{transform:translateX(47%);animation-timing-function:linear}54%{transform:translateX(46%);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}100%{transform:none}}
-.cwb-dot{position:absolute;left:calc(100% + 2px);top:calc(61.3% - 4px);width:5px;height:5px;border-radius:50%;background:var(--v);transform:scale(0)}
+.cwb-dot{position:absolute;left:${dotX}%;top:${dotY}%;width:${dotD}%;aspect-ratio:1;margin:-${dotD / 2}% 0 0 -${dotD / 2}%;border-radius:50%;background:var(--v);transform:scale(0)}
 html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:cwb-dot .34s cubic-bezier(.3,1.7,.5,1) both}
 @keyframes cwb-dot{from{transform:scale(0)}to{transform:scale(1)}}
 .cwb-mark{position:relative;width:112px;height:112px}
@@ -87,10 +91,9 @@ html[data-booting=case] #cw-skel{display:block}
 @media (max-width:1199px){.cws-toc{display:none}}
 @media (max-width:799px){.cws-li{display:none}.cws-bar{padding:0 16px}.cws-col{padding:48px 16px 0}#cw-skel .cws-h1{height:30px}#cw-skel .cws-meta i{width:90px}}
 html[data-motion=reduced] #cw-skel .cws-fig{animation:none}
-html[data-motion=reduced] .cwb-win,html[data-motion=reduced] .cwb-ink{animation:none;transform:none}
 html[data-motion=reduced] .cwb-mark,html[data-motion=reduced] .cwb-sig{animation:none}
 html[data-motion=reduced][data-boot=done] .cwb-dot,html[data-motion=reduced][data-boot=out] .cwb-dot{animation:none;transform:none}
-@media (prefers-reduced-motion:reduce){#cw-skel .cws-fig{animation:none}html[data-boot] .cwb-win,html[data-boot] .cwb-ink{animation:none;transform:none}html[data-boot] .cwb-mark,html[data-boot] .cwb-sig{animation:none}html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:none;transform:none}}
+@media (prefers-reduced-motion:reduce){#cw-skel .cws-fig{animation:none}html[data-boot] .cwb-mark,html[data-boot] .cwb-sig{animation:none}html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:none;transform:none}}
 `.replace(/\n/g, "");
 
 /**
@@ -123,6 +126,40 @@ function ring(p){var a=arcs(),r=a[0],l=a[1];if(!r||!l)return;
   RA=r.animate([{transform:rot(f0),offset:0},{transform:rot(t0),offset:k},{transform:rot(t0),offset:1}],o);
   LA=l.animate([{transform:rot(f1),offset:0},{transform:rot(f1),offset:k},{transform:rot(t1),offset:1}],o)}
 function setP(p){if(p>P){P=p;ring(p)}}
+/* The pen writes “Curiously, Chaewon” again the way she did (lib/signature.ts, at PACE). It draws
+   on a canvas from a worker, so React waking the page up can't make it stop mid-word; pen() and
+   penLoop() are sent to the worker as text, so they use nothing from out here. Where there's no
+   OffscreenCanvas they run on this thread instead. */
+var SG=${JSON.stringify(SIGNATURE)},SP=${JSON.stringify(PACE)},PN=0;
+function pen(D,S){var st=D.strokes,n=st.length,T=[],Q=[],t=S.lead,i,g;
+  for(i=0;i<n;i++){if(i){g=(st[i][2]-st[i-1][2]-st[i-1][3])/S.gap;if(i===D.rest&&g<S.breath)g=S.breath;t+=g}T.push(t);t+=st[i][3]/S.draw}
+  function share(s,r){var k=s[4],pt=0,pf=0,j,ct,cf;for(j=0;j<=k.length;j+=2){ct=j<k.length?k[j]:s[3];cf=j<k.length?k[j+1]:1;if(r<=ct)return ct>pt?pf+(cf-pf)*(r-pt)/(ct-pt):cf;pt=ct;pf=cf}return 1}
+  return{end:t,draw:function(x,v,k,c){var i,s,r,f;x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,x.canvas.width,x.canvas.height);
+    x.setTransform(k,0,0,k,0,0);x.lineWidth=D.pen;x.lineCap="round";x.lineJoin="round";x.strokeStyle=c;
+    for(i=0;i<n;i++){r=(v-T[i])*S.draw;if(r<=0)break;s=st[i];Q[i]=Q[i]||new Path2D(s[0]);
+      f=r>=s[3]?1:share(s,r);x.setLineDash(f<1?[f*s[1],s[1]+D.pen*2]:[]);x.stroke(Q[i])}}}}
+function penLoop(p,x,k,c){var v0=0,n0=0,r=1,on=0,af=self.requestAnimationFrame?function(f){self.requestAnimationFrame(f)}:function(f){setTimeout(f,16)};
+  function now(){return performance.now()/1e3}
+  function vt(){return v0+(now()-n0)*r}
+  function loop(){if(!on)return;var v=vt();p.draw(x,v,k,c);if(v>=p.end)on=0;else af(loop)}
+  return function(m){if(m.col)c=m.col;if(m.v!=null){v0=m.v;n0=now();r=m.r||1;if(!on){on=1;loop()}}else if(m.r){v0=vt();n0=now();r=m.r}}}
+function penNow(){return performance.now()/1e3}
+function penV(){return PN?PN.v0+(penNow()-PN.n0)*PN.r:0}
+/* ms of writing left (0 if the pen isn't writing) */
+function penLeft(){return PN&&PN.on?Math.max(0,(PN.end-penV())/PN.r)*1e3:0}
+function penSet(){if(PN)return PN;var c=document.querySelector("#cw-boot .cwb-pen");if(!c||!W.Path2D||!W.performance)return 0;
+  var b=c.getBoundingClientRect();if(!b.width)return 0;
+  var q=Math.min(W.devicePixelRatio||1,3),pw=Math.round(b.width*q),ph=Math.round(pw*SG.h/SG.w),k=pw/SG.w,p=pen(SG,SP),col=getComputedStyle(c).color,post=0,x;
+  if(c.transferControlToOffscreen&&W.Worker&&W.Blob&&W.URL)try{
+    var wk=new Worker(URL.createObjectURL(new Blob([pen+";"+penLoop+";var H;onmessage=function(e){var m=e.data;if(m.cv){m.cv.width=m.w;m.cv.height=m.h;H=penLoop(pen(m.D,m.S),m.cv.getContext('2d'),m.k,m.col)}if(H)H(m)}"],{type:"text/javascript"}))),oc=c.transferControlToOffscreen();
+    wk.postMessage({cv:oc,w:pw,h:ph,k:k,col:col,D:SG,S:SP},[oc]);post=function(m){wk.postMessage(m)}}catch(e){post=0}
+  if(!post){try{c.width=pw;c.height=ph;x=c.getContext("2d")}catch(e){}if(!x)return 0;post=penLoop(p,x,k,col)}
+  return PN={el:c,end:p.end,v0:0,n0:penNow(),r:1,on:0,post:post}}
+/* Start writing from v seconds in (reduced motion: from the end, so it's simply there) */
+function penGo(){var p=penSet();if(!p)return;p.v0=reduce()?p.end:0;p.n0=penNow();p.r=1;p.on=1;p.post({v:p.v0,r:1,col:getComputedStyle(p.el).color})}
+function penRate(r){if(!PN||!PN.on)return;PN.v0=penV();PN.n0=penNow();PN.r=r;PN.post({r:r})}
+/* The canvas is in the page now (app/layout.tsx calls this right after it) */
+W.cwPen=function(){if(d.dataset.boot==="on"&&!PN)penGo()};
 function stylesIn(){if(d.hasAttribute("data-cssw"))return false;var l=document.querySelectorAll('link[rel="stylesheet"]');if(!l.length)return false;for(var i=0;i<l.length;i++)if(!l[i].sheet||l[i].media==="print")return false;return true}
 function whenReady(cb){var t0=Date.now();(function poll(){
   if(document.readyState!=="loading")setP(.35);
@@ -148,22 +185,26 @@ function out(){var box=document.getElementById("cw-boot");if(!box)return finish(
     if(bg)bg.animate([{opacity:1},{opacity:0}],{duration:560,delay:300,fill:"forwards",easing:"ease-out"});
     setTimeout(finish,930)}
   else{if(box.animate)box.animate([{opacity:1},{opacity:0}],{duration:260,fill:"forwards"});setTimeout(finish,280)}}
-W.cwIntro=function(){if(busy)return;busy=1;reset();d.dataset.boot="on";
-  setTimeout(function(){setP(.35)},120);setTimeout(function(){setP(.72)},420);setTimeout(function(){setP(1)},700);setTimeout(done,950)};
+W.cwIntro=function(){if(busy)return;busy=1;reset();d.dataset.boot="on";penGo();
+  setTimeout(function(){setP(.35)},120);setTimeout(function(){setP(.72)},420);setTimeout(function(){setP(1)},700);
+  setTimeout(done,Math.max(950,penLeft()&&penLeft()+SP.stop*1e3))};
 /* Home only (a link to a project, a case study or About skips it).
-   First visit on this browser: it plays as the intro, whatever the speed (about 1.4s).
-   Later visits: it shows only if the styles aren't in after 0.3s (fonts alone never trigger it).
+   First visit on this browser: it plays as the intro, whatever the speed: the whole signature,
+   then the dot (about 3.7s), then the flight.
+   Later visits: it shows only if the styles aren't in after 0.3s (fonts alone never trigger it),
+   and once the page is ready the rest of the signature is written within about half a second.
    Any click, tap, scroll or key skips it as soon as the page is ready. */
 var home=!h||h==="#"||h==="#home",first=false,ready=0,skipped=0,went=0,timer=0;
 try{first=W.localStorage.getItem("cw-intro")!=="1"}catch(e){first=false}
 function go(){if(went)return;went=1;if(skipped&&!reduce()){d.dataset.boot="done";out()}else done()}
 function skip(){skipped=1;if(ready)go()}
-function start(){d.dataset.boot="on";shown=Date.now();
+function start(){d.dataset.boot="on";shown=Date.now();penGo();
   try{W.localStorage.setItem("cw-intro","1")}catch(e){}
   ["pointerdown","wheel","keydown","touchstart"].forEach(function(t){W.addEventListener(t,skip,{once:true,passive:true})})}
 if(home){busy=1;
   if(first)start();else timer=setTimeout(function(){if(!stylesIn())start()},300);
   whenReady(function(){clearTimeout(timer);ready=1;if(!shown){busy=0;return}
     if(skipped)return go();
-    setTimeout(go,Math.max(0,(reduce()?300:950)-(Date.now()-shown)))})}
+    var left=penLeft();if(left&&!first)penRate(Math.max(4,left/500));left=penLeft();
+    setTimeout(go,Math.max(left&&left+SP.stop*1e3,(reduce()?300:950)-(Date.now()-shown)))})}
 `;

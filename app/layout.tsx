@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Monogram } from "@/components/Monogram";
 import { bootCss, cssScript, introScript } from "@/lib/boot";
-import { SIGNATURE } from "@/lib/signature";
 
 // Geist for UI and reading, Satoshi for headlines, Geist Mono for small labels.
 const sans = localFont({
@@ -120,20 +119,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </span>
             <Monogram size={64} className="cwb-mono" />
           </div>
-          {/* “curiously, chaewon”, signed: a window slides open over it (and the ink slides the
-              other way, so it stays put); the violet full stop lands when the page is ready */}
+          {/* “Curiously, Chaewon”, written again stroke by stroke the way she wrote it (the pen
+              draws on this canvas, lib/boot.ts); the violet full stop lands when the page is ready */}
           <div className="cwb-sig">
-            <span className="cwb-win">
-              <span className="cwb-ink">
-                <svg viewBox={`0 0 ${SIGNATURE.w} ${SIGNATURE.h}`}>
-                  <g transform={SIGNATURE.transform} fill="currentColor">
-                    <path d={SIGNATURE.d} />
-                  </g>
-                </svg>
-              </span>
-            </span>
+            <canvas className="cwb-pen" />
             <i className="cwb-dot" />
           </div>
+          <script dangerouslySetInnerHTML={{ __html: "window.cwPen&&cwPen()" }} />
         </div>
         {/* A case study or About opened from a link: the page's outline until it's ready */}
         <div id="cw-skel" aria-hidden="true">
