@@ -7,9 +7,9 @@
  * mosaic where the word would be, and “Ask Chaewon!” under it. Keep each ingredient to about 13
  * characters and each step to about 30, or it gets cut off.
  * The secret ingredient is never written here: `secret` is only how wide the mosaic is.
- * The pancakes card is a place, not a recipe: Five Leaves, Brooklyn. (`order` comes from the
- * photo's own caption; change it if you order something else.) A back with nothing filled in
- * shows its "classified" version (redacted lines + the `sealed` line).
+ * The pancakes card is a place, not a recipe: Five Leaves, Brooklyn, and what to order there.
+ * A back with nothing filled in shows its "classified" version (redacted lines + the `sealed`
+ * line).
  */
 export type RecipeBack = {
   kind: "recipe";
@@ -87,7 +87,7 @@ export const bakes: Bake[] = [
       title: "The best pancake place in NYC",
       name: "Five Leaves",
       area: "Brooklyn",
-      order: "Pancakes, extra fruit",
+      order: "their famous Ricotta pancakes",
       sealed: "Ask me over brunch.",
     },
   },
