@@ -8,7 +8,9 @@ import { useScrollRoot } from "./CasePage";
 /* Shared building blocks for the case studies (Tipping, Pebbo). */
 
 
-/** True once the element has scrolled into view (inside the case study's own scroller). */
+/** True once the element has scrolled into view (inside the case study's own scroller).
+ *  During a fast scroll (CasePage sends "cs-fast") it turns true a screen early, so its
+ *  animation has mostly played by the time it's reached. */
 export function useInView<T extends Element>(threshold = 0.35) {
   const ref = useRef<T>(null);
   const root = useScrollRoot();
@@ -30,7 +32,16 @@ export function useInView<T extends Element>(threshold = 0.35) {
       { root, threshold },
     );
     io.observe(el);
-    return () => io.disconnect();
+    const onFast = () => {
+      const q = el.getBoundingClientRect();
+      const R = root.getBoundingClientRect();
+      if (q.top < R.bottom + R.height && q.bottom > R.top - R.height) setSeen(true);
+    };
+    root.addEventListener("cs-fast", onFast);
+    return () => {
+      io.disconnect();
+      root.removeEventListener("cs-fast", onFast);
+    };
   }, [root, seen, threshold]);
   return [ref, seen] as const;
 }

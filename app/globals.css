@@ -6615,14 +6615,18 @@ html[data-motion="reduced"] .cs *::before {
 /* Case study: each block eases up into place as it scrolls in */
 .cs-rv {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(14px);
   transition:
-    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-d, 0ms),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--rv-d, 0ms);
+    opacity 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-d, 0ms),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--rv-d, 0ms);
 }
 .cs-rv.cs-rv-in {
   opacity: 1;
   transform: none;
+}
+/* scrolled fast: it's simply there (CasePage.tsx) */
+.cs-rv.cs-rv-now {
+  transition: none;
 }
 html[data-motion="reduced"] .cs-rv {
   opacity: 1 !important;

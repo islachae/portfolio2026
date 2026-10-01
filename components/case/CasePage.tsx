@@ -144,7 +144,10 @@ export function CasePage({ id }: { id: LongId }) {
     window.setTimeout(() => el.focus({ preventScroll: true }), reducedMotion() ? 0 : 600);
   };
 
-  // Smooth fade-up for each block as it enters (once). Reduced motion: everything is simply there.
+  // Each block eases up as its edge enters (once). Reduced motion: everything is simply there.
+  // Scrolled fast (a flick, the scrollbar, a table-of-contents jump: more than ~1.4 screens a
+  // second), nothing waits for its fade: whatever is on screen or within a screen of it appears
+  // at once, so a quick scroll never lands on an empty page. Blocks already passed appear at once too.
   useEffect(() => {
     const r = root.current;
     if (!r || reducedMotion() || typeof IntersectionObserver === "undefined") return;
@@ -154,21 +157,82 @@ export function CasePage({ id }: { id: LongId }) {
       const parent = e.parentElement as Element;
       const i = order.get(parent) ?? 0;
       order.set(parent, i + 1);
-      e.style.setProperty("--rv-d", `${Math.min(i, 4) * 70}ms`);
+      e.style.setProperty("--rv-d", `${Math.min(i, 4) * 40}ms`);
       e.classList.add("cs-rv");
     }
-    const io = new IntersectionObserver(
+    const pending = new Set<Element>(els);
+    const near = new Set<Element>(); // not shown yet, within a screen of the viewport
+    let fastUntil = 0;
+    const fast = () => performance.now() < fastUntil;
+    const show = (e: Element, now: boolean) => {
+      if (!pending.delete(e)) return;
+      near.delete(e);
+      if (now) e.classList.add("cs-rv-now");
+      e.classList.add("cs-rv-in");
+      enter.unobserve(e);
+      ahead.unobserve(e);
+    };
+    const enter = new IntersectionObserver(
+      (entries) => {
+        for (const en of entries) if (en.isIntersecting) show(en.target, fast());
+      },
+      { root: r, threshold: 0.01 },
+    );
+    const ahead = new IntersectionObserver(
       (entries) => {
         for (const en of entries) {
-          if (!en.isIntersecting) continue;
-          en.target.classList.add("cs-rv-in");
-          io.unobserve(en.target);
+          if (en.isIntersecting) {
+            if (fast()) show(en.target, true);
+            else near.add(en.target);
+          } else {
+            near.delete(en.target);
+            // more than a screen above: it was passed, so it's simply there if they scroll back
+            if (en.rootBounds && en.boundingClientRect.bottom < en.rootBounds.top) show(en.target, true);
+          }
         }
       },
-      { root: r, threshold: 0.08, rootMargin: "0px 0px -6% 0px" },
+      { root: r, rootMargin: "100% 0px 100% 0px" },
     );
-    els.forEach((e) => io.observe(e));
-    return () => io.disconnect();
+    // speed over the last ~150ms (one scroll event to the next is too jumpy: a wheel notch
+    // arrives as one 100px step)
+    let trail: [number, number][] = [];
+    let lastPing = 0;
+    let settle = 0;
+    // once a fast scroll stops: anything it flew past without touching is simply there
+    const sweep = () => {
+      const edge = r.getBoundingClientRect().top;
+      pending.forEach((e) => {
+        if (e.getBoundingClientRect().bottom < edge) show(e, true);
+      });
+    };
+    const onScroll = () => {
+      const now = performance.now();
+      const top = r.scrollTop;
+      trail = trail.filter(([t]) => now - t <= 150);
+      const from = trail[0];
+      trail.push([now, top]);
+      if (from && now - from[0] >= 40 && (Math.abs(top - from[1]) / (now - from[0])) * 1000 > r.clientHeight * 1.4) {
+        fastUntil = now + 300;
+        near.forEach((e) => show(e, true));
+        if (now - lastPing > 100) {
+          lastPing = now;
+          r.dispatchEvent(new Event("cs-fast")); // the in-view pieces (kit.tsx) start early too
+        }
+        window.clearTimeout(settle);
+        settle = window.setTimeout(sweep, 160);
+      }
+    };
+    r.addEventListener("scroll", onScroll, { passive: true });
+    els.forEach((e) => {
+      enter.observe(e);
+      ahead.observe(e);
+    });
+    return () => {
+      enter.disconnect();
+      ahead.disconnect();
+      r.removeEventListener("scroll", onScroll);
+      window.clearTimeout(settle);
+    };
   }, [id]);
 
   return (
