@@ -7533,8 +7533,44 @@ html[data-motion="reduced"] .hi-fly {
   margin: 0;
   padding-left: 18px;
 }
+/* what goes in: two to a line, no bullets, a shade lighter than the steps */
+.bake-back-list--have {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+  padding-left: 0;
+  color: #5d5d69;
+  font-size: 13px;
+  list-style: none;
+}
+.bake-back-list--have li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .bake-back-list--steps {
-  margin-top: 6px;
+  font-size: 13.5px;
+}
+/* the secret ingredient: named, then blacked out (one ruled line below the steps) */
+.bake-secret {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 26px;
+}
+.bake-secret-k {
+  color: #6c4fe0;
+  font-family: var(--font-code);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.bake-secret-bar {
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 14px;
+  background: #2a2a33;
 }
 .bake-back-row b {
   font-weight: 600;

@@ -580,7 +580,8 @@ export function WishStage() {
 const tilts = [-4, 3, -2, 5];
 const REDACT = { recipe: [92, 70, 84, 58, 76], spot: [80, 52, 66] };
 
-/** The back of a polaroid: a recipe card, or the brunch tip. Empty = "classified". */
+/** The back of a polaroid: a recipe card (with its secret ingredient blacked out), or the brunch
+ *  tip. Empty = "classified". */
 function BakeBack({ bake }: { bake: Bake }) {
   const b = bake.back;
   const filled = b.kind === "recipe" ? b.ingredients.length > 0 || b.method.length > 0 : !!b.name;
@@ -592,7 +593,7 @@ function BakeBack({ bake }: { bake: Bake }) {
         b.kind === "recipe" ? (
           <div className="bake-back-body">
             {b.ingredients.length > 0 && (
-              <ul className="bake-back-list">
+              <ul className="bake-back-list bake-back-list--have">
                 {b.ingredients.map((x) => (
                   <li key={x}>{x}</li>
                 ))}
@@ -604,6 +605,12 @@ function BakeBack({ bake }: { bake: Bake }) {
                   <li key={x}>{x}</li>
                 ))}
               </ol>
+            )}
+            {b.secret > 0 && (
+              <p className="bake-secret">
+                <span className="bake-secret-k">Secret ingredient</span>
+                <span className="bake-secret-bar" role="img" aria-label="blacked out" style={{ width: `${b.secret}ch` }} />
+              </p>
             )}
           </div>
         ) : (
