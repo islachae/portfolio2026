@@ -145,7 +145,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Back
             </span>
             <span className="cws-links">
-              <span className="cws-box">ABOUT</span>
+              <span className="cws-box">ABOUT ME</span>
               <span>RESUME ↗</span>
               <span className="cws-li">LINKEDIN ↗</span>
             </span>

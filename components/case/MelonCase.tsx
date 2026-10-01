@@ -23,6 +23,7 @@ export function MelonCase() {
       <Scope />
       <Research />
       <Heard />
+      <Survey />
       <Frame />
       <Directions />
       <Panel />
@@ -301,6 +302,84 @@ function Heard() {
         <blockquote>“{h.pull.q}”</blockquote>
         <figcaption>{h.pull.src}</figcaption>
       </figure>
+    </Section>
+  );
+}
+
+/* ───────────── Survey ───────────── */
+
+/**
+ * The survey: three headline numbers, four small bar charts and what they meant for the design.
+ * Each chart is one series, so no legend: the title says what's counted, every bar carries its
+ * count at the tip (“5 of 9”), and hovering a row adds the share. The answers the story turns on
+ * are in Melon red; the rest are grey. Bars are sized against the students who answered.
+ */
+function Survey() {
+  const v = C.survey;
+  return (
+    <Section label={v.label} id="ml-survey">
+      <h2 className="cs-h2">
+        <Lines lines={v.title} />
+      </h2>
+      <p className="cs-body cs-measure">{v.intro}</p>
+      <ul className="ml-stats">
+        {v.stats.map((t) => (
+          <li key={t.k}>
+            <span className="ml-stat-n">
+              {t.n}
+              <small>/{t.of}</small>
+            </span>
+            <span className="ml-stat-k">{t.k}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="ml-charts">
+        {v.charts.map((c) => (
+          <figure className="ml-chart" key={c.k}>
+            <figcaption>
+              <b>{c.k}</b>
+              <span>{c.n} students answered</span>
+            </figcaption>
+            <ol>
+              {c.rows.map((r) => (
+                <li
+                  key={r.k}
+                  data-key={("key" in r && r.key) || undefined}
+                  style={{ ["--w" as string]: `${(r.v / c.n) * 100}%` }}
+                  aria-label={`${r.k}: ${r.v} of ${c.n}`}
+                >
+                  <span className="ml-bar-k" aria-hidden>
+                    {r.k}
+                  </span>
+                  <span className="ml-bar-track" aria-hidden>
+                    <i className="ml-bar" />
+                    <span className="ml-bar-v">
+                      {r.v} <small>of {c.n}</small>
+                      <em> · {Math.round((r.v / c.n) * 100)}%</em>
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </figure>
+        ))}
+      </div>
+      <h3 className="cs-h3 ml-h3">{v.meantTitle}</h3>
+      <ul className="ml-meant">
+        {v.meant.map((m) => (
+          <li key={m.f}>
+            <span className="ml-meant-f">{m.f}</span>
+            <span className="ml-meant-arrow" aria-hidden>
+              →
+            </span>
+            <span className="ml-meant-d">{m.d}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="ml-open">
+        <b>{v.open.k}</b> {v.open.v}
+      </p>
+      <p className="ml-survey-foot">{v.foot}</p>
     </Section>
   );
 }

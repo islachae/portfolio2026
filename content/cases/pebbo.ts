@@ -325,6 +325,7 @@ export const pebboCase = {
     say: "Try saying",
     starters: ["Skipped lunch, then ate a whole bag of chips", "Craving sweets again tonight", "Cooked a real breakfast today!", "Dinner with friends felt like a lot"],
     noteLive: "Replies here come from Claude, on your own account, after you allow it. Nothing is saved.",
+    noteSite: "Replies come from Claude (a small, fast model), asked by this site with Pebbo's rules. Nothing is saved.",
     noteScript: "Replies are scripted from what you type (English or Korean), not a live AI. Nothing is saved or sent anywhere.",
     reset: "Start over",
     // the app's home screen before the first message

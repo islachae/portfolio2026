@@ -965,7 +965,7 @@ function TryPebbo() {
               </button>
             ))}
           </div>
-          <p className="pba-note">{state.live ? t.noteLive : t.noteScript}</p>
+          <p className="pba-note">{state.live === "you" ? t.noteLive : state.live === "site" ? t.noteSite : t.noteScript}</p>
           {state.chatting && (
             <button type="button" className="pba-reset" onClick={() => api.current?.reset()}>
               {t.reset}

@@ -4,7 +4,7 @@
 import { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { pebboCase as C } from "@/content/cases/pebbo";
-import { askPebbo, FACE_COLOR, faceSrc, getLive, hasEndpoint, type Face, type PebboAnswer, type Turn } from "@/content/cases/pebbo-brain";
+import { askPebbo, endpointReady, FACE_COLOR, faceSrc, getLive, type Face, type PebboAnswer, type Turn } from "@/content/cases/pebbo-brain";
 import { reducedMotion } from "./shell-context";
 import { useInView } from "./case/kit";
 
@@ -28,7 +28,7 @@ const KINDS = ["log", "explore", "quest", "peek"] as const;
 const TYPE_MS = 55;
 
 export type PebboPhoneApi = { send: (text: string) => void; reset: () => void };
-export type PebboPhoneState = { chatting: boolean; busy: boolean; live: boolean };
+export type PebboPhoneState = { chatting: boolean; busy: boolean; live: "you" | "site" | false };
 
 /**
  * The working Pebbo app in a phone. Used at the end of the case study and as the Pebbo work-page
@@ -62,7 +62,7 @@ export function PebboPhone({
   const [held, setHeld] = useState(false);
   const [plus, setPlus] = useState(false);
   const [toast, setToast] = useState("");
-  const [live, setLive] = useState(false);
+  const [live, setLive] = useState<"you" | "site" | false>(false);
   const [date, setDate] = useState("");
   const [typed, setTyped] = useState(0);
   const [round, setRound] = useState(0);
@@ -85,7 +85,12 @@ export function PebboPhone({
   useEffect(() => {
     let on = true;
     setStill(reducedMotion());
-    getLive().then((s) => on && setLive(!!s || hasEndpoint));
+    // who answers: Claude on the viewer's own account (claude.ai preview), the site's endpoint, or the script
+    getLive().then(async (s) => {
+      if (s) return on && setLive("you");
+      const ready = await endpointReady();
+      if (on) setLive(ready ? "site" : false);
+    });
     const d = new Date();
     setDate(`${d.toLocaleDateString("en-US", { month: "short" })} ${d.getDate()}. ${d.getFullYear()}`);
     return () => {

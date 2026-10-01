@@ -4,19 +4,76 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "out",
+  "functions": {
+    "api/pebbo.js": {
+      "maxDuration": 30
+    }
+  },
   "redirects": [
-    { "source": "/about", "destination": "/#about/story", "permanent": true },
-    { "source": "/about/", "destination": "/#about/story", "permanent": true },
-    { "source": "/contact", "destination": "/#hi", "permanent": true },
-    { "source": "/contact/", "destination": "/#hi", "permanent": true },
-    { "source": "/case-studies/tipping", "destination": "/#case/tipping", "permanent": true },
-    { "source": "/case-studies/tipping/", "destination": "/#case/tipping", "permanent": true },
-    { "source": "/case-studies/pebbo", "destination": "/#case/pebbo", "permanent": true },
-    { "source": "/case-studies/pebbo/", "destination": "/#case/pebbo", "permanent": true },
-    { "source": "/case-studies/zipflow", "destination": "/#zipflow", "permanent": false },
-    { "source": "/case-studies/zipflow/", "destination": "/#zipflow", "permanent": false },
-    { "source": "/case-studies", "destination": "/#tipping", "permanent": false },
-    { "source": "/design-system", "destination": "/", "permanent": false },
-    { "source": "/design-system/", "destination": "/", "permanent": false }
+    {
+      "source": "/about",
+      "destination": "/#about/story",
+      "permanent": true
+    },
+    {
+      "source": "/about/",
+      "destination": "/#about/story",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/#hi",
+      "permanent": true
+    },
+    {
+      "source": "/contact/",
+      "destination": "/#hi",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies/tipping",
+      "destination": "/#case/tipping",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies/tipping/",
+      "destination": "/#case/tipping",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies/pebbo",
+      "destination": "/#case/pebbo",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies/pebbo/",
+      "destination": "/#case/pebbo",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies/zipflow",
+      "destination": "/#zipflow",
+      "permanent": false
+    },
+    {
+      "source": "/case-studies/zipflow/",
+      "destination": "/#zipflow",
+      "permanent": false
+    },
+    {
+      "source": "/case-studies",
+      "destination": "/#tipping",
+      "permanent": false
+    },
+    {
+      "source": "/design-system",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/design-system/",
+      "destination": "/",
+      "permanent": false
+    }
   ]
 }

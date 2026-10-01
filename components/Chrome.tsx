@@ -19,7 +19,7 @@ export function MobileBar() {
       </button>
       {/* Same order as the wide header: About (boxed), then Résumé */}
       <button type="button" className="top-link top-link--box top-link--about mobilebar-about" onClick={() => openCase("about")}>
-        About
+        About me
       </button>
       <a className="top-link mobilebar-resume" href={profile.links.resume} target="_blank" rel="noreferrer">
         Resume<span aria-hidden> ↗</span>

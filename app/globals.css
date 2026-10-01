@@ -6589,8 +6589,7 @@ html[data-motion="reduced"] .cs *::before {
 @media (max-width: 799px) {
   .hello,
   .hello-sub {
-    /* 24px: the smallest size that counts as large text, which the lighter words rely on */
-    font-size: 24px;
+    font-size: 23px;
   }
 }
 @media (max-width: 799px) {
@@ -8176,16 +8175,11 @@ html[data-motion="reduced"] .hi-fly {
   }
 }
 
-/* Home: the connecting words sit further back than the key phrases. They go lighter by weight
-   (Medium against the phrases' Bold) rather than by a paler grey, so they still read at 3:1 or
-   more on the page in both themes (WCAG AA for large text: 24px and up). */
+/* Home: the connecting words sit further back than the key phrases: same Bold, a paler grey.
+   Chaewon's call: a touch lighter than 3:1 (about 2.5:1 on the light page, 3.7:1 in dark) so the
+   key phrases carry the sentence. */
 .hello-sub {
-  font-weight: 500;
-  color: color-mix(in srgb, var(--text-muted) 77%, var(--bg));
-}
-.hello-sub .phrase-text,
-.hello-sub .bio-em {
-  font-weight: 700;
+  color: color-mix(in srgb, var(--text-muted) 65%, var(--bg));
 }
 
 /* ═════════════ Case study: Pebbo (/#case/pebbo) ═════════════
@@ -13346,11 +13340,22 @@ html[data-motion="reduced"] .cue-head {
   cursor: default;
 }
 
-/* Phone bar: About and Résumé take room, so the name stays on one line (and steps aside on tiny screens) */
+/* Phone bar: About me and Résumé take room, so the name stays on one line (and steps aside on tiny
+   screens). “About me” is longer than “About” was: the name drops to 12px, the box to 8px padding,
+   and the bar's right edge to 6px, so a 390px phone keeps an 8px gap between name and box. */
 @media (max-width: 799px) {
+  .mobilebar {
+    padding-right: 6px;
+  }
+  .mobilebar-home {
+    margin-right: 4px;
+  }
   .mobilebar-home span {
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
+  }
+  .mobilebar-about {
+    padding: 0 8px;
   }
 }
 @media (max-width: 380px) {
@@ -13368,4 +13373,291 @@ html[data-motion="reduced"] .cue-head {
 }
 .page-meta .tag--soon {
   margin-left: 0;
+}
+
+/* ═════════ Work pages: the stage is a way into the case study too (components/StageDoor.tsx) ═════════
+   “Open case study ↗” sits in the stage's top-left corner (the right side is where the Tipping
+   phone runs to the edge), boxed like About in the header; over the prototype (not its buttons) a
+   small ink chip follows the pointer and a click opens the case study. The corner button needs
+   the room beside the prototypes, so it shows from 1200px; the chip from 1024px. On phones the
+   button under the brief is right there. */
+.stage {
+  position: relative;
+}
+.stage-open,
+.stage-chip {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .stage-open {
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--text);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-code);
+    font-size: var(--label-size);
+    letter-spacing: var(--label-tracking);
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .stage-open span {
+    color: var(--text-muted);
+    transition: color 0.15s;
+  }
+  .stage-open:hover {
+    background: var(--text);
+    color: var(--bg);
+  }
+  .stage-open:hover span {
+    color: inherit;
+  }
+  .stage-open:focus-visible {
+    outline: 2px solid var(--accent-1);
+    outline-offset: 2px;
+  }
+  .stage[data-door="on"] {
+    cursor: pointer;
+  }
+  .stage-chip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    display: block;
+    padding: 8px 11px;
+    background: var(--btn);
+    box-shadow: 0 10px 22px -12px rgba(50, 64, 79, 0.7);
+    color: var(--btn-fg);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .stage[data-door="on"] .stage-chip {
+    opacity: 1;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .stage-open {
+    display: none;
+  }
+}
+
+/* ═════════ Melon: the student survey (/#case/melon, Survey) ═════════ */
+.cs[data-case="melon"] {
+  --ml-bar: #c8203b;
+  --ml-bar-rest: #8b939b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cs[data-case="melon"] {
+    --ml-bar: #f2566a;
+    --ml-bar-rest: #6b7178;
+  }
+}
+:root[data-theme="dark"] .cs[data-case="melon"] {
+  --ml-bar: #f2566a;
+  --ml-bar-rest: #6b7178;
+}
+.ml-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 28px 0 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--border);
+  list-style: none;
+}
+.ml-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 16px 20px;
+  background: var(--bg);
+}
+.ml-stat-n {
+  color: var(--cs-ink);
+  font-family: var(--font-display);
+  font-size: 40px;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.ml-stat-n small {
+  color: var(--text-muted);
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.ml-stat-k {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ml-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px 40px;
+  margin-top: 36px;
+}
+.ml-chart {
+  margin: 0;
+}
+.ml-chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.ml-chart figcaption b {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.ml-chart figcaption span {
+  color: var(--text-muted);
+  font-family: var(--font-code);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ml-chart ol {
+  margin: 0;
+  padding: 6px 0 0;
+  list-style: none;
+}
+.ml-chart li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  padding: 8px 0;
+}
+.ml-bar-k {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.35;
+}
+.ml-bar-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* one baseline on the left, a thin bar, a 4px rounded data end, the count at the tip */
+.ml-bar {
+  flex: none;
+  width: calc(var(--w) * 0.78);
+  min-width: 4px;
+  height: 12px;
+  border-radius: 0 4px 4px 0;
+  background: var(--ml-bar-rest);
+  transition: filter 0.15s;
+}
+.ml-chart li[data-key] .ml-bar {
+  background: var(--ml-bar);
+}
+.ml-bar-v {
+  color: var(--text);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ml-bar-v small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.ml-bar-v em {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-style: normal;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.ml-chart li:hover .ml-bar {
+  filter: brightness(1.12);
+}
+.ml-chart li:hover .ml-bar-v em {
+  opacity: 1;
+}
+.ml-meant {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-meant li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+.ml-meant li:last-child {
+  border-bottom: 1px solid var(--border);
+}
+.ml-meant-f {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+.ml-meant-arrow {
+  color: var(--cs-accent);
+}
+.ml-meant-d {
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.ml-open {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-left: 2px solid var(--cs-accent);
+  background: var(--cs-tint);
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.ml-open b {
+  margin-right: 6px;
+  color: var(--cs-ink);
+  font-family: var(--font-code);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ml-survey-foot {
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+@media (max-width: 799px) {
+  .ml-stats,
+  .ml-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ml-meant li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ml-meant-arrow {
+    display: none;
+  }
 }

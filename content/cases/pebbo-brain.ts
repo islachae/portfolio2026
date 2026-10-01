@@ -7,8 +7,9 @@
  *  2. A live model, when one is reachable:
  *     - inside a claude.ai artifact viewer, Claude itself (the `sample` capability: the viewer is
  *       asked once, and it runs on the viewer's own Claude account);
- *     - or your own endpoint, if NEXT_PUBLIC_PEBBO_API is set at build time (see
- *       examples/pebbo-worker.js: a tiny server that holds the API key and PEBBO_RULES).
+ *     - or, on the real site, api/pebbo.js: a Vercel Function that holds the API key and these
+ *       rules (NEXT_PUBLIC_PEBBO_API at build time points somewhere else, e.g. the Cloudflare
+ *       Worker in examples/pebbo-worker.js).
  *  3. Otherwise the scripted listener below: it reads feelings, foods and meals from what was
  *     typed (English or Korean), answers in the same language, and picks one suggestion.
  *
@@ -569,8 +570,29 @@ export function getLive(): Promise<SampleFn | null> {
   return livePromise;
 }
 
-const ENDPOINT = process.env.NEXT_PUBLIC_PEBBO_API || "";
+// The live endpoint: api/pebbo.js on the real site (set in next.config.ts; empty in the claude.ai
+// preview build, which has Claude itself). It answers 503 until ANTHROPIC_API_KEY is set, and 429
+// when it's busy or over its daily limit: either way the visit carries on with the script.
+const ENDPOINT = process.env.PEBBO_API || "";
 export const hasEndpoint = !!ENDPOINT;
+let endpointOff = false;
+let readyPromise: Promise<boolean> | null = null;
+
+/** Whether the site's endpoint is set up (it says so on GET without asking the model). */
+export function endpointReady(): Promise<boolean> {
+  if (!ENDPOINT || typeof window === "undefined") return Promise.resolve(false);
+  if (!readyPromise) {
+    readyPromise = fetch(ENDPOINT, { method: "GET", cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => !!(j && (j as { live?: boolean }).live))
+      .catch(() => false)
+      .then((ok) => {
+        if (!ok) endpointOff = true;
+        return ok;
+      });
+  }
+  return readyPromise;
+}
 
 function clean(x: unknown): Omit<PebboAnswer, "source"> | null {
   if (!x || typeof x !== "object") return null;
@@ -621,7 +643,7 @@ export async function askPebbo(text: string, history: Turn[], signal?: AbortSign
       }
     }
   }
-  if (ENDPOINT) {
+  if (ENDPOINT && !endpointOff) {
     try {
       const r = await fetch(ENDPOINT, {
         method: "POST",
@@ -629,6 +651,9 @@ export async function askPebbo(text: string, history: Turn[], signal?: AbortSign
         body: JSON.stringify({ messages: [...history.slice(-8), { role: "user", content: text }] }),
         signal,
       });
+      // not set up (503), busy or over its limit (429), not there (404), not allowed (403):
+      // stay scripted for the rest of this visit instead of asking every time
+      if ([403, 404, 405, 429, 503].includes(r.status)) endpointOff = true;
       const c = r.ok ? clean(await r.json()) : null;
       if (c) return { ...c, source: "live" };
     } catch (e) {

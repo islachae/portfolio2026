@@ -152,7 +152,7 @@ export function ContactLinks({ compact = false }: { compact?: boolean }) {
           aria-current={onAbout ? "page" : undefined}
           onClick={() => !onAbout && openCase("about")}
         >
-          About
+          About me
         </button>
       )}
       <a className="top-link top-link--resume" href={profile.links.resume} target="_blank" rel="noreferrer">

@@ -7,6 +7,7 @@ import { useShell } from "./shell-context";
 import { HomeHero } from "./HomePage";
 import { ArrowRight, PanelIcon } from "./icons";
 import { ShaderHero } from "./ShaderHero";
+import { StageDoor } from "./StageDoor";
 import { IndexRail, ProfileChip, TopLinks } from "./IndexRail";
 import { ChatToggle } from "./ChaeLLM";
 import { AboutBrief, ProjectBrief } from "./ProjectBrief";
@@ -141,7 +142,8 @@ export function Deck({
                       </button>
                     )}
                   </header>
-                  <div className="stage">{Stage && <Stage />}</div>
+                  {/* Work pages with a case study: the stage is a way in too (components/StageDoor.tsx) */}
+                  <StageDoor id={isCaseId(p.id) ? p.id : null}>{Stage && <Stage />}</StageDoor>
                 </>
               )}
             </section>

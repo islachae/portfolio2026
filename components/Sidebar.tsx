@@ -143,6 +143,21 @@ export function DisplaySettings() {
   const { settings, setSettings } = useShell();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const closeTimer = useRef<number | undefined>(undefined);
+  // A choice closes the panel, a beat later so the new selection (and the new theme) is seen first.
+  // Keyboard users land back on the settings button instead of losing their place.
+  const choose = (patch: Parameters<typeof setSettings>[0]) => {
+    setSettings(patch);
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => {
+      const a = document.activeElement;
+      const byKeyboard = !!a?.closest(".settings") && a.matches(":focus-visible");
+      setOpen(false);
+      if (byKeyboard) toggle.current?.focus();
+    }, 420);
+  };
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   useEffect(() => {
     if (!open) return;
@@ -163,11 +178,15 @@ export function DisplaySettings() {
     <>
       <span ref={ref} hidden />
       <button
+        ref={toggle}
         className="icon-btn"
         aria-label="Display settings"
         aria-expanded={open}
         data-pressed={open || undefined}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          window.clearTimeout(closeTimer.current);
+          setOpen((o) => !o);
+        }}
       >
         <SlidersIcon />
       </button>
@@ -191,7 +210,7 @@ export function DisplaySettings() {
                 { value: "light", label: "Light" },
                 { value: "dark", label: "Dark" },
               ]}
-              onChange={(v) => setSettings({ theme: v as typeof settings.theme })}
+              onChange={(v) => choose({ theme: v as typeof settings.theme })}
             />
             <Segmented
               label="Motion"
@@ -200,7 +219,7 @@ export function DisplaySettings() {
                 { value: "system", label: "Full" },
                 { value: "reduced", label: "Reduced" },
               ]}
-              onChange={(v) => setSettings({ motion: v as typeof settings.motion })}
+              onChange={(v) => choose({ motion: v as typeof settings.motion })}
             />
           </motion.div>
         )}

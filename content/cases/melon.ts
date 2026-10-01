@@ -33,6 +33,7 @@ export const melonCase = {
     { id: "ml-gap", label: "Problem" },
     { id: "ml-scope", label: "Scope" },
     { id: "ml-research", label: "Research" },
+    { id: "ml-survey", label: "Survey" },
     { id: "ml-frame", label: "Framing" },
     { id: "ml-directions", label: "Concepts" },
     { id: "ml-melon", label: "Prototype" },
@@ -128,8 +129,7 @@ export const melonCase = {
       // TODO(Chaewon): number of written questions
       { n: null, k: "Written follow-up", v: "Donna’s answers on what an assistant could and couldn’t say for her." },
       { n: "16", k: "Channels mapped", v: "From email and Slack to Handshake, Canvas and word of mouth." },
-      // TODO(Chaewon): survey count and results
-      { n: null, k: "Student survey", v: "Results coming soon.", pending: true },
+      { n: "12", k: "Student survey", v: "Who writes to Donna, why, what happens when they don’t, and what would make an AI answer trustworthy." },
     ],
     assumptionsTitle: "What we assumed, and what held",
     assumptions: [
@@ -168,6 +168,79 @@ export const melonCase = {
       },
     ],
     pull: { q: "There are many days I come here and I feel like I’m just in an email factory.", src: "Donna" },
+  },
+
+  // ── The student survey (Google Form, Sept 19–21, 2026; 12 responses). Counts are of the students
+  //    who answered each question; most questions were “choose everything that applies”.
+  survey: {
+    label: "Survey",
+    title: ["Students write to Donna to be sure.", "Plenty of questions never reach her."],
+    intro: "In September, 12 School of Design students answered a short survey about the questions they bring to Donna, the ones they don’t, and what an assistant would need to earn their trust.",
+    stats: [
+      { n: "10", of: "12", k: "have written to Donna with a question, most once or twice a semester" },
+      { n: "5", of: "9", k: "of those who wrote wanted her confirmation; only 3 couldn’t find the answer" },
+      { n: "6", of: "8", k: "who held a question back asked another student instead" },
+    ],
+    charts: [
+      {
+        k: "Why they wrote to Donna",
+        n: 9,
+        rows: [
+          { k: "Wanted her confirmation", v: 5, key: true },
+          { k: "Easier to ask her directly", v: 5, key: true },
+          { k: "Found it, but it was unclear", v: 4 },
+          { k: "Unsure it applied to me", v: 3 },
+          { k: "Didn’t know who else to ask", v: 3 },
+          { k: "Couldn’t find it", v: 3 },
+        ],
+      },
+      {
+        k: "Why they held a question back",
+        n: 8,
+        rows: [
+          { k: "Thought I should find it myself", v: 5, key: true },
+          { k: "Didn’t want to bother her", v: 4 },
+          { k: "Didn’t feel important enough", v: 4 },
+          { k: "Forgot or didn’t follow up", v: 3 },
+          { k: "Unsure she was the right person", v: 3 },
+        ],
+      },
+      {
+        k: "What they did instead",
+        n: 8,
+        rows: [
+          { k: "Asked another student", v: 6, key: true },
+          { k: "Searched the School of Design site", v: 5 },
+          { k: "Searched their email", v: 4 },
+          { k: "Asked a professor or staff", v: 1 },
+          { k: "Checked Slack", v: 1 },
+          { k: "Nothing", v: 1 },
+        ],
+      },
+      {
+        k: "What would make an AI’s answer trustworthy",
+        n: 7,
+        rows: [
+          { k: "Says clearly when it’s unsure", v: 6, key: true },
+          { k: "Shows when it was last updated", v: 5 },
+          { k: "Lets me ask Donna directly", v: 5, key: true },
+          { k: "Shows the original source", v: 4 },
+          { k: "Only uses official School of Design info", v: 3 },
+        ],
+      },
+    ],
+    meantTitle: "What it means for Melon",
+    meant: [
+      { f: "They write to be sure, not because it’s missing.", d: "Summary first, source one tap away: every answer links back to Donna’s own email." },
+      { f: "Questions go to classmates, and Donna never sees them.", d: "The advisor view shows her what students asked Melon, grouped by topic." },
+      { f: "Trust means saying “I’m not sure” and handing over.", d: "The middle lane: when Melon isn’t confident, it says so and sends the student to Donna." },
+      { f: "No single home: the website (3 of 7), email (2) and Slack (2).", d: "We stayed inside email, where Donna already writes." },
+    ],
+    open: {
+      k: "Still open",
+      v: "Funding was one of the top reasons to write to Donna (4 of 9), and the topic fewest students were comfortable hearing from an AI (1 of 6). Funding questions may belong with Donna, not Melon.",
+    },
+    foot: "12 responses, not a representative sample. Counts are of the students who answered each question; they could choose more than one answer.",
   },
 
   frame: {

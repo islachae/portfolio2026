@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/defer-css.mjs",
+    "build": "node scripts/sync-pebbo-rules.mjs && next build && node scripts/defer-css.mjs",
     "start": "next start",
     "lint": "next lint"
   },
