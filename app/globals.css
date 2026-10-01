@@ -1391,6 +1391,7 @@ html[data-motion="reduced"] .phrase .emoji {
   color: var(--bg);
   box-shadow: var(--shadow);
   font-family: var(--font-ui);
+  font-weight: 400;
   letter-spacing: 0;
   line-height: 1.5;
   pointer-events: none;
@@ -6588,7 +6589,8 @@ html[data-motion="reduced"] .cs *::before {
 @media (max-width: 799px) {
   .hello,
   .hello-sub {
-    font-size: 23px;
+    /* 24px: the smallest size that counts as large text, which the lighter words rely on */
+    font-size: 24px;
   }
 }
 @media (max-width: 799px) {
@@ -8022,7 +8024,7 @@ html[data-motion="reduced"] .hi-fly {
   }
   .me-chip:hover .me-chip-main,
   .me-chip:focus-within .me-chip-main {
-    padding-right: 4px;
+    padding-right: 12px;
   }
   .me-chip-more {
     display: flex;
@@ -8038,7 +8040,8 @@ html[data-motion="reduced"] .hi-fly {
   .me-chip:focus-within .me-chip-more,
   .me-chip:has([aria-expanded="true"]) .me-chip-more {
     max-width: 280px;
-    padding: 0 4px 0 12px;
+    /* 5px all round the 30px button: a 40px square cell, like the chip's height */
+    padding: 0 5px;
     border-left: 1px solid var(--border);
     opacity: 1;
     overflow: visible;
@@ -8173,9 +8176,16 @@ html[data-motion="reduced"] .hi-fly {
   }
 }
 
-/* Home: the connecting words sit further back than the key phrases */
+/* Home: the connecting words sit further back than the key phrases. They go lighter by weight
+   (Medium against the phrases' Bold) rather than by a paler grey, so they still read at 3:1 or
+   more on the page in both themes (WCAG AA for large text: 24px and up). */
 .hello-sub {
-  color: color-mix(in srgb, var(--text-muted) 70%, var(--bg));
+  font-weight: 500;
+  color: color-mix(in srgb, var(--text-muted) 77%, var(--bg));
+}
+.hello-sub .phrase-text,
+.hello-sub .bio-em {
+  font-weight: 700;
 }
 
 /* ═════════════ Case study: Pebbo (/#case/pebbo) ═════════════
@@ -10015,9 +10025,33 @@ html[data-motion="reduced"] .pb-board-head {
   color: var(--text-muted);
   transition: color 0.15s;
 }
-.top-link:not(.top-link--box):hover {
-  text-decoration: underline;
-  text-underline-offset: 0.3em;
+/* Plain links (Résumé, LinkedIn): one underline under the word and the ↗ together, drawn in
+   from the left (text-decoration broke at the gap between them) */
+.top-link:not(.top-link--box) {
+  position: relative;
+}
+.top-link:not(.top-link--box)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s var(--ease-out);
+}
+.top-link:not(.top-link--box):hover::after {
+  transform: none;
+}
+html[data-motion="reduced"] .top-link::after {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .top-link::after {
+    transition: none;
+  }
 }
 .top-link--box {
   height: 32px;
@@ -13203,40 +13237,38 @@ html[data-motion="reduced"] img:not([data-ld]) {
   color: var(--text);
 }
 .cover-next-a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 52px;
-}
-.cover-next-a i {
   display: block;
-  width: 1.5px;
-  height: 40px;
-  background: currentColor;
-  transform-origin: top;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-.cover-next-a svg {
-  display: block;
-  margin-top: -14px;
-}
-.cover-next-a i,
-.cover-next-a svg {
+.cue-shaft,
+.cue-head {
+  transform-box: fill-box;
   animation: cue-line 3s var(--ease) 1.2s infinite;
 }
-.cover-next[data-rest] .cover-next-a i,
-.cover-next[data-rest] .cover-next-a svg {
-  animation: none;
+.cue-shaft {
+  transform-origin: 50% 0;
 }
-.cover-next-a svg {
+.cue-head {
   animation-name: cue-arrow;
 }
-.page--home:not(.is-active) .cover-next-a i,
-.page--home:not(.is-active) .cover-next-a svg {
+.cover-next[data-rest] .cue-shaft,
+.cover-next[data-rest] .cue-head {
+  animation: none;
+}
+.page--home:not(.is-active) .cue-shaft,
+.page--home:not(.is-active) .cue-head {
   animation-play-state: paused;
 }
-.cover-next:hover .cover-next-a svg {
-  transform: translateY(3px);
+/* hover: the whole arrow (shaft and head together) leans down a little */
+.cover-next .cover-next-a {
   transition: transform 0.2s var(--ease);
+}
+.cover-next:hover .cover-next-a {
+  transform: translateY(3px);
 }
 @keyframes cue-line {
   0%,
@@ -13292,13 +13324,13 @@ html[data-motion="reduced"] img:not([data-ld]) {
     transform: none;
   }
 }
-html[data-motion="reduced"] .cover-next-a i,
-html[data-motion="reduced"] .cover-next-a svg {
+html[data-motion="reduced"] .cue-shaft,
+html[data-motion="reduced"] .cue-head {
   animation: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .cover-next-a i,
-  .cover-next-a svg {
+  .cue-shaft,
+  .cue-head {
     animation: none;
   }
 }

@@ -5,7 +5,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { profile } from "@/content/site";
 import { reducedMotion, useShell } from "./shell-context";
-import { ArrowDown, SearchIcon } from "./icons";
+import { SearchIcon } from "./icons";
 import { Poll } from "./Poll";
 import { POLL_ON } from "@/content/poll";
 import { DEFAULT_HELLO, pickHello, type Hello as HelloWord } from "@/lib/hello";
@@ -60,10 +60,11 @@ export function HomeHero() {
           down every 3s until the visitor scrolls, then rests. */}
       <button className="cover-next" onClick={() => goTo("tipping")} aria-label="Scroll to the work" data-rest={moved || undefined}>
         <span className="cover-next-k">Scroll</span>
-        <span className="cover-next-a" aria-hidden>
-          <i />
-          <ArrowDown size={20} />
-        </span>
+        {/* One drawing, so the shaft and the head can't drift apart by a half pixel */}
+        <svg className="cover-next-a" width="20" height="52" viewBox="0 0 20 52" fill="none" aria-hidden>
+          <line className="cue-shaft" x1="10" y1="0" x2="10" y2="42" />
+          <path className="cue-head" d="M4 36l6 6 6-6" />
+        </svg>
       </button>
     </div>
   );
