@@ -174,20 +174,49 @@ export const melonCase = {
   //    who answered each question; most questions were “choose everything that applies”.
   survey: {
     label: "Survey",
-    title: ["Students write to Donna to be sure.", "Plenty of questions never reach her."],
-    intro: "In September, 12 School of Design students answered a short survey about the questions they bring to Donna, the ones they don’t, and what an assistant would need to earn their trust.",
-    stats: [
-      { n: "10", of: "12", k: "have written to Donna with a question, most once or twice a semester" },
-      { n: "5", of: "9", k: "of those who wrote wanted her confirmation; only 3 couldn’t find the answer" },
-      { n: "6", of: "8", k: "who held a question back asked another student instead" },
+    title: ["The answers are out there.", "Students want certainty, with Donna behind it."],
+    intro: "In September we surveyed 12 School of Design students. 10 of them had written to Donna with a question. Three answers shaped Melon.",
+    /** The three answers the design leans on: the evidence (a count, drawn one square per student),
+     *  what it means, and where it shows up in Melon. */
+    findings: [
+      {
+        n: 5,
+        of: 9,
+        unit: "wanted Donna’s confirmation",
+        h: "They write to Donna to be sure, not because the answer is missing.",
+        note: "Only 3 of the 9 couldn’t find it. 4 found it, but it was unclear.",
+        melon: "Summary first, source one tap away: every answer links back to Donna’s own email.",
+      },
+      {
+        n: 6,
+        of: 8,
+        unit: "asked another student instead",
+        h: "A question held back goes to a classmate, and Donna never sees it.",
+        note: "5 of the 8 felt they should be able to find it themselves.",
+        melon: "The advisor view shows Donna what students asked Melon, grouped by topic.",
+      },
+      {
+        n: 6,
+        of: 7,
+        unit: "want an AI to say when it’s unsure",
+        h: "An assistant earns trust by admitting doubt and handing over.",
+        note: "5 of the 7 also want a way to ask Donna directly.",
+        melon: "The middle lane: when Melon isn’t confident, it says so and sends the student to Donna.",
+      },
     ],
+    melonLabel: "In Melon",
+    open: {
+      k: "Still open",
+      v: "Funding was one of the top reasons to write to Donna (4 of 9), and the topic fewest students were comfortable hearing from an AI (1 of 6). Funding questions may belong with Donna, not Melon.",
+    },
+    allLabel: "All answers",
     charts: [
       {
         k: "Why they wrote to Donna",
         n: 9,
         rows: [
           { k: "Wanted her confirmation", v: 5, key: true },
-          { k: "Easier to ask her directly", v: 5, key: true },
+          { k: "Easier to ask her directly", v: 5 },
           { k: "Found it, but it was unclear", v: 4 },
           { k: "Unsure it applied to me", v: 3 },
           { k: "Didn’t know who else to ask", v: 3 },
@@ -229,18 +258,7 @@ export const melonCase = {
         ],
       },
     ],
-    meantTitle: "What it means for Melon",
-    meant: [
-      { f: "They write to be sure, not because it’s missing.", d: "Summary first, source one tap away: every answer links back to Donna’s own email." },
-      { f: "Questions go to classmates, and Donna never sees them.", d: "The advisor view shows her what students asked Melon, grouped by topic." },
-      { f: "Trust means saying “I’m not sure” and handing over.", d: "The middle lane: when Melon isn’t confident, it says so and sends the student to Donna." },
-      { f: "No single home: the website (3 of 7), email (2) and Slack (2).", d: "We stayed inside email, where Donna already writes." },
-    ],
-    open: {
-      k: "Still open",
-      v: "Funding was one of the top reasons to write to Donna (4 of 9), and the topic fewest students were comfortable hearing from an AI (1 of 6). Funding questions may belong with Donna, not Melon.",
-    },
-    foot: "12 responses, not a representative sample. Counts are of the students who answered each question; they could choose more than one answer.",
+    foot: "12 responses, not a representative sample. Counts are of the students who answered each question; most questions allowed more than one answer.",
   },
 
   frame: {

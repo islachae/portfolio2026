@@ -145,17 +145,24 @@ export function DisplaySettings() {
   const ref = useRef<HTMLSpanElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef<number | undefined>(undefined);
-  // A choice closes the panel, a beat later so the new selection (and the new theme) is seen first.
-  // Keyboard users land back on the settings button instead of losing their place.
-  const choose = (patch: Parameters<typeof setSettings>[0]) => {
-    setSettings(patch);
+  const chosen = useRef(false);
+  // After a choice the panel lets go on its own, unhurried: 1.4s after the last pick or pointer
+  // move inside it (so you can still change the other setting), or soon after the pointer leaves.
+  // It fades out slowly. Keyboard users land back on the settings button.
+  const closeIn = (ms: number) => {
     window.clearTimeout(closeTimer.current);
     closeTimer.current = window.setTimeout(() => {
       const a = document.activeElement;
       const byKeyboard = !!a?.closest(".settings") && a.matches(":focus-visible");
+      chosen.current = false;
       setOpen(false);
       if (byKeyboard) toggle.current?.focus();
-    }, 420);
+    }, ms);
+  };
+  const choose = (patch: Parameters<typeof setSettings>[0]) => {
+    setSettings(patch);
+    chosen.current = true;
+    closeIn(1400);
   };
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
@@ -185,6 +192,7 @@ export function DisplaySettings() {
         data-pressed={open || undefined}
         onClick={() => {
           window.clearTimeout(closeTimer.current);
+          chosen.current = false;
           setOpen((o) => !o);
         }}
       >
@@ -199,8 +207,10 @@ export function DisplaySettings() {
             aria-label="Display settings"
             initial={{ opacity: 0, y: 6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            exit={{ opacity: 0, y: 3, scale: 0.99, transition: { duration: 0.32, ease: [0.4, 0, 0.2, 1] } }}
             transition={{ duration: 0.16 }}
+            onPointerMove={() => chosen.current && closeIn(1400)}
+            onPointerLeave={() => chosen.current && closeIn(500)}
           >
             <Segmented
               label="Appearance"

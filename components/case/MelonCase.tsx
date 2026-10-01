@@ -309,10 +309,10 @@ function Heard() {
 /* ───────────── Survey ───────────── */
 
 /**
- * The survey: three headline numbers, four small bar charts and what they meant for the design.
- * Each chart is one series, so no legend: the title says what's counted, every bar carries its
- * count at the tip (“5 of 9”), and hovering a row adds the share. The answers the story turns on
- * are in Melon red; the rest are grey. Bars are sized against the students who answered.
+ * The survey, by what it means for the design: three findings, each with its evidence (the count
+ * and one square per student who answered, the ones that matter in Melon red), the finding itself,
+ * and where it shows up in Melon. The funding question we haven't settled follows, and every
+ * answer stays one click away under “All answers” (bar charts, count at the tip, share on hover).
  */
 function Survey() {
   const v = C.survey;
@@ -322,63 +322,74 @@ function Survey() {
         <Lines lines={v.title} />
       </h2>
       <p className="cs-body cs-measure">{v.intro}</p>
-      <ul className="ml-stats">
-        {v.stats.map((t) => (
-          <li key={t.k}>
-            <span className="ml-stat-n">
-              {t.n}
-              <small>/{t.of}</small>
-            </span>
-            <span className="ml-stat-k">{t.k}</span>
+      <ol className="ml-finds">
+        {v.findings.map((f) => (
+          <li key={f.h}>
+            <div className="ml-find-ev" role="img" aria-label={`${f.n} of ${f.of} ${f.unit}`}>
+              <span className="ml-find-n" aria-hidden>
+                {f.n}
+                <small> of {f.of}</small>
+              </span>
+              <span className="ml-units" aria-hidden>
+                {Array.from({ length: f.of }, (_, k) => (
+                  <i key={k} data-on={k < f.n || undefined} />
+                ))}
+              </span>
+              <span className="ml-find-unit" aria-hidden>
+                {f.unit}
+              </span>
+            </div>
+            <div className="ml-find-body">
+              <h3 className="ml-find-h">{f.h}</h3>
+              <p className="ml-find-note">{f.note}</p>
+              <p className="ml-find-melon">
+                <b>{v.melonLabel}</b>
+                <span>{f.melon}</span>
+              </p>
+            </div>
           </li>
         ))}
-      </ul>
-      <div className="ml-charts">
-        {v.charts.map((c) => (
-          <figure className="ml-chart" key={c.k}>
-            <figcaption>
-              <b>{c.k}</b>
-              <span>{c.n} students answered</span>
-            </figcaption>
-            <ol>
-              {c.rows.map((r) => (
-                <li
-                  key={r.k}
-                  data-key={("key" in r && r.key) || undefined}
-                  style={{ ["--w" as string]: `${(r.v / c.n) * 100}%` }}
-                  aria-label={`${r.k}: ${r.v} of ${c.n}`}
-                >
-                  <span className="ml-bar-k" aria-hidden>
-                    {r.k}
-                  </span>
-                  <span className="ml-bar-track" aria-hidden>
-                    <i className="ml-bar" />
-                    <span className="ml-bar-v">
-                      {r.v} <small>of {c.n}</small>
-                      <em> · {Math.round((r.v / c.n) * 100)}%</em>
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </figure>
-        ))}
-      </div>
-      <h3 className="cs-h3 ml-h3">{v.meantTitle}</h3>
-      <ul className="ml-meant">
-        {v.meant.map((m) => (
-          <li key={m.f}>
-            <span className="ml-meant-f">{m.f}</span>
-            <span className="ml-meant-arrow" aria-hidden>
-              →
-            </span>
-            <span className="ml-meant-d">{m.d}</span>
-          </li>
-        ))}
-      </ul>
+      </ol>
       <p className="ml-open">
         <b>{v.open.k}</b> {v.open.v}
       </p>
+      <details className="ml-all">
+        <summary>
+          {v.allLabel}
+          <span>12 students</span>
+        </summary>
+        <div className="ml-charts">
+          {v.charts.map((c) => (
+            <figure className="ml-chart" key={c.k}>
+              <figcaption>
+                <b>{c.k}</b>
+                <span>{c.n} answered</span>
+              </figcaption>
+              <ol>
+                {c.rows.map((r) => (
+                  <li
+                    key={r.k}
+                    data-key={("key" in r && r.key) || undefined}
+                    style={{ ["--w" as string]: `${(r.v / c.n) * 100}%` }}
+                    aria-label={`${r.k}: ${r.v} of ${c.n}`}
+                  >
+                    <span className="ml-bar-k" aria-hidden>
+                      {r.k}
+                    </span>
+                    <span className="ml-bar-track" aria-hidden>
+                      <i className="ml-bar" />
+                      <span className="ml-bar-v">
+                        {r.v} <small>of {c.n}</small>
+                        <em> · {Math.round((r.v / c.n) * 100)}%</em>
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </figure>
+          ))}
+        </div>
+      </details>
       <p className="ml-survey-foot">{v.foot}</p>
     </Section>
   );

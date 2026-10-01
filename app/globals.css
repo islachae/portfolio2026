@@ -13471,39 +13471,148 @@ html[data-motion="reduced"] .cue-head {
   --ml-bar: #f2566a;
   --ml-bar-rest: #6b7178;
 }
-.ml-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  margin: 28px 0 0;
+/* Findings: evidence on the left (the count, one square per student), the finding and its place
+   in Melon on the right. The finding is the headline; the number is its proof. */
+.ml-finds {
+  margin: 32px 0 0;
   padding: 0;
-  border: 1px solid var(--border);
-  background: var(--border);
   list-style: none;
 }
-.ml-stats li {
+.ml-finds > li {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  gap: 16px 40px;
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+}
+.ml-finds > li:last-child {
+  border-bottom: 1px solid var(--border);
+}
+.ml-find-ev {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 18px 16px 20px;
-  background: var(--bg);
+  align-items: flex-start;
+  gap: 10px;
 }
-.ml-stat-n {
+.ml-find-n {
   color: var(--cs-ink);
   font-family: var(--font-display);
-  font-size: 40px;
+  font-size: 44px;
   letter-spacing: -0.03em;
   line-height: 1;
 }
-.ml-stat-n small {
+.ml-find-n small {
   color: var(--text-muted);
-  font-size: 20px;
+  font-size: 18px;
   letter-spacing: -0.01em;
 }
-.ml-stat-k {
+/* one square per student who answered; the ones the finding counts are filled */
+.ml-units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 180px;
+}
+.ml-units i {
+  width: 14px;
+  height: 14px;
+  box-shadow: inset 0 0 0 1px var(--ml-bar-rest);
+  opacity: 0.55;
+}
+.ml-units i[data-on] {
+  background: var(--ml-bar);
+  box-shadow: none;
+  opacity: 1;
+}
+.ml-find-unit {
   color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1.45;
+  font-family: var(--font-code);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+.ml-find-h {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+.ml-find-note {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.ml-find-melon {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.ml-find-melon b {
+  color: var(--cs-ink);
+  font-family: var(--font-code);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* Every answer, folded away */
+.ml-all {
+  margin-top: 28px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.ml-all summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  color: var(--text);
+  font-family: var(--font-code);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+.ml-all summary::-webkit-details-marker {
+  display: none;
+}
+.ml-all summary::before {
+  content: "+";
+  width: 12px;
+  color: var(--cs-ink);
+  font-size: 15px;
+  line-height: 1;
+}
+.ml-all[open] summary::before {
+  content: "−";
+}
+.ml-all summary span {
+  color: var(--text-muted);
+}
+.ml-all summary:hover {
+  color: var(--cs-ink);
+}
+.ml-all summary:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 2px;
+}
+.ml-all .ml-charts {
+  margin: 8px 0 28px;
 }
 .ml-charts {
   display: grid;
@@ -13594,39 +13703,8 @@ html[data-motion="reduced"] .cue-head {
 .ml-chart li:hover .ml-bar-v em {
   opacity: 1;
 }
-.ml-meant {
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.ml-meant li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
-  gap: 8px 12px;
-  align-items: baseline;
-  padding: 14px 0;
-  border-top: 1px solid var(--border);
-}
-.ml-meant li:last-child {
-  border-bottom: 1px solid var(--border);
-}
-.ml-meant-f {
-  color: var(--text);
-  font-family: var(--font-display);
-  font-size: 17px;
-  letter-spacing: -0.01em;
-  line-height: 1.4;
-}
-.ml-meant-arrow {
-  color: var(--cs-accent);
-}
-.ml-meant-d {
-  color: var(--text-muted);
-  font-size: 14.5px;
-  line-height: 1.5;
-}
 .ml-open {
-  margin-top: 20px;
+  margin-top: 24px;
   padding: 14px 16px;
   border-left: 2px solid var(--cs-accent);
   background: var(--cs-tint);
@@ -13650,14 +13728,20 @@ html[data-motion="reduced"] .cue-head {
   line-height: 1.5;
 }
 @media (max-width: 799px) {
-  .ml-stats,
-  .ml-charts {
+  .ml-charts,
+  .ml-finds > li {
     grid-template-columns: minmax(0, 1fr);
   }
-  .ml-meant li {
-    grid-template-columns: minmax(0, 1fr);
+  .ml-find-ev {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
   }
-  .ml-meant-arrow {
-    display: none;
+  .ml-find-unit {
+    flex-basis: 100%;
+  }
+  .ml-find-h {
+    font-size: 21px;
   }
 }
