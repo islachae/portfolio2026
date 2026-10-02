@@ -956,7 +956,7 @@ button.crumb:hover {
 .seg--stage .seg-opt {
   flex: none;
   height: var(--ctl, 40px);
-  padding: 0 14px;
+  padding: 0 var(--space-md);
   font-family: var(--font-code);
   font-size: 15px;
   text-transform: uppercase;
@@ -12642,14 +12642,14 @@ html[data-motion="reduced"] .tp-nudge i {
   min-height: 20px;
   margin: 0;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 20px;
   text-align: center;
 }
 .stage-hint--label {
   font-family: var(--font-code);
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
 .stage-hint button {
