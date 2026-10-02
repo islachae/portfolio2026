@@ -247,6 +247,24 @@ export const pages: Page[] = [
     keywords: ["b2b", "saas", "real estate", "proptech", "workflow", "dashboard", "enterprise", "productivity", "marketing", "ai", "team"],
   },
   {
+    id: "cocktail",
+    meta: "Motion • 3D • 2026",
+    group: "fun",
+    title: "Untranslatable word bar",
+    ticker: "MIX",
+    kind: "Motion · 3D · Toy",
+    tagline: "Words English doesn’t have, mixed as cocktails.",
+    summary: [
+      "Words like 눈치 (nunchi) don’t translate, so I mixed them instead: each one becomes a cocktail of emotional ingredients, poured as glossy gems into a chrome shaker.",
+      "Two things to do, Make and Hold to shake. Everything else pours, shakes, garnishes and prints itself, in about fifteen seconds.",
+    ],
+    facts: [
+      { label: "Built with", value: "Next.js, Motion, three.js" },
+      { label: "On the menu", value: "Nunchi, Amae, Yuánfèn (more mixing)" },
+    ],
+    keywords: ["word cocktail", "word bar", "cocktail", "nunchi", "눈치", "amae", "甘え", "yuanfen", "缘分", "korean", "language", "untranslatable", "words", "motion", "3d", "three.js", "toy", "fun", "shake", "receipt"],
+  },
+  {
     id: "wish",
     meta: "XR • Gesture • 2024",
     year: "2024",
@@ -264,24 +282,6 @@ export const pages: Page[] = [
       { label: "Grew from", value: "Mycelia, NYU Steinhardt 2023" },
     ],
     keywords: ["xr", "vr", "gesture", "art", "3d", "blender", "installation", "wish", "korea"],
-  },
-  {
-    id: "cocktail",
-    meta: "Motion • 3D • 2026",
-    group: "fun",
-    title: "Untranslatable word bar",
-    ticker: "MIX",
-    kind: "Motion · 3D · Toy",
-    tagline: "Words English doesn’t have, mixed as cocktails.",
-    summary: [
-      "Words like 눈치 (nunchi) don’t translate, so I mixed them instead: each one becomes a cocktail of emotional ingredients, poured as glossy gems into a chrome shaker.",
-      "Two things to do, Make and Hold to shake. Everything else pours, shakes, garnishes and prints itself, in about fifteen seconds.",
-    ],
-    facts: [
-      { label: "Built with", value: "Next.js, Motion, three.js" },
-      { label: "On the menu", value: "Nunchi, Amae, Yuánfèn (more mixing)" },
-    ],
-    keywords: ["word cocktail", "word bar", "cocktail", "nunchi", "눈치", "amae", "甘え", "yuanfen", "缘分", "korean", "language", "untranslatable", "words", "motion", "3d", "three.js", "toy", "fun", "shake", "receipt"],
   },
   {
     id: "bakery",
