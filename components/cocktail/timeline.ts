@@ -11,15 +11,18 @@ export type Phase = "hero" | "mix" | "hold" | "shake" | "pour" | "garnish" | "fi
 /** The one clock the DOM and the 3D both read (seconds). Swappable, so a capture script can freeze it. */
 export const clock = { now: () => performance.now() / 1000 };
 
+/** How unhurried the pours are: 1 = the first cut; everything inside a pour scales with it */
+export const POUR = 1.5;
+
 export const T = {
   /** Finished drink slides off, the shaker drops in */
   swap: 0.6,
   /** One pour from fly-in to fly-out */
-  step: 1.3,
+  step: 1.3 * POUR,
   /** Next pour starts this long after the last (same side) */
-  stepGap: 1.02,
-  /** …or this long when it comes from the other side (the two overlap, like a bartender's two hands) */
-  stepGapOther: 0.5,
+  stepGap: 1.02 * POUR,
+  /** …or this long when it comes from the other side (a short overlap, like a bartender's two hands; long enough to read the label before it changes) */
+  stepGapOther: 0.9 * POUR,
   /** The cap drops on after the last pour */
   cap: 0.5,
   /** Holding to 100% */
@@ -30,21 +33,28 @@ export const T = {
   shake: 0.8,
   /** Cap off, shaker up, glass in, pour, shaker away */
   pour: 2.15,
-  /** Beat, tweezers in, plop, tweezers out */
-  garnish: 1.75,
+  /**
+   * The garnish, one line at a time: "One last thing…" alone; at `garnishBeat` it gives way to
+   * "Garnish with"; at `garnishIn` the name appears and the garnish itself comes in (tweezers,
+   * plop at +1.12); then a moment to take it in.
+   */
+  garnish: 4.4,
+  garnishBeat: 1.3,
+  garnishIn: 2.0,
   /** Receipt prints (starts as the final layout settles) */
   print: 1.7,
 };
 
 /** Inside a pour (seconds from its start) */
 export const STEP = {
-  inEnd: 0.32,
-  tiltEnd: 0.5,
-  streamStart: 0.4,
+  inEnd: 0.32 * POUR,
+  tiltStart: 0.24 * POUR,
+  tiltEnd: 0.5 * POUR,
+  streamStart: 0.4 * POUR,
   /** the liquid reaches the shaker and turns into a gem */
-  land: 0.66,
-  streamEnd: 1.0,
-  outStart: 0.98,
+  land: 0.66 * POUR,
+  streamEnd: 1.0 * POUR,
+  outStart: 0.98 * POUR,
 };
 
 export type PourGlass = { side: "left" | "right"; size: number; color: string; gem: number };

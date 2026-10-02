@@ -13851,10 +13851,6 @@ html[data-motion="reduced"] .cue-head {
     --wc-ring-bg: rgba(48, 44, 39, 0.6);
   }
 }
-/* the scene fills the page; .wc-ui keeps the type on the same lines as the other pages */
-.page.page--cocktail {
-  padding: 0;
-}
 .wc {
   --wc-pt: 92px;
   --wc-pr: 32px;
@@ -14707,8 +14703,8 @@ html[data-motion="reduced"] .cue-head {
   visibility: hidden;
 }
 
-/* ── tall / portrait stages (phones, narrow windows): one column, the storyboard's layout ── */
-@container wc (max-aspect-ratio: 4 / 5) {
+/* ── narrow columns (phones): the final stacks, the type steps down ── */
+@container wc (max-width: 460px) {
   .wc-ui > * {
     --at: 29cqh;
     --ah: min(31cqh, 64cqw);
@@ -14891,5 +14887,556 @@ html[data-motion="reduced"] .wc-paper-sway {
   .wc-ring::after,
   .wc-paper-sway {
     animation: none !important;
+  }
+}
+
+/* ═════════ Untranslatable word bar: the bar as this page's stage (layout v2) ═════════
+   The page keeps the portfolio's own header and background. Under it, one centred column
+   (the counter of the bar): sign + menu on top, the object in the middle, the one action under
+   it. Every phase uses the same column; only the final widens so the receipt can print beside
+   the drink. Vertical units are cqh of the column (its height is whatever the page leaves). */
+.page--cocktail {
+  --wc-bg: var(--bg);
+  --wc-col: 480px;
+  background: var(--bg);
+}
+:root[data-theme="dark"] .page--cocktail {
+  --wc-bg: var(--bg);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .page--cocktail {
+    --wc-bg: var(--bg);
+  }
+}
+.page--cocktail .wc {
+  margin-top: var(--space-xl);
+}
+.wc-ui {
+  inset: 0 auto 0 50%;
+  width: min(var(--wc-col), 100%);
+  transform: translateX(-50%);
+}
+.wc-ui > * {
+  --at: 26cqh;
+  --ah: 26cqh;
+}
+.wc-top {
+  justify-content: flex-end;
+  min-height: 20px;
+}
+.wc-label {
+  display: none;
+}
+
+/* hero: the sign, left; the menu, right; the drink, the word, the button, centred */
+.wc-intro {
+  top: 1.2cqh;
+  right: 0;
+  max-width: none;
+}
+.wc-title {
+  font-size: clamp(24px, 4.6cqh, 34px);
+  line-height: 1.08;
+  transform: none;
+}
+.wc-title-2 {
+  margin-left: 0;
+}
+.wc-lede {
+  margin-top: clamp(10px, 2.4cqh, 18px) !important;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.wc-nav {
+  top: 52%;
+}
+.wc-nav--prev {
+  left: calc(var(--aw) / 2 - 50cqw - 22px);
+}
+.wc-nav--next {
+  right: calc(var(--aw) / 2 - 50cqw - 22px);
+}
+.wc-word {
+  top: calc(var(--at) + var(--ah) + 2.2cqh);
+}
+.wc-native {
+  font-size: clamp(36px, 7cqh, 52px);
+}
+.wc-meaning {
+  margin-top: 12px !important;
+}
+.wc-cta-row {
+  top: calc(var(--at) + var(--ah) + 2.2cqh + clamp(112px, 19cqh, 132px) + 3.6cqh);
+  bottom: auto;
+}
+
+/* pours: what's going in, centred over the shaker */
+.wc[data-phase="mix"] .wc-ui > * {
+  --at: 25cqh;
+  --ah: 61cqh;
+}
+.wc-step {
+  top: auto;
+  right: 0;
+  bottom: calc(100cqh - var(--at) + 1.4cqh);
+  left: 0;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.wc-step-n {
+  font-size: 12px;
+}
+.wc-step-name {
+  font-size: clamp(22px, 4.2cqh, 30px);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+.wc-step-shots {
+  margin-top: 2px;
+  font-size: 15px;
+}
+
+/* hold + shake: the capped shaker, the ring right under it */
+.wc[data-phase="hold"] .wc-ui > *,
+.wc[data-phase="shake"] .wc-ui > * {
+  --at: 9cqh;
+  --ah: 58cqh;
+}
+.wc-hold {
+  top: calc(var(--at) + var(--ah) + 4cqh);
+}
+.wc-ring {
+  --rs: clamp(100px, 17cqh, 124px);
+}
+
+/* pour it out: the glass under the lifted shaker */
+.wc[data-phase="pour"] .wc-ui > * {
+  --at: 60cqh;
+  --ah: 30cqh;
+}
+.wc[data-phase="pour"] .wc-anchor--main {
+  left: calc(46% - var(--aw) / 2);
+}
+.wc-note--pourout {
+  top: -96%;
+  left: -78%;
+}
+
+/* garnish: the line goes where the step labels were */
+.wc[data-phase="garnish"] .wc-ui > * {
+  --at: 38cqh;
+  --ah: 34cqh;
+}
+.wc-garnish {
+  top: auto;
+  right: 0;
+  bottom: calc(100cqh - var(--at) + 9cqh);
+  left: 0;
+  text-align: center;
+}
+.wc-garnish-lead {
+  font-size: clamp(22px, 3.6cqh, 28px);
+  transform: rotate(-2deg);
+  transform-origin: 50% 100%;
+}
+.wc-garnish-with {
+  margin-top: 8px !important;
+  font-size: 14px;
+}
+
+/* final: the counter widens: the drink and its name on the left, the receipt printing on the right */
+.wc-final {
+  inset: 0 auto 0 50%;
+  width: min(900px, calc(100vw - 220px));
+  transform: translateX(-50%);
+  column-gap: 40px;
+}
+.wc-anchor--final {
+  width: calc(30cqh * 0.82);
+  height: 30cqh;
+  margin-top: 4cqh;
+}
+.wc-made-native {
+  font-size: clamp(44px, 9cqh, 68px);
+}
+.wc-feed-clip {
+  max-height: calc(100cqh - 90px);
+}
+.wc-actions {
+  padding: 4px 0 2px;
+}
+.wc-feed-clip {
+  width: calc(100% + 80px);
+  padding: 0 40px 40px;
+}
+.wc-final {
+  grid-template-rows: auto auto;
+  align-content: center;
+  row-gap: 3cqh;
+}
+.wc-hold {
+  top: calc(var(--at) + var(--ah) + 5cqh);
+}
+
+/* phones: the header scrolls away; the bar takes one screen under the top bar. The hero fits in
+   the part of it you see under the header; Make scrolls the bar into view for the rest */
+@media (max-width: 799px) {
+  .page.page--cocktail {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+  .page--cocktail .wc {
+    flex: none;
+    height: calc(100svh - 57px - 8px);
+    min-height: 600px;
+    max-height: 780px;
+  }
+}
+@container wc (max-width: 460px) {
+  .wc-ui > * {
+    --at: 19cqh;
+    --ah: 19cqh;
+  }
+  .wc-intro {
+    top: 0;
+  }
+  .wc-title {
+    font-size: 24px;
+  }
+  .wc-lede {
+    margin-top: 10px !important;
+    font-size: 12px;
+  }
+  .wc-nav--prev {
+    left: calc(var(--aw) / 2 - 50cqw - 8px);
+  }
+  .wc-nav--next {
+    right: calc(var(--aw) / 2 - 50cqw - 8px);
+  }
+  .wc-native {
+    font-size: 36px;
+  }
+  .wc-word {
+    top: calc(var(--at) + var(--ah) + 12px);
+  }
+  .wc-cta-row {
+    top: calc(var(--at) + var(--ah) + 12px + 106px + 14px);
+  }
+  .wc[data-phase="mix"] .wc-ui > * {
+    --at: 25cqh;
+    --ah: 54cqh;
+  }
+  .wc-step-name {
+    font-size: 22px;
+  }
+  .wc[data-phase="hold"] .wc-ui > *,
+  .wc[data-phase="shake"] .wc-ui > * {
+    --at: 10cqh;
+    --ah: 54cqh;
+  }
+  .wc-hold {
+    top: calc(var(--at) + var(--ah) + 6cqh);
+  }
+  .wc-note--shake {
+    top: -1%;
+    left: 0;
+  }
+  .wc-note--pour {
+    top: 36%;
+    right: 3%;
+  }
+  .wc[data-phase="pour"] .wc-ui > * {
+    --at: 60cqh;
+    --ah: 26cqh;
+  }
+  .wc[data-phase="pour"] .wc-anchor--main {
+    left: calc(38% - var(--aw) / 2);
+  }
+  .wc-note--pourout {
+    top: -112%;
+    left: -20%;
+  }
+  .wc[data-phase="garnish"] .wc-ui > * {
+    --at: 38cqh;
+    --ah: 32cqh;
+  }
+  .wc-final {
+    inset: 0;
+    width: auto;
+    transform: none;
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    row-gap: 2cqh;
+    padding-top: 3cqh;
+  }
+  .wc-made {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+  .wc-made-native {
+    font-size: 48px;
+  }
+  .wc-anchor--final {
+    width: calc(19cqh * 0.82);
+    height: 19cqh;
+  }
+  .wc-feed-clip {
+    width: calc(100% + 60px);
+    padding: 0 30px 24px;
+  }
+}
+
+/* hero v3: no handwritten sign (the page title says it); the bartender's line types itself in */
+.wc-intro {
+  top: 34px;
+}
+.wc-lede {
+  margin-top: 0 !important;
+  color: var(--wc-ink);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.wc-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  background: currentColor;
+  vertical-align: -0.15em;
+  animation: wc-caret 1s steps(1) infinite;
+}
+.wc-caret[data-done] {
+  animation: wc-caret 1s steps(1) 3, wc-caret-out 0.4s ease 3s forwards;
+}
+@keyframes wc-caret {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes wc-caret-out {
+  to {
+    opacity: 0;
+  }
+}
+.wc-ui > * {
+  --at: 24cqh;
+  --ah: 30cqh;
+}
+@container wc (max-width: 460px) {
+  .wc-ui > * {
+    --at: 19cqh;
+    --ah: 20cqh;
+  }
+  .wc-intro {
+    top: 30px;
+  }
+  .wc-lede {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+html[data-motion="reduced"] .wc-caret {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wc-caret {
+    display: none;
+  }
+}
+
+/* the final: room above the drink for a tall garnish (Amae's pick) under the meaning line */
+.wc-anchor--final {
+  margin-top: 9.5cqh;
+}
+@container wc (max-width: 460px) {
+  /* a wide glass with a tall pick: a little smaller and in from the edge, so nothing is cut off */
+  .wc-anchor--final {
+    width: calc(16cqh * 0.82);
+    height: 16cqh;
+    margin: 3cqh auto 0;
+    transform: translateX(-22px);
+  }
+  .wc[data-phase="garnish"] .wc-ui > * {
+    --at: 40cqh;
+    --ah: 27cqh;
+  }
+}
+
+/* ═════════ word bar, round 4: easier to read ═════════ */
+
+/* the bartender's line, as a statement in the title's typeface, centred over the drink: the fact large,
+   the invitation small under it. The whole line is laid out from the start and the part not yet typed
+   is only hidden, so the typing never moves anything (and the wrapping can be balanced) */
+.wc-intro {
+  top: 38px;
+  right: -70px;
+  left: -70px;
+}
+.wc-lede {
+  margin: 0 !important;
+  font-family: var(--font-display);
+  text-align: center;
+  text-wrap: balance;
+}
+.wc-lede-line {
+  display: block;
+  color: var(--wc-muted);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+.wc-lede-line[data-lead] {
+  margin-bottom: 6px;
+  color: var(--wc-ink);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.018em;
+  line-height: 1.22;
+}
+.wc-lede-rest {
+  visibility: hidden;
+}
+/* a thin bar that takes no room, so the letters after it stay where they are */
+.wc-lede .wc-caret {
+  width: 0;
+  height: 1.02em;
+  margin: 0 -2px 0 0;
+  border-left: 2px solid currentColor;
+  background: none;
+  vertical-align: -0.14em;
+  transform: translateX(3px);
+}
+.wc-ui > * {
+  --at: 27.5cqh;
+  --ah: 28cqh;
+}
+.wc-meaning {
+  font-size: 15px;
+}
+
+/* the garnish, one line at a time: the handwritten lead alone; then the label and, under it, the name
+   (set like an ingredient: small label, big name) */
+.wc-garnish {
+  /* high enough that the garnish, held over the rim before it drops, doesn't cross the words */
+  bottom: calc(100cqh - var(--at) + 15cqh);
+}
+.wc-garnish-lead {
+  font-size: clamp(28px, 5.2cqh, 38px);
+}
+.wc-garnish-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.wc-garnish-k {
+  color: var(--wc-muted);
+  font-family: var(--wc-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.wc-garnish-v {
+  font-family: var(--wc-mono);
+  font-size: clamp(22px, 4.2cqh, 30px);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+/* the end: what the word means, said plainly and large, under a marker in the drink's colour */
+.wc-made-means {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 21em;
+  margin-top: 20px !important;
+}
+.wc-made-means-k {
+  color: var(--wc-muted);
+  font-family: var(--wc-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.wc-made-meaning {
+  margin-top: 0 !important;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 3.8cqh, 25px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.32;
+  text-wrap: balance;
+}
+.wc-hl {
+  padding: 0 0.14em;
+  background: linear-gradient(transparent 56%, color-mix(in srgb, var(--wc-liquid, #cfe79a) var(--wc-hl-a, 78%), transparent) 56%) no-repeat 0 0 / 0% 100%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: wc-hl 0.8s var(--ease-out) 1.15s forwards;
+}
+@keyframes wc-hl {
+  to {
+    background-size: 100% 100%;
+  }
+}
+/* after hours the words are light, so the marker is a glow under them, not a band across them */
+:root[data-theme="dark"] .page--cocktail {
+  --wc-hl-a: 34%;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .page--cocktail {
+    --wc-hl-a: 34%;
+  }
+}
+html[data-motion="reduced"] .wc-hl {
+  background-size: 100% 100%;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wc-hl {
+    background-size: 100% 100%;
+    animation: none;
+  }
+}
+
+@container wc (max-width: 460px) {
+  .wc-intro {
+    top: 30px;
+    right: 0;
+    left: 0;
+  }
+  .wc-lede-line {
+    font-size: 14px;
+  }
+  .wc-lede-line[data-lead] {
+    margin-bottom: 4px;
+    font-size: 21px;
+  }
+  .wc-ui > * {
+    --at: 21.5cqh;
+    --ah: 19cqh;
+  }
+  .wc-meaning {
+    font-size: 13px;
+  }
+  .wc-garnish-v {
+    font-size: 22px;
+  }
+  .wc-made-means {
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 12px !important;
+  }
+  .wc-made-means-k {
+    font-size: 10px;
+  }
+  .wc-made-meaning {
+    font-size: 16px;
+    line-height: 1.35;
+    text-wrap: pretty;
   }
 }

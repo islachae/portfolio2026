@@ -127,9 +127,6 @@ export function Deck({
                   <ShaderHero active={current === "home"} />
                   <HomeHero />
                 </>
-              ) : p.id === "cocktail" ? (
-                // A self-contained scene: it draws its own heading and fills the page
-                <WordCocktail active={current === "cocktail"} near={near(p.id)} />
               ) : (
                 <>
                   <header className={`page-head${long ? " page-head--case" : ""}`}>
@@ -138,7 +135,8 @@ export function Deck({
                       {p.status === "soon" && <span className="tag tag--soon">Coming soon</span>}
                     </p>
                     <h2 className="page-title">{p.heading ?? p.title}</h2>
-                    <p className="page-tagline">{p.tagline}</p>
+                    {/* the word bar says its own line, over the drink */}
+                    {p.id !== "cocktail" && <p className="page-tagline">{p.tagline}</p>}
                     {/* Work pages: the brief sits right here, text on the left and the stage on the right */}
                     <ProjectBrief page={p} />
                     {p.id === "about" && <AboutBrief page={p} />}
@@ -150,7 +148,12 @@ export function Deck({
                     )}
                   </header>
                   {/* Work pages with a case study: the stage is a way in too (components/StageDoor.tsx) */}
-                  <StageDoor id={isCaseId(p.id) ? p.id : null}>{Stage && <Stage />}</StageDoor>
+                  {p.id === "cocktail" ? (
+                    // the bar is this page's stage: one centred counter under the heading
+                    <WordCocktail active={current === "cocktail"} near={near(p.id)} />
+                  ) : (
+                    <StageDoor id={isCaseId(p.id) ? p.id : null}>{Stage && <Stage />}</StageDoor>
+                  )}
                 </>
               )}
             </section>

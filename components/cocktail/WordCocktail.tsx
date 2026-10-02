@@ -21,6 +21,7 @@ import { Receipt } from "./Receipt";
 const Scene = dynamic(() => import("./CocktailScene"), { ssr: false });
 
 const now = () => clock.now();
+const langOf = (code: string) => ({ KR: "ko", JP: "ja", CN: "zh", PT: "pt" })[code] ?? "en";
 const ease = [0.16, 1, 0.3, 1] as const;
 const spring = { type: "spring", stiffness: 420, damping: 30 } as const;
 
@@ -38,6 +39,53 @@ function Arrow({ dir }: { dir: "left" | "right" }) {
     <svg viewBox="0 0 40 20" aria-hidden className="wc-arrow-svg">
       {dir === "left" ? <path d="M38 10H3m8-7.5L3 10l8 7.5" /> : <path d="M2 10h35m-8-7.5L37 10l-8 7.5" />}
     </svg>
+  );
+}
+
+/** The bartender's line, typed out once the bar is in view. Types once per visit to the hero. */
+function Typed({ lines, run }: { lines: string[]; run: boolean }) {
+  const full = lines.join("\n");
+  const [n, setN] = useState(0);
+  const started = useRef(false);
+  useEffect(() => {
+    if (!run || started.current) return;
+    started.current = true;
+    if (reducedMotion()) {
+      setN(full.length);
+      return;
+    }
+    let i = 0;
+    let id = 0;
+    const tick = () => {
+      i++;
+      setN(i);
+      if (i >= full.length) return;
+      const ch = full[i - 1];
+      // a beat at the line break and after the full stop, like someone actually typing
+      id = window.setTimeout(tick, ch === "\n" ? 320 : ch === "." || ch === "!" ? 200 : 26 + Math.random() * 30);
+    };
+    id = window.setTimeout(tick, 420);
+    return () => window.clearTimeout(id);
+  }, [run, full]);
+  const done = n >= full.length;
+  let from = 0;
+  return (
+    <p className="wc-lede" aria-label={lines.join(" ")}>
+      {/* every line is there from the start; what hasn't been typed yet is only hidden, so nothing moves.
+          The first line is the statement (large), the rest sit under it (small) */}
+      {lines.map((l, i) => {
+        const k = Math.max(0, Math.min(l.length, n - from));
+        const caret = n >= from && n <= from + l.length;
+        from += l.length + 1;
+        return (
+          <span key={i} className="wc-lede-line" data-lead={i === 0 || undefined} aria-hidden>
+            {l.slice(0, k)}
+            {caret && <span className="wc-caret" data-done={done || undefined} />}
+            <span className="wc-lede-rest">{l.slice(k)}</span>
+          </span>
+        );
+      })}
+    </p>
   );
 }
 
@@ -74,6 +122,8 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
   const [bg, setBg] = useState("#f3eee5");
   const [holding, setHolding] = useState(false);
   const [plop, setPlop] = useState(false);
+  /** the garnish beat's lines, one at a time: 0 "One last thing…", 1 "Garnish with", 2 + the name */
+  const [gBeat, setGBeat] = useState(0);
   const [shared, setShared] = useState<"" | "shared" | "copied">("");
 
   const root = useRef<HTMLDivElement>(null);
@@ -152,8 +202,15 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
     let t = d(T.shake);
     later(t, () => go("pour"));
     t += d(T.pour);
-    later(t, () => go("garnish"));
-    later(t + (r ? 0 : 1.12), () => setPlop(true));
+    later(t, () => {
+      setGBeat(r ? 2 : 0);
+      go("garnish");
+    });
+    if (!r) {
+      later(t + T.garnishBeat, () => setGBeat(1));
+      later(t + T.garnishIn, () => setGBeat(2));
+    }
+    later(t + (r ? 0 : T.garnishIn + 1.12), () => setPlop(true));
     t += d(T.garnish);
     later(t, () => go("final"));
   }, [go]);
@@ -314,7 +371,12 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
       store.pointer.t = now();
     };
     window.addEventListener("pointermove", move, { passive: true });
-    return () => window.removeEventListener("pointermove", move);
+    // a tap counts too (phones): tap near the heart and it wakes up
+    window.addEventListener("pointerdown", move, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerdown", move);
+    };
   }, [active, store]);
 
   // Development only: jump to any moment (scripts/screenshots). Stripped from production builds.
@@ -324,9 +386,16 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
     w.__wc = {
       clock,
       store,
-      jump: (p: Phase, tau = 0, h = 0, snap = true) => {
+      /** show a word on the menu (hero) */
+      menuTo: (id: string) => {
+        const i = Math.max(0, menu.findIndex((m) => m.id === id));
+        store.cocktail = menu[i];
+        store.wordT0 = -10;
+        setIdx(i);
+      },
+      jump: (p: Phase, tau = 0, h = 0, snap = true, id?: string) => {
         clear();
-        const c = menu.find(isReady)!;
+        const c = (menu.find((m) => m.id === id && isReady(m)) as ReadyCocktail | undefined) ?? menu.find(isReady)!;
         const pl = mixPlan(c);
         setMade(c);
         store.cocktail = c;
@@ -334,7 +403,8 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
         store.hold = h;
         hold.current = { p: h, on: false, done: true, last: 0 };
         setStep(p === "mix" ? pl.steps.filter((s) => s.start <= tau).length - 1 : pl.steps.length - 1);
-        setPlop(p === "garnish" && tau > 1.12);
+        setPlop(p === "garnish" && tau > T.garnishIn + 1.12);
+        setGBeat(p !== "garnish" ? 0 : tau >= T.garnishIn ? 2 : tau >= T.garnishBeat ? 1 : 0);
         store.phase = p;
         store.t0 = clock.now() - tau;
         store.snap = snap;
@@ -342,6 +412,12 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
       },
     };
   });
+
+  // phones: the header sits above the bar; once you Make, bring the whole bar into view
+  useEffect(() => {
+    if (phase !== "mix" || !root.current || !window.matchMedia("(max-width: 799px)").matches) return;
+    root.current.scrollIntoView({ behavior: store.reduced ? "auto" : "smooth", block: "end" });
+  }, [phase, store]);
 
   /* ───────────── share ───────────── */
 
@@ -353,7 +429,7 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
     const touch = window.matchMedia("(pointer: coarse)").matches;
     if (touch && navigator.share) {
       try {
-        await navigator.share({ title: `Word Cocktail · ${made.word}`, text, url });
+        await navigator.share({ title: `${copy.title} · ${made.word}`, text, url });
         setShared("shared");
         return;
       } catch {
@@ -373,8 +449,8 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
 
   const n = made?.ingredients.length ?? 0;
   const left = plan && step >= 0 ? [...plan.steps.slice(0, step + 1)].reverse().find((s) => s.side !== "right") : undefined;
-  const right = plan && step >= 0 ? [...plan.steps.slice(0, step + 1)].reverse().find((s) => s.side === "right") : undefined;
   const pourNote = made && left ? made.ingredients[left.index].note : undefined;
+  const cur = plan && step >= 0 ? plan.steps[step] : undefined;
   const status =
     phase === "mix" && made && step >= 0
       ? `${made.ingredients[step].name}, ${shotLabel(made.ingredients[step].shots)}`
@@ -391,7 +467,15 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
                 : "";
 
   return (
-    <div className="wc" ref={root} data-phase={phase} data-word={word.status} data-holding={holding || undefined}>
+    <div
+      className="wc"
+      ref={root}
+      data-phase={phase}
+      data-word={word.status}
+      data-holding={holding || undefined}
+      // the drink's own colour, for the highlighter over its definition
+      style={{ "--wc-liquid": (made ?? word).liquid } as React.CSSProperties}
+    >
       <div className="wc-stage" ref={stage} data-ready={sceneReady || undefined}>
         {sceneOn && <Scene store={store} active={active} bg={bg} onReady={() => setSceneReady(true)} />}
       </div>
@@ -399,7 +483,6 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
       <div className="wc-ui">
         {/* top row: the label, and the menu / pour counter */}
         <header className="wc-top">
-          <h2 className="wc-label">{copy.title}</h2>
           <AnimatePresence mode="wait" initial={false}>
             {phase === "hero" ? (
               <motion.p key="menu" className="wc-count" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -415,7 +498,7 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
                 <span className="wc-count-n">
                   {String(Math.max(1, Math.min(n, phase === "mix" ? step + 1 : n))).padStart(2, "0")} / {String(n).padStart(2, "0")}
                 </span>
-                <span className="wc-count-word" lang="ko">
+                <span className="wc-count-word" lang={langOf(made.code)}>
                   {made.native}
                 </span>
               </motion.p>
@@ -433,18 +516,7 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
               animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease, delay: 0.15 } }}
               exit={{ opacity: 0, y: -8, transition: { duration: 0.25 } }}
             >
-              <p className="wc-title" aria-hidden>
-                <span>Word</span>
-                <span className="wc-title-2">
-                  Cocktail
-                  <Sparkle className="wc-title-spark" />
-                </span>
-              </p>
-              <p className="wc-lede">
-                {copy.intro[0]}
-                <br />
-                {copy.intro[1]}
-              </p>
+              <Typed lines={copy.intro} run={active} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -519,7 +591,7 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
               animate={{ opacity: 1, x: 0, transition: { ...spring, delay: 0.12 } }}
               exit={{ opacity: 0, x: -24 * store.wordDir, transition: { duration: 0.16 } }}
             >
-              <p className="wc-native" lang={word.code === "KR" ? "ko" : word.code === "JP" ? "ja" : word.code === "CN" ? "zh" : "pt"}>
+              <p className="wc-native" lang={langOf(word.code)}>
                 {word.native}
               </p>
               <p className="wc-roman">{word.word}</p>
@@ -554,32 +626,19 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
           )}
         </AnimatePresence>
 
-        {/* ── MIX: what's going in ── */}
-        <AnimatePresence>
-          {phase === "mix" && made && left && (
+        {/* ── MIX: what's going in (one label, centred over the shaker: the pour happening now) ── */}
+        <AnimatePresence mode="wait">
+          {phase === "mix" && made && cur && (
             <motion.div
-              key={`l${left.index}`}
-              className="wc-step wc-step--left"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease } }}
-              exit={{ opacity: 0, y: -6, transition: { duration: 0.2 } }}
+              key={`s${cur.index}`}
+              className="wc-step"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.32, ease } }}
+              exit={{ opacity: 0, y: -6, transition: { duration: 0.16 } }}
             >
-              <span className="wc-step-n">{String(left.index + 1).padStart(2, "0")}</span>
-              <span className="wc-step-name">{made.ingredients[left.index].name}</span>
-              <span className="wc-step-shots">{shotLabel(made.ingredients[left.index].shots)}</span>
-            </motion.div>
-          )}
-          {phase === "mix" && made && right && (
-            <motion.div
-              key={`r${right.index}`}
-              className="wc-step wc-step--right"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease } }}
-              exit={{ opacity: 0, y: -6, transition: { duration: 0.2 } }}
-            >
-              <span className="wc-step-n">{String(right.index + 1).padStart(2, "0")}</span>
-              <span className="wc-step-name">{made.ingredients[right.index].name}</span>
-              <span className="wc-step-shots">{shotLabel(made.ingredients[right.index].shots)}</span>
+              <span className="wc-step-n">{String(cur.index + 1).padStart(2, "0")}</span>
+              <span className="wc-step-name">{made.ingredients[cur.index].name}</span>
+              <span className="wc-step-shots">{shotLabel(made.ingredients[cur.index].shots)}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -640,25 +699,33 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
           )}
         </AnimatePresence>
 
-        {/* ── GARNISH ── */}
-        <AnimatePresence>
-          {phase === "garnish" && made && (
-            <motion.div
-              key="garnish"
-              className="wc-garnish"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.25 } }}
+        {/* ── GARNISH: one line at a time ── */}
+        <AnimatePresence mode="wait">
+          {phase === "garnish" && made && gBeat === 0 && (
+            <motion.p
+              key="lead"
+              className="wc-garnish wc-garnish-lead"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease } }}
+              exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
             >
-              <motion.p className="wc-garnish-lead" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease } }}>
-                {copy.garnishLead}
-              </motion.p>
-              <motion.p className="wc-garnish-with" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease, delay: 0.18 } }}>
+              {copy.garnishLead}
+            </motion.p>
+          )}
+          {phase === "garnish" && made && gBeat > 0 && (
+            <motion.p key="with" className="wc-garnish wc-garnish-name" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.25 } }}>
+              <motion.span className="wc-garnish-k" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.35, ease } }}>
                 {copy.garnishWith}
-                <br />
+              </motion.span>
+              {/* always there (it holds its line), shown when its turn comes */}
+              <motion.span
+                className="wc-garnish-v"
+                initial={false}
+                animate={gBeat > 1 ? { opacity: 1, y: 0, scale: 1, transition: spring } : { opacity: 0, y: 10, scale: 0.96, transition: { duration: 0 } }}
+              >
                 {made.garnish.name}
-              </motion.p>
-            </motion.div>
+              </motion.span>
+            </motion.p>
           )}
         </AnimatePresence>
 
@@ -672,14 +739,17 @@ export function WordCocktail({ active, near = false }: { active: boolean; near?:
                     <p key="a" className="wc-made-k">
                       {copy.youMade}
                     </p>,
-                    <p key="b" className="wc-made-native" lang="ko">
+                    <p key="b" className="wc-made-native" lang={langOf(made.code)}>
                       {made.native}
                     </p>,
                     <p key="c" className="wc-made-roman">
                       {made.word}
                     </p>,
-                    <p key="d" className="wc-made-meaning">
-                      {made.meaning}
+                    <p key="d" className="wc-made-means">
+                      <span className="wc-made-means-k">{copy.means}</span>
+                      <span className="wc-made-meaning">
+                        <span className="wc-hl">{made.meaning}</span>
+                      </span>
                     </p>,
                   ].map((el) => (
                     <motion.div

@@ -6,7 +6,7 @@
  */
 import { useEffect, useMemo, useRef } from "react";
 import { animate } from "motion/react";
-import { shotLabel, type ReadyCocktail } from "@/content/cocktails";
+import { cocktailCopy, shotLabel, type ReadyCocktail } from "@/content/cocktails";
 import { T } from "./timeline";
 
 /** An irregular torn edge (deterministic, so it doesn't change between renders) */
@@ -94,7 +94,7 @@ export function Receipt({ cocktail, order, reduced, printing }: { cocktail: Read
           <div className="wc-paper" ref={paper}>
             <div className="wc-paper-sway">
               <div className="wc-receipt" role="group" aria-label={`Receipt for ${cocktail.word}`}>
-                <p className="wc-r-center wc-r-brand">Word Cocktail</p>
+                <p className="wc-r-center wc-r-brand">{cocktailCopy.title}</p>
                 <p className="wc-r-center wc-r-muted">
                   Order #{String(order).padStart(3, "0")} · {stamp}
                 </p>

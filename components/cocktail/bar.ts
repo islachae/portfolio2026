@@ -9,17 +9,25 @@
 import * as THREE from "three";
 import type { Cocktail } from "@/content/cocktails";
 import {
-  GLASS,
+  GLASSES,
   SHAKER,
   SHOT,
   capGeometry,
+  causticTexture,
   chrome,
+  citrusTexture,
   fresnelShell,
   gemGeometry,
   gemMaterial,
   glassGeometry,
   glowTexture,
+  iceCubeGeometry,
   liquidGeometry,
+  outerRadius,
+  petalGeometry,
+  puffyHeartGeometry,
+  rimGeometry,
+  rimWave,
   shakerBodyGeometry,
   shakerFootGeometry,
   shakerLipGeometry,
@@ -27,7 +35,11 @@ import {
   shotGeometry,
   shotLiquidGeometry,
   sparkleTexture,
+  type GlassKind,
 } from "./kit";
+import { LUCKY_PICK, LuckyClover } from "./lucky";
+import { Sleeper } from "./sleeper";
+import { Spring } from "./spring";
 import { STEP, T, backOut, clamp01, clock, easeIn, easeInOut, easeOut, seg, type MixPlan, type Phase } from "./timeline";
 
 export type BarStore = {
@@ -54,29 +66,6 @@ export type BarStore = {
 
 const now = () => clock.now();
 
-/** A damped spring on one number. */
-class Spring {
-  v = 0;
-  constructor(
-    public x: number,
-    public k: number,
-    public c: number
-  ) {}
-  step(target: number, dt: number) {
-    const n = Math.max(1, Math.ceil(dt / (1 / 240)));
-    const h = dt / n;
-    for (let i = 0; i < n; i++) {
-      this.v += (-this.k * (this.x - target) - this.c * this.v) * h;
-      this.x += this.v * h;
-    }
-    return this.x;
-  }
-  snap(x: number) {
-    this.x = x;
-    this.v = 0;
-  }
-}
-
 type Gem = {
   mesh: THREE.Mesh;
   rest: THREE.Vector3;
@@ -96,15 +85,44 @@ const SLOTS = [
   [-0.26, 0.94, -0.1],
 ].map((p) => new THREE.Vector3(...p));
 
-/** Ice in the finished drink */
-const ICE = [
-  [-0.32, 1.56, 0.1, 1.15],
-  [0.1, 1.53, 0.3, 1.0],
-  [0.34, 1.58, -0.16, 1.05],
-].map(([x, y, z, s]) => ({ p: new THREE.Vector3(x, y, z), s }));
+type Model = "eye-olive" | "sleepy-cloud" | "lucky-clover";
 
-/** The pick leans in the glass, the olive near its top. */
-const PICK = { a: new THREE.Vector3(-0.14, 1.0, 0.16), b: new THREE.Vector3(0.66, 2.2, 0.16), olive: 0.72 };
+/** Ice in the finished drink, per glass */
+const iceSpots = (a: number[][]) => a.map(([x, y, z, s]) => ({ p: new THREE.Vector3(x, y, z), s }));
+const ICE: Record<GlassKind, { p: THREE.Vector3; s: number }[]> = {
+  coupe: iceSpots([
+    [-0.32, 1.56, 0.1, 1.15],
+    [0.1, 1.53, 0.3, 1.0],
+    [0.34, 1.58, -0.16, 1.05],
+  ]),
+  // Amae: the cream sits right of centre, so the ice shows on the left and in front
+  wavy: iceSpots([
+    [-0.62, 1.52, 0.2, 1.2],
+    [-0.1, 1.5, 0.58, 1.12],
+    [-0.3, 1.52, -0.44, 1.0],
+  ]),
+  // Yuánfèn: a deep bowl, so the cubes hang at different depths
+  goblet: iceSpots([
+    [-0.28, 1.36, 0.2, 1.1],
+    [0.24, 1.06, 0.26, 1.05],
+    [0.04, 1.5, -0.3, 0.95],
+  ]),
+};
+
+/** The pick: where it stands and where its top is (the olive's leans in the glass, Amae's stands in the cream) */
+const PICKS: Record<Model, { a: THREE.Vector3; b: THREE.Vector3 }> = {
+  "eye-olive": { a: new THREE.Vector3(-0.14, 1.0, 0.16), b: new THREE.Vector3(0.66, 2.2, 0.16) },
+  "sleepy-cloud": { a: new THREE.Vector3(0.75, 1.8, 0.16), b: new THREE.Vector3(1.2, 2.4, 0.1) },
+  "lucky-clover": LUCKY_PICK,
+};
+/** How far up its pick the olive sits */
+const OLIVE_AT = 0.72;
+/** Where the cream sits on Amae's drink */
+const CLOUD = new THREE.Vector3(0.22, GLASSES.wavy.full, 0.06);
+/** …and how big it is (the cloud is modelled at 1, then scaled) */
+const CLOUD_SCALE = 1.2;
+/** The dome of the cloud (cloud units): the face is drawn on its front */
+const DOME = { y: 0.24, r: 0.4, sy: 0.86 };
 
 /** Shaker pose while it pours (rig units: glass base = origin) */
 const POUR_POSE = { cx: 1.04, cy: 3.3, rot: 2.0 };
@@ -129,6 +147,31 @@ export class Bar {
   private olive = new THREE.Group();
   private eye = new THREE.Group();
   private ripple: THREE.Mesh;
+  private kind: GlassKind = "coupe";
+  private glassGeo: Partial<Record<GlassKind, THREE.BufferGeometry>> = {};
+  private iceGeo: Record<GlassKind, THREE.BufferGeometry[]>;
+  private rimBand: THREE.Mesh;
+  private pickAB = PICKS["eye-olive"];
+  /** Yuánfèn's garnish and everything in its glass */
+  private lucky = new LuckyClover();
+  private oliveSet = new THREE.Group();
+
+  // Amae's garnish, "A Little Lean": a cloud of cream that dozes on the drink and slumps over the rim
+  private model: Model = "eye-olive";
+  /** what rides on the pick: the rod, the heart on top, the blossom, the sprig */
+  private cloudSet = new THREE.Group();
+  /** what sits on the drink */
+  private cloud = new THREE.Group();
+  private cloudNap = new Sleeper(DOME, { eye: [0.125, 0.31], smile: 0.235, blush: [0.235, 0.225], z: [-0.3, 0.62] });
+  private cloudBody = this.cloudNap.body;
+  private drips: { pts: THREE.Vector3[]; rope: THREE.Mesh; bead: THREE.Mesh }[] = [];
+  private dripGroup = new THREE.Group();
+  private citrus = new THREE.Group();
+  private petals: { m: THREE.Mesh; p: THREE.Vector3; floor: boolean }[] = [];
+  private petalGroup = new THREE.Group();
+  private caustic: THREE.Mesh;
+  private blossom = new THREE.Group();
+  private topper = new THREE.Group();
 
   // shaker
   private shaker = new THREE.Group();
@@ -222,7 +265,8 @@ export class Bar {
     this.glass.add(this.gShadow, this.glow);
 
     /* ── the glass ── */
-    this.glassShell = new THREE.Mesh(glassGeometry(), fresnelShell({ min: 0.11, max: 0.95, power: 2.1, env: 1.9, irid: 0.4 }));
+    this.glassGeo.coupe = glassGeometry("coupe");
+    this.glassShell = new THREE.Mesh(this.glassGeo.coupe, fresnelShell({ min: 0.11, max: 0.95, power: 2.1, env: 1.9, irid: 0.4 }));
     this.glassShell.renderOrder = 4;
     this.liquidMat = new THREE.MeshPhysicalMaterial({
       color: 0xcfe79a,
@@ -240,8 +284,23 @@ export class Bar {
     this.liquid.renderOrder = 3;
     this.setFill(1);
     this.glass.add(this.glassShell, this.liquid);
-    ICE.forEach((ic, i) => {
-      const m = new THREE.Mesh(gemGeometry(101 + i * 7, 0.19 * ic.s), gemMaterial(0xe2f3c0, { ice: true }));
+    // Nunchi's ice is rough-cut crystal; Amae's is big clear cubes
+    const cubeGeo = ICE.wavy.map((ic, i) => iceCubeGeometry(31 + i * 11, 0.36 * ic.s));
+    this.iceGeo = {
+      coupe: ICE.coupe.map((ic, i) => gemGeometry(101 + i * 7, 0.19 * ic.s)),
+      wavy: cubeGeo,
+      goblet: cubeGeo,
+    };
+    ICE.coupe.forEach((ic, i) => {
+      const m = new THREE.Mesh(this.iceGeo.coupe[i], gemMaterial(0xe2f3c0, { ice: true }));
+      // the cubes' edges, drawn over the drink so the facets read through it (shown for Amae only)
+      const edges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(this.iceGeo.wavy[i], 12),
+        new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75, depthWrite: false })
+      );
+      edges.renderOrder = 4;
+      edges.visible = false;
+      m.add(edges);
       m.position.copy(ic.p);
       m.rotation.set(i * 1.3, i * 0.7, i * 0.4);
       this.ice.push(m);
@@ -257,7 +316,7 @@ export class Bar {
     this.glass.add(ring);
 
     /* ── the garnish: an olive with an eye, on a pick ── */
-    const pickLen = PICK.b.distanceTo(PICK.a);
+    const pickLen = PICKS["eye-olive"].b.distanceTo(PICKS["eye-olive"].a);
     this.pickLen = pickLen;
     const pickMat = chrome({ roughness: 0.12 });
     const pick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, pickLen, 12), pickMat);
@@ -285,8 +344,202 @@ export class Bar {
     glint.position.set(0.02, 0.024, 0.196);
     this.eye.add(sclera, pupil, glint);
     this.olive.add(body, this.eye);
-    this.olive.position.y = pickLen * PICK.olive;
-    this.garnish.add(pick, knob, this.olive);
+    this.olive.position.y = pickLen * OLIVE_AT;
+    this.oliveSet.add(pick, knob, this.olive);
+    this.garnish.add(this.oliveSet);
+
+    /* ── Amae's garnish, "A Little Lean": a cloud of cream dozing on the drink and slumping over
+          the rim; on its rose-gold pick a heart, a cherry blossom and a sprig; behind it a wheel of
+          pink grapefruit; petals coming down around the glass ── */
+    const W = GLASSES.wavy;
+    const roseGold = new THREE.MeshPhysicalMaterial({ color: 0xedb9a6, metalness: 1, roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.1, envMapIntensity: 1.3 });
+    this.rimBand = new THREE.Mesh(rimGeometry("wavy"), roseGold);
+    this.rimBand.visible = false;
+    this.glass.add(this.rimBand);
+
+    const cream = new THREE.MeshPhysicalMaterial({
+      color: 0xfff4ee,
+      roughness: 0.34,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.3,
+      sheen: 1,
+      sheenRoughness: 0.5,
+      sheenColor: new THREE.Color(0xffc2d0),
+      emissive: 0xffe0d8,
+      emissiveIntensity: 0.26,
+    });
+    const ball = new THREE.SphereGeometry(1, 32, 22);
+    const puff = (parent: THREE.Object3D, x: number, y: number, z: number, r: number, sy = 1) => {
+      const m = new THREE.Mesh(ball, cream);
+      m.position.set(x, y, z);
+      m.scale.set(r, r * sy, r);
+      parent.add(m);
+      return m;
+    };
+    // the dome, a few soft bumps on top, and a frilled edge resting on the drink
+    puff(this.cloudBody, 0, DOME.y, 0, DOME.r, DOME.sy);
+    for (const [x, y, z, r] of [
+      [-0.22, 0.34, -0.04, 0.25],
+      [0.2, 0.35, -0.06, 0.26],
+      [0.0, 0.45, -0.1, 0.24],
+      [-0.4, 0.04, 0.08, 0.19],
+      [-0.24, -0.01, 0.26, 0.19],
+      [-0.02, -0.03, 0.33, 0.2],
+      [0.2, -0.02, 0.3, 0.19],
+      [0.4, 0.03, 0.2, 0.2],
+      [-0.36, 0.06, -0.2, 0.2],
+      [-0.05, 0.08, -0.3, 0.22],
+      [0.3, 0.08, -0.24, 0.2],
+    ])
+      puff(this.cloudBody, x, y, z, r);
+    this.cloud.add(this.cloudBody);
+    this.cloud.position.copy(CLOUD);
+
+    // the cream slumps over the rim on the right and runs down the outside of the bowl
+    for (const sp of [
+      { phi: -0.12, len: 0.56 },
+      { phi: 0.36, len: 0.36 },
+      { phi: 0.72, len: 0.46 },
+    ]) {
+      const cs = Math.cos(sp.phi),
+        sn = Math.sin(sp.phi);
+      const rimY = W.top + rimWave(W, sp.phi);
+      // up and over: from the cloud's edge to the rim (cloud units)
+      const over = new THREE.Vector3(W.rim * cs, rimY + 0.03, W.rim * sn).sub(CLOUD).divideScalar(CLOUD_SCALE);
+      const from = new THREE.Vector3(over.x, 0, over.z).setLength(0.36).setY(0.1);
+      [
+        [0.45, 0.18],
+        [0.75, 0.15],
+        [1.0, 0.115],
+      ].forEach(([k, r]) => {
+        const at = from.clone().lerp(over, k);
+        puff(this.cloud, at.x, at.y + Math.sin(k * Math.PI) * 0.03, at.z, r);
+      });
+      // a run down the outside of the bowl: one smooth rope that hugs the glass, a fat drop at its end
+      const n = 14;
+      const pts: THREE.Vector3[] = [];
+      for (let j = 0; j <= n; j++) {
+        const y = rimY + 0.02 - ((sp.len + 0.02) * j) / n;
+        const rad = outerRadius(Math.min(y, W.top), "wavy") + 0.035;
+        pts.push(new THREE.Vector3(rad * cs, y, rad * sn));
+      }
+      const rope = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.058, 12, false), cream);
+      this.dripGroup.add(rope);
+      const bead = puff(this.dripGroup, 0, 0, 0, 0.075, 1.15);
+      this.drips.push({ pts, rope, bead });
+    }
+
+    // a wheel of pink grapefruit, standing in the drink behind the cream
+    const ctex = citrusTexture();
+    const flesh = new THREE.MeshPhysicalMaterial({ map: ctex, roughness: 0.3, clearcoat: 0.7, clearcoatRoughness: 0.2, emissive: 0xffffff, emissiveMap: ctex, emissiveIntensity: 0.22 });
+    const rind = new THREE.MeshPhysicalMaterial({ color: 0xf6a183, roughness: 0.5, emissive: 0xf6a183, emissiveIntensity: 0.14 });
+    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.045, 56), [rind, flesh, flesh]);
+    wheel.rotation.set(Math.PI / 2, 0.5, 0);
+    this.citrus.add(wheel);
+    this.citrus.position.set(-0.34, 1.6, -0.22);
+    this.citrus.rotation.set(0, 0.32, 0.1);
+
+    // on the pick: the rod, a bead and a heart on top, the blossom where it enters the cream, a sprig behind
+    const P2 = PICKS["sleepy-cloud"];
+    const len2 = P2.b.distanceTo(P2.a);
+    // a mirror this small only picks up the studio's dark flags: the heart is a softer, lit rose gold
+    const softGold = new THREE.MeshPhysicalMaterial({ color: 0xf2bfad, metalness: 0.55, roughness: 0.26, clearcoat: 1, clearcoatRoughness: 0.08, emissive: 0xd88f7a, emissiveIntensity: 0.28, envMapIntensity: 1.2 });
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, len2, 12), softGold);
+    rod.position.y = len2 / 2;
+    const rodBead = new THREE.Mesh(new THREE.SphereGeometry(0.034, 18, 12), softGold);
+    rodBead.position.y = len2 - 0.01;
+    this.topper.add(new THREE.Mesh(puffyHeartGeometry(0.15, 0.32), softGold));
+    this.topper.position.y = len2 + 0.1;
+    const petalMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffcbd9,
+      roughness: 0.5,
+      sheen: 1,
+      sheenColor: new THREE.Color(0xffffff),
+      emissive: 0xffb3c8,
+      emissiveIntensity: 0.28,
+      side: THREE.DoubleSide,
+    });
+    const pg = petalGeometry(0.15, 0.1);
+    for (let i = 0; i < 5; i++) {
+      const hold = new THREE.Group();
+      hold.rotation.z = (i / 5) * Math.PI * 2;
+      hold.add(new THREE.Mesh(pg, petalMat));
+      this.blossom.add(hold);
+    }
+    const heartOfIt = new THREE.Mesh(new THREE.CircleGeometry(0.055, 20), new THREE.MeshBasicMaterial({ color: 0xff8fb0, transparent: true, opacity: 0.75, depthWrite: false }));
+    heartOfIt.position.z = 0.012;
+    const core = new THREE.Mesh(ball, new THREE.MeshPhysicalMaterial({ color: 0xf2668f, roughness: 0.5 }));
+    core.scale.set(0.024, 0.024, 0.014);
+    core.position.z = 0.02;
+    this.blossom.add(heartOfIt, core);
+    const pollen = new THREE.MeshPhysicalMaterial({ color: 0xffdf8a, roughness: 0.5, emissive: 0xffd670, emissiveIntensity: 0.3 });
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7) * Math.PI * 2 + 0.3;
+      const st = new THREE.Mesh(ball, pollen);
+      st.scale.setScalar(0.009);
+      st.position.set(Math.cos(a) * 0.045, Math.sin(a) * 0.045, 0.035);
+      this.blossom.add(st);
+    }
+    this.blossom.scale.setScalar(1.5);
+    this.blossom.position.set(-0.17, 0.03, 0.22);
+    const leafMat = new THREE.MeshPhysicalMaterial({ color: 0x86a04a, roughness: 0.55, sheen: 0.4, sheenColor: new THREE.Color(0xd8e8a0), emissive: 0x6f8a3a, emissiveIntensity: 0.18 });
+    const sprig = new THREE.Group();
+    const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.009, 0.36, 8), leafMat);
+    stalk.position.y = 0.18;
+    sprig.add(stalk);
+    for (let i = 0; i < 8; i++) {
+      const side = i % 2 ? 1 : -1;
+      const leaf = new THREE.Mesh(ball, leafMat);
+      const l = 0.058 - i * 0.004;
+      leaf.scale.set(l, 0.02, 0.011);
+      leaf.position.set(side * l * 0.8, 0.1 + i * 0.035, 0);
+      leaf.rotation.z = side * 0.55;
+      sprig.add(leaf);
+    }
+    const tip = new THREE.Mesh(ball, leafMat);
+    tip.scale.set(0.018, 0.045, 0.011);
+    tip.position.y = 0.39;
+    sprig.add(tip);
+    sprig.position.set(-0.03, 0.06, -0.08);
+    sprig.rotation.z = 0.85;
+    this.cloudSet.add(rod, rodBead, this.topper, sprig, this.blossom);
+    this.cloudSet.visible = false;
+    this.garnish.add(this.cloudSet, this.lucky.pickSet);
+    this.glass.add(this.lucky.group);
+
+    // petals: a few drifting down around the glass, a few already on the counter
+    const fg = petalGeometry(0.17, 0.12, 0.35);
+    fg.translate(0, -0.085, 0);
+    const fallMat = new THREE.MeshPhysicalMaterial({ color: 0xffbfd0, roughness: 0.55, emissive: 0xffa9bf, emissiveIntensity: 0.32, side: THREE.DoubleSide, transparent: true });
+    const strew = (x: number, y: number, z: number, floor: boolean, i: number) => {
+      const m = new THREE.Mesh(fg, fallMat.clone());
+      m.rotation.set(floor ? -Math.PI / 2 + 0.12 : i * 1.1, i * 2.3, i * 0.9);
+      this.petals.push({ m, p: new THREE.Vector3(x, y, z), floor });
+      this.petalGroup.add(m);
+    };
+    [
+      [-1.0, 2.2, 0.25],
+      [-0.48, 2.42, -0.1],
+      [-1.66, 1.15, 0.3],
+      [1.66, 1.0, -0.15],
+      [0.2, 2.55, 0.1],
+    ].forEach(([x, y, z], i) => strew(x, y, z, false, i));
+    [
+      [-1.55, 0.03, 0.55],
+      [1.2, 0.03, 0.8],
+      [1.8, 0.03, 0.2],
+      [-0.9, 0.03, 1.05],
+    ].forEach(([x, y, z], i) => strew(x, y, z, true, i + 5));
+    // light through the drink, fanning out on the counter
+    this.caustic = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshBasicMaterial({ map: causticTexture(), transparent: true, depthWrite: false, opacity: 0.5 })
+    );
+    this.caustic.rotation.x = -Math.PI / 2;
+    this.caustic.position.set(0.1, 0.006, 0.3);
+    this.caustic.renderOrder = -1;
+    this.cloud.visible = this.dripGroup.visible = this.citrus.visible = this.petalGroup.visible = this.caustic.visible = false;
+    this.glass.add(this.caustic, this.citrus, this.cloud, this.dripGroup, this.petalGroup);
     this.placeGarnish(0, 0, 0);
     this.glass.add(this.garnish);
 
@@ -392,7 +645,7 @@ export class Bar {
   private setFill(f: number) {
     if (Math.abs(f - this.fill) < 0.004) return;
     this.fill = f;
-    const { geometry, surface } = liquidGeometry(f);
+    const { geometry, surface } = liquidGeometry(f, this.kind);
     this.liquid.geometry.dispose();
     this.liquid.geometry = geometry;
     this.surfaceY = surface;
@@ -400,9 +653,10 @@ export class Bar {
   }
 
   private placeGarnish(dx: number, dy: number, rot: number) {
-    const dir = this.tmp.copy(PICK.b).sub(PICK.a);
+    const { a, b } = this.pickAB;
+    const dir = this.tmp.copy(b).sub(a);
     const ang = Math.atan2(-dir.x, dir.y);
-    this.garnish.position.set(PICK.a.x + dx, PICK.a.y + dy, PICK.a.z);
+    this.garnish.position.set(a.x + dx, a.y + dy, a.z);
     this.garnish.rotation.set(0, 0, ang + rot);
     this.garnishAng = ang + rot;
   }
@@ -414,9 +668,47 @@ export class Bar {
     this.liquidMat.color.copy(col);
     this.liquidMat.emissive.copy(col);
     this.glowMat.color.copy(col).lerp(new THREE.Color(0xffffff), 0.15);
-    if (c.status === "ready") {
-      c.ingredients.length; // gems are coloured from the mix plan
+    // ice takes a little of the drink's colour
+    const cubes = c.status === "ready" && !!c.glass && c.glass !== "coupe";
+    const ice = col.clone().lerp(new THREE.Color(0xffffff), cubes ? 0.72 : 0.5);
+    this.ice.forEach((m) => {
+      const mm = m.material as THREE.MeshPhysicalMaterial;
+      mm.color.copy(ice);
+      mm.attenuationColor.copy(ice);
+      mm.emissive.copy(ice);
+      // big flat faces mirror the studio's dark flags: the cubes are a touch softer than the crystals
+      mm.envMapIntensity = cubes ? 0.75 : 1.7;
+      mm.clearcoat = cubes ? 0.3 : 1;
+      mm.roughness = cubes ? 0.12 : 0.02;
+      mm.iridescence = cubes ? 0.2 : 0.55;
+      mm.emissiveIntensity = cubes ? 0.3 : 0.1;
+    });
+    (this.caustic.material as THREE.MeshBasicMaterial).color.copy(col).lerp(new THREE.Color(0xffffff), 0.1);
+    // the glass, the ice and the garnish this drink is served with (gems are coloured from the mix plan)
+    const kind: GlassKind = c.status === "ready" ? (c.glass ?? "coupe") : "coupe";
+    if (kind !== this.kind) {
+      this.kind = kind;
+      this.fill = -1; // the drink is re-poured to this bowl's shape
     }
+    this.glassShell.geometry = this.glassGeo[kind] ??= glassGeometry(kind);
+    // each glass has its own cast: plain, a pink crystal, a faint green
+    (this.glassShell.material as THREE.MeshPhysicalMaterial).color.set({ coupe: 0xffffff, wavy: 0xffcbd8, goblet: 0xf0ffde }[kind]);
+    // Yuánfèn's drink is clearer, so what floats in it shows
+    this.liquidMat.opacity = kind === "goblet" ? 0.56 : 0.78;
+    this.rimBand.visible = kind === "wavy";
+    // a clearer, pinker glass for Amae (the thin turned stem would read as porcelain otherwise)
+    const gu = (this.glassShell.material as THREE.Material).userData.u;
+    gu.uMax.value = { coupe: 0.95, wavy: 0.74, goblet: 0.84 }[kind];
+    this.ice.forEach((m, i) => {
+      m.geometry = this.iceGeo[kind][i];
+      m.children[0].visible = kind !== "coupe";
+    });
+    this.model = c.status === "ready" ? c.garnish.model : "eye-olive";
+    this.oliveSet.visible = this.model === "eye-olive";
+    this.cloudSet.visible = this.model === "sleepy-cloud";
+    this.lucky.pickSet.visible = this.model === "lucky-clover";
+    this.pickAB = PICKS[this.model];
+    this.pickLen = this.pickAB.b.distanceTo(this.pickAB.a);
   }
 
   /** Bottom-centre and height of a DOM anchor, in world units at z = 0. */
@@ -689,13 +981,14 @@ export class Bar {
         const on = ready && iceOn[i];
         m.visible = on;
         if (!on) return;
-        const base = ICE[i].p;
+        const base = ICE[this.kind][i].p;
         let drop = 0;
         if (ph === "pour" && !red) {
           const k = seg(tau, 0.95 + i * 0.22, 1.3 + i * 0.22);
           drop = (1 - easeOut(k)) * 0.7 - Math.sin(k * Math.PI) * 0.05;
         }
-        const ySurf = Math.min(base.y, this.surfaceY - 0.04);
+        // rough ice sits just under the surface; Amae's big cubes ride higher
+        const ySurf = Math.min(base.y, this.surfaceY + (this.kind === "wavy" ? 0.06 : -0.04));
         m.position.set(base.x, ySurf + drop + Math.sin(t * 1.6 + i * 2) * 0.012, base.z);
         m.rotation.y = i + t * 0.15;
         const sc = ph === "pour" ? clamp01(seg(tau, 0.95 + i * 0.22, 1.05 + i * 0.22) * 1.4) : 1;
@@ -704,37 +997,41 @@ export class Bar {
       this.liquid.visible = ready && fill > 0.015;
     }
 
+    // in the garnish beat the words come first ("One last thing…", "Garnish with"); the garnish
+    // itself comes in with its name, so everything below runs on a clock that starts then
+    const gt = ph === "garnish" ? tau - T.garnishIn : tau;
     /* ── garnish: tweezers bring the olive, let go, plop ── */
     this.tweezers.visible = false;
     this.ripple.visible = false;
     if (ph === "garnish" && ready) {
       garnishOn = true;
-      const held = { dx: 0.34, dy: 0.78, rot: 0.3 };
+      // it comes in from the side, laid over, and is held just over the rim: its name is written above the glass
+      const held = { dx: 0.45, dy: 0.32, rot: -0.3 };
       let dx = 0,
         dy = 0,
         rot = 0;
       const tz = this.tweezers;
       if (red) {
         // just there
-      } else if (tau < 0.92) {
-        const k = easeOut(seg(tau, 0.28, 0.82));
-        dx = held.dx + (1 - k) * 1.3;
-        dy = held.dy + (1 - k) * 2.6;
+      } else if (gt < 0.92) {
+        const k = easeOut(seg(gt, 0.28, 0.82));
+        dx = held.dx + (1 - k) * 2.8;
+        dy = held.dy + (1 - k) * 0.7;
         rot = held.rot;
-        garnishOn = tau > 0.28;
+        garnishOn = gt > 0.28;
       } else {
-        const f = seg(tau, 0.92, 1.12);
+        const f = seg(gt, 0.92, 1.12);
         const k = easeIn(f);
         dx = held.dx * (1 - k);
         dy = held.dy * (1 - k);
         rot = held.rot * (1 - k);
         if (f >= 1) {
           // plop: a little bounce on the rim, then still
-          const b = tau - 1.12;
+          const b = gt - 1.12;
           dy = Math.abs(Math.sin(b * 16)) * 0.12 * Math.exp(-b * 7);
           rot = Math.sin(b * 13) * 0.08 * Math.exp(-b * 6);
           const rk = clamp01(b / 0.55);
-          this.ripple.visible = rk < 1;
+          this.ripple.visible = rk < 1 && this.model === "eye-olive";
           this.ripple.position.set(0.25, this.surfaceY + 0.01, 0.1);
           this.ripple.scale.setScalar(0.08 + easeOut(rk) * 0.5);
           (this.ripple.material as THREE.MeshBasicMaterial).opacity = (1 - rk) * 0.85;
@@ -742,17 +1039,18 @@ export class Bar {
       }
       this.placeGarnish(dx, dy, rot);
       // tweezers hold the top of the pick, open, and leave
-      if (!red && tau < 1.5 && tau > 0.28) {
+      if (!red && gt < 1.5 && gt > 0.28) {
         tz.visible = true;
-        if (tau < 0.92) {
+        if (gt < 0.92) {
           this.garnish.updateMatrixWorld(true);
           this.heldTop.copy(this.garnish.localToWorld(this.tmp.set(0, this.pickLen, 0)));
           this.rig.worldToLocal(this.heldTop);
         }
-        const leave = easeIn(seg(tau, 1.0, 1.45));
-        tz.position.set(this.heldTop.x + leave * 1.6, this.heldTop.y - 0.06 + leave * 3, this.heldTop.z + 0.03);
-        tz.rotation.set(0, 0, -0.5);
-        const open = seg(tau, 0.86, 0.95);
+        const leave = easeIn(seg(gt, 1.0, 1.45));
+        // held nearly flat, from the side: the name above the glass stays clear
+        tz.position.set(this.heldTop.x - 0.05 + leave * 2.8, this.heldTop.y - 0.03 + leave * 1.3, this.heldTop.z + 0.03);
+        tz.rotation.set(0, 0, -1.08);
+        const open = seg(gt, 0.86, 0.95);
         this.prongs[0].rotation.z = 0.02 + open * 0.09;
         this.prongs[1].rotation.z = -0.02 - open * 0.09;
       }
@@ -762,7 +1060,19 @@ export class Bar {
     this.garnish.visible = glassOn && ready && garnishOn;
 
     /* the eye reads the room: follows the pointer, glances, blinks */
-    if (this.garnish.visible) {
+    this.sleepyCloud(store, camera, t, dt, ph, gt, red, glassOn && ready);
+    this.lucky.update({
+      t,
+      dt,
+      ph,
+      tau: gt,
+      red,
+      on: glassOn && ready && this.model === "lucky-clover",
+      garnishAng: this.garnishAng,
+      glass: this.glass,
+      visitor: (obj, lift, radius, span) => this.visitor(store, camera, obj, lift, radius, span, t),
+    });
+    if (this.garnish.visible && this.model === "eye-olive") {
       this.olive.getWorldPosition(this.tmp);
       const viewH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
       const viewW = viewH * camera.aspect;
@@ -775,7 +1085,7 @@ export class Bar {
         ly = 0.1;
       }
       if (ph === "garnish") {
-        const b = tau - 1.25;
+        const b = gt - 1.25;
         lx = b < 0 ? 0 : b < 0.2 ? -1 : b < 0.42 ? 1 : 0;
         ly = b > 0 && b < 0.42 ? -0.2 : 0;
       }
@@ -920,7 +1230,7 @@ export class Bar {
       this.stream(0, from, dir, to, tail, head, cols, 0.075);
       this.streams[1].mesh.visible = false;
       // ice drops sparkle as they land
-      for (let i = 0; i < 3; i++) this.sparkle(i, this.tmp.set(ICE[i].p.x, this.surfaceY + 0.05, ICE[i].p.z + 0.2), tau - (1.15 + i * 0.22), new THREE.Color(c.liquid), 0.42);
+      for (let i = 0; i < 3; i++) this.sparkle(i, this.tmp.set(ICE[this.kind][i].p.x, this.surfaceY + 0.05, ICE[this.kind][i].p.z + 0.2), tau - (1.15 + i * 0.22), new THREE.Color(c.liquid), 0.42);
     } else if (ph !== "mix") {
       this.streams.forEach((s) => (s.mesh.visible = false));
     }
@@ -933,10 +1243,106 @@ export class Bar {
     this.shadow.scale.set(1.55 * (1 - Math.min(0.5, shakerLift * 0.12)), 0.8, 1);
     (this.shadow.material as THREE.MeshBasicMaterial).opacity = 1 - Math.min(0.9, shakerLift * 0.3);
     this.gShadow.visible = glassOn;
-    this.gShadow.scale.set(1.2, 0.62, 1);
+    const foot = GLASSES[this.kind].base / GLASSES.coupe.base;
+    this.gShadow.scale.set(1.2 * foot, 0.62 * foot, 1);
     this.glow.visible = glassOn && ready && fill > 0.15;
-    this.glow.scale.set(2.3 * fill, 1.2 * fill, 1);
+    this.glow.scale.set(2.3 * fill * foot, 1.2 * fill * foot, 1);
     this.glowMat.opacity = 0.5 * fill;
+    // Amae: the light through the drink shimmers on the counter
+    this.caustic.visible = this.glow.visible && this.kind !== "coupe";
+    if (this.caustic.visible) {
+      this.caustic.scale.set(3.3 * fill, 1.75 * fill, 1);
+      this.caustic.rotation.z = red ? 0 : Math.sin(t * 0.25) * 0.25;
+      (this.caustic.material as THREE.MeshBasicMaterial).opacity = (red ? 0.5 : 0.42 + 0.14 * Math.sin(t * 1.1)) * fill;
+    }
+  }
+
+  /**
+   * Amae: the cream dozes on the drink (breathing, a z now and then, drips hanging over the rim).
+   * Come close and it wakes up, blinks, blushes and leans toward you; leave and it nods off again.
+   * In the garnish beat it is dolloped on, the pick is planted in it, and it slumps over the rim.
+   */
+  /** `tau`: seconds into the phase (in the garnish beat, seconds since the garnish started coming in) */
+  private sleepyCloud(store: BarStore, camera: THREE.PerspectiveCamera, t: number, dt: number, ph: Phase, tau: number, red: boolean, on: boolean) {
+    const cloudy = on && this.model === "sleepy-cloud";
+    const show = cloudy && ph !== "pour";
+    this.cloud.visible = this.dripGroup.visible = show;
+    // the grapefruit wheel goes in with the ice; the petals only fall around a finished drink
+    this.citrus.visible = cloudy && (ph !== "pour" || tau > 1.5 || red);
+    if (this.citrus.visible) this.citrus.scale.setScalar(ph === "pour" && !red ? Math.max(0.001, backOut(seg(tau, 1.5, 1.82), 1.8)) : 1);
+    this.petalGroup.visible = cloudy && (ph === "hero" || ph === "final");
+    if (this.petalGroup.visible) {
+      this.petals.forEach(({ m, p, floor }, i) => {
+        const mat = m.material as THREE.MeshPhysicalMaterial;
+        if (floor || red) {
+          m.position.copy(p);
+          mat.opacity = 1;
+          return;
+        }
+        // a slow fall that loops: fades in at the top, drifts, fades out lower down
+        const k = (t * 0.085 + i * 0.37) % 1;
+        m.position.set(p.x + Math.sin(k * 7 + i * 2) * 0.1, p.y - k * 0.75, p.z);
+        m.rotation.x += dt * (0.5 + i * 0.13);
+        m.rotation.z += dt * (0.3 + i * 0.09);
+        mat.opacity = Math.min(1, Math.sin(k * Math.PI) * 2.2);
+      });
+    }
+    if (!show) return;
+
+    // the garnish beat: dolloped on, squashed as the pick goes in, then it runs over the rim
+    let grow = 1,
+      squish = 0,
+      drip = 1;
+    if (ph === "garnish" && !red) {
+      grow = backOut(seg(tau, 0.04, 0.42), 2);
+      const b = tau - 1.12;
+      if (b > 0) squish = 0.14 * Math.exp(-b * 7) * Math.cos(b * 22);
+      drip = easeOut(seg(tau, 1.0, 1.9));
+    }
+    this.cloud.scale.setScalar(Math.max(0.001, grow) * CLOUD_SCALE);
+
+    // asleep or awake
+    const v = this.visitor(store, camera, this.cloudBody, DOME.y * CLOUD_SCALE, 1.35, 1.8, t);
+    this.cloudNap.step(t, dt, { near: v.near && ph !== "garnish", toward: v.toward, red, dream: ph === "hero" || ph === "final", squish, lean: 0.15 });
+    // what's on the pick stays upright while the pick leans
+    this.blossom.rotation.z = -this.garnishAng + 0.3;
+    this.topper.rotation.z = -this.garnishAng * 0.75;
+
+    // the runs down the glass: they lengthen in the garnish beat, then the drop at the end swells and thins
+    this.drips.forEach((d, i) => {
+      // the rope is drawn up to where the run has reached (its triangles are in order, top to bottom)
+      const idx = d.rope.geometry.index!;
+      d.rope.geometry.setDrawRange(0, Math.floor((idx.count * drip) / 6) * 6);
+      d.rope.visible = d.bead.visible = drip > 0.02;
+      const f = drip * (d.pts.length - 1);
+      const j = Math.min(d.pts.length - 2, Math.floor(f));
+      d.bead.position.copy(d.pts[j]).lerp(d.pts[j + 1], f - j);
+      const swell = red ? 1 : 1 + 0.1 * Math.sin(t * 1.3 + i * 2.1);
+      d.bead.scale.set(0.075 * swell, 0.075 * 1.15 * (2 - swell), 0.075 * swell);
+    });
+  }
+
+  /**
+   * Where the visitor is relative to something in the scene: close enough to notice (`near`),
+   * which side they are on (`toward`, −1…1), and the pointer itself in world units.
+   */
+  private visitor(store: BarStore, camera: THREE.PerspectiveCamera, obj: THREE.Object3D, lift: number, radius: number, span: number, t: number) {
+    obj.getWorldPosition(this.tmp);
+    const s = this.rig.scale.x || 1;
+    this.tmp.y += lift * s;
+    const viewH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const viewW = viewH * camera.aspect;
+    const px = (store.pointer.x * viewW) / 2;
+    const py = (store.pointer.y * viewH) / 2;
+    const fresh = t - store.pointer.t < 2.5;
+    return {
+      near: fresh && Math.hypot(px - this.tmp.x, py - this.tmp.y) < radius * s,
+      toward: fresh ? clamp((px - this.tmp.x) / (span * s), -1, 1) : 0,
+      fresh,
+      px,
+      py,
+      s,
+    };
   }
 
   /** One shot glass (or two) for the current pours, and their streams. */
@@ -956,7 +1362,7 @@ export class Bar {
         const F = { x: sx * 3.6, y: 4.4 };
         const kin = backOut(seg(u, 0, STEP.inEnd), 1.1);
         const kout = easeIn(seg(u, STEP.outStart, T.step));
-        const tilt = easeInOut(seg(u, 0.24, STEP.tiltEnd)) * (1 - easeInOut(seg(u, STEP.streamEnd - 0.06, STEP.outStart + 0.12)));
+        const tilt = easeInOut(seg(u, STEP.tiltStart, STEP.tiltEnd)) * (1 - easeInOut(seg(u, STEP.streamEnd - 0.06, STEP.outStart + 0.12)));
         const g = shot.g;
         g.visible = true;
         g.scale.setScalar(gl.size);

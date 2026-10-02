@@ -267,21 +267,21 @@ export const pages: Page[] = [
   },
   {
     id: "cocktail",
-    meta: "Motion toy",
+    meta: "Motion • 3D • 2026",
     group: "fun",
-    title: "Word Cocktail",
+    title: "Untranslatable word bar",
     ticker: "MIX",
     kind: "Motion · 3D · Toy",
-    tagline: "Some words don’t come in English. So here’s the recipe.",
+    tagline: "Words English doesn’t have, mixed as cocktails.",
     summary: [
       "Words like 눈치 (nunchi) don’t translate, so I mixed them instead: each one becomes a cocktail of emotional ingredients, poured as glossy gems into a chrome shaker.",
-      "Two things to do, Make and Hold to shake. Everything else pours, shakes, garnishes and prints itself, in about ten seconds.",
+      "Two things to do, Make and Hold to shake. Everything else pours, shakes, garnishes and prints itself, in about fifteen seconds.",
     ],
     facts: [
       { label: "Built with", value: "Next.js, Motion, three.js" },
-      { label: "On the menu", value: "Nunchi (more mixing)" },
+      { label: "On the menu", value: "Nunchi, Amae, Yuánfèn (more mixing)" },
     ],
-    keywords: ["word cocktail", "cocktail", "nunchi", "눈치", "korean", "language", "untranslatable", "words", "motion", "3d", "three.js", "toy", "fun", "shake", "receipt"],
+    keywords: ["word cocktail", "word bar", "cocktail", "nunchi", "눈치", "amae", "甘え", "yuanfen", "缘分", "korean", "language", "untranslatable", "words", "motion", "3d", "three.js", "toy", "fun", "shake", "receipt"],
   },
   {
     id: "bakery",

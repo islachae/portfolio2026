@@ -176,58 +176,216 @@ function cubic(p0: THREE.Vector2, p1: THREE.Vector2, p2: THREE.Vector2, p3: THRE
   return new THREE.CubicBezierCurve(p0, p1, p2, p3).getPoints(n);
 }
 
-/** Cocktail glass: a round-bottomed martini bowl on a thin stem. Bowl bottom at y ≈ 0.86, rim at 1.72. */
-export const GLASS = { rim: 0.8, top: 1.72, bowlFloor: 0.9 };
-const bowlOuter = () => cubic(new V2(0.07, 0.86), new V2(0.38, 0.84), new V2(0.74, 1.12), new V2(0.8, 1.72), 28);
-const bowlInner = () => cubic(new V2(0.0, 0.905), new V2(0.36, 0.895), new V2(0.72, 1.14), new V2(0.778, 1.71), 40);
+/* ───────────── glasses ───────────── */
 
-export function glassGeometry() {
-  const pts: THREE.Vector2[] = [
-    new V2(0.0, 0),
-    new V2(0.42, 0),
-    new V2(0.445, 0.012),
-    new V2(0.44, 0.03),
-    new V2(0.3, 0.05),
-    new V2(0.1, 0.085),
-    new V2(0.06, 0.14),
-    new V2(0.044, 0.3),
-    new V2(0.042, 0.6),
-    new V2(0.05, 0.76),
-    new V2(0.07, 0.83),
-  ];
-  pts.push(...bowlOuter().slice(0, -1));
-  pts.push(new V2(0.8, 1.72), new V2(0.792, 1.728), new V2(0.781, 1.718));
-  pts.push(...bowlInner().reverse().slice(1));
-  const g = new THREE.LatheGeometry(pts, 72);
+export type GlassKind = "coupe" | "wavy" | "goblet";
+export type GlassSpec = {
+  /** rim radius, rim height, foot radius */
+  rim: number;
+  top: number;
+  base: number;
+  /** the drink: where the bowl's floor is, and the surface when the glass is full */
+  y0: number;
+  full: number;
+  /** the whole outline, foot to rim and back down the inside (a lathe profile) */
+  profile: THREE.Vector2[];
+  inner: THREE.Vector2[];
+  outer: THREE.Vector2[];
+  /** a scalloped rim: `n` waves, `amp` tall, starting to rise at height `from` */
+  wave?: { n: number; amp: number; from: number };
+};
+
+function spec(o: {
+  foot: THREE.Vector2[];
+  outer: THREE.Vector2[];
+  inner: THREE.Vector2[];
+  lip: THREE.Vector2[];
+  base: number;
+  y0: number;
+  full: number;
+  wave?: GlassSpec["wave"];
+}): GlassSpec {
+  const rimPt = o.outer[o.outer.length - 1];
+  return {
+    rim: rimPt.x,
+    top: rimPt.y,
+    base: o.base,
+    y0: o.y0,
+    full: o.full,
+    profile: [...o.foot, ...o.outer, ...o.lip, ...[...o.inner].reverse().slice(1)],
+    inner: o.inner,
+    outer: o.outer,
+    wave: o.wave,
+  };
+}
+
+export const GLASSES: Record<GlassKind, GlassSpec> = {
+  /** Nunchi's: a round-bottomed coupe on a thin stem. Bowl bottom at y ≈ 0.86, rim at 1.72. */
+  coupe: spec({
+    foot: [
+      new V2(0.0, 0),
+      new V2(0.42, 0),
+      new V2(0.445, 0.012),
+      new V2(0.44, 0.03),
+      new V2(0.3, 0.05),
+      new V2(0.1, 0.085),
+      new V2(0.06, 0.14),
+      new V2(0.044, 0.3),
+      new V2(0.042, 0.6),
+      new V2(0.05, 0.76),
+      new V2(0.07, 0.83),
+    ],
+    outer: cubic(new V2(0.07, 0.86), new V2(0.38, 0.84), new V2(0.74, 1.12), new V2(0.8, 1.72), 28),
+    lip: [new V2(0.792, 1.728), new V2(0.781, 1.718)],
+    inner: cubic(new V2(0.0, 0.905), new V2(0.36, 0.895), new V2(0.72, 1.14), new V2(0.778, 1.71), 40),
+    base: 0.445,
+    y0: 0.912,
+    full: 1.6,
+  }),
+  /** Amae's: wide and shallow, a scalloped rim, a short turned stem with a knob, a broad foot. */
+  wavy: spec({
+    foot: [
+      new V2(0.0, 0),
+      new V2(0.6, 0),
+      new V2(0.635, 0.014),
+      new V2(0.628, 0.04),
+      new V2(0.5, 0.058),
+      new V2(0.28, 0.09),
+      new V2(0.14, 0.14),
+      new V2(0.085, 0.22),
+      new V2(0.08, 0.29),
+      new V2(0.11, 0.35),
+      new V2(0.165, 0.4),
+      new V2(0.172, 0.44),
+      new V2(0.135, 0.49),
+      new V2(0.088, 0.55),
+      new V2(0.076, 0.66),
+      new V2(0.09, 0.77),
+      new V2(0.13, 0.84),
+    ],
+    outer: cubic(new V2(0.14, 0.87), new V2(0.62, 0.86), new V2(1.07, 1.08), new V2(1.12, 1.6), 30),
+    lip: [new V2(1.112, 1.61), new V2(1.098, 1.6)],
+    inner: cubic(new V2(0.0, 0.93), new V2(0.6, 0.92), new V2(1.045, 1.1), new V2(1.098, 1.59), 40),
+    base: 0.635,
+    y0: 0.94,
+    full: 1.46,
+    wave: { n: 9, amp: 0.05, from: 1.32 },
+  }),
+  /** Yuánfèn's: a deep round bowl with nearly straight sides, on a short turned stem */
+  goblet: spec({
+    foot: [
+      new V2(0.0, 0),
+      new V2(0.46, 0),
+      new V2(0.49, 0.012),
+      new V2(0.485, 0.036),
+      new V2(0.36, 0.056),
+      new V2(0.17, 0.09),
+      new V2(0.09, 0.15),
+      new V2(0.072, 0.24),
+      new V2(0.085, 0.31),
+      new V2(0.125, 0.36),
+      new V2(0.132, 0.4),
+      new V2(0.1, 0.45),
+      new V2(0.076, 0.51),
+      new V2(0.08, 0.57),
+      new V2(0.11, 0.62),
+    ],
+    outer: cubic(new V2(0.12, 0.65), new V2(0.6, 0.63), new V2(0.7, 0.92), new V2(0.74, 1.9), 30),
+    lip: [new V2(0.732, 1.908), new V2(0.72, 1.898)],
+    inner: cubic(new V2(0.0, 0.7), new V2(0.56, 0.69), new V2(0.67, 0.94), new V2(0.718, 1.89), 40),
+    base: 0.49,
+    y0: 0.71,
+    full: 1.72,
+  }),
+};
+/** Kept for the pours and the garnish, which were laid out on the plain coupe */
+export const GLASS = { rim: GLASSES.coupe.rim, top: GLASSES.coupe.top, bowlFloor: 0.9 };
+
+/** How far the rim rises at angle `th` (0 for a plain rim); `k` = 0 where the wave starts, 1 at the rim */
+export function rimWave(s: GlassSpec, th: number, k = 1) {
+  return s.wave ? s.wave.amp * k * (Math.cos(th * s.wave.n) + 0.35) : 0;
+}
+
+export function glassGeometry(kind: GlassKind = "coupe") {
+  const s = GLASSES[kind];
+  // a scalloped rim needs more steps around, or each wave is a zigzag
+  const g = new THREE.LatheGeometry(s.profile, s.wave ? 216 : 72);
+  if (s.wave) {
+    const p = g.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) {
+      const y = p.getY(i);
+      const k = THREE.MathUtils.smoothstep(y, s.wave.from, s.top);
+      if (k > 0) p.setY(i, y + rimWave(s, Math.atan2(p.getZ(i), p.getX(i)), k));
+    }
+  }
   g.computeVertexNormals();
   return g;
 }
 
-const innerSamples = bowlInner();
-/** Inner radius of the bowl at height y */
-export function bowlRadius(y: number) {
-  for (let i = 1; i < innerSamples.length; i++) {
-    const a = innerSamples[i - 1];
-    const b = innerSamples[i];
-    if (y <= b.y) return a.x + ((b.x - a.x) * (y - a.y)) / Math.max(1e-6, b.y - a.y);
+/** A thin band that follows the rim (Amae's rose-gold edge) */
+export function rimGeometry(kind: GlassKind, thick = 0.013) {
+  const s = GLASSES[kind];
+  const pts: THREE.Vector3[] = [];
+  const n = 216;
+  for (let i = 0; i < n; i++) {
+    const th = (i / n) * Math.PI * 2;
+    pts.push(new THREE.Vector3(Math.cos(th) * (s.rim - 0.006), s.top + rimWave(s, th) + 0.006, Math.sin(th) * (s.rim - 0.006)));
   }
-  return innerSamples[innerSamples.length - 1].x;
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), n * 2, thick, 8, true);
 }
 
+const radiusAt = (samples: THREE.Vector2[], y: number) => {
+  for (let i = 1; i < samples.length; i++) {
+    const a = samples[i - 1];
+    const b = samples[i];
+    if (y <= b.y) return a.x + ((b.x - a.x) * (y - a.y)) / Math.max(1e-6, b.y - a.y);
+  }
+  return samples[samples.length - 1].x;
+};
+/** Inner radius of the bowl at height y */
+export const bowlRadius = (y: number, kind: GlassKind = "coupe") => radiusAt(GLASSES[kind].inner, y);
+/** Outer radius of the bowl at height y (what a drip runs down) */
+export const outerRadius = (y: number, kind: GlassKind = "coupe") => radiusAt(GLASSES[kind].outer, y);
+
 /** The drink, filled to `fill` (0–1 of the bowl) */
-export function liquidGeometry(fill: number) {
-  const y0 = 0.912;
-  const y1 = y0 + (1.6 - y0) * Math.max(0.02, fill);
+export function liquidGeometry(fill: number, kind: GlassKind = "coupe") {
+  const s = GLASSES[kind];
+  const y0 = s.y0;
+  const y1 = y0 + (s.full - y0) * Math.max(0.02, fill);
   const pts: THREE.Vector2[] = [new V2(0, y0)];
   const n = 18;
   for (let i = 0; i <= n; i++) {
     const y = y0 + ((y1 - y0) * i) / n;
-    pts.push(new V2(Math.max(0.001, bowlRadius(y) - 0.006), y));
+    pts.push(new V2(Math.max(0.001, bowlRadius(y, kind) - 0.006), y));
   }
   pts.push(new V2(0, y1));
   const g = new THREE.LatheGeometry(pts, 64);
   g.computeVertexNormals();
   return { geometry: g, surface: y1 };
+}
+
+/** A cut ice cube: a box with its corners knocked in, every corner a little off (Amae's ice) */
+export function iceCubeGeometry(seed: number, s = 0.3) {
+  const g = new THREE.BoxGeometry(s, s * 0.9, s * 0.95, 2, 2, 2);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  const rand = mulberry(seed);
+  const moved = new Map<string, number>();
+  const v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    const key = `${v.x.toFixed(4)},${v.y.toFixed(4)},${v.z.toFixed(4)}`;
+    let k = moved.get(key);
+    if (k === undefined) {
+      k = 0.94 + rand() * 0.12;
+      moved.set(key, k);
+    }
+    // pull toward a sphere: corners come in the most, face centres barely move
+    const round = v.clone().normalize().multiplyScalar(s * 0.6);
+    v.lerp(round, 0.24).multiplyScalar(k);
+    p.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.computeVertexNormals();
+  return g;
 }
 
 /** Shaker body: a tumbler that widens a little toward the top. */
@@ -367,4 +525,233 @@ export function sparkleTexture() {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
+}
+
+/* ───────────── Amae's garnish: a cloud of cream, a heart-topped pick, a blossom, a wheel of grapefruit ───────────── */
+
+/** A heart outline `w` wide, centred, tip down */
+export function heartShape(w: number) {
+  // the classic heart path (22 × 19 units), flipped so the tip points down and centred on 0
+  const k = w / 22;
+  const P = (x: number, y: number): [number, number] => [(x - 5) * k, -(y - 9.5) * k];
+  const s = new THREE.Shape();
+  s.moveTo(...P(5, 5));
+  s.bezierCurveTo(...P(5, 5), ...P(4, 0), ...P(0, 0));
+  s.bezierCurveTo(...P(-6, 0), ...P(-6, 7), ...P(-6, 7));
+  s.bezierCurveTo(...P(-6, 11), ...P(-3, 15.4), ...P(5, 19));
+  s.bezierCurveTo(...P(12, 15.4), ...P(16, 11), ...P(16, 7));
+  s.bezierCurveTo(...P(16, 7), ...P(16, 0), ...P(10, 0));
+  s.bezierCurveTo(...P(7, 0), ...P(5, 5), ...P(5, 5));
+  return s;
+}
+
+/** A puffy heart: an extruded outline with a deep round bevel, so it reads like a soft candy */
+export function puffyHeartGeometry(w: number, puff = 0.36) {
+  const g = new THREE.ExtrudeGeometry(heartShape(w), {
+    depth: w * 0.08,
+    bevelEnabled: true,
+    bevelThickness: w * puff * 0.55,
+    bevelSize: w * 0.12,
+    bevelSegments: 12,
+    curveSegments: 40,
+  });
+  g.center();
+  g.computeVertexNormals();
+  return g;
+}
+
+/** A short arc as a thin tube (closed eyes, a smile) */
+export function arcGeometry(r: number, a0: number, a1: number, thick: number) {
+  const pts: THREE.Vector3[] = [];
+  for (let i = 0; i <= 16; i++) {
+    const a = a0 + ((a1 - a0) * i) / 16;
+    pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0));
+  }
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, thick, 8, false);
+}
+
+/** A hand-drawn "z" for the sleeping heart */
+export function zTexture() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const x = c.getContext("2d")!;
+  x.strokeStyle = "rgba(22,21,19,.9)";
+  x.lineWidth = 6;
+  x.lineCap = "round";
+  x.lineJoin = "round";
+  x.beginPath();
+  x.moveTo(15, 17);
+  x.quadraticCurveTo(32, 14, 47, 16);
+  x.lineTo(16, 47);
+  x.quadraticCurveTo(32, 49, 49, 46);
+  x.stroke();
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/** One cherry-blossom petal, `len` long: a rounded teardrop with the notch at its tip, gently cupped */
+export function petalGeometry(len: number, w: number, cup = 0.5) {
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.bezierCurveTo(w * 0.95, len * 0.2, w * 0.8, len * 0.88, w * 0.2, len);
+  s.lineTo(0, len * 0.86);
+  s.lineTo(-w * 0.2, len);
+  s.bezierCurveTo(-w * 0.8, len * 0.88, -w * 0.95, len * 0.2, 0, 0);
+  const g = new THREE.ShapeGeometry(s, 14);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i),
+      y = p.getY(i);
+    p.setZ(i, (cup * (y * y)) / len + (cup * 1.4 * (x * x)) / w);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+/** The cut face of a pink grapefruit wheel */
+export function citrusTexture() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const x = c.getContext("2d")!;
+  const disc = (r: number, fill: string | CanvasGradient) => {
+    x.fillStyle = fill;
+    x.beginPath();
+    x.arc(128, 128, r, 0, Math.PI * 2);
+    x.fill();
+  };
+  disc(128, "#f6a183");
+  disc(117, "#fff1e4");
+  const g = x.createRadialGradient(128, 128, 8, 128, 128, 110);
+  g.addColorStop(0, "#ffb9a2");
+  g.addColorStop(0.7, "#f98f78");
+  g.addColorStop(1, "#f47a68");
+  disc(109, g);
+  // juice sacs: fine pale streaks running out from the middle
+  x.lineCap = "round";
+  for (let i = 0; i < 260; i++) {
+    const a = (i / 260) * Math.PI * 2 + Math.sin(i * 12.9) * 0.03;
+    const r0 = 22 + ((i * 37) % 30);
+    const r1 = r0 + 14 + ((i * 53) % 34);
+    x.strokeStyle = `rgba(255,236,224,${0.1 + ((i * 17) % 10) / 60})`;
+    x.lineWidth = 1.6;
+    x.beginPath();
+    x.moveTo(128 + Math.cos(a) * r0, 128 + Math.sin(a) * r0);
+    x.lineTo(128 + Math.cos(a) * Math.min(106, r1), 128 + Math.sin(a) * Math.min(106, r1));
+    x.stroke();
+  }
+  // the membranes between the segments
+  x.strokeStyle = "#ffe9dc";
+  x.lineWidth = 5;
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2 + 0.2;
+    x.beginPath();
+    x.moveTo(128 + Math.cos(a) * 9, 128 + Math.sin(a) * 9);
+    x.lineTo(128 + Math.cos(a) * 110, 128 + Math.sin(a) * 110);
+    x.stroke();
+  }
+  disc(11, "#ffeee2");
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+/** Light through a full glass: soft streaks fanning out on the counter (tinted by the drink) */
+export function causticTexture() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const x = c.getContext("2d")!;
+  const rand = mulberry(77);
+  try {
+    x.filter = "blur(2.5px)";
+  } catch {
+    /* no canvas filters: the streaks are just a little crisper */
+  }
+  for (let i = 0; i < 26; i++) {
+    const a = rand() * Math.PI * 2;
+    const r0 = 18 + rand() * 30;
+    const len = 34 + rand() * 62;
+    const w = 3 + rand() * 7;
+    x.save();
+    x.translate(128, 128);
+    x.rotate(a);
+    const g = x.createLinearGradient(r0, 0, r0 + len, 0);
+    g.addColorStop(0, "rgba(255,255,255,0)");
+    g.addColorStop(0.35, `rgba(255,255,255,${0.35 + rand() * 0.4})`);
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    x.fillStyle = g;
+    x.beginPath();
+    x.ellipse(r0 + len / 2, 0, len / 2, w, 0, 0, Math.PI * 2);
+    x.fill();
+    x.restore();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/** A pointed leaf, `len` long and `w` to each side, folded a little along its midrib */
+export function leafGeometry(len: number, w: number, fold = 0.5) {
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.quadraticCurveTo(w * 1.25, len * 0.38, 0, len);
+  s.quadraticCurveTo(-w * 1.25, len * 0.38, 0, 0);
+  const g = new THREE.ShapeGeometry(s, 16);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i),
+      y = p.getY(i);
+    p.setZ(i, (fold * Math.abs(x) * 0.9) + (0.18 * y * y) / len);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+/**
+ * A flat band along a curve that lies against a round glass (a ribbon tied around the bowl):
+ * its width runs up and down, its thickness points away from the glass's axis.
+ */
+export function bandGeometry(curve: THREE.Curve<THREE.Vector3>, segs: number, w: number, th: number, twist = 0) {
+  const pos: number[] = [];
+  const idx: number[] = [];
+  const P = new THREE.Vector3(),
+    T = new THREE.Vector3(),
+    R = new THREE.Vector3(),
+    B = new THREE.Vector3(),
+    N = new THREE.Vector3();
+  for (let i = 0; i <= segs; i++) {
+    const u = i / segs;
+    curve.getPointAt(u, P);
+    curve.getTangentAt(u, T);
+    R.set(P.x, 0, P.z).normalize();
+    B.crossVectors(R, T).normalize();
+    N.crossVectors(T, B).normalize();
+    // silk turns over a little toward its tails; tape wouldn't
+    const a = twist * Math.cos(u * Math.PI) ** 3;
+    B.applyAxisAngle(T, a);
+    N.applyAxisAngle(T, a);
+    const e = Math.min(1, u * 9, (1 - u) * 9);
+    const hw = (w / 2) * (0.45 + 0.55 * e);
+    for (const [x, y] of [
+      [-1, -1],
+      [1, -1],
+      [1, 1],
+      [-1, 1],
+    ])
+      pos.push(P.x + B.x * hw * x + N.x * (th / 2) * y, P.y + B.y * hw * x + N.y * (th / 2) * y, P.z + B.z * hw * x + N.z * (th / 2) * y);
+  }
+  for (let i = 0; i < segs; i++)
+    for (let f = 0; f < 4; f++) {
+      const a = i * 4 + f,
+        b = i * 4 + ((f + 1) % 4),
+        c = a + 4,
+        d = b + 4;
+      idx.push(a, c, b, b, c, d);
+    }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
 }
