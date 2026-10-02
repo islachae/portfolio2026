@@ -8,6 +8,7 @@ import { HomeHero } from "./HomePage";
 import { ArrowRight, PanelIcon } from "./icons";
 import { ShaderHero } from "./ShaderHero";
 import { StageDoor } from "./StageDoor";
+import { WordCocktail } from "./cocktail/WordCocktail";
 import { IndexRail, ProfileChip, TopLinks } from "./IndexRail";
 import { ChatToggle } from "./ChaeLLM";
 import { AboutBrief, ProjectBrief } from "./ProjectBrief";
@@ -50,6 +51,9 @@ export function Deck({
 }) {
   const { registerScroller, setCurrent, current, openCase } = useShell();
   const deck = useRef<HTMLDivElement>(null);
+  // a page next to the one on screen: heavy stages can warm up before they're scrolled to
+  const at = pages.findIndex((x) => x.id === current);
+  const near = (id: PageId) => Math.abs(pages.findIndex((x) => x.id === id) - at) <= 1;
 
   // Which page is on screen = the one crossing the middle of the scroller.
   // (Measured on scroll instead of IntersectionObserver: inside an embedded, cross-origin
@@ -123,6 +127,9 @@ export function Deck({
                   <ShaderHero active={current === "home"} />
                   <HomeHero />
                 </>
+              ) : p.id === "cocktail" ? (
+                // A self-contained scene: it draws its own heading and fills the page
+                <WordCocktail active={current === "cocktail"} near={near(p.id)} />
               ) : (
                 <>
                   <header className={`page-head${long ? " page-head--case" : ""}`}>

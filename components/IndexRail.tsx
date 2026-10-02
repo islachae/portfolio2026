@@ -20,6 +20,7 @@ const PREVIEW: Partial<Record<PageId, string>> = {
   zipflow: "/work/zipflow.webp",
   pebbo: "/work/pebbo.webp",
   wish: "/fun/wish-tree.webp",
+  cocktail: "/fun/word-cocktail.webp",
   bakery: "/fun/bake-raspberry.webp",
   about: "/about/portrait.webp",
   hi: "/about/end-note.webp",

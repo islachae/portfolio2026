@@ -45,6 +45,17 @@ const barlowSC = localFont({
   preload: false,
 });
 
+// Caveat (SIL OFL): the handwritten notes in Word Cocktail only, so it isn't preloaded.
+const hand = localFont({
+  src: [
+    { path: "./fonts/Caveat-Medium.woff2", weight: "500" },
+    { path: "./fonts/Caveat-Bold.woff2", weight: "700" },
+  ],
+  variable: "--font-hand",
+  display: "swap",
+  preload: false,
+});
+
 const mono = localFont({
   src: "./fonts/GeistMono.woff2",
   variable: "--font-mono",
@@ -88,7 +99,7 @@ try{${introScript}}catch(e){d.removeAttribute("data-boot")}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
         {/* Inline, so the loader and the outline can paint before the stylesheet arrives */}

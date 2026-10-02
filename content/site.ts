@@ -3,7 +3,7 @@
  * Lines marked TODO need your input before launch.
  */
 
-export type PageId = "home" | "tipping" | "zipflow" | "pebbo" | "melon" | "wish" | "bakery" | "lab" | "about" | "hi";
+export type PageId = "home" | "tipping" | "zipflow" | "pebbo" | "melon" | "wish" | "cocktail" | "bakery" | "lab" | "about" | "hi";
 
 export type Page = {
   id: PageId;
@@ -264,6 +264,24 @@ export const pages: Page[] = [
       { label: "Grew from", value: "Mycelia, NYU Steinhardt 2023" },
     ],
     keywords: ["xr", "vr", "gesture", "art", "3d", "blender", "installation", "wish", "korea"],
+  },
+  {
+    id: "cocktail",
+    meta: "Motion toy",
+    group: "fun",
+    title: "Word Cocktail",
+    ticker: "MIX",
+    kind: "Motion · 3D · Toy",
+    tagline: "Some words don’t come in English. So here’s the recipe.",
+    summary: [
+      "Words like 눈치 (nunchi) don’t translate, so I mixed them instead: each one becomes a cocktail of emotional ingredients, poured as glossy gems into a chrome shaker.",
+      "Two things to do, Make and Hold to shake. Everything else pours, shakes, garnishes and prints itself, in about ten seconds.",
+    ],
+    facts: [
+      { label: "Built with", value: "Next.js, Motion, three.js" },
+      { label: "On the menu", value: "Nunchi (more mixing)" },
+    ],
+    keywords: ["word cocktail", "cocktail", "nunchi", "눈치", "korean", "language", "untranslatable", "words", "motion", "3d", "three.js", "toy", "fun", "shake", "receipt"],
   },
   {
     id: "bakery",

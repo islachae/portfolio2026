@@ -263,6 +263,21 @@ export function PageIcon({ id, size = 20, className }: { id: PageId } & P) {
           ))}
         </svg>
       );
+    case "cocktail":
+      return (
+        <svg {...common}>
+          <rect width="20" height="20" rx={r} fill="#F3EEE5" />
+          {/* a martini glass with a lime drink and the eye olive */}
+          <path d="M4.2 6.2h11.6L10 12.2z" fill="#CFE79A" />
+          <path d="M4.2 6.2h11.6L10 12.2zM10 12.2v3.6M7.4 16h5.2" stroke="#151412" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" fill="none" />
+          <g className="pi-olive">
+            <path d="M10.6 8.6 14.6 3.4" stroke="#151412" strokeWidth=".9" strokeLinecap="round" />
+            <circle cx="13.3" cy="5.1" r="1.75" fill="#8AA635" />
+            <circle cx="13.45" cy="5.05" r=".95" fill="#FBF6E6" />
+            <circle className="pi-pupil" cx="13.55" cy="5.05" r=".5" fill="#151412" />
+          </g>
+        </svg>
+      );
     case "bakery":
       return (
         <svg {...common}>
