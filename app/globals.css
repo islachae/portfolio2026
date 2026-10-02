@@ -5352,7 +5352,10 @@ button.cs-stop-dot:hover > span {
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
-.cs-vs-tag span {
+/* the dot has its own class, and the words their own span: anything a reader's browser adds
+   inside the label (a reading aid that wraps letters, a translator) stays plain text */
+.cs-vs-dot {
+  flex: none;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -5361,7 +5364,7 @@ button.cs-stop-dot:hover > span {
 .cs-vs-tag[data-kind="iterated"] {
   color: var(--cs-ink);
 }
-.cs-vs-tag[data-kind="iterated"] span {
+.cs-vs-tag[data-kind="iterated"] .cs-vs-dot {
   background: var(--cs-accent);
 }
 .cs-vs-frame {
@@ -6926,7 +6929,7 @@ html[data-motion="reduced"] .cs-rv {
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
 }
-.cs-tl-tip-chips span {
+.cs-tl-tip-chips > span {
   display: grid;
   place-items: center;
   height: 26px;
@@ -7121,7 +7124,7 @@ html[data-motion="reduced"] .cs [data-flash] {
   .cs-tl-tip-cap {
     font-size: 10px;
   }
-  .cs-tl-tip-chips span {
+  .cs-tl-tip-chips > span {
     height: 20px;
     font-size: 11px;
   }
@@ -12776,7 +12779,7 @@ html[data-motion="reduced"] .tp-nudge i {
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
-.ab-badges span {
+.ab-badges > span {
   display: inline-flex;
   align-items: center;
   gap: 7px;

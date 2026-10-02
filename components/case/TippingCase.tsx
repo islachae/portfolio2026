@@ -515,8 +515,8 @@ function Testing() {
             ).map(([kind, tag, v]) => (
               <figure className="cs-vs-col" data-kind={kind} key={kind}>
                 <p className="cs-vs-tag" data-kind={kind}>
-                  <span aria-hidden />
-                  {tag}
+                  <span className="cs-vs-dot" aria-hidden />
+                  <span>{tag}</span>
                 </p>
                 <div className={`cs-vs-frame cs-vs-frame--${p.n}`} data-kind={kind}>
                   <img src={v.src} alt={v.alt} loading="lazy" />

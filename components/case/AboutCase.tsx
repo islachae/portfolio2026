@@ -66,7 +66,7 @@ function Intro() {
             {I.badges.map((b) => (
               <span key={b.text}>
                 {b.icon === "pin" ? <Pin /> : <Cap />}
-                {b.text}
+                <span>{b.text}</span>
               </span>
             ))}
           </p>
