@@ -928,7 +928,7 @@ button.crumb:hover {
   grid-template-rows: minmax(0, 1fr) auto;
   flex: 1;
   min-height: 0;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   margin-top: var(--space-xxl);
 }
 .stage-visual {
@@ -938,7 +938,10 @@ button.crumb:hover {
   min-height: 0;
   container-type: size;
 }
+/* Every stage's controls sit right under it, and everything you can press there is one height
+   (--ctl): step pills, play, previous / next, Pebbo's starters. */
 .stage-controls {
+  --ctl: 40px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -952,8 +955,8 @@ button.crumb:hover {
 }
 .seg--stage .seg-opt {
   flex: none;
-  height: 32px;
-  padding: 0 var(--space-sm);
+  height: var(--ctl, 40px);
+  padding: 0 14px;
   font-family: var(--font-code);
   font-size: 15px;
   text-transform: uppercase;
@@ -971,8 +974,8 @@ button.crumb:hover {
 .stage-btn {
   display: inline-grid;
   place-items: center;
-  min-width: 32px;
-  height: 32px;
+  min-width: var(--ctl, 40px);
+  height: var(--ctl, 40px);
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--text);
@@ -9966,7 +9969,7 @@ html[data-motion="reduced"] .pb-board-head {
     max-width: 100%;
   }
   .page--melon .seg--stage .seg-opt {
-    height: 30px;
+    height: 36px;
     padding: 0 10px;
     font-size: 13px;
   }
@@ -10045,7 +10048,7 @@ html[data-motion="reduced"] .pb-board-head {
     max-width: 100%;
   }
   .page--tipping .seg--stage .seg-opt {
-    height: 30px;
+    height: 36px;
     padding: 0 10px;
     font-size: 13px;
   }
@@ -12613,15 +12616,15 @@ html[data-motion="reduced"] .tp-nudge i {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
 .stage-starters button {
-  height: 32px;
-  padding: 0 12px;
+  height: var(--ctl, 40px);
+  padding: 0 16px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--text);
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   transition: border-color 0.15s ease;
 }
@@ -12632,18 +12635,29 @@ html[data-motion="reduced"] .tp-nudge i {
   opacity: 0.5;
   cursor: default;
 }
-.pebbo-stage-cap {
+/* The line over the starters: “Try saying” at first; once Pebbo has answered, the same line
+   becomes the note about its messages (same height, so the phone doesn't move). */
+.stage-hint {
   flex-basis: 100%;
+  min-height: 20px;
   margin: 0;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 20px;
   text-align: center;
 }
-.pebbo-stage-cap button {
+.stage-hint--label {
+  font-family: var(--font-code);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.stage-hint button {
   margin-left: 6px;
   padding: 0;
   border: 0;
-  border-bottom: 1px solid currentColor;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   background: none;
   color: var(--text);
   font: inherit;

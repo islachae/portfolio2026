@@ -374,6 +374,20 @@ export function PebboStage() {
         <PebboPhone active={active} api={api} onState={setState} fit="stage" />
       </div>
       <StageControls>
+        {/* Says what the buttons are; once Pebbo has answered, the same line is the note about
+            its messages (that's when it's useful), so nothing under the phone moves */}
+        {state.chatting ? (
+          <p className="stage-hint">
+            Working prototype. Hold any of Pebbo’s messages for the menu.
+            <button type="button" onClick={() => api.current?.reset()}>
+              Start over
+            </button>
+          </p>
+        ) : (
+          <p className="stage-hint stage-hint--label" aria-hidden>
+            Try saying
+          </p>
+        )}
         <div className="stage-starters" role="group" aria-label="Try saying">
           {PEBBO_STARTERS.map((s) => (
             <button key={s.label} type="button" onClick={() => api.current?.send(s.say)} disabled={state.busy}>
@@ -381,14 +395,6 @@ export function PebboStage() {
             </button>
           ))}
         </div>
-        <p className="pebbo-stage-cap">
-          Working prototype. Hold any of Pebbo’s messages for the menu.
-          {state.chatting && (
-            <button type="button" onClick={() => api.current?.reset()}>
-              Start over
-            </button>
-          )}
-        </p>
       </StageControls>
     </>
   );
