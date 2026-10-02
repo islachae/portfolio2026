@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { reducedMotion } from "./shell-context";
+import { whenQuiet } from "@/lib/quiet";
 
 /**
  * The Home background: the same ShaderGradient Chaewon uses on chaewon.works (waterPlane, white → lilac).
@@ -10,16 +11,13 @@ import { reducedMotion } from "./shell-context";
  * Dark mode swaps the three colours for dark ones so the text stays readable; everything else is identical.
  * The WebGL canvas is only mounted while Home is on screen, so other pages don't pay for it.
  */
-const ShaderGradientCanvas = dynamic(
-  () => import("shadergradient").then((mod) => mod.ShaderGradientCanvas),
-  {
-    ssr: false,
-  },
-);
-const ShaderGradient = dynamic(
-  () => import("shadergradient").then((mod) => mod.ShaderGradient),
-  { ssr: false },
-);
+// One import for both pieces. The first call downloads three.js + shadergradient and runs them
+// (about 0.4s of main thread on a mid phone, in one go); later calls are free.
+const load = () => import("shadergradient");
+const ShaderGradientCanvas = dynamic(() => load().then((mod) => mod.ShaderGradientCanvas), {
+  ssr: false,
+});
+const ShaderGradient = dynamic(() => load().then((mod) => mod.ShaderGradient), { ssr: false });
 
 /** No WebGL (or it fails): keep the plain page colour instead of taking the page down with it. */
 class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -58,46 +56,53 @@ function useDark() {
 }
 
 /**
- * True once the intro (#cw-boot, lib/boot.ts) is over and the browser has a quiet moment.
- * Starting WebGL means downloading three.js and compiling the shader, one long stall of the
- * main thread (and the GPU); during the intro it landed right on the monogram's flight.
- * On visits without the intro this is simply "after the page has woken up".
+ * When the gradient may start. Getting it on screen is two heavy steps, and each one freezes the
+ * main thread for a moment, so each is put where it won't be felt:
+ *  1. running its code (three.js + shadergradient, ~0.4s on a mid phone). While the intro
+ *     (#cw-boot, lib/boot.ts) is on screen it runs right away, under it: the signature is drawn by
+ *     a worker and nobody can touch the page yet. Without an intro it waits for a quiet moment
+ *     (lib/quiet.ts: idle, and no scroll, touch or key for a beat), so it never lands mid-scroll.
+ *  2. starting WebGL and compiling the shader: once the intro is over (it used to freeze the
+ *     monogram's flight), again in a quiet moment, and never in the same task as step 1.
+ * Only while Home is the page on screen.
  */
-function useAfterIntro() {
+function useGradientReady(active: boolean) {
   const [ok, setOk] = useState(false);
   useEffect(() => {
+    if (!active || ok) return;
     const html = document.documentElement;
-    let idle = 0;
-    let timer = 0;
-    const go = () => {
-      if (typeof window.requestIdleCallback === "function") {
-        idle = window.requestIdleCallback(() => setOk(true), { timeout: 1200 });
-      } else {
-        timer = window.setTimeout(() => setOk(true), 250);
-      }
+    const intro = () => html.hasAttribute("data-boot");
+    let off = false;
+    let cancel = () => {};
+    const start = () => {
+      cancel = whenQuiet(() => !off && setOk(true), { still: 300 });
     };
-    const mo = new MutationObserver(() => {
-      if (html.hasAttribute("data-boot")) return;
-      mo.disconnect();
-      go();
-    });
-    if (html.hasAttribute("data-boot")) {
+    const afterIntro = () => {
+      if (off) return;
+      if (!intro()) return start();
+      const mo = new MutationObserver(() => {
+        if (intro()) return;
+        mo.disconnect();
+        start();
+      });
       mo.observe(html, { attributes: true, attributeFilter: ["data-boot"] });
-    } else {
-      go();
-    }
-    return () => {
-      mo.disconnect();
-      if (idle) window.cancelIdleCallback?.(idle);
-      window.clearTimeout(timer);
+      cancel = () => mo.disconnect();
     };
-  }, []);
+    // (if the code can't be fetched, Home simply keeps its plain background)
+    const code = () => void load().then(afterIntro, () => {});
+    if (intro()) code();
+    else cancel = whenQuiet(code, { after: 200 });
+    return () => {
+      off = true;
+      cancel();
+    };
+  }, [active, ok]);
   return ok;
 }
 
 export function ShaderHero({ active }: { active: boolean }) {
   const dark = useDark();
-  const ready = useAfterIntro();
+  const ready = useGradientReady(active);
   const [mounted, setMounted] = useState(false);
   const [live, setLive] = useState(false);
   const [still, setStill] = useState(false);
@@ -111,8 +116,8 @@ export function ShaderHero({ active }: { active: boolean }) {
     return () => mo.disconnect();
   }, []);
 
-  // Mount on Home (once the intro is over); let it go a moment after leaving (a quick scroll
-  // back doesn't restart WebGL)
+  // Mount on Home (once it may start: useGradientReady); let it go a moment after leaving (a
+  // quick scroll back doesn't restart WebGL)
   useEffect(() => {
     if (active && ready) {
       setMounted(true);

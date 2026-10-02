@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import type { CaseId } from "@/content/cases";
+import type { CaseId } from "@/content/cases/ids";
 import { useShell } from "./shell-context";
 
 /** Anything in a stage that does its own thing when clicked: the door stays shut over these. */

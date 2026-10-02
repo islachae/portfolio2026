@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { pages, type PageId } from "@/content/site";
-import { isCaseId, type CaseId } from "@/content/cases";
+import { isCaseId, type CaseId } from "@/content/cases/ids";
 import { useShell } from "./shell-context";
 import { HomeHero } from "./HomePage";
 import { ArrowRight, PanelIcon } from "./icons";
@@ -35,6 +35,22 @@ const stages: Partial<Record<PageId, () => React.ReactElement>> = {
   about: AboutStage,
   hi: HiStage,
 };
+
+/* Each stage sits in its own Suspense boundary, so React wakes it up (hydrates it) on its own:
+   after the frame of the page, one stage at a time in idle moments, and first wherever the visitor
+   clicks. All of them in one go was a single long freeze on a phone. Nothing ever suspends here
+   (the HTML is already in the page), so the fallback is never seen.
+   The elements are made once, here: an element that is the same object on every render is skipped
+   when the deck re-renders, and a boundary that hasn't woken yet is left alone (a new one would
+   force it to wake at once). */
+const stageEls = Object.fromEntries(
+  Object.entries(stages).map(([id, Stage]) => [
+    id,
+    <Suspense key={id} fallback={null}>
+      <Stage />
+    </Suspense>,
+  ]),
+) as Partial<Record<PageId, React.ReactElement>>;
 
 /**
  * The canvas: a deck of full-height pages, no chrome on top.
@@ -110,7 +126,7 @@ export function Deck({
 
       <div className="deck" ref={deck} tabIndex={-1}>
         {pages.map((p) => {
-          const Stage = stages[p.id];
+          const stage = stageEls[p.id];
           // Work pages and About: the brief on the left, the stage on the right, and a way into the long read
           const split = (p.challenge && p.did) || p.id === "about";
           const long = isCaseId(p.id) || p.id === "about";
@@ -153,7 +169,7 @@ export function Deck({
                     <WordCocktail active={current === "cocktail"} near={near(p.id)} />
                   ) : (
                     <StageDoor id={isCaseId(p.id) ? p.id : null} soon={p.status === "soon"}>
-                      {Stage && <Stage />}
+                      {stage}
                     </StageDoor>
                   )}
                 </>

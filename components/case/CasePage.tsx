@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { caseStudies, type LongId } from "@/content/cases";
 import { aboutPage } from "@/content/cases/about";
 import { pageById, profile } from "@/content/site";
@@ -11,6 +11,7 @@ import { TippingCase } from "./TippingCase";
 import { PebboCase } from "./PebboCase";
 import { MelonCase } from "./MelonCase";
 import { AboutCase } from "./AboutCase";
+import { ScrollRoot } from "./scroll-root";
 
 /**
  * A case study as its own page: no side panels, one long read (the Rachel-style layout).
@@ -85,9 +86,6 @@ const REVEAL = [
   ".cs-foot > *",
 ].join(",");
 
-const ScrollRoot = createContext<HTMLElement | null>(null);
-/** The element the case study scrolls in (the IntersectionObserver root for reveals). */
-export const useScrollRoot = () => useContext(ScrollRoot);
 
 export function CasePage({ id }: { id: LongId }) {
   const { closeCase, copyEmail } = useShell();

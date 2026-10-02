@@ -177,6 +177,26 @@ How it works (all in [`lib/boot.ts`](lib/boot.ts), inlined into `<head>` by `app
 - **Image skeletons** ([`components/ImageMarks.tsx`](components/ImageMarks.tsx) + “Skeletons” in `globals.css`): every image holds its exact space. Screens and figures (home cards, case study images, Wish Tree) are surface grey with one soft light pass every 1.6s, then ink in. Photos (polaroids, bakes, show photos) are warm grey inside their white frame, then develop like an instant photo (~1s). Titles and labels are real text and never skeleton. Reduced motion: no sheen or developing; dark mode has its own greys. The sheen runs only while its image is on screen (`data-vis`), and so does the shimmer on the Lab's slide-to-confirm label: both move a background, which is main-thread work on every frame whether anyone sees it or not (an idle Home at phone speed went from about half the main thread to about a sixth).
 - **Fewer downloads up front**: the stage images further down the deck (Tipping screens, Wish Tree, bakes, the About collage, the end note) load lazily now, so on a slow phone they stop competing with the first screen.
 
+### Waking up without freezing (phones)
+
+The page arrives already drawn; then the browser has to run the JavaScript that makes it respond. On a mid-range phone that was about 1.2s of main thread in long tasks, some of them right after the page appeared. Measured at phone speed (Chrome, CPU slowed 4×, median of 12 loads each, before and after taken in turns), time blocked in tasks over 50ms:
+
+| | Before | After |
+|---|---|---|
+| First visit, after the intro has left | 340ms (one ~0.4s freeze) | 25ms |
+| Return visit, after the page is shown | 791ms | 266ms |
+| Return visit, in all | 1,182ms | 662ms |
+| Page responds to taps (fast 4G) | 2.6s | 1.7s |
+| A link straight to a case study (fast 4G) | 2.7s | 2.0s |
+
+- **The gradient's code runs where it isn't felt** ([`components/ShaderHero.tsx`](components/ShaderHero.tsx)). three.js + shadergradient take ~0.4s of main thread to run. On a first visit that now happens under the intro (the signature is drawn by a worker, and nobody can touch the page yet); otherwise in a quiet moment ([`lib/quiet.ts`](lib/quiet.ts): the browser is idle and there's been no scroll, touch or key for a beat), never mid-scroll. Starting WebGL is a second, separate step, after the intro.
+- **Each stage wakes up on its own** ([`components/Deck.tsx`](components/Deck.tsx)): every stage is its own Suspense boundary, so React hydrates the frame of the page first, then one stage at a time in idle moments, and first wherever the visitor clicks (a click on a stage that hasn't woken yet isn't lost). React writes the content of large boundaries at the end of the HTML and moves it into place with a script; `scripts/defer-css.mjs` puts it back where it belongs, so the static page reads the same as before, with or without JavaScript. Two things used to force everything awake at once and don't any more: loading the saved settings (`shell-context.tsx` keeps the same object when nothing changed) and learning the screen is narrow (`App.tsx` reads it on the first render).
+- **The long reads are their own chunk** ([`components/case/load.ts`](components/case/load.ts)): the three case studies and the About page (~90 KB) aren't downloaded or run on Home. They arrive in a quiet moment after the page has settled, or the moment one is asked for (the deck stays on screen until it's there); a link straight to one preloads the chunk from `<head>`. `content/cases/ids.ts` and `components/case/scroll-root.ts` exist so the deck can know which pages have a case study without importing them.
+- **Compile hints** (`scripts/defer-css.mjs` adds `//# allFunctionsCalledOnLoad` to every script): Chrome 136+ compiles the functions while the file streams in, on a background thread, instead of one by one on the main thread the first time each is called. This is where most of the drop in the table comes from, and it is Chrome-only: Safari and Firefox read it as a comment, so there (every browser on an iPhone) the gain is the other points: measured the same way with the hints taken out, 37ms after the intro on a first visit, and 569ms after the page is shown / 973ms in all on a return visit.
+- **The clock's first tick waits for an idle moment** (`HomePage.tsx`): the first time a browser formats a time in a named time zone it loads its time-zone data, 60–90ms on a mid phone, and that used to land inside the wake-up.
+
+Not addressed yet: the first layout of the whole deck (all pages are laid out at once, ~0.3s on a mid phone), now the largest piece left.
+
 ## Deploying to chaewon.works
 
 chaewon.works already points at Vercel (apex A record 76.76.21.21, `www` → cname.vercel-dns.com), so no DNS changes are needed: the domain just moves to the project that serves this code.

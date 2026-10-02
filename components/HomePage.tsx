@@ -15,12 +15,35 @@ const ease = [0.3, 0.7, 0.2, 1] as const;
 function useNow() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
-    setNow(new Date());
-    const t = window.setInterval(() => setNow(new Date()), 1000);
-    return () => window.clearInterval(t);
+    // The first tick waits for an idle moment: the first time a browser formats a time in a named
+    // time zone it loads its time-zone data (60–90ms on a mid phone), and done here directly that
+    // landed inside the task that wakes the whole page up.
+    let t = 0;
+    const start = () => {
+      setNow(new Date());
+      t = window.setInterval(() => setNow(new Date()), 1000);
+    };
+    const ric = typeof window.requestIdleCallback === "function";
+    const first = ric ? window.requestIdleCallback(start, { timeout: 1500 }) : window.setTimeout(start, 300);
+    return () => {
+      if (ric) window.cancelIdleCallback(first);
+      else window.clearTimeout(first);
+      window.clearInterval(t);
+    };
   }, []);
   return now;
 }
+
+// New York time for the bar. Made once: a new formatter every second is wasted work.
+let nyTime: Intl.DateTimeFormat | null = null;
+const formatNY = (d: Date) =>
+  (nyTime ??= new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "America/New_York",
+  })).format(d);
 
 /** The cover: who I am in one sentence, then a nudge to scroll into the work. */
 export function HomeHero() {
@@ -304,15 +327,7 @@ function BioAfter() {
 
 function Meta() {
   const now = useNow();
-  const time = now
-    ? new Intl.DateTimeFormat("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-        timeZone: "America/New_York",
-      }).format(now)
-    : "00:00:00";
+  const time = now ? formatNY(now) : "00:00:00";
   // The school now sits under the hello ("Currently @ …"); the bar keeps New York time
   const places = profile.meta.slice(1);
   return (

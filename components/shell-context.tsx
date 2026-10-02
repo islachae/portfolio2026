@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { MotionConfig } from "motion/react";
 import { pages, profile, type PageId } from "@/content/site";
-import { isCaseId, longHash, type LongId } from "@/content/cases";
+import { isCaseId, longHash, type LongId } from "@/content/cases/ids";
 
 type Theme = "system" | "light" | "dark";
 type MotionPref = "system" | "reduced";
@@ -108,7 +108,12 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("cw-settings") || "{}");
-      setSettingsState((s) => ({ ...s, ...saved }));
+      // Same settings: keep the same object, so nothing re-renders. (A change here, right after
+      // the page wakes up, would also make every stage wake up at once instead of in turn: Deck.tsx.)
+      setSettingsState((s) => {
+        const next = { ...s, ...saved };
+        return next.theme === s.theme && next.motion === s.motion ? s : next;
+      });
     } catch {}
     const h = window.location.hash.slice(1);
     const c = caseFromHash(h);
@@ -143,10 +148,7 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
 
   // Back in the deck after a case study: land on the page we came back to, without the ride.
   useEffect(() => {
-    if (caseStudy) {
-      delete document.documentElement.dataset.booting;
-      return;
-    }
+    if (caseStudy) return; // (the outline of a deep link goes when the page is on screen: Site.tsx)
     const id = pendingPage.current;
     if (!id) return;
     pendingPage.current = null;

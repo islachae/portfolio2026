@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { reducedMotion } from "../shell-context";
-import { useScrollRoot } from "./CasePage";
+import { useScrollRoot } from "./scroll-root";
 
 /* Shared building blocks for the case studies (Tipping, Pebbo). */
 

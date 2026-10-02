@@ -7,7 +7,7 @@ import { pebboCase as C, PEBBO_MOODS } from "@/content/cases/pebbo";
 import { PebboPhone, type PebboPhoneApi, type PebboPhoneState } from "../PebboPhone";
 import { reducedMotion } from "../shell-context";
 import { PageIcon } from "../icons";
-import { useScrollRoot } from "./CasePage";
+import { useScrollRoot } from "./scroll-root";
 import { pageById } from "@/content/site";
 import { ToolChips } from "../ProjectBrief";
 import {

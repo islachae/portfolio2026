@@ -5,7 +5,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { tippingCase as C } from "@/content/cases/tipping";
 import { reducedMotion } from "../shell-context";
-import { useScrollRoot } from "./CasePage";
+import { useScrollRoot } from "./scroll-root";
 import { pageById } from "@/content/site";
 import { ToolChips } from "../ProjectBrief";
 import { Takeaways, useCountUp, Num, CountUp, People, DotGrid, scrollToEl, clamp, useStickyProgress, Lines, Section, Check } from "./kit";

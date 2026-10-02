@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { about, handoff, pageById, profile, type Page, type PageId } from "@/content/site";
-import { isCaseId } from "@/content/cases";
+import { isCaseId } from "@/content/cases/ids";
 import { useShell } from "./shell-context";
 import { Poll } from "./Poll";
 import { ChatDock, ChatPanel, useChat } from "./ChaeLLM";

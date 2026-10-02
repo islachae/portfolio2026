@@ -1,12 +1,10 @@
 import { tippingCase } from "./tipping";
 import { pebboCase } from "./pebbo";
 import { melonCase } from "./melon";
+import type { CaseId } from "./ids";
 
-/** Every project with a full case study. The key is the page id and the #case/<id> route. */
-export const caseStudies = { tipping: tippingCase, pebbo: pebboCase, melon: melonCase } as const;
-export type CaseId = keyof typeof caseStudies;
-export const isCaseId = (s: string): s is CaseId => s in caseStudies;
+export { isCaseId, longHash, type CaseId, type LongId } from "./ids";
 
-/** Long reads that open over the deck: the case studies, plus the About page (/#about/story). */
-export type LongId = CaseId | "about";
-export const longHash = (id: LongId) => (id === "about" ? "#about/story" : `#case/${id}`);
+/** Every project with a full case study. The key is the page id and the #case/<id> route
+ *  (the ids themselves live in ./ids.ts). */
+export const caseStudies = { tipping: tippingCase, pebbo: pebboCase, melon: melonCase } as const satisfies Record<CaseId, unknown>;

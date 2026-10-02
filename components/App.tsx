@@ -18,7 +18,10 @@ export function App() {
   const chat = useChat();
 
   // Below 1200px ChaeLLM opens as a drawer / bottom sheet instead of a column.
-  const [wide, setWide] = useState(true);
+  // (Read on the first client render rather than in the effect: on a phone the effect's
+  // true → false re-rendered the whole deck right after waking it. It can't mismatch the server's
+  // HTML: `wide` only matters while the chat is open, and it starts closed.)
+  const [wide, setWide] = useState(() => typeof window === "undefined" || window.matchMedia("(min-width: 1200px)").matches);
   useEffect(() => {
     const m = window.matchMedia("(min-width: 1200px)");
     const on = () => setWide(m.matches);
