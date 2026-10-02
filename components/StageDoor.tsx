@@ -23,30 +23,31 @@ const OWN = [
 ].join(",");
 
 /**
- * A work page's stage, with two ways from the prototype into the case study (wide screens):
- *  - “Open case study ↗” in the stage's top-left corner, a real button (keyboard too);
- *  - the stage itself as a door: over the prototype (not its buttons) a small chip follows the
- *    pointer, “Read case study →”, and a click opens it. Mouse only, so a tap on a tablet
- *    doesn't whisk anyone away.
- * Pebbo's stage is the working app (you type into it), so it only gets the corner button.
+ * A work page's stage as a door into its case study (wide screens): over the prototype (not its
+ * buttons) a small chip follows the pointer, “Read case study →”, and a click opens it. Mouse
+ * only, so a tap on a tablet doesn't whisk anyone away; the keyboard way in is the “Read case
+ * study” button beside the stage.
+ * A project that isn't written up yet (`soon`) gets the same chip saying “Coming soon”, and a
+ * click does nothing. Pebbo's stage is the working app (you type into it), so it has no chip.
  */
-export function StageDoor({ id, children }: { id: CaseId | null; children: React.ReactNode }) {
+export function StageDoor({ id, soon, children }: { id: CaseId | null; soon?: boolean; children: React.ReactNode }) {
   const { openCase } = useShell();
   const box = useRef<HTMLDivElement>(null);
   const chip = useRef<HTMLSpanElement>(null);
   const lastPointer = useRef("");
   const raf = useRef(0);
   const door = !!id && id !== "pebbo";
+  const hint = door || !!soon;
 
   const set = (on: boolean) => {
     const el = box.current;
     if (!el) return;
-    if (on) el.dataset.door = "on";
+    if (on) el.dataset.door = door ? "on" : "soon";
     else delete el.dataset.door;
   };
 
   const onMove = (e: React.PointerEvent) => {
-    if (!door || e.pointerType !== "mouse") return;
+    if (!hint || e.pointerType !== "mouse") return;
     const over = !(e.target as Element).closest(OWN);
     set(over);
     if (!over) return;
@@ -82,21 +83,9 @@ export function StageDoor({ id, children }: { id: CaseId | null; children: React
       onClick={onClick}
     >
       {children}
-      {id && (
-        <button
-          type="button"
-          className="stage-open"
-          onClick={(e) => {
-            e.stopPropagation();
-            openCase(id);
-          }}
-        >
-          Open case study<span aria-hidden> ↗</span>
-        </button>
-      )}
-      {door && (
+      {hint && (
         <span className="stage-chip" ref={chip} aria-hidden>
-          Read case study →
+          {door ? "Read case study →" : "Coming soon"}
         </span>
       )}
     </div>

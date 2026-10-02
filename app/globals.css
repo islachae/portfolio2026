@@ -13449,54 +13449,16 @@ html[data-motion="reduced"] .cue-head {
 }
 
 /* ═════════ Work pages: the stage is a way into the case study too (components/StageDoor.tsx) ═════════
-   “Open case study ↗” sits in the stage's top-left corner (the right side is where the Tipping
-   phone runs to the edge), boxed like About in the header; over the prototype (not its buttons) a
-   small ink chip follows the pointer and a click opens the case study. The corner button needs
-   the room beside the prototypes, so it shows from 1200px; the chip from 1024px. On phones the
-   button under the brief is right there. */
+   Over the prototype (not its buttons) a small ink chip follows the pointer and a click opens
+   the case study; a project that's still coming says “Coming soon” there instead. From 1024px,
+   mouse only. On phones the button under the brief is right there. */
 .stage {
   position: relative;
 }
-.stage-open,
 .stage-chip {
   display: none;
 }
 @media (min-width: 1024px) {
-  .stage-open {
-    position: absolute;
-    top: 8px;
-    left: 16px;
-    z-index: 3;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    height: 32px;
-    padding: 0 12px;
-    border: 1px solid var(--text);
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-code);
-    font-size: var(--label-size);
-    letter-spacing: var(--label-tracking);
-    text-transform: uppercase;
-    white-space: nowrap;
-    transition: background-color 0.15s, color 0.15s;
-  }
-  .stage-open span {
-    color: var(--text-muted);
-    transition: color 0.15s;
-  }
-  .stage-open:hover {
-    background: var(--text);
-    color: var(--bg);
-  }
-  .stage-open:hover span {
-    color: inherit;
-  }
-  .stage-open:focus-visible {
-    outline: 2px solid var(--accent-1);
-    outline-offset: 2px;
-  }
   .stage[data-door="on"] {
     cursor: pointer;
   }
@@ -13519,13 +13481,9 @@ html[data-motion="reduced"] .cue-head {
     pointer-events: none;
     transition: opacity 0.15s;
   }
-  .stage[data-door="on"] .stage-chip {
+  /* "on": opens the case study; "soon": only says it's coming, the pointer stays an arrow */
+  .stage[data-door] .stage-chip {
     opacity: 1;
-  }
-}
-@media (min-width: 1024px) and (max-width: 1199px) {
-  .stage-open {
-    display: none;
   }
 }
 

@@ -152,7 +152,9 @@ export function Deck({
                     // the bar is this page's stage: one centred counter under the heading
                     <WordCocktail active={current === "cocktail"} near={near(p.id)} />
                   ) : (
-                    <StageDoor id={isCaseId(p.id) ? p.id : null}>{Stage && <Stage />}</StageDoor>
+                    <StageDoor id={isCaseId(p.id) ? p.id : null} soon={p.status === "soon"}>
+                      {Stage && <Stage />}
+                    </StageDoor>
                   )}
                 </>
               )}
