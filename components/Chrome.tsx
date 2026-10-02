@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { profile } from "@/content/site";
 import { useShell } from "./shell-context";
 import { ChatToggle, useChat } from "./ChaeLLM";
-import { CheckIcon, MenuIcon, SearchIcon } from "./icons";
+import { CheckIcon, ExtArrow, MenuIcon, SearchIcon } from "./icons";
 import { Monogram } from "./Monogram";
 
 /** Top bar on phones. */
@@ -22,7 +22,8 @@ export function MobileBar() {
         About me
       </button>
       <a className="top-link mobilebar-resume" href={profile.links.resume} target="_blank" rel="noreferrer">
-        Resume<span aria-hidden> ↗</span>
+        Resume
+        <ExtArrow />
       </a>
       <ChatToggle compact onClick={openChat} />
       <button className="icon-btn" onClick={() => setPaletteOpen(true)} aria-label="Search">

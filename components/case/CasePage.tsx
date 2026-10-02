@@ -5,7 +5,7 @@ import { caseStudies, type LongId } from "@/content/cases";
 import { aboutPage } from "@/content/cases/about";
 import { pageById, profile } from "@/content/site";
 import { reducedMotion, useShell } from "../shell-context";
-import { ChevronLeft, PageIcon } from "../icons";
+import { ChevronLeft, ExtArrow, PageIcon } from "../icons";
 import { ContactLinks } from "../IndexRail";
 import { TippingCase } from "./TippingCase";
 import { PebboCase } from "./PebboCase";
@@ -287,7 +287,8 @@ export function CasePage({ id }: { id: LongId }) {
             <p>Thanks for reading. Happy to walk you through the rest.</p>
             <div className="cs-foot-actions">
               <a className="btn btn--ghost" href={profile.links.resume} target="_blank" rel="noreferrer">
-                Resume ↗
+                Resume
+                <ExtArrow />
               </a>
               <button className="btn btn--primary" onClick={copyEmail}>
                 Copy email

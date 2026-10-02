@@ -69,8 +69,22 @@ export function SlideToConfirm({
     if (t) max.current = t.clientWidth - 44 - 8;
   };
 
+  // The label's shimmer runs only while the slider is on screen (globals.css: .slide-label)
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    const t = track.current;
+    if (!t) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setVis(true);
+      return;
+    }
+    const io = new IntersectionObserver(([en]) => setVis(en.isIntersecting));
+    io.observe(t);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className={`slide${complete ? " is-done" : ""}`} ref={track} data-dragging={dragging || undefined}>
+    <div className={`slide${complete ? " is-done" : ""}`} ref={track} data-dragging={dragging || undefined} data-vis={vis || undefined}>
       <span className="slide-fill" style={{ width: x + 48 }} aria-hidden />
       <span className="slide-label" style={{ opacity: complete ? 0 : Math.max(0.15, 1 - x / 140) }}>
         {label}

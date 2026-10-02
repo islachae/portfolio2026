@@ -24,6 +24,15 @@ export const ArrowUpRight = ({ size = 16, className }: P) => (
   </svg>
 );
 
+/** The ↗ after a link that leaves the site. Drawn, not typed: Geist and Geist Mono have no ↗, so
+ *  the character came from whatever system font had one and sat small and thin beside the label.
+ *  Sized in em (globals.css: .ext-arrow), so it scales with the text like a glyph would. */
+export const ExtArrow = () => (
+  <svg className="ext-arrow" viewBox="0 0 10 10" aria-hidden>
+    <path d="M1.75 8.25 8.25 1.75M3 1.75h5.25V7" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export const Chevron = ({ size = 16, className }: P) => (
   <svg width={size} height={size} viewBox="0 0 16 16" className={className} aria-hidden>
     <path d="M4.5 6.5 8 10l3.5-3.5" {...stroke} />
