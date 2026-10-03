@@ -1,0 +1,788 @@
+/* ─────────────────────────────────────────────────────────────
+   Home as a page of cards, and the pages that open over it.
+   (Loaded after globals.css, whose tokens and pieces it uses.)
+
+   Home          the introduction (one screen, minus a strip where the first cards show),
+                 then the work as large cards, the play pieces as small ones, and Say hi
+   Case study    opens on a split first screen: what it is, and the prototype itself
+   Play page     one play piece on its own page
+   ChaeLLM       a panel from the right, on any page
+   ───────────────────────────────────────────────────────────── */
+
+/* The page itself scrolls (the old deck scrolled inside a fixed frame). */
+html,
+body {
+  height: auto;
+}
+/* A case study or a play page is open: Home keeps its place under it. */
+html[data-over] {
+  overflow: hidden;
+}
+
+.nh {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--bg);
+  /* the strip at the bottom of the first screen where the tops of the first cards show */
+  --peek: 84px;
+  --gutter: var(--space-xl);
+}
+.nh[data-hidden],
+html[data-booting] .nh {
+  visibility: hidden;
+}
+
+/* ───────── the bar: who (left), where to (right) ───────── */
+.nh-top {
+  display: none;
+}
+@media (min-width: 800px) {
+  .nh-top {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xl);
+    height: 56px;
+    padding: var(--space-md) var(--gutter) 0;
+  }
+  .nh-top .me-chip,
+  .nh-top .top-links {
+    position: relative;
+    top: auto;
+    left: auto;
+  }
+  /* the chip always shows her role here (the old one folded it away to make room for the rail) */
+  .nh-top .me-chip .me-chip-role {
+    max-width: 140px;
+    opacity: 1;
+  }
+  .nh-top .me-chip-main {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.sn {
+  display: none;
+}
+@media (min-width: 800px) {
+  .sn {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    height: 40px;
+  }
+  .sn .top-sep {
+    height: 16px;
+  }
+  .sn .chat-toggle {
+    height: 32px;
+    margin-right: -8px;
+  }
+}
+.sn-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
+  line-height: 1.5;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.sn-link:hover {
+  color: var(--text);
+}
+.sn-link::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s var(--ease-out);
+}
+.sn-link:hover::after {
+  transform: none;
+}
+.sn-link[aria-current="page"] {
+  color: var(--text);
+}
+/* where you are: the small violet square */
+.sn-link[aria-current="page"]::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-right: 12px;
+  background: var(--accent-1);
+}
+.sn-link .ext-arrow {
+  margin-left: 0.45em;
+}
+.sn-link:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 3px;
+}
+
+/* ───────── the introduction ───────── */
+.nh-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* phones: the bar above it is 49px */
+  min-height: calc(100vh - var(--peek) - 49px);
+  min-height: calc(100svh - var(--peek) - 49px);
+  isolation: isolate;
+}
+@media (min-width: 800px) {
+  .nh-hero {
+    min-height: max(520px, calc(100vh - var(--peek)));
+    min-height: max(520px, calc(100svh - var(--peek)));
+  }
+}
+/* The gradient runs on under the first cards and fades out there, so it has no bottom edge. */
+.nh-hero .shader-hero {
+  bottom: -160px;
+  z-index: -1;
+  background: transparent;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 320px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 320px), transparent);
+}
+
+.nh-intro {
+  display: grid;
+  gap: var(--space-xl);
+  /* phones: in the middle of what's left */
+  margin: auto 0;
+  padding: var(--space-xxl) var(--gutter);
+}
+@media (min-width: 1024px) {
+  .nh-intro {
+    /* two halves, like the cards under them; on a narrower window the sentence keeps its lines
+       and the facts take what is left */
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, 1fr);
+    align-items: end;
+    /* wide screens: the sentence and the facts sit just above the cards */
+    margin: auto 0 0;
+    padding: var(--space-xxxl) var(--gutter) 56px;
+  }
+}
+.nh-intro .hello-block {
+  min-width: 0;
+}
+/* her photo, in the greeting the way the emoji are in the sentence */
+.hello-me {
+  display: inline-block;
+  width: 1.36em;
+  height: 1.36em;
+  margin: 0 0.04em 0 0.32em;
+  object-fit: cover;
+  vertical-align: -0.3em;
+  user-select: none;
+}
+
+.nh-facts {
+  margin: 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--text);
+  font-size: 15px;
+}
+.nh-facts > div {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: center;
+  min-height: 31px;
+  border-bottom: 1px solid var(--hairline);
+}
+.nh-facts dt {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+.nh-facts dd {
+  margin: 0;
+  line-height: 30px;
+}
+.nh-clock {
+  font-variant-numeric: tabular-nums;
+}
+.nh-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--live);
+}
+
+/* ───────── the cards ───────── */
+.nh-work,
+.nh-play {
+  position: relative;
+  padding: 0 var(--gutter);
+  scroll-margin-top: var(--space-xl);
+}
+.nh-play {
+  margin-top: 72px;
+}
+.nh-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 36px var(--space-xl);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nh-grid--play {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xl) var(--space-md);
+}
+@media (min-width: 800px) {
+  .nh-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .nh-grid--play {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-xl);
+  }
+}
+.nh-sech {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-xxl);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.nh-sech h2 {
+  margin: 0;
+  color: var(--text);
+}
+
+.nh-card {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+  outline: none;
+}
+.nh-card-media {
+  display: block;
+  aspect-ratio: 678 / 368;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+.nh-card--sm .nh-card-media {
+  aspect-ratio: 16 / 10;
+}
+.nh-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.nh-card-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 18px;
+  margin-top: 14px;
+}
+.nh-card-line .label {
+  white-space: nowrap;
+}
+.nh-card-line .label:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* the year gives way to what a click does */
+.nh-card-end {
+  display: inline-grid;
+  justify-items: end;
+}
+.nh-card-end > span {
+  grid-area: 1 / 1;
+  transition: opacity 0.2s;
+}
+.nh-card-go {
+  padding-right: 4px;
+  color: var(--text);
+  opacity: 0;
+}
+.nh-card-arrow {
+  display: inline-block;
+  margin-left: 0.5em;
+  transition: transform 0.25s var(--ease-out);
+}
+.nh-card-title {
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.3;
+}
+.nh-card--sm .nh-card-title {
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+.nh-card-title::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 6px;
+  margin-right: 0;
+  background: var(--accent-1);
+  transition: width 0.2s var(--ease-out), margin 0.2s var(--ease-out);
+}
+.nh-card-tag {
+  display: block;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
+a.nh-card:hover .nh-card-media,
+a.nh-card:focus-visible .nh-card-media {
+  border-color: var(--text);
+}
+a.nh-card:hover .nh-card-title::before,
+a.nh-card:focus-visible .nh-card-title::before {
+  width: 6px;
+  margin-right: 9px;
+}
+a.nh-card:hover .nh-card-year,
+a.nh-card:focus-visible .nh-card-year {
+  opacity: 0;
+}
+a.nh-card:hover .nh-card-go,
+a.nh-card:focus-visible .nh-card-go {
+  opacity: 1;
+}
+a.nh-card:hover .nh-card-arrow {
+  transform: translateX(3px);
+}
+a.nh-card:focus-visible .nh-card-media {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 3px;
+}
+/* no page of its own yet */
+.nh-card[data-soon] .nh-card-media img {
+  opacity: 0.42;
+}
+.nh-card[data-soon] .nh-card-title {
+  color: var(--text-muted);
+}
+/* small screens and touch: there is no hover, so what a tap does is always written */
+@media (hover: none) {
+  .nh-card-year {
+    opacity: 0;
+  }
+  .nh-card-go {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+  .nh-card--sm .nh-card-end {
+    display: none;
+  }
+}
+
+/* Reduced motion (the site's own setting, or the system's): nothing on Home eases. */
+html[data-motion="reduced"] .nh *,
+html[data-motion="reduced"] .nh *::before,
+html[data-motion="reduced"] .nh *::after {
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nh *,
+  .nh *::before,
+  .nh *::after {
+    transition: none !important;
+  }
+}
+
+/* ───────── Say hi ───────── */
+.nh-hi {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  margin: 72px var(--gutter) 0;
+  padding: var(--space-lg) 0 72px;
+  border-top: 1px solid var(--border);
+  scroll-margin-top: var(--space-xl);
+}
+.nh-hi-h {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+}
+.nh-hi-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+.nh-hi-actions .btn {
+  height: 42px;
+  padding: 0 var(--space-md);
+  font-size: 15px;
+}
+@media (max-width: 799px) {
+  .nh-hi-h {
+    font-size: 23px;
+  }
+  .nh-hi {
+    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ───────── phones: the bar and the menu ───────── */
+.mobilebar.pb .mobilebar-home {
+  color: inherit;
+  text-decoration: none;
+}
+.bar-phone {
+  display: none;
+}
+@media (max-width: 799px) {
+  .bar-phone {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+.pm {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg);
+}
+.pm-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 6px 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.pm-bar .mobilebar-home {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-code);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.pm-bar .mobilebar-home svg {
+  border-radius: 6px;
+}
+.pm-links {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xs) var(--space-xl) 0;
+}
+.pm-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+.pm-links a[aria-current="page"]::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-right: 10px;
+  background: var(--accent-1);
+}
+.pm-links a[aria-current="page"] {
+  justify-content: flex-start;
+}
+.pm-links .ext-arrow {
+  color: var(--text-muted);
+}
+.pm-ask {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin: 28px var(--space-xl) 0;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--text);
+  color: var(--text);
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
+  text-align: left;
+  text-transform: uppercase;
+}
+.pm-ask span:nth-child(2) {
+  flex: 1;
+}
+.pm-ask span:last-child {
+  color: var(--text-muted);
+}
+.pm-hi {
+  position: relative;
+  margin: 28px var(--space-xl) var(--space-xl);
+}
+.pm-hi > button {
+  display: block;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 15px;
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 4px;
+}
+.pm-settings {
+  position: relative;
+  margin-top: var(--space-xl);
+}
+.pm-settings .settings {
+  top: calc(100% + 8px);
+  right: auto;
+  bottom: auto;
+  width: min(260px, 100%);
+  transform-origin: top left;
+}
+
+/* ───────── ChaeLLM: a panel from the right, a sheet from the bottom on phones ───────── */
+.cd-scrim {
+  z-index: 45;
+}
+.cd {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 46;
+  width: min(400px, calc(100vw - 32px));
+  overflow: hidden;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overscroll-behavior: contain;
+}
+@media (max-width: 799px) {
+  .cd {
+    top: auto;
+    left: 0;
+    width: auto;
+    height: 88dvh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+}
+
+/* ───────── case study: the bar, and the split first screen ───────── */
+.cs {
+  overscroll-behavior: contain;
+}
+.cs-bar-links .sn {
+  height: 32px;
+}
+/* the table of contents waits until the first screen has been scrolled past */
+.cs-toc {
+  transition: opacity 0.25s, transform 0.25s var(--ease-out);
+}
+.cs-toc[data-wait] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+}
+
+/* Narrow screens: one column. The prototype comes right after the title and its one line; the
+   facts follow it (so it starts as high on the screen as it can). */
+.csx {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xxxl) var(--space-xl) 0;
+}
+.csx:focus {
+  outline: none;
+}
+.csx-text {
+  display: contents;
+}
+.csx .cs-hero {
+  padding-top: 0;
+}
+.csx-stage {
+  flex: none;
+  order: 1;
+  height: min(640px, 78svh);
+  margin-top: var(--space-xl);
+}
+.csx .cs-meta {
+  order: 2;
+  margin-top: var(--space-xxl);
+}
+.csx-cue {
+  display: none;
+}
+/* (what follows the first screen keeps its own column; it just starts a little lower) */
+.csx ~ .cs-main {
+  padding-top: 72px;
+}
+.csx ~ .cs-main .cs-article > .cs-lede:first-child {
+  margin-top: 0;
+}
+@media (max-width: 640px) {
+  .csx {
+    padding: var(--space-xxl) var(--space-md) 0;
+  }
+  .csx ~ .cs-main {
+    padding-top: 56px;
+  }
+}
+@media (min-width: 1024px) {
+  .csx {
+    display: grid;
+    grid-template-columns: minmax(300px, 372px) minmax(0, 1fr);
+    column-gap: var(--space-xxl);
+    align-items: center;
+    /* one screen under the bar, the left edge on the same line as the table of contents */
+    height: calc(100vh - 56px);
+    height: calc(100svh - 56px);
+    min-height: 600px;
+    max-height: 1040px;
+    padding: 36px max(32px, calc(50% - 688px)) var(--space-xl) max(var(--space-xl), calc(50% - 600px));
+  }
+  .csx-text {
+    display: block;
+    padding-bottom: var(--space-xxl);
+  }
+  .csx .cs-h1 {
+    font-size: 40px;
+  }
+  .csx .cs-sub {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .csx .cs-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-lg) var(--space-xl);
+    margin-top: var(--space-xxl);
+  }
+  .csx .cs-meta .tools {
+    flex-wrap: wrap;
+  }
+  .csx-stage {
+    height: 100%;
+    min-height: 0;
+    margin-top: 0;
+  }
+  .csx-cue {
+    position: absolute;
+    bottom: var(--space-xl);
+    left: max(var(--space-xl), calc(50% - 600px));
+    display: inline-flex;
+  }
+}
+@media (min-width: 1024px) and (max-height: 720px) {
+  .csx .cs-h1 {
+    font-size: 34px;
+  }
+  .csx .cs-meta {
+    margin-top: var(--space-xl);
+  }
+}
+
+/* Melon's prototype section: what each part of the recording shows, as a plain list */
+.ml-parts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 40px;
+  padding: 0;
+  list-style: none;
+}
+.ml-parts li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-content: start;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+.ml-parts .ml-ch-n {
+  padding-top: 5px;
+}
+.ml-parts .ml-ch-k {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+}
+.ml-parts .ml-ch-v {
+  grid-column: 2;
+  max-height: none;
+  margin-top: 4px;
+  padding-left: 0;
+  opacity: 1;
+}
+
+/* ───────── a play piece on its own page ───────── */
+.pp {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  overscroll-behavior: contain;
+}
+.pp .cs-bar {
+  flex: none;
+}
+.pp .page {
+  flex: 1 0 auto;
+  height: auto;
+  min-height: 560px;
+  padding: var(--space-xxl) var(--space-xl) var(--space-xl);
+  border-bottom: 0;
+  scroll-snap-align: none;
+}
+@media (min-width: 800px) {
+  .pp .page {
+    flex: 1 1 0;
+    min-height: 0;
+    padding: 40px var(--space-xxl) var(--space-xl);
+  }
+}

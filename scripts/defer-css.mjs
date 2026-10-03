@@ -36,7 +36,7 @@ for (const file of htmlFiles(OUT)) {
 }
 console.log(`defer-css: ${n} page(s)`);
 
-// The Home gradient (three.js + shadergradient, ~260 KB gzipped) now starts only after the intro
+// The Home gradient (three.js + shadergradient, ~260 KB gzipped) starts only after the intro
 // (components/ShaderHero.tsx). Prefetch its chunk once the page has loaded (the intro is still
 // playing) — lowest priority, and it isn't run — so it's in the cache by then. Home visits only.
 const CHUNKS = join(OUT, "_next/static/chunks");
@@ -64,10 +64,25 @@ const longRead = readdirSync(CHUNKS).filter(
 if (longRead.length) {
   const prefix = (page.match(/src="([^"]*)_next\/static\/chunks\//) || [, "/"])[1];
   const hrefs = JSON.stringify(longRead.map((f) => `${prefix}_next/static/chunks/${f}`));
-  const pre = `<script>(function(h){if(!/^#case\\//.test(h)&&!/^#about\\/story$/.test(h))return;${hrefs}.forEach(function(u){var l=document.createElement("link");l.rel="preload";l.as="script";l.href=u;document.head.appendChild(l)})})(location.hash)</script>`;
+  // (the old deck's links, /#pebbo and /#about, open the same pages)
+  const pre = `<script>(function(h){if(!/^#(case\\/|about(\\/story)?$|(tipping|pebbo|melon)$)/.test(h))return;${hrefs}.forEach(function(u){var l=document.createElement("link");l.rel="preload";l.as="script";l.href=u;document.head.appendChild(l)})})(location.hash)</script>`;
   writeFileSync(index, page.replace("</head>", `${pre}</head>`));
 }
 console.log(`preload long reads on a deep link: ${longRead.join(", ") || "none found"}`);
+
+// The play pages are a chunk of their own too (components/home/play-load.ts): same treatment for
+// a link straight to one (/#play/wish, or the old /#wish).
+const page2 = readFileSync(index, "utf8");
+const playChunk = readdirSync(CHUNKS).filter(
+  (f) => f.endsWith(".js") && !page2.includes(f) && readFileSync(join(CHUNKS, f), "utf8").includes("data-play"),
+);
+if (playChunk.length) {
+  const prefix = (page2.match(/src="([^"]*)_next\/static\/chunks\//) || [, "/"])[1];
+  const hrefs = JSON.stringify(playChunk.map((f) => `${prefix}_next/static/chunks/${f}`));
+  const pre = `<script>(function(h){if(!/^#(play\\/.|(cocktail|wish|bakery|lab)$)/.test(h))return;${hrefs}.forEach(function(u){var l=document.createElement("link");l.rel="preload";l.as="script";l.href=u;document.head.appendChild(l)})})(location.hash)</script>`;
+  writeFileSync(index, page2.replace("</head>", `${pre}</head>`));
+}
+console.log(`preload play pages on a deep link: ${playChunk.join(", ") || "none found"}`);
 
 // Each stage of the deck is its own Suspense boundary, so React can wake them up one at a time
 // (components/Deck.tsx). When it writes the HTML, React moves the content of a large boundary to

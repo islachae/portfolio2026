@@ -6,8 +6,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { tippingCase as C } from "@/content/cases/tipping";
 import { reducedMotion } from "../shell-context";
 import { useScrollRoot } from "./scroll-root";
-import { pageById } from "@/content/site";
-import { ToolChips } from "../ProjectBrief";
 import { Takeaways, useCountUp, Num, CountUp, People, DotGrid, scrollToEl, clamp, useStickyProgress, Lines, Section, Check } from "./kit";
 
 /* ───────────── the page ───────────── */
@@ -34,31 +32,7 @@ export function TippingCase() {
 function Hero() {
   return (
     <>
-      <header className="cs-hero" id="cs-overview">
-        <p className="cs-eyebrow">{C.eyebrow}</p>
-        <h1 className="cs-h1">{C.title}</h1>
-        <p className="cs-sub">{C.subtitle}</p>
-        <dl className="cs-meta">
-          {C.meta.map((m) => (
-            <div key={m.label}>
-              <dt>{m.label}</dt>
-              <dd>{m.value}</dd>
-            </div>
-          ))}
-          {/* Tool stack (from the project page) where the reading time used to be */}
-          {pageById[C.id].tools?.length ? (
-            <div>
-              <dt>Tool stack</dt>
-              <dd>
-                <ToolChips tools={pageById[C.id].tools!} />
-              </dd>
-            </div>
-          ) : null}
-        </dl>
-      </header>
-      <figure className="cs-hero-fig">
-        <img src={C.hero.src} alt={C.hero.alt} width={C.hero.w} height={C.hero.h} />
-      </figure>
+      {/* The first screen (title, facts and the prototype) is SplitHero, drawn by CasePage */}
       <p className="cs-lede">{C.overview}</p>
     </>
   );

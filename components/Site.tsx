@@ -2,21 +2,31 @@
 
 import { useEffect, useState } from "react";
 
-import { App } from "./App";
+import { Home } from "./home/Home";
+import { ChatDrawer } from "./home/ChatDrawer";
+import { PhoneMenu, type NavPlace } from "./home/Nav";
+import { loadPlay, playLoaded } from "./home/play-load";
 import { caseLoaded, loadCase } from "./case/load";
 import { useShell } from "./shell-context";
+import { CommandPalette } from "./CommandPalette";
 import { Toast } from "./Chrome";
 import { ImageMarks } from "./ImageMarks";
 import { whenQuiet } from "@/lib/quiet";
 
 type CaseComponent = typeof import("./case/CasePage").CasePage;
+type PlayComponent = typeof import("./home/PlayPage").PlayPage;
 
-/** The deck (three panes), or a full-page case study with the side panels out of the way. */
+/**
+ * Home, and over it whichever page is open: a case study, About, or a play page. Home stays
+ * where it was underneath (hidden, not scrolled), so “Back” lands exactly where the visitor left.
+ */
 export function Site() {
-  const { caseStudy, closeCase } = useShell();
-  // The long reads are their own chunk (components/case/load.ts). Until it's here the deck stays
-  // on screen (or, on a link straight to one, the outline from lib/boot.ts).
+  const { caseStudy, play, goHome } = useShell();
+  // The long reads and the play pages are their own chunks (components/case/load.ts,
+  // components/home/play-load.ts). Until one is here Home stays on screen (or, on a link
+  // straight to a long read, the outline from lib/boot.ts).
   const [Case, setCase] = useState<CaseComponent | null>(() => caseLoaded()?.CasePage ?? null);
+  const [Play, setPlay] = useState<PlayComponent | null>(() => playLoaded()?.PlayPage ?? null);
   // Safety net for the deferred stylesheet (lib/boot.ts): if the boot script couldn't switch it on,
   // do it once the app is running, so the page can never stay unstyled or hidden.
   useEffect(() => {
@@ -26,7 +36,7 @@ export function Site() {
     document.documentElement.removeAttribute("data-cssw");
   }, []);
   // Asked for: fetch it now. Otherwise: in a quiet moment once the page has settled, so a click on
-  // “Read case study” finds it already here.
+  // a card finds it already here.
   useEffect(() => {
     if (Case) return;
     let live = true;
@@ -34,10 +44,10 @@ export function Site() {
       loadCase().then(
         (m) => live && setCase(() => m.CasePage),
         () => {
-          // couldn't fetch it: back to the deck instead of an outline that never fills in
+          // couldn't fetch it: back to Home instead of an outline that never fills in
           if (!live || !caseStudy) return;
           delete document.documentElement.dataset.booting;
-          closeCase();
+          goHome();
         },
       );
     if (caseStudy) {
@@ -53,16 +63,37 @@ export function Site() {
       live = false;
       cancel();
     };
-  }, [Case, caseStudy, closeCase]);
-  const open = caseStudy !== null && Case !== null;
+  }, [Case, caseStudy, goHome]);
+  // The play pages: only when one is opened (a card warms it up on hover: Home.tsx)
+  useEffect(() => {
+    if (Play || !play) return;
+    let live = true;
+    loadPlay().then(
+      (m) => live && setPlay(() => m.PlayPage),
+      () => live && goHome(),
+    );
+    return () => {
+      live = false;
+    };
+  }, [Play, play, goHome]);
+
+  const caseOpen = caseStudy !== null && Case !== null;
+  const playOpen = play !== null && Play !== null;
   // The outline of a link straight to a long read goes once the page itself is on screen
   useEffect(() => {
-    if (open) delete document.documentElement.dataset.booting;
-  }, [open]);
-  // The toast sits outside both, so “Copy email” answers on the case and About pages too
+    if (caseOpen) delete document.documentElement.dataset.booting;
+  }, [caseOpen]);
+
+  const at: NavPlace = caseStudy === "about" ? "about" : play ? "play" : "work";
+  // ChaeLLM, search, the phone menu and the toast sit outside the pages, so they answer on all of them
   return (
     <>
-      {caseStudy !== null && Case !== null ? <Case id={caseStudy} /> : <App />}
+      <Home hidden={caseOpen || playOpen} />
+      {caseOpen && <Case id={caseStudy} />}
+      {playOpen && <Play id={play} />}
+      <PhoneMenu at={at} />
+      <ChatDrawer />
+      <CommandPalette />
       <Toast />
       <ImageMarks />
     </>

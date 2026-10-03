@@ -1,6 +1,6 @@
 # Chaewon Lim — Portfolio
 
-A productivity-tool shell: a **library** on the left, a **deck** in the middle that flips one page per scroll, and an **inspector** on the right that explains whatever is on screen.
+Home is a page of cards: an introduction, then the work, each card opening its own page. (Until October 2026 it was a deck that flipped one page per scroll, with a project index on the left; see “The layout” below.)
 
 Next.js (App Router, static export) + TypeScript + [Motion](https://motion.dev).
 
@@ -10,6 +10,20 @@ Next.js (App Router, static export) + TypeScript + [Motion](https://motion.dev).
 npm install
 npm run dev        # http://localhost:3000
 ```
+
+## The layout: Home, and the pages that open over it
+
+- **Home** (`components/home/Home.tsx`, styles in `app/home.css`). The first screen is the introduction: the sentence, with her photo in the greeting the way the emoji sit in the sentence (`profile.photo`), and four facts on the right (Now, Before, Where with New York time, and what she's open to). It is as tall as the window minus 84px, so the tops of the first two cards always show at the bottom, on any screen. On wide screens the sentence and the facts sit just above the cards; on phones they sit in the middle. Under it: the four projects as large cards (two columns), the four play pieces as small ones, and Say hi.
+- **A work card opens its case study** (`/#case/pebbo`). ZipFlow has none yet, so its card is dimmed, says “Coming soon” and doesn't open anything. On hover (or keyboard focus) a card's border darkens and its year becomes “Read case study →”; on touch screens that line is always written.
+- **A case study opens on a split first screen** (`components/case/SplitHero.tsx`): label, title, one line and the facts on the left; the prototype itself on the right, working (the Tipping walkthrough, the Pebbo app, the Melon recording). It is what used to be a page of its own before the case study. The prototype runs only while that screen is in view. The table of contents comes in once it has been scrolled past. Narrow screens: one column, the prototype right after the title. Because the prototype is at the top, Pebbo's “Try Pebbo” section is gone and Melon's “Prototype” section lists what each part of the recording shows instead of playing it again.
+- **A play card opens a play page** (`/#play/wish`, `components/home/PlayPage.tsx`): the piece's name and one line, then the thing itself.
+- **The same four places on every page**: Work · Play · About · Resume, with ChaeLLM after a hairline (`components/home/Nav.tsx`). Phones: her name, ChaeLLM's face and a menu button; the menu lists the same places.
+- **ChaeLLM** opens as a panel from the right (a sheet from the bottom on phones) on any page (`components/home/ChatDrawer.tsx`).
+- **Home stays where it was** under a case study or a play page (hidden, not scrolled), so “Back” lands exactly where the visitor left. The addresses work with the browser's back and forward.
+- **Old links still work**: `/#pebbo` opens the Pebbo case study, `/#wish` its play page, `/#about` the About page, `/#zipflow` the cards, `/#hi` the end of Home (`routeFromHash` in `components/shell-context.tsx`).
+- **What loads when**: Home carries none of the prototypes. The case studies and the play pages are two separate chunks; a card starts fetching its page when the pointer or focus reaches it, and a link straight to one preloads it from `<head>` (`scripts/defer-css.mjs`).
+- **Card thumbnails** are `thumb` in `content/site.ts`. `public/work/melon.webp`, `public/fun/wish-card.webp`, `public/fun/bakery-card.webp` and `public/fun/lab-card.webp` were made for the cards; `public/about/me.webp` (the photo in the greeting) is a 118px crop and should be replaced with a crop from the original photo.
+- **Not used any more, still in the repo** until the new layout is settled: the deck and its chrome (`components/App.tsx`, `Deck.tsx`, `IndexRail.tsx`'s rail, `Sidebar.tsx`'s drawer, `Inspector.tsx`, `StageDoor.tsx`, the Zipflow / About / Hi stages in `Stages.tsx`) and their styles in `app/globals.css`. Nothing imports them, so they are not in what visitors download. The sections below that describe the deck (“Home: one way in”, “About me, next to Résumé and LinkedIn”, “Work pages: the brief”, “About: a short hello in the deck”) describe that earlier layout.
 
 ## Edit the words
 
@@ -208,7 +222,7 @@ chaewon.works already points at Vercel (apex A record 76.76.21.21, `www` → cna
 
 Caching (`vercel.json` → headers; a plain static site gets none by default, so every file was re-checked on every visit): `/_next/static/*` (JS, CSS, fonts: hashed names) is cached for a year, immutable; images and video under `/work`, `/about`, `/fun`, `/emoji` for an hour, then served from cache while they refresh in the background for up to a week. Their names aren't hashed, so a replaced image can take up to an hour to show for someone who was just there (hard refresh to check right after a deploy). The page itself is always re-checked.
 
-Old links keep working (`vercel.json` → redirects): `/about` → the About page, `/contact` → Say hi, `/case-studies/tipping` and `/case-studies/pebbo` → their case studies, `/case-studies/zipflow` → the ZipFlow page (coming soon), `/design-system` → Home. `/resume.pdf` is served from `public/resume.pdf` (replace the file to update it). Share previews use `metadataBase` = https://chaewon.works.
+Old links keep working (`vercel.json` → redirects): `/about` → the About page, `/contact` → Say hi, `/case-studies/tipping` and `/case-studies/pebbo` → their case studies, `/case-studies` and `/case-studies/zipflow` → the cards on Home, `/design-system` → Home. `/resume.pdf` is served from `public/resume.pdf` (replace the file to update it). Share previews use `metadataBase` = https://chaewon.works.
 
 ### Try Pebbo, live on chaewon.works
 
@@ -224,12 +238,16 @@ Optional variables: `PEBBO_MODEL` (default `claude-haiku-4-5-20251001`), `PEBBO_
 
 ## Deep links
 
-Each page has an anchor: `yoursite.com/#pebbo`, `#zipflow`, `#tipping`, `#melon`, `#cocktail`, `#about`, `#hi`. The long reads have their own: `#case/tipping`, `#case/pebbo`, `#case/melon`, and `#about/story` for the full About page.
-Send `#tipping` to a fintech team, `#zipflow` to a B2B SaaS team.
+- Case studies: `yoursite.com/#case/tipping`, `#case/pebbo`, `#case/melon`. About: `#about/story`.
+- Play pages: `#play/cocktail`, `#play/wish`, `#play/bakery`, `#play/lab`.
+- Places on Home: `#work` (the cards), `#play` (the play row), `#hi` (Say hi).
+- The deck's old links still lead somewhere sensible: `#tipping`, `#pebbo`, `#melon` open the case studies, `#cocktail` / `#wish` / `#bakery` / `#lab` the play pages, `#about` the About page, `#zipflow` the cards.
+
+Send `#case/tipping` to a fintech team, `#case/pebbo` to a wellness team.
 
 ## Shortcuts
 
-`⌘K` or `/` search · `↑` `↓` (or `j` `k`) flip pages · `1`–`4` jump to work · `a` about · `h` home · `Esc` in the chat box closes ChaeLLM
+`⌘K` or `/` search · `Esc` closes the menu, search and ChaeLLM. (The deck's page-flipping keys went with the deck.)
 
 ## Deploy
 

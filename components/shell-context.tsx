@@ -4,17 +4,20 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { MotionConfig } from "motion/react";
 import { pages, profile, type PageId } from "@/content/site";
 import { isCaseId, longHash, type LongId } from "@/content/cases/ids";
+import { isHomeSection, isPlayId, playHash, type HomeSection, type PlayId } from "@/content/routes";
 
 type Theme = "system" | "light" | "dark";
 type MotionPref = "system" | "reduced";
 type Settings = { theme: Theme; motion: MotionPref };
 
 type ShellState = {
-  /** The page currently on screen (driven by scroll). */
+  /** The page on screen: "home", or the project whose case study / play page is open. */
   current: PageId;
   setCurrent: (id: PageId) => void;
-  /** Scroll the deck to a page. */
+  /** Go to a page: Home, a case study, a play page, About. */
   goTo: (id: PageId, smooth?: boolean) => void;
+  /** Home, optionally at one of its sections (the cards, the play row, the note at the end). */
+  goHome: (section?: HomeSection | "top") => void;
   step: (dir: 1 | -1) => void;
   registerScroller: (el: HTMLElement | null) => void;
   detailsOpen: boolean;
@@ -28,12 +31,15 @@ type ShellState = {
   toast: string | null;
   notify: (msg: string) => void;
   copyEmail: () => void;
-  /** A full-page case study or the About page (sidebars hidden), or null for the deck.
+  /** A full-page case study or the About page, over Home; null when none is open.
    *  Deep links: /#case/tipping, /#about/story */
   caseStudy: LongId | null;
   openCase: (id: LongId) => void;
-  /** Leave the case study for a page in the deck (defaults to the project's own page). */
+  /** Leave the case study: back to Home where it was left, or on to another page. */
   closeCase: (to?: PageId) => void;
+  /** A play page, over Home (/#play/wish); null when none is open. */
+  play: PlayId | null;
+  openPlay: (id: PlayId) => void;
 };
 
 const Ctx = createContext<ShellState | null>(null);
@@ -46,12 +52,28 @@ export function useShell() {
 
 const ids = pages.map((p) => p.id);
 const isPage = (s: string): s is PageId => (ids as string[]).includes(s);
-/** "#case/tipping" → "tipping", "#about/story" → "about" */
-const caseFromHash = (h: string): LongId | null => {
-  if (/^#?about\/story$/.test(h)) return "about";
-  const m = /^#?case\/([a-z-]+)$/.exec(h);
-  return m && isCaseId(m[1]) ? m[1] : null;
-};
+
+type Route = { caseStudy: LongId | null; play: PlayId | null; section: HomeSection | null };
+const HOME: Route = { caseStudy: null, play: null, section: null };
+/**
+ * What a hash means. "#case/tipping", "#about/story", "#play/wish", "#work" / "#play" / "#hi"
+ * (a place on Home). The old deck's links still work: "#pebbo" opens the Pebbo case study,
+ * "#wish" its play page, "#about" the About page, "#zipflow" the cards, "#hi" the note at the end.
+ */
+function routeFromHash(hash: string): Route {
+  const h = hash.replace(/^#/, "");
+  if (/^about(\/story)?$/.test(h)) return { ...HOME, caseStudy: "about" };
+  const c = /^case\/([a-z-]+)$/.exec(h);
+  if (c) return isCaseId(c[1]) ? { ...HOME, caseStudy: c[1] } : HOME;
+  const p = /^play\/([a-z-]+)$/.exec(h);
+  if (p) return isPlayId(p[1]) ? { ...HOME, play: p[1] } : { ...HOME, section: "play" };
+  if (isCaseId(h)) return { ...HOME, caseStudy: h };
+  if (isPlayId(h)) return { ...HOME, play: h };
+  if (h === "zipflow") return { ...HOME, section: "work" };
+  if (isHomeSection(h)) return { ...HOME, section: h };
+  return HOME;
+}
+const homeUrl = () => window.location.pathname + window.location.search;
 
 export function reducedMotion() {
   if (typeof window === "undefined") return false;
@@ -61,7 +83,6 @@ export function reducedMotion() {
 }
 
 export function ShellProvider({ children }: { children: React.ReactNode }) {
-  const [current, setCurrentState] = useState<PageId>("home");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -69,74 +90,58 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const toastTimer = useRef<number | undefined>(undefined);
-  const scroller = useRef<HTMLElement | null>(null);
   const [caseStudy, setCaseStudy] = useState<LongId | null>(null);
-  const caseRef = useRef<LongId | null>(null);
-  caseRef.current = caseStudy;
-  const pendingPage = useRef<PageId | null>(null);
+  const [play, setPlay] = useState<PlayId | null>(null);
+  // Where on Home to land once it is the page on screen again (the scroll itself: the effect below)
+  const pendingSection = useRef<{ to: HomeSection | "top"; smooth: boolean } | null>(null);
+  const [landing, setLanding] = useState(0);
+  const over = caseStudy !== null || play !== null;
+  const overRef = useRef(false);
+  overRef.current = over;
 
-  const registerScroller = useCallback((el: HTMLElement | null) => {
-    scroller.current = el;
-  }, []);
-
-  const goTo = useCallback((id: PageId, smooth = true) => {
-    const el = document.getElementById(`page-${id}`);
-    if (!el) return;
-    const behavior: ScrollBehavior = smooth && !reducedMotion() ? "smooth" : "auto";
-    const sc = scroller.current;
-    // On phones the page itself scrolls; on larger screens the canvas does.
-    if (sc && sc.scrollHeight > sc.clientHeight + 1 && getComputedStyle(sc).overflowY !== "visible") {
-      sc.scrollTo({ top: el.offsetTop, behavior });
-    } else {
-      el.scrollIntoView({ behavior, block: "start" });
-    }
+  const show = useCallback((r: Route) => {
+    setCaseStudy(r.caseStudy);
+    setPlay(r.play);
+    setPaletteOpen(false);
+    setDetailsOpen(false);
     setNavOpen(false);
   }, []);
 
-  const setCurrent = useCallback((id: PageId) => setCurrentState(id), []);
+  const land = useCallback((to: HomeSection | "top" | null, smooth: boolean) => {
+    if (!to) return;
+    pendingSection.current = { to, smooth };
+    setLanding((n) => n + 1);
+  }, []);
 
-  const step = useCallback(
-    (dir: 1 | -1) => {
-      const i = ids.indexOf(current);
-      const next = ids[Math.min(ids.length - 1, Math.max(0, i + dir))];
-      goTo(next);
-    },
-    [current, goTo]
-  );
-
-  // Deep links: /#pebbo opens straight onto that page.
+  // Saved settings, and the page the link asks for.
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("cw-settings") || "{}");
-      // Same settings: keep the same object, so nothing re-renders. (A change here, right after
-      // the page wakes up, would also make every stage wake up at once instead of in turn: Deck.tsx.)
+      // Same settings: keep the same object, so nothing re-renders.
       setSettingsState((s) => {
         const next = { ...s, ...saved };
         return next.theme === s.theme && next.motion === s.motion ? s : next;
       });
     } catch {}
-    const h = window.location.hash.slice(1);
-    const c = caseFromHash(h);
-    if (c) setCaseStudy(c);
-    else {
-      delete document.documentElement.dataset.booting;
-      if (isPage(h) && h !== "home") requestAnimationFrame(() => goTo(h, false));
-    }
+    const r = routeFromHash(window.location.hash);
+    show(r);
+    // (the outline of a link straight to a long read goes when the page is on screen: Site.tsx)
+    if (!r.caseStudy) delete document.documentElement.dataset.booting;
+    // An old deck link: the address bar gets the page's own address
+    try {
+      const want = r.caseStudy ? longHash(r.caseStudy) : r.play ? playHash(r.play) : r.section ? `#${r.section}` : "";
+      if (want !== window.location.hash) window.history.replaceState(null, "", want || homeUrl());
+    } catch {}
+    land(r.section, false);
     setReady(true);
-  }, [goTo]);
+  }, [show, land]);
 
-  // Browser back/forward between the deck and a case study.
+  // Browser back/forward, and links typed into the address bar.
   useEffect(() => {
     const sync = () => {
-      const h = window.location.hash;
-      const c = caseFromHash(h);
-      if (c) {
-        setCaseStudy(c);
-      } else if (caseRef.current) {
-        const id = h.slice(1);
-        pendingPage.current = isPage(id) ? id : caseRef.current;
-        setCaseStudy(null);
-      }
+      const r = routeFromHash(window.location.hash);
+      show(r);
+      land(r.section, false);
     };
     window.addEventListener("popstate", sync);
     window.addEventListener("hashchange", sync);
@@ -144,43 +149,93 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("popstate", sync);
       window.removeEventListener("hashchange", sync);
     };
-  }, []);
+  }, [show, land]);
 
-  // Back in the deck after a case study: land on the page we came back to, without the ride.
+  // Home keeps its place under a case study or a play page: while one is open the page itself
+  // doesn't scroll, so "Back" lands exactly where the visitor left.
   useEffect(() => {
-    if (caseStudy) return; // (the outline of a deep link goes when the page is on screen: Site.tsx)
-    const id = pendingPage.current;
-    if (!id) return;
-    pendingPage.current = null;
-    requestAnimationFrame(() => requestAnimationFrame(() => goTo(id, false)));
-  }, [caseStudy, goTo]);
+    const d = document.documentElement;
+    if (over) d.dataset.over = "";
+    else delete d.dataset.over;
+  }, [over]);
 
-  const openCase = useCallback((id: LongId) => {
-    setCaseStudy(id);
-    setPaletteOpen(false);
-    setDetailsOpen(false);
-    setNavOpen(false);
-    try {
-      window.history.pushState(null, "", longHash(id));
-    } catch {}
-  }, []);
-
-  const closeCase = useCallback((to?: PageId) => {
-    const id = to ?? caseRef.current ?? "home";
-    pendingPage.current = id;
-    setCaseStudy(null);
-    try {
-      window.history.pushState(null, "", id === "home" ? window.location.pathname + window.location.search : `#${id}`);
-    } catch {}
-  }, []);
-
+  // Landing on a section of Home, once Home is the page on screen. (The wish is only taken when
+  // the scroll actually happens: this effect can run again before the frame it waits for.)
   useEffect(() => {
-    if (!ready || caseStudy) return;
+    if (over || !pendingSection.current) return;
+    const run = () => {
+      const want = pendingSection.current;
+      if (!want) return;
+      pendingSection.current = null;
+      const behavior: ScrollBehavior = want.smooth && !reducedMotion() ? "smooth" : "auto";
+      if (want.to === "top") return window.scrollTo({ top: 0, behavior });
+      document.getElementById(want.to)?.scrollIntoView({ behavior, block: "start" });
+    };
+    const r = requestAnimationFrame(() => requestAnimationFrame(run));
+    return () => cancelAnimationFrame(r);
+  }, [over, landing]);
+
+  const push = (url: string) => {
     try {
-      const url = current === "home" ? window.location.pathname + window.location.search : `#${current}`;
-      window.history.replaceState(null, "", url);
+      if (url !== window.location.hash && !(url === homeUrl() && !window.location.hash)) window.history.pushState(null, "", url);
     } catch {}
-  }, [current, ready, caseStudy]);
+  };
+
+  const openCase = useCallback(
+    (id: LongId) => {
+      show({ ...HOME, caseStudy: id });
+      push(longHash(id));
+    },
+    [show],
+  );
+
+  const openPlay = useCallback(
+    (id: PlayId) => {
+      show({ ...HOME, play: id });
+      push(playHash(id));
+    },
+    [show],
+  );
+
+  const goHome = useCallback(
+    (section?: HomeSection | "top") => {
+      const was = overRef.current;
+      show(HOME);
+      push(homeUrl());
+      // from another page: simply there; already on Home: a ride to it
+      if (section) land(section, !was);
+    },
+    [show, land],
+  );
+
+  const goTo = useCallback(
+    (id: PageId) => {
+      if (id === "home") goHome("top");
+      else if (id === "about") openCase("about");
+      else if (isCaseId(id)) openCase(id);
+      else if (isPlayId(id)) openPlay(id);
+      else if (id === "hi") goHome("hi");
+      else goHome("work"); // a project without a page of its own yet (ZipFlow): its card
+    },
+    [goHome, openCase, openPlay],
+  );
+
+  // “Back” (no page given, or the project itself): Home, where it was left. “All work”: the cards.
+  // Another project: straight to its page.
+  const closeCase = useCallback(
+    (to?: PageId) => {
+      if (!to || to === caseStudy) goHome();
+      else if (to === "home") goHome("work");
+      else goTo(to);
+    },
+    [caseStudy, goHome, goTo],
+  );
+
+  const current: PageId = caseStudy ?? play ?? "home";
+  // (the old deck drove these; nothing scrolls a deck any more)
+  const setCurrent = useCallback(() => {}, []);
+  const step = useCallback(() => {}, []);
+  const registerScroller = useCallback(() => {}, []);
 
   useEffect(() => {
     if (!ready) return;
@@ -211,10 +266,9 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
     }
   }, [notify]);
 
-  // Keyboard: ⌘K or / search, ↑↓ / j k flip pages, 1–4 jump to work, Esc closes things.
+  // Keyboard: ⌘K or / opens search, Esc closes the menu.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (caseRef.current) return; // the case study page scrolls like a normal page
       const t = e.target as HTMLElement | null;
       const typing = !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -229,31 +283,18 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
       } else if (e.key === "Escape") {
         if (navOpen) setNavOpen(false);
         else if (detailsOpen) setDetailsOpen(false);
-      } else if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "j") {
-        e.preventDefault();
-        step(1);
-      } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "k") {
-        e.preventDefault();
-        step(-1);
-      } else if (e.key === "Home" || e.key === "h") {
-        goTo("home");
-      } else if (e.key === "a") {
-        goTo("about");
-      } else {
-        const n = Number(e.key);
-        const work = pages.filter((p) => p.group === "work" || p.group === "progress");
-        if (n >= 1 && n <= work.length) goTo(work[n - 1].id);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [paletteOpen, navOpen, detailsOpen, step, goTo]);
+  }, [paletteOpen, navOpen, detailsOpen]);
 
   const value = useMemo<ShellState>(
     () => ({
       current,
       setCurrent,
       goTo,
+      goHome,
       step,
       registerScroller,
       detailsOpen,
@@ -270,8 +311,10 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
       caseStudy,
       openCase,
       closeCase,
+      play,
+      openPlay,
     }),
-    [current, setCurrent, goTo, step, registerScroller, detailsOpen, paletteOpen, navOpen, settings, setSettings, toast, notify, copyEmail, caseStudy, openCase, closeCase]
+    [current, setCurrent, goTo, goHome, step, registerScroller, detailsOpen, paletteOpen, navOpen, settings, setSettings, toast, notify, copyEmail, caseStudy, openCase, closeCase, play, openPlay],
   );
 
   return (

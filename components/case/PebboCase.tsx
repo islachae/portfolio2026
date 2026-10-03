@@ -4,12 +4,9 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { pebboCase as C, PEBBO_MOODS } from "@/content/cases/pebbo";
-import { PebboPhone, type PebboPhoneApi, type PebboPhoneState } from "../PebboPhone";
 import { reducedMotion } from "../shell-context";
 import { PageIcon } from "../icons";
 import { useScrollRoot } from "./scroll-root";
-import { pageById } from "@/content/site";
-import { ToolChips } from "../ProjectBrief";
 import {
   Lines,
   Section,
@@ -37,7 +34,6 @@ export function PebboCase() {
       <Define />
       <Approach />
       <Trust />
-      <TryPebbo />
       <Takeaways t={C.takeaways} />
     </article>
   );
@@ -46,31 +42,7 @@ export function PebboCase() {
 function Hero() {
   return (
     <>
-      <header className="cs-hero" id="cs-overview">
-        <p className="cs-eyebrow">{C.eyebrow}</p>
-        <h1 className="cs-h1">{C.title}</h1>
-        <p className="cs-sub">{C.subtitle}</p>
-        <dl className="cs-meta">
-          {C.meta.map((m) => (
-            <div key={m.label}>
-              <dt>{m.label}</dt>
-              <dd>{m.value}</dd>
-            </div>
-          ))}
-          {/* Tool stack (from the project page) where the reading time used to be */}
-          {pageById[C.id].tools?.length ? (
-            <div>
-              <dt>Tool stack</dt>
-              <dd>
-                <ToolChips tools={pageById[C.id].tools!} />
-              </dd>
-            </div>
-          ) : null}
-        </dl>
-      </header>
-      <figure className="cs-hero-fig pb-hero-fig">
-        <img src={C.hero.src} alt={C.hero.alt} width={C.hero.w} height={C.hero.h} />
-      </figure>
+      {/* The first screen (title, facts and the prototype) is SplitHero, drawn by CasePage */}
       <p className="cs-lede">{C.overview}</p>
     </>
   );
@@ -929,51 +901,5 @@ function Reasoning() {
         </AnimatePresence>
       </div>
     </div>
-  );
-}
-
-
-/* ───────────── Try Pebbo: the working app (components/PebboPhone.tsx), with starters beside it ───────────── */
-
-function TryPebbo() {
-  const t = C.tryIt;
-  const api = useRef<PebboPhoneApi | null>(null);
-  const [state, setState] = useState<PebboPhoneState>({ chatting: false, busy: false, live: false });
-  const wrap = useRef<HTMLDivElement>(null);
-  return (
-    <Section label={t.label} id="pb-try">
-      <div className="pba-wrap" ref={wrap}>
-        <div className="pba-copy">
-          <h2 className="cs-h2">
-            <Lines lines={t.title} />
-          </h2>
-          <p className="cs-body">{t.text}</p>
-          <p className="pb-k pba-say">{t.say}</p>
-          <div className="pba-starters">
-            {t.starters.map((q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => {
-                  api.current?.send(q);
-                  // on phones the chat sits below this list: bring it into view
-                  wrap.current?.querySelector(".pba-phone")?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "nearest" });
-                }}
-                disabled={state.busy}
-              >
-                “{q}”
-              </button>
-            ))}
-          </div>
-          <p className="pba-note">{state.live === "you" ? t.noteLive : state.live === "site" ? t.noteSite : t.noteScript}</p>
-          {state.chatting && (
-            <button type="button" className="pba-reset" onClick={() => api.current?.reset()}>
-              {t.reset}
-            </button>
-          )}
-        </div>
-        <PebboPhone api={api} onState={setState} />
-      </div>
-    </Section>
   );
 }

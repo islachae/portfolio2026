@@ -352,5 +352,6 @@ export const melonCase = {
     back: "Back to takeaways",
   },
 
-  next: { id: "zipflow" as const, title: "ZipFlow", line: "One listing, every workflow." },
+  // (ZipFlow has no case study yet, so the last one leads back to the first)
+  next: { id: "tipping" as const, title: "Rethinking Tipping", line: "Tipping, rethought for checkouts with AI in the loop." },
 };

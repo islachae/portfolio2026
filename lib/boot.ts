@@ -21,8 +21,10 @@
  *    that's missing), the ring fills by two half-arcs turning in, the backdrop fades as a layer
  *    (transforms and opacity, on the compositor). The Home gradient (three.js) waits until the
  *    intro is over (components/ShaderHero.tsx); compiling its shader used to freeze the flight.
- * 2. The outline (#cw-skel): a link straight to /#case/… or /#about/story draws the long-read
- *    frame (bar, table of contents, title and hero placeholders) until the page itself is ready.
+ * 2. The outline (#cw-skel): a link straight to a long read draws its frame until the page itself
+ *    is ready. A case study (/#case/…): the bar and its split first screen (title and facts on
+ *    the left, the prototype on the right). About (/#about/story): the bar, the table of
+ *    contents, and the title and picture placeholders.
  */
 
 import { PACE, SIGNATURE } from "./signature";
@@ -68,13 +70,12 @@ html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:cwb-dot .34
 .cwb-ring .cwb-arc{stroke:var(--i);transform-origin:56px 56px}
 .cwb-mono{position:absolute;left:24px;top:24px;width:64px;height:64px;display:block}
 html[data-boot=out] .me-chip-mark,html[data-boot=out] .mobilebar-home svg{visibility:hidden}
-html[data-booting=case] #cw-skel{display:block}
+html[data-booting] #cw-skel{display:block}
 #cw-skel{position:fixed;inset:0;z-index:30;overflow:hidden;background:var(--bg);color:var(--t);font:14px/1.4 system-ui,-apple-system,sans-serif}
 #cw-skel i{display:block;background:var(--s)}
 .cws-bar{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 24px;border-bottom:1px solid var(--l)}
 .cws-back{display:inline-flex;align-items:center;gap:4px;margin-left:-4px}
-.cws-links{display:flex;align-items:center;gap:20px;color:var(--i);font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em}
-.cws-box{padding:9px 12px;border:1px solid var(--i)}
+.cws-links{display:flex;align-items:center;gap:28px;color:var(--t);font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em}
 .cws-toc{position:absolute;top:136px;left:max(24px,calc(50% - 600px));width:168px;padding:2px 0;border-left:1px solid var(--l)}
 #cw-skel .cws-toc i{height:10px;margin:14px 0 14px 14px;width:70%}
 #cw-skel .cws-toc i:nth-child(2n){width:52%}
@@ -88,8 +89,13 @@ html[data-booting=case] #cw-skel{display:block}
 #cw-skel .cws-meta i{width:120px;height:34px}
 #cw-skel .cws-fig{height:min(418px,52vw);margin-top:48px;background:linear-gradient(100deg,var(--s) 36%,var(--s2) 50%,var(--s) 64%) 0 0/300% 100% var(--s);animation:cws 1.6s linear infinite}
 @keyframes cws{from{background-position:100% 0}to{background-position:0 0}}
+html[data-booting=case] .cws-toc,html[data-booting=case] .cws-col,html[data-booting=about] .cws-split{display:none}
+.cws-split{display:grid;grid-template-columns:minmax(300px,372px) minmax(0,1fr);column-gap:32px;align-items:center;height:calc(100vh - 56px);min-height:600px;max-height:1040px;padding:36px max(32px,calc(50% - 688px)) 24px max(24px,calc(50% - 600px))}
+.cws-split .cws-meta{flex-wrap:wrap;gap:20px 24px;max-width:300px}
+#cw-skel .cws-split .cws-fig{width:min(340px,100%);height:86%;margin:0 auto}
 @media (max-width:1199px){.cws-toc{display:none}}
-@media (max-width:799px){.cws-li{display:none}.cws-bar{padding:0 16px}.cws-col{padding:48px 16px 0}#cw-skel .cws-h1{height:30px}#cw-skel .cws-meta i{width:90px}}
+@media (max-width:1023px){.cws-split{display:block;height:auto;min-height:0;max-height:none;padding:48px 24px 0}#cw-skel .cws-split .cws-fig{width:100%;height:min(640px,78vh);margin-top:24px}.cws-split .cws-meta{display:none}}
+@media (max-width:799px){.cws-links{display:none}.cws-bar{padding:0 16px}.cws-split{padding:32px 16px 0}.cws-col{padding:48px 16px 0}#cw-skel .cws-h1{height:30px}#cw-skel .cws-meta i{width:90px}}
 html[data-motion=reduced] #cw-skel .cws-fig{animation:none}
 html[data-motion=reduced] .cwb-mark,html[data-motion=reduced] .cwb-sig{animation:none}
 html[data-motion=reduced][data-boot=done] .cwb-dot,html[data-motion=reduced][data-boot=out] .cwb-dot{animation:none;transform:none}

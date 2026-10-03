@@ -173,7 +173,7 @@ export function ChatPanel({ active, onClose }: { active: boolean; onClose: () =>
           <button className="icon-btn" onClick={reset} disabled={!messages.length} aria-label="Start a new chat" title="New chat">
             <ReplayIcon size={15} />
           </button>
-          <button className="icon-btn" onClick={onClose} aria-label="Close ChaeLLM" title="Back to details">
+          <button className="icon-btn" onClick={onClose} aria-label="Close ChaeLLM" title="Close">
             <CloseIcon />
           </button>
         </span>
@@ -311,7 +311,7 @@ export function ChatToggle({ onClick, compact = false }: { onClick: () => void; 
       className={`chat-toggle pf-hover${compact ? " chat-toggle--compact" : ""}`}
       aria-pressed={open}
       aria-label={compact ? "Ask ChaeLLM" : undefined}
-      title={open ? "Back to details" : "Ask ChaeLLM"}
+      title={open ? "Close ChaeLLM" : "Ask ChaeLLM"}
       onClick={onClick}
     >
       <PixelFace size={24} />

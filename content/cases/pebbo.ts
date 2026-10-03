@@ -43,7 +43,6 @@ export const pebboCase = {
     { id: "pb-research", label: "Research" },
     { id: "pb-approach", label: "Approach" },
     { id: "pb-trust", label: "Designing for trust" },
-    { id: "pb-try", label: "Try Pebbo" },
     { id: "cs-takeaways", label: "Reflection" },
   ],
   overview:

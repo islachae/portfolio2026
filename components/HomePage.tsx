@@ -12,7 +12,7 @@ import { DEFAULT_HELLO, pickHello, type Hello as HelloWord } from "@/lib/hello";
 
 const ease = [0.3, 0.7, 0.2, 1] as const;
 
-function useNow() {
+export function useNow() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     // The first tick waits for an idle moment: the first time a browser formats a time in a named
@@ -36,7 +36,7 @@ function useNow() {
 
 // New York time for the bar. Made once: a new formatter every second is wasted work.
 let nyTime: Intl.DateTimeFormat | null = null;
-const formatNY = (d: Date) =>
+export const formatNY = (d: Date) =>
   (nyTime ??= new Intl.DateTimeFormat("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -109,8 +109,10 @@ function JumpBox() {
   );
 }
 
-/* “Hi!” rolls to a hello in the visitor’s language (안녕! by default) on hover and once on load. */
-function Hello() {
+/* “Hi!” rolls to a hello in the visitor’s language (안녕! by default) on hover and once on load.
+   `me`: her photo sits in the greeting, after her name, the way the emoji sit in the sentence.
+   `now`: the line under the sentence (school, New York time); Home shows those in its own list. */
+export function Hello({ me = false, now = true }: { me?: boolean; now?: boolean } = {}) {
   const { bio } = profile;
   const [korean, setKorean] = useState(false);
   const [widths, setWidths] = useState<[number, number] | null>(null);
@@ -185,19 +187,22 @@ function Hello() {
           </span>
         </span>
         <span className="sr-only">Hi!</span> I&rsquo;m{" "}
-        <em>{profile.firstName}</em>,
+        <em>{profile.firstName}</em>
+        {me && <img className="hello-me" src={profile.photo} alt="" width={38} height={38} draggable={false} />},
       </span>
     </h1>
     <p className="hello-sub">
       <Bio />
     </p>
     {/* Where she is now, and New York time with the availability dot (hover it) */}
+    {now && (
     <div className="hello-now">
       <p className="label hello-school">
         Currently @ <span>{profile.meta[0]}</span>
       </p>
       <Meta />
     </div>
+    )}
     </div>
   );
 }

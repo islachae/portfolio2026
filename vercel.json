@@ -72,17 +72,17 @@
     },
     {
       "source": "/case-studies/zipflow",
-      "destination": "/#zipflow",
+      "destination": "/#work",
       "permanent": false
     },
     {
       "source": "/case-studies/zipflow/",
-      "destination": "/#zipflow",
+      "destination": "/#work",
       "permanent": false
     },
     {
       "source": "/case-studies",
-      "destination": "/#tipping",
+      "destination": "/#work",
       "permanent": false
     },
     {

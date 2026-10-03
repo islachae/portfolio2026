@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { pages, profile } from "@/content/site";
-import { tippingCase } from "@/content/cases/tipping";
 import { useShell } from "./shell-context";
 import { useChat } from "./ChaeLLM";
 import { ArrowUpRight, DocIcon, Logo, MailIcon, PageIcon, SearchIcon, SunIcon } from "./icons";
@@ -29,7 +28,7 @@ const groupName: Record<string, string> = {
 };
 
 export function CommandPalette() {
-  const { paletteOpen, setPaletteOpen, goTo, copyEmail, settings, setSettings, openCase } = useShell();
+  const { paletteOpen, setPaletteOpen, goTo, copyEmail, settings, setSettings } = useShell();
   const { openChat } = useChat();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
@@ -50,15 +49,6 @@ export function CommandPalette() {
         terms: [p.title, p.ticker ?? "", p.tagline, p.kind, ...p.keywords].join(" "),
         run: () => goTo(p.id),
       })),
-      {
-        id: "case-tipping",
-        group: "Actions",
-        title: "Read the Rethinking Tipping case study",
-        sub: `${tippingCase.title} · ${tippingCase.readingTime} read`,
-        icon: <PageIcon id="tipping" size={22} />,
-        terms: "case study tipping read full process research testing",
-        run: () => openCase("tipping"),
-      },
       {
         id: "chaellm",
         group: "Actions",
@@ -114,7 +104,7 @@ export function CommandPalette() {
         run: () => setSettings({ theme: dark ? "light" : "dark" }),
       },
     ];
-  }, [goTo, copyEmail, settings.theme, setSettings, openChat, openCase]);
+  }, [goTo, copyEmail, settings.theme, setSettings, openChat]);
 
   const results = useMemo(() => {
     const tokens = q.toLowerCase().trim().split(/\s+/).filter(Boolean);

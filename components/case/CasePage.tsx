@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { caseStudies, type LongId } from "@/content/cases";
+import { caseStudies, isCaseId, type LongId } from "@/content/cases";
 import { aboutPage } from "@/content/cases/about";
 import { pageById, profile } from "@/content/site";
 import { reducedMotion, useShell } from "../shell-context";
-import { ChevronLeft, ExtArrow, PageIcon } from "../icons";
-import { ContactLinks } from "../IndexRail";
+import { ChevronLeft, ExtArrow, MenuIcon, PageIcon } from "../icons";
+import { ChatToggle, useChat } from "../ChaeLLM";
+import { SiteNav } from "../home/Nav";
+import { SplitHero } from "./SplitHero";
 import { TippingCase } from "./TippingCase";
 import { PebboCase } from "./PebboCase";
 import { MelonCase } from "./MelonCase";
@@ -14,14 +16,16 @@ import { AboutCase } from "./AboutCase";
 import { ScrollRoot } from "./scroll-root";
 
 /**
- * A case study as its own page: no side panels, one long read (the Rachel-style layout).
- * It scrolls inside its own container, so the deck underneath keeps nothing it has to undo.
+ * A case study as its own page: one long read (the Rachel-style layout), opening on a first
+ * screen with the prototype in it (SplitHero). About opens on its own intro instead.
+ * It scrolls inside its own container, so Home underneath keeps its place.
  */
 
 /* Everything that eases up into place as it scrolls in (siblings stagger a little). */
 const REVEAL = [
   ".cs-hero > *",
   ".cs-hero-fig",
+  ".csx-stage",
   ".cs-lede",
   ".cs-sec > .cs-eyebrow",
   ".cs-sec > .cs-h2",
@@ -88,7 +92,8 @@ const REVEAL = [
 
 
 export function CasePage({ id }: { id: LongId }) {
-  const { closeCase, copyEmail } = useShell();
+  const { closeCase, copyEmail, setNavOpen } = useShell();
+  const { openChat } = useChat();
   const data = id === "about" ? aboutPage : caseStudies[id];
   const isAbout = id === "about";
   const project = pageById[id];
@@ -108,7 +113,10 @@ export function CasePage({ id }: { id: LongId }) {
     let raf = 0;
     const update = () => {
       raf = 0;
-      setPastHero(r.scrollTop > 320);
+      // past the first screen (the prototype): the bar shows the project's name and the table
+      // of contents comes in. About has no such screen: a short scroll is enough.
+      const first = r.querySelector<HTMLElement>(".csx");
+      setPastHero(r.scrollTop > (first ? first.offsetHeight - 200 : 320));
       // Table of contents: the last section whose top has passed ~30% of the view
       const line = r.getBoundingClientRect().top + r.clientHeight * 0.3;
       let i = 0;
@@ -245,14 +253,23 @@ export function CasePage({ id }: { id: LongId }) {
             <PageIcon id={id} size={18} />
             {project.title}
           </span>
-          {/* The same résumé / LinkedIn / email as the deck's header */}
-          <nav className="cs-bar-links" aria-label="Contact">
-            <ContactLinks />
-          </nav>
+          {/* The same places as on Home; phones get ChaeLLM and the menu button */}
+          <div className="cs-bar-links">
+            <SiteNav at={isAbout ? "about" : "work"} />
+            <span className="bar-phone">
+              <ChatToggle compact onClick={openChat} />
+              <button className="icon-btn" onClick={() => setNavOpen(true)} aria-label="Open menu" aria-haspopup="dialog">
+                <MenuIcon />
+              </button>
+            </span>
+          </div>
         </header>
 
-        {/* On this page: sits in the left margin on wide screens */}
-        <nav className="cs-toc" aria-label="On this page">
+        {isCaseId(id) && <SplitHero id={id} />}
+
+        {/* On this page: sits in the left margin on wide screens. A case study's first screen
+            uses that margin, so there it waits until the screen has been scrolled past. */}
+        <nav className="cs-toc" aria-label="On this page" data-wait={(!isAbout && !pastHero) || undefined} inert={!isAbout && !pastHero ? true : undefined}>
           <ol>
             {data.toc.map((t, i) => (
               <li key={t.id}>

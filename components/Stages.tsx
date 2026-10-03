@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { profile, type PageId } from "@/content/site";
 import { bakes, type Bake } from "@/content/bakery";
@@ -21,8 +21,14 @@ import { PebboPhone, type PebboPhoneApi, type PebboPhoneState } from "./PebboPho
 
 const ease = [0.3, 0.7, 0.2, 1] as const;
 
+/** Set around a stage that sits in a long page (a case study's first screen): whether it is in
+ *  view right now. Without it, a stage is live while its page is the one that's open. */
+export const StageLive = createContext<boolean | null>(null);
+
 export function useActive(id: PageId) {
-  return useShell().current === id;
+  const live = useContext(StageLive);
+  const open = useShell().current === id;
+  return live ?? open;
 }
 
 /** A small segmented control used in the stage pills. */

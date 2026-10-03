@@ -4,10 +4,8 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { melonCase as C, type Verdict } from "@/content/cases/melon";
-import { pageById } from "@/content/site";
 import { reducedMotion } from "../shell-context";
-import { ToolChips } from "../ProjectBrief";
-import { Lines, Section, Takeaways, useInView } from "./kit";
+import { Lines, Section, Takeaways } from "./kit";
 
 /**
  * CMU Melon: a systems project first, a product second. The page follows the work in that order:
@@ -34,33 +32,9 @@ export function MelonCase() {
 }
 
 function Hero() {
-  const tools = pageById.melon.tools;
   return (
     <>
-      <header className="cs-hero" id="cs-overview">
-        <p className="cs-eyebrow">{C.eyebrow}</p>
-        <h1 className="cs-h1">{C.title}</h1>
-        <p className="cs-sub">{C.subtitle}</p>
-        <dl className="cs-meta">
-          {C.meta.map((m) => (
-            <div key={m.label}>
-              <dt>{m.label}</dt>
-              <dd>{m.value}</dd>
-            </div>
-          ))}
-          {tools?.length ? (
-            <div>
-              <dt>Tool stack</dt>
-              <dd>
-                <ToolChips tools={tools} />
-              </dd>
-            </div>
-          ) : null}
-        </dl>
-      </header>
-      <figure className="cs-hero-fig ml-hero-fig">
-        <img src={C.hero.src} alt={C.hero.alt} width={480} height={1162} />
-      </figure>
+      {/* The first screen (title, facts and the prototype) is SplitHero, drawn by CasePage */}
       <p className="cs-lede">{C.overview}</p>
       <dl className="ml-glance">
         {C.glance.map((g) => (
@@ -463,72 +437,26 @@ function Directions() {
   );
 }
 
-/* ───────────── The panel: the recording, with its chapters beside it ───────────── */
+/* ───────────── The panel: what each part of the recording shows (the recording itself is the
+   page's first screen: SplitHero) ───────────── */
 
 function Panel() {
   const m = C.melon;
-  const video = useRef<HTMLVideoElement>(null);
-  const [wrapRef, seen] = useInView<HTMLDivElement>(0.4);
-  const [chapter, setChapter] = useState(0);
-
-  // Starts once it scrolls into view (never on its own with reduced motion)
-  useEffect(() => {
-    const v = video.current;
-    if (!v || !seen || reducedMotion()) return;
-    v.play().catch(() => {});
-  }, [seen]);
-
-  const seek = (i: number) => {
-    const v = video.current;
-    if (!v) return;
-    v.currentTime = m.chapters[i].t;
-    setChapter(i);
-    v.play().catch(() => {});
-  };
-  const onTime = () => {
-    const t = video.current?.currentTime ?? 0;
-    let i = 0;
-    m.chapters.forEach((c, k) => {
-      if (t >= c.t) i = k;
-    });
-    setChapter((c) => (c === i ? c : i));
-  };
-
   return (
     <Section label={m.label} id="ml-melon">
       <h2 className="cs-h2">
         <Lines lines={m.title} />
       </h2>
       <p className="cs-body cs-measure">{m.text}</p>
-      <div className="ml-demo" ref={wrapRef}>
-        <ol className="ml-chapters">
-          {m.chapters.map((c, i) => (
-            <li key={c.k} data-on={i === chapter || undefined}>
-              <button onClick={() => seek(i)} aria-current={i === chapter ? "step" : undefined}>
-                <span className="ml-ch-n">0{i + 1}</span>
-                <span className="ml-ch-k">{c.k}</span>
-              </button>
-              <p className="ml-ch-v">{c.v}</p>
-            </li>
-          ))}
-        </ol>
-        <div className="ml-video">
-          <video
-            ref={video}
-            poster={m.video.poster}
-            muted
-            loop
-            playsInline
-            controls
-            preload="metadata"
-            aria-label="Screen recording of the Melon prototype"
-            onTimeUpdate={onTime}
-          >
-            <source src={m.video.mp4} type='video/mp4; codecs="avc1.640028"' />
-            <source src={m.video.webm} type='video/webm; codecs="vp9"' />
-          </video>
-        </div>
-      </div>
+      <ol className="ml-demo ml-parts">
+        {m.chapters.map((c, i) => (
+          <li key={c.k}>
+            <span className="ml-ch-n">0{i + 1}</span>
+            <span className="ml-ch-k">{c.k}</span>
+            <p className="ml-ch-v">{c.v}</p>
+          </li>
+        ))}
+      </ol>
       <div className="ml-explore">
         {m.explore.map((e) => (
           <figure className="ml-explore-item" key={e.k}>

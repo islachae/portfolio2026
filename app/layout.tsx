@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "./home.css";
 import { Monogram } from "@/components/Monogram";
 import { bootCss, cssScript, introScript } from "@/lib/boot";
 
@@ -88,11 +89,11 @@ export const viewport: Viewport = {
 
 // Runs in <head> before anything paints (the stylesheet can take seconds on a slow phone):
 // 1. saved theme/motion, so there's no flash;
-// 2. a link straight to a case study or the About page: hide the deck and draw that page's outline;
+// 2. a link straight to a case study or the About page: hide Home and draw that page's outline;
 // 3. the first visit to Home in a session: the monogram loader (only if the page isn't ready in 0.3s).
 const bootScript = `(function(){var d=document.documentElement,W=window,h=location.hash;
 try{var s=JSON.parse(localStorage.getItem("cw-settings")||"{}");if(s.theme==="light"||s.theme==="dark")d.dataset.theme=s.theme;if(s.motion==="reduced")d.dataset.motion="reduced";}catch(e){}
-if(/^#case\\//.test(h)||/^#about\\/story$/.test(h))d.dataset.booting="case";
+if(/^#(case\\/|(tipping|pebbo|melon)$)/.test(h))d.dataset.booting="case";else if(/^#about(\\/story)?$/.test(h))d.dataset.booting="about";
 try{${cssScript}}catch(e){d.removeAttribute("data-cssw");var q=document.querySelectorAll("link[data-cw-css]");for(var j=0;j<q.length;j++)q[j].media="all"}
 try{${introScript}}catch(e){d.removeAttribute("data-boot")}
 })();`;
@@ -148,11 +149,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Back
             </span>
             <span className="cws-links">
-              <span className="cws-box">ABOUT ME</span>
+              <span>WORK</span>
+              <span>PLAY</span>
+              <span>ABOUT</span>
               <span>RESUME ↗</span>
-              <span className="cws-li">LINKEDIN ↗</span>
             </span>
           </div>
+          {/* a case study: its split first screen */}
+          <div className="cws-split">
+            <div>
+              <i className="cws-e" />
+              <i className="cws-h1" />
+              <i className="cws-h1 cws-h1b" />
+              <i className="cws-sub" />
+              <span className="cws-meta">
+                <i /><i /><i /><i />
+              </span>
+            </div>
+            <i className="cws-fig" />
+          </div>
+          {/* About: table of contents and one column */}
           <div className="cws-toc">
             <i /><i /><i /><i /><i /><i /><i />
           </div>

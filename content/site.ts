@@ -33,7 +33,7 @@ export type Page = {
   meta: string;
   /** Year shown in the sidebar */
   year?: string;
-  /** Cover card: small label on the thumbnail, and the thumbnail itself */
+  /** Home card: the thumbnail (and, once, a small label on it) */
   tag?: string;
   thumb?: string;
   /** Extra words ⌘K search matches on */
@@ -49,6 +49,8 @@ export const profile = {
   status: "Open to Summer ’27 internships",
   meta: ["Carnegie Mellon Univ. MDes", "NYC"],
   email: "chaewon2@andrew.cmu.edu",
+  /** The small photo in Home's greeting (“Hi! I’m Chaewon [photo],”) */
+  photo: "/about/me.webp",
   links: {
     resume: "/resume.pdf",
     linkedin: "https://www.linkedin.com/in/chaewon-lim-7591891a4/",
@@ -187,6 +189,7 @@ export const pages: Page[] = [
     year: "2026",
     tag: "In progress",
     group: "progress",
+    thumb: "/work/melon.webp",
     title: "CMU Melon",
     ticker: "MELN",
     kind: "Communication · In progress",
@@ -250,6 +253,7 @@ export const pages: Page[] = [
     id: "cocktail",
     meta: "Motion • 3D • 2026",
     group: "fun",
+    thumb: "/fun/word-cocktail.webp",
     title: "Untranslatable word bar",
     ticker: "MIX",
     kind: "Motion · 3D · Toy",
@@ -269,6 +273,7 @@ export const pages: Page[] = [
     meta: "XR • Gesture • 2024",
     year: "2024",
     group: "fun",
+    thumb: "/fun/wish-card.webp",
     title: "Wish Tree",
     ticker: "WISH",
     kind: "XR · Gestural interaction",
@@ -287,6 +292,7 @@ export const pages: Page[] = [
     id: "bakery",
     meta: "Off the clock",
     group: "fun",
+    thumb: "/fun/bakery-card.webp",
     title: "Bakery Log",
     ticker: "BAKE",
     kind: "Off the clock",
@@ -302,6 +308,7 @@ export const pages: Page[] = [
     id: "lab",
     meta: "Playground",
     group: "fun",
+    thumb: "/fun/lab-card.webp",
     title: "Interaction Lab",
     ticker: "LAB",
     kind: "Playground",
