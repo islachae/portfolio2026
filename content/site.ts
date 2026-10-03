@@ -253,7 +253,7 @@ export const pages: Page[] = [
     id: "cocktail",
     meta: "Motion • 3D • 2026",
     group: "fun",
-    thumb: "/fun/word-cocktail.webp",
+    thumb: "/fun/cocktail-card.webp",
     title: "Untranslatable word bar",
     ticker: "MIX",
     kind: "Motion · 3D · Toy",

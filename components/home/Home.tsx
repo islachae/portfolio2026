@@ -18,7 +18,7 @@ import { NameChip, PhoneBar, SiteNav } from "./Nav";
  * The first screen is the introduction (the sentence, with her photo in it, and four facts), as
  * tall as the window minus a strip at the bottom where the tops of the first two cards show:
  * the work is one scroll away, and it says so. Below: four projects as large cards (each opens
- * its case study), four play pieces as small ones, and a way to say hi.
+ * its case study), four play pieces the same way (two to a row), and a way to say hi.
  */
 /** The card that opened the page now on screen: focus goes back to it when that page closes. */
 let opener: HTMLElement | null = null;
@@ -84,7 +84,7 @@ export function Home({ hidden }: { hidden: boolean }) {
         <ul className="nh-grid nh-grid--play">
           {fun.map((p) => (
             <li key={p.id}>
-              <Card page={p} small />
+              <Card page={p} play />
             </li>
           ))}
         </ul>
@@ -142,8 +142,9 @@ function labelOf(p: Page) {
 /**
  * One project. The whole card is the link: a work card opens its case study, a play card its
  * page. ZipFlow has no case study yet, so its card says so and doesn't open anything.
+ * Play cards are the same card; on phones they sit two to a row and drop the one-line tagline.
  */
-function Card({ page: p, small = false }: { page: Page; small?: boolean }) {
+function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
   const { openCase, openPlay } = useShell();
   const { label, year } = labelOf(p);
   const soon = p.status === "soon";
@@ -170,21 +171,21 @@ function Card({ page: p, small = false }: { page: Page; small?: boolean }) {
         )}
       </span>
       <span className="nh-card-title">{p.title}</span>
-      {!small && <span className="nh-card-tag">{p.tagline}</span>}
+      <span className="nh-card-tag">{p.tagline}</span>
     </>
   );
 
   if (!href || soon)
     return (
-      <div className={`nh-card${small ? " nh-card--sm" : ""}`} data-soon="">
+      <div className={`nh-card${play ? " nh-card--play" : ""}`} data-soon="">
         {body}
       </div>
     );
   return (
     <a
-      className={`nh-card${small ? " nh-card--sm" : ""}`}
+      className={`nh-card${play ? " nh-card--play" : ""}`}
       href={href}
-      aria-label={`${p.title}. ${small ? "" : `${p.tagline} `}${toCase ? "Read the case study" : "Open"}`}
+      aria-label={`${p.title}. ${p.tagline} ${toCase ? "Read the case study" : "Open"}`}
       onPointerEnter={warm}
       onFocus={warm}
       onClick={(e) => {
