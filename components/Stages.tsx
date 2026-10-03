@@ -866,9 +866,13 @@ export function LabStage() {
 
 /* ───────────────────── About · photo collage ───────────────────── */
 
+// `ow` is the photo's own width. Each photo also has -240 and -480 copies (public/about), and the
+// browser takes the smallest one that is sharp at the size the polaroid is drawn: on a phone they
+// are 41–102px wide, and the full photos (547 KB for the six) were being fetched for that.
 const collage = [
   {
     src: "/about/portrait.webp",
+    ow: 900,
     alt: "Chaewon on a street in Tokyo at night",
     cap: "me, in Tokyo",
     x: 10,
@@ -880,6 +884,7 @@ const collage = [
   },
   {
     src: "/about/nyc-chalkboard.webp",
+    ow: 1000,
     alt: "A chalkboard drawing titled Everyday in New York",
     cap: "everyday in New York",
     x: 44,
@@ -891,6 +896,7 @@ const collage = [
   },
   {
     src: "/about/student-id.webp",
+    ow: 900,
     alt: "Chaewon's Carnegie Mellon student ID",
     cap: "cmu, go tartans!",
     x: 40,
@@ -902,6 +908,7 @@ const collage = [
   },
   {
     src: "/about/daejeon.webp",
+    ow: 649,
     alt: "Daejeon Expo Bridge on a clear day",
     cap: "home, Daejeon",
     x: 70,
@@ -913,6 +920,7 @@ const collage = [
   },
   {
     src: "/about/cats.webp",
+    ow: 750,
     alt: "Chaewon holding two cats next to a Christmas tree",
     cap: "foster duty",
     x: 1,
@@ -924,6 +932,7 @@ const collage = [
   },
   {
     src: "/about/mets.webp",
+    ow: 750,
     alt: "At a Mets game, holding up a Let's Go Mets sign",
     cap: "let's go mets",
     x: 21,
@@ -967,7 +976,15 @@ export function AboutStage() {
               }}
             >
               <span className="tape-strip" aria-hidden />
-              <img src={c.src} alt={c.alt} loading="lazy" />
+              <img
+                src={c.src}
+                srcSet={`${c.src.replace(/\.webp$/, "-240.webp")} 240w, ${c.src.replace(/\.webp$/, "-480.webp")} 480w, ${c.src} ${c.ow}w`}
+                // "auto": the size it is actually laid out at (lazy images, Chrome). Elsewhere, an
+                // upper bound: the collage is at most ~0.8 of the screen's width, and this is c.w% of it.
+                sizes={`auto, ${(c.w * 0.8).toFixed(1)}vw`}
+                alt={c.alt}
+                loading="lazy"
+              />
               <figcaption>{c.cap}</figcaption>
             </figure>
           ))}
