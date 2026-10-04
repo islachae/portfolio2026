@@ -113,24 +113,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* The backdrop is its own layer so it can fade with opacity (compositor-only) */}
           <i className="cwb-bg" />
           <div className="cwb-mark">
-            {/* The ring: a grey track, and two half-arcs that turn in behind a right and a left
-                half-window as the page gets ready (transforms only; lib/boot.ts ring()) */}
+            {/* The frame: a grey square track, and four bars that grow along its edges, clockwise
+                from the top left, as the page gets ready (transforms only; lib/boot.ts ring()) */}
             <span className="cwb-ring">
-              <svg viewBox="0 0 120 120">
-                <circle className="cwb-track" cx="60" cy="60" r="58" />
-              </svg>
-              <span className="cwb-half cwb-half--r">
-                <svg className="cwb-arc" viewBox="0 0 120 120">
-                  <path d="M60 118A58 58 0 0 1 60 2" />
-                </svg>
-              </span>
-              <span className="cwb-half cwb-half--l">
-                <svg className="cwb-arc" viewBox="0 0 120 120">
-                  <path d="M60 2A58 58 0 0 1 60 118" />
-                </svg>
-              </span>
+              <i className="cwb-track" />
+              <i className="cwb-edge cwb-edge--t" />
+              <i className="cwb-edge cwb-edge--r" />
+              <i className="cwb-edge cwb-edge--b" />
+              <i className="cwb-edge cwb-edge--l" />
             </span>
-            <Monogram size={64} className="cwb-mono" />
+            <Monogram size={64} className="cwb-mono" tile />
           </div>
           {/* “Curiously, Chaewon”, written again stroke by stroke the way she wrote it (the pen
               draws on this canvas, lib/boot.ts); the violet full stop lands when the page is ready */}

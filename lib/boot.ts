@@ -27,7 +27,6 @@
  *    contents, and the title and picture placeholders.
  */
 
-import { MONO_TILE } from "./mono";
 import { PACE, SIGNATURE } from "./signature";
 
 // Her full stop, as a share of the drawing: the violet dot lands there, a little wider than the pen
@@ -53,22 +52,20 @@ html[data-boot] #cw-boot{display:flex}
 .cwb-bg{position:absolute;inset:0;background:var(--bg)}
 .cwb-sig{position:relative;width:min(195px,49.4vw);color:var(--i)}
 .cwb-pen{display:block;width:100%;height:auto;aspect-ratio:${SIGNATURE.w}/${SIGNATURE.h}}
-html[data-boot] .cwb-arc,html[data-boot] .cwb-mono{will-change:transform}
+html[data-boot] .cwb-edge,html[data-boot] .cwb-mono{will-change:transform}
 html[data-boot=on] .cwb-mark,html[data-boot=on] .cwb-sig{animation:cwb-in .3s ease-out both}
 @keyframes cwb-in{from{opacity:0;transform:translateY(4px)}}
 .cwb-dot{position:absolute;left:${dotX}%;top:${dotY}%;width:${dotD}%;aspect-ratio:1;margin:-${dotD / 2}% 0 0 -${dotD / 2}%;border-radius:50%;background:var(--v);transform:scale(0)}
 html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:cwb-dot .34s cubic-bezier(.3,1.7,.5,1) both}
 @keyframes cwb-dot{from{transform:scale(0)}to{transform:scale(1)}}
 .cwb-mark{position:relative;width:112px;height:112px}
-.cwb-ring{position:absolute;inset:0}
-.cwb-ring svg{position:absolute;top:0;left:0;width:112px;height:112px;overflow:visible}
-.cwb-ring circle,.cwb-ring path{fill:none;stroke-width:1.5}
-.cwb-track{stroke:var(--l)}
-.cwb-half{position:absolute;top:0;width:56px;height:112px;overflow:hidden}
-.cwb-half--l{left:0}
-.cwb-half--r{left:56px}
-.cwb-half--r svg{left:-56px}
-.cwb-ring .cwb-arc{stroke:var(--i);transform-origin:56px 56px}
+.cwb-ring{position:absolute;inset:6px}
+.cwb-track{position:absolute;inset:0;border:1.5px solid var(--l)}
+.cwb-edge{position:absolute;background:var(--i)}
+.cwb-edge--t{top:0;right:0;left:0;height:1.5px;transform-origin:0 50%;transform:scaleX(0)}
+.cwb-edge--r{top:0;right:0;bottom:0;width:1.5px;transform-origin:50% 0;transform:scaleY(0)}
+.cwb-edge--b{right:0;bottom:0;left:0;height:1.5px;transform-origin:100% 50%;transform:scaleX(0)}
+.cwb-edge--l{top:0;bottom:0;left:0;width:1.5px;transform-origin:50% 100%;transform:scaleY(0)}
 .cwb-mono{position:absolute;left:24px;top:24px;width:64px;height:64px;display:block}
 html[data-boot=out] .me-chip-mark,html[data-boot=out] .mobilebar-home svg{visibility:hidden}
 html[data-booting] #cw-skel{display:block}
@@ -118,20 +115,22 @@ if(CL.length){d.setAttribute("data-cssw","");for(var i=0;i<CL.length;i++){CL[i].
 
 /** Runs inside bootScript's function, where d = <html>, W = window, h = location.hash. */
 export const introScript = `
-var P=0,shown=0,busy=0,RA=0,LA=0,A0=0,A1=0;
+var P=0,shown=0,busy=0,EA=[],AT=0,A0=0,A1=0;
 function reduce(){return d.dataset.motion==="reduced"||!!(W.matchMedia&&W.matchMedia("(prefers-reduced-motion: reduce)").matches)}
-/* The ring fills clockwise from 12 o'clock with transforms only (two half-arcs turning in behind
-   two half-windows), so it keeps moving on the compositor while the page's JavaScript is busy.
+/* The frame around the mark is a square, like the mark: it fills clockwise from the top left
+   corner, one edge after the other, with transforms only (four bars growing along their edges), so
+   it keeps moving on the compositor while the page's JavaScript is busy.
    A new step starts from wherever the last one had got to. */
-function arcs(){var b=document.getElementById("cw-boot");return b?[b.querySelector(".cwb-half--r .cwb-arc"),b.querySelector(".cwb-half--l .cwb-arc")]:[]}
-function rot(a){return"rotate("+a+"deg)"}
-function ring(p){var a=arcs(),r=a[0],l=a[1];if(!r||!l)return;
-  var q=A1;if(RA){try{var c=RA.effect.getComputedTiming().progress;if(c!=null)q=A0+(A1-A0)*c}catch(e){}RA.cancel();LA.cancel();RA=LA=0}
-  A0=q;A1=p;var f0=Math.min(q,.5)*360,f1=Math.max(q-.5,0)*360,t0=Math.min(p,.5)*360,t1=Math.max(p-.5,0)*360;
-  if(reduce()||!r.animate){r.style.transform=rot(t0);l.style.transform=rot(t1);return}
-  var k=p>q?Math.min(1,Math.max(0,(.5-q)/(p-q))):1,o={duration:450,fill:"forwards",easing:"cubic-bezier(.3,.7,.2,1)"};
-  RA=r.animate([{transform:rot(f0),offset:0},{transform:rot(t0),offset:k},{transform:rot(t0),offset:1}],o);
-  LA=l.animate([{transform:rot(f1),offset:0},{transform:rot(f1),offset:k},{transform:rot(t1),offset:1}],o)}
+function edges(){var b=document.getElementById("cw-boot");return b?b.querySelectorAll(".cwb-edge"):[]}
+function sc(i,v){return(i%2?"scaleY(":"scaleX(")+v+")"}
+function part(i,p){return Math.min(1,Math.max(0,p*4-i))}
+function ring(p){var e=edges(),i,f,t,s,n;if(e.length<4)return;
+  var q=A1;if(EA.length){q=A0+(A1-A0)*Math.min(1,(Date.now()-AT)/450);for(i=0;i<EA.length;i++)EA[i].cancel();EA=[]}
+  A0=q;A1=p;AT=Date.now();
+  for(i=0;i<4;i++){f=part(i,q);t=part(i,p);e[i].style.transform=sc(i,t);
+    if(reduce()||!e[i].animate||p<=q||f===t)continue;
+    s=Math.min(1,Math.max(0,(Math.max(q,i/4)-q)/(p-q)));n=Math.max(s,Math.min(1,(Math.min(p,(i+1)/4)-q)/(p-q)));
+    EA.push(e[i].animate([{transform:sc(i,f),offset:0},{transform:sc(i,f),offset:s},{transform:sc(i,t),offset:n},{transform:sc(i,t),offset:1}],{duration:450,fill:"forwards",easing:"linear"}))}}
 function setP(p){if(p>P){P=p;ring(p)}}
 /* The pen writes “Curiously, Chaewon” again the way she did (lib/signature.ts, at PACE). It draws
    on a canvas from a worker, so React waking the page up can't make it stop mid-word; pen() and
@@ -181,7 +180,7 @@ function whenReady(cb){var t0=Date.now();(function poll(){
   setTimeout(poll,50)})()}
 function target(){var e=document.querySelectorAll(".me-chip-mark, .mobilebar-home svg");for(var i=0;i<e.length;i++){var r=e[i].getBoundingClientRect();if(r.width>0&&r.height>0&&r.bottom>0)return r}return null}
 function reset(){var box=document.getElementById("cw-boot");if(box&&box.getAnimations)box.getAnimations({subtree:true}).forEach(function(a){a.cancel()});
-  RA=LA=0;A0=A1=P=0;var a=arcs();for(var i=0;i<a.length;i++)if(a[i])a[i].style.transform=""}
+  EA=[];AT=0;A0=A1=P=0;var a=edges();for(var i=0;i<a.length;i++)a[i].style.transform=""}
 function finish(){d.removeAttribute("data-boot");reset();busy=0}
 function done(){d.dataset.boot="done";setTimeout(out,reduce()?120:260)}
 /* Everything that moves here is transform or opacity, so it runs on the compositor: a busy
@@ -190,10 +189,10 @@ function out(){var box=document.getElementById("cw-boot");if(!box)return finish(
   var mono=box.querySelector(".cwb-mono"),ring=box.querySelector(".cwb-ring"),sig=box.querySelector(".cwb-sig"),bg=box.querySelector(".cwb-bg");
   d.dataset.boot="out";var t=target(),r=mono.getBoundingClientRect();
   if(!reduce()&&t&&mono.animate){
-    var dx=(t.left+t.width/2)-(r.left+r.width/2),dy=(t.top+t.height/2)-(r.top+r.height/2),k=t.width*${(1088 / MONO_TILE).toFixed(4)}/r.width;
+    var dx=(t.left+t.width/2)-(r.left+r.width/2),dy=(t.top+t.height/2)-(r.top+r.height/2),k=t.width/r.width;
     ring.animate([{opacity:1,transform:"scale(1)"},{opacity:0,transform:"scale(.86)"}],{duration:240,fill:"forwards",easing:"ease-in"});
     if(sig)sig.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(6px)"}],{duration:260,fill:"forwards",easing:"ease-in"});
-    mono.animate([{transform:"none",clipPath:"inset(0)"},{transform:"translate("+dx+"px,"+dy+"px) scale("+k+")",clipPath:"inset(${(((1088 - MONO_TILE) / 2 / 1088) * 100).toFixed(2)}%)"}],{duration:760,delay:160,fill:"forwards",easing:"cubic-bezier(.65,0,.25,1)"});
+    mono.animate([{transform:"none"},{transform:"translate("+dx+"px,"+dy+"px) scale("+k+")"}],{duration:760,delay:160,fill:"forwards",easing:"cubic-bezier(.65,0,.25,1)"});
     if(bg)bg.animate([{opacity:1},{opacity:0}],{duration:560,delay:300,fill:"forwards",easing:"ease-out"});
     setTimeout(finish,930)}
   else{if(box.animate)box.animate([{opacity:1},{opacity:0}],{duration:260,fill:"forwards"});setTimeout(finish,280)}}
