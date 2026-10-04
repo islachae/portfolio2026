@@ -24,6 +24,9 @@ html[data-over] {
   min-height: 100vh;
   min-height: 100svh;
   background: var(--bg);
+  /* one stacking order for the whole page: the gradient under everything, then the cards, then
+     the introduction (so a note that opens under a phrase lies over the first cards) */
+  isolation: isolate;
   /* the strip at the bottom of the first screen where the tops of the first cards show */
   --peek: 84px;
   --gutter: var(--space-xl);
@@ -149,7 +152,6 @@ html[data-booting] .nh {
   /* phones: the bar above it is 49px */
   min-height: calc(100vh - var(--peek) - 49px);
   min-height: calc(100svh - var(--peek) - 49px);
-  isolation: isolate;
 }
 @media (min-width: 800px) {
   .nh-hero {
@@ -167,6 +169,9 @@ html[data-booting] .nh {
 }
 
 .nh-intro {
+  /* above the cards that follow: the notes under the phrases open over them */
+  position: relative;
+  z-index: 2;
   display: grid;
   gap: var(--space-xl);
   /* phones: in the middle of what's left */
@@ -352,7 +357,7 @@ html[data-booting] .nh {
 }
 a.nh-card:hover .nh-card-media,
 a.nh-card:focus-visible .nh-card-media {
-  border-color: var(--text);
+  border-color: var(--accent-1);
 }
 .nh-card:hover .nh-card-go,
 a.nh-card:focus-visible .nh-card-go {

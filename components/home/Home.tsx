@@ -95,7 +95,7 @@ export function Home({ hidden }: { hidden: boolean }) {
   );
 }
 
-/* Now / Before / Where (with New York time) and what she is open to: the right half of the
+/* Now / Before / Where (Pittsburgh, with its time: the same zone as New York) and what she is open to: the right half of the
    introduction, lined up with the second column of cards under it. */
 function Facts() {
   const rows = profile.facts.filter((f) => f.label !== "Next");
@@ -127,7 +127,7 @@ function Facts() {
 function Clock() {
   const now = useNow();
   return (
-    <span className="nh-clock" suppressHydrationWarning title="New York time">
+    <span className="nh-clock" suppressHydrationWarning title="Pittsburgh time">
       {now ? formatNY(now) : "00:00:00"}
     </span>
   );

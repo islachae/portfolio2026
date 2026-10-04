@@ -54,7 +54,7 @@ export const profile = {
   firstName: "Chaewon",
   role: "Product Designer",
   status: "Open to Summer ’27 internships",
-  meta: ["Carnegie Mellon Univ. MDes", "NYC"],
+  meta: ["Carnegie Mellon Univ. MDes", "Pittsburgh"],
   email: "chaewon2@andrew.cmu.edu",
   /** The small photo in Home's greeting (“Hi! I’m Chaewon [photo],”) */
   photo: "/about/me.webp",
