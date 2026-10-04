@@ -389,6 +389,7 @@ export const about = {
   intro: [
     "Coming from a background in interactive art, I learned the hard way that an artifact truly shines when it creates flow, rather than demanding the center stage.",
     "I've carried that into my design practice: looking closely at where people hesitate, disengage, or lose trust, and finding small ways to shift the rhythm. To me, good design feels intentional, crafted, and almost effortless.",
+    "3 words to describe me: Crafted, never performed.",
   ],
   motto: "Designing with intention, craft, and a little hardcore energy.",
   strengths: ["Visual storytelling", "Problem reframing", "Interaction & systems thinking"],

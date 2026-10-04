@@ -164,6 +164,11 @@ function penSet(){if(PN)return PN;var c=document.querySelector("#cw-boot .cwb-pe
 /* Start writing from v seconds in (reduced motion: from the end, so it's simply there) */
 function penGo(){var p=penSet();if(!p)return;p.v0=reduce()?p.end:0;p.n0=penNow();p.r=1;p.on=1;p.post({v:p.v0,r:1,col:getComputedStyle(p.el).color})}
 function penRate(r){if(!PN||!PN.on)return;PN.v0=penV();PN.n0=penNow();PN.r=r;PN.post({r:r})}
+/* The ink follows the theme. The pen keeps the colour it started with, so if the appearance
+   changed while the loader was up (macOS “Auto” at dusk), white ink stayed on a page gone light:
+   what is written so far is redrawn in the new ink. */
+function penInk(){if(!PN)return;PN.post({v:Math.min(penV(),PN.end),r:PN.on?PN.r:1,col:getComputedStyle(PN.el).color})}
+try{W.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",penInk)}catch(e){}
 /* The canvas is in the page now (app/layout.tsx calls this right after it) */
 W.cwPen=function(){if(d.dataset.boot==="on"&&!PN)penGo()};
 function stylesIn(){if(d.hasAttribute("data-cssw"))return false;var l=document.querySelectorAll('link[rel="stylesheet"]');if(!l.length)return false;for(var i=0;i<l.length;i++)if(!l[i].sheet||l[i].media==="print")return false;return true}

@@ -82,24 +82,7 @@ function Intro() {
           </a>
         </div>
       </div>
-      <div className="ab-lists">
-        <div>
-          <p className="ab-k">{I.good.label}</p>
-          <ul className="ab-chips">
-            {I.good.items.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="ab-k">{I.pulls.label}</p>
-          <ul className="ab-dash">
-            {I.pulls.items.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      {/* “What I’m good at” and “What pulls me in” (I.good, I.pulls) are left out for now */}
     </header>
   );
 }
