@@ -317,14 +317,60 @@ function Bio() {
 
 const lastLine = (text: string) => text.slice(text.lastIndexOf("\n") + 1);
 
+/** “Especially drawn to fintech and wellness.”: those words open a note too, like the phrases above. */
 function BioAfter() {
-  const { after, afterEm } = profile.bio;
+  const { after, afterEm, afterPeekTitle, afterPeek } = profile.bio;
+  const [open, setOpen] = useState(false);
+  const closeTimer = useRef<number | undefined>(undefined);
+  const show = () => {
+    window.clearTimeout(closeTimer.current);
+    setOpen(true);
+  };
+  const hide = () => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setOpen(false), 90);
+  };
   const i = after.indexOf(afterEm);
   if (i < 0) return <span className="bio-after">{after}</span>;
   return (
     <span className="bio-after">
       {after.slice(0, i)}
-      <em className="bio-em">{afterEm}</em>
+      <span
+        role="button"
+        tabIndex={0}
+        className="phrase phrase--after"
+        aria-expanded={open}
+        aria-describedby={open ? "peek-after" : undefined}
+        onPointerEnter={(e) => e.pointerType === "mouse" && show()}
+        onPointerLeave={(e) => e.pointerType === "mouse" && hide()}
+        onFocus={show}
+        onBlur={hide}
+        onClick={() => (open ? setOpen(false) : show())}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(!open);
+          }
+        }}
+      >
+        <em className="bio-em phrase-text">{afterEm}</em>
+        <AnimatePresence>
+          {open && (
+            <motion.span
+              id="peek-after"
+              role="tooltip"
+              className="peek"
+              initial={{ opacity: 0, y: 4, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 2, transition: { duration: 0.1 } }}
+              transition={{ duration: 0.18, ease }}
+            >
+              <span className="peek-title">{afterPeekTitle}</span>
+              <span className="peek-text">{afterPeek}</span>
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </span>
       {after.slice(i + afterEm.length)}
     </span>
   );

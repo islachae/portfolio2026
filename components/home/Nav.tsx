@@ -45,7 +45,6 @@ export function SiteNav({ at }: { at: NavPlace }) {
       ))}
       <a className="sn-link" href={profile.links.resume} target="_blank" rel="noreferrer">
         Resume
-        <ExtArrow />
       </a>
       <span className="top-sep" aria-hidden />
       <ChatToggle onClick={() => (chat.open ? chat.closeChat() : chat.openChat())} />

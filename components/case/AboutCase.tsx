@@ -5,7 +5,7 @@ import { aboutPage as A } from "@/content/cases/about";
 import { profile, type PageId } from "@/content/site";
 import type { CaseId } from "@/content/cases";
 import { reducedMotion, useShell } from "../shell-context";
-import { ArrowRight, ExtArrow, MailIcon } from "../icons";
+import { ArrowRight, MailIcon } from "../icons";
 
 /**
  * The About page, in the order chaewon.works/about tells it: who I am, the art I made before
@@ -154,7 +154,6 @@ function Principles() {
     <section className="cs-sec ab-principles" id="ab-principles" aria-label={P.label}>
       <p className="cs-eyebrow">{P.label}</p>
       <h2 className="cs-h2">{P.title}</h2>
-      <p className="cs-body cs-measure">{P.sub}</p>
       <ol className="ab-cards">
         {P.items.map((q, i) => (
           <li key={q.title} className="ab-card">
@@ -227,11 +226,9 @@ function Hi() {
         </button>
         <a className="btn btn--ghost" href={profile.links.resume} target="_blank" rel="noreferrer">
           Resume
-          <ExtArrow />
         </a>
         <a className="btn btn--ghost" href={profile.links.linkedin} target="_blank" rel="noreferrer">
           LinkedIn
-          <ExtArrow />
         </a>
       </div>
     </section>

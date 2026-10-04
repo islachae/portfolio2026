@@ -37,8 +37,8 @@ export const aboutPage = {
 
   art: {
     label: "Art",
-    title: "Before design, I made participatory art",
-    note: about.exhibitionsNote,
+    title: "Before interfaces, I was an interactive artist",
+    note: "My pieces were only complete once people took part. Six exhibitions in Seoul and New York taught me to shape space, pace, and attention. Now I do it in interfaces.",
     shows: about.exhibitions,
     /** Mycelia later became Wish Tree, which is on this site */
     grewInto: { title: "Mycelia", page: "wish" as const, text: "Grew into Wish Tree" },
@@ -53,7 +53,6 @@ export const aboutPage = {
   principles: {
     label: "Principles",
     title: "Words I design by",
-    sub: "Four lines I keep coming back to, and where each one shows up in my work.",
     items: [
       {
         ...about.philosophy[0],
@@ -80,7 +79,7 @@ export const aboutPage = {
     items: [
       { src: "/fun/bake-pancakes.webp", alt: "A stack of pancakes with berries and banana", cap: "hardcore baker", note: "Michelin-starred kitchen alum", link: { page: "bakery" as const, text: "Bakery Log" } },
       { src: "/about/cats.webp", alt: "Chaewon holding two cats next to a Christmas tree", cap: "proud foster mom", note: "14 cats and 1 dog" },
-      { src: "/about/mets.webp", alt: "At a Mets game, holding up a Let's Go Mets sign", cap: "mets fan", note: "still rooting" },
+      { src: "/about/mets.webp", alt: "At a Mets game, holding up a Let's Go Mets sign", cap: "mets fan", note: "still rooting..." },
     ],
   },
 

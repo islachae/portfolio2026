@@ -71,15 +71,16 @@ export const profile = {
         /** Wide screens start a new line after this phrase (phones wrap naturally). */
         breakAfter: true,
         emoji: "/emoji/brain.webp",
-        peekTitle: "Interactive art, Seoul → New York",
-        peek: "Six exhibitions, two of them in New York. My pieces only worked once people took part, and I design products the same way.",
+        // "\n" = a line break in the note's title
+        peekTitle: "Interactive art,\nSeoul → New York",
+        peek: "Six exhibitions, two of them in New York. I was less interested in the object than the environment around it: what makes people slow down, move on, or stay. I still design that way.",
       },
       {
         id: "baker",
         text: "a baker's joy of sharing",
         emoji: "/emoji/bread.webp",
         peekTitle: "Hardcore baker",
-        peek: "Hardcore enough to land me in a Michelin-starred kitchen. It's still where I spontaneously get ideas, and baking for people is how I share them.",
+        peek: "Hardcore enough to land me in a Michelin-starred kitchen, where every handoff has to work under pressure. I bake for people now, and I design the same way: it only counts if someone enjoys it.",
       },
       {
         id: "thinker",
@@ -87,12 +88,15 @@ export const profile = {
         text: "a thinker's\ndrive to make AI worthy of trust",
         emoji: "/emoji/handshake.webp",
         peekTitle: "My working thesis",
-        peek: "Let AI take the repetitive work. Make the moments that need judgment feel more like yours.",
+        peek: "Let AI take the repetitive work. Make the moments that need judgment feel more like yours. That's how trust gets earned.",
       },
     ],
     after: "Especially drawn to fintech and wellness.",
     /** The words in `after` that get the emphasis. */
     afterEm: "fintech and wellness",
+    /** The note under those words, like the ones under the three phrases. */
+    afterPeekTitle: "Why these two",
+    afterPeek: "Money and health are where a screen has to earn trust. Rethinking Tipping and Pebbo are my two tries at it.",
   },
   facts: [
     { label: "Now", value: "MDes, Carnegie Mellon" },

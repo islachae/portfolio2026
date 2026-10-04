@@ -242,7 +242,7 @@ html[data-booting] .nh {
   scroll-margin-top: var(--space-xl);
 }
 .nh-play {
-  margin-top: 72px;
+  margin-top: 104px;
 }
 /* “The rest is play.”: what separates the play pieces from the work is a sentence, not a rule */
 .nh-play .nh-play-h {
@@ -250,7 +250,7 @@ html[data-booting] .nh {
 }
 @media (min-width: 800px) {
   .nh-play {
-    margin-top: 104px;
+    margin-top: 160px;
   }
   .nh-play .nh-play-h {
     margin-bottom: 22px;
@@ -515,15 +515,13 @@ html[data-motion="reduced"] .nh *::after {
   outline: 2px solid var(--accent-1);
   outline-offset: 3px;
 }
+/* a plain label on the row's own line: a boxed tag filled the row and sat off its margins */
 .nh-copy {
-  padding: 2px 7px;
-  border: 1px solid var(--border);
   color: var(--text-muted);
-  line-height: 1.5;
-  transition: border-color 0.2s, color 0.2s;
+  line-height: inherit;
+  transition: color 0.2s;
 }
 .nh-mail:hover .nh-copy {
-  border-color: var(--accent-1);
   color: var(--accent-1);
 }
 @media (max-width: 799px) {
@@ -936,4 +934,19 @@ html[data-motion="reduced"] .nh *::after {
   .pp .page .page-title {
     font-size: 23px;
   }
+}
+
+/* ───────── small things ───────── */
+/* the note under “fintech and wellness” hangs from those words, like the others from their emoji */
+.phrase--after {
+  position: relative;
+  display: inline-block;
+}
+/* a note's title can break where the content says so ("\n") */
+.peek-title {
+  white-space: pre-line;
+}
+/* About, Say hi: the handwritten note at 85% of its size */
+.ab-note {
+  width: min(459px, 85%);
 }
