@@ -5,7 +5,7 @@ import { caseStudies, isCaseId, type LongId } from "@/content/cases";
 import { aboutPage } from "@/content/cases/about";
 import { pageById, profile } from "@/content/site";
 import { reducedMotion, useShell } from "../shell-context";
-import { ChevronLeft, ExtArrow, MenuIcon, PageIcon } from "../icons";
+import { ChevronLeft, ExtArrow, MenuIcon } from "../icons";
 import { ChatToggle, useChat } from "../ChaeLLM";
 import { SiteNav } from "../home/Nav";
 import { SplitHero } from "./SplitHero";
@@ -143,7 +143,7 @@ export function CasePage({ id }: { id: LongId }) {
     return () => {
       r.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
-      document.title = `${profile.name} · Product Designer`;
+      document.title = profile.name;
     };
   }, [project.title, data.toc, isAbout]);
 
@@ -258,7 +258,6 @@ export function CasePage({ id }: { id: LongId }) {
             Back
           </button>
           <span className="cs-bar-title" data-show={pastHero || undefined} aria-hidden={!pastHero}>
-            <PageIcon id={id} size={18} />
             {project.title}
           </span>
           {/* The same places as on Home; phones get ChaeLLM and the menu button */}
@@ -297,7 +296,6 @@ export function CasePage({ id }: { id: LongId }) {
           <button className="cs-next" onClick={() => closeCase(next.id)}>
             <span className="cs-next-label">{"label" in data.next ? data.next.label : "Next project"}</span>
             <span className="cs-next-row">
-              <PageIcon id={next.id} size={28} />
               <span className="cs-next-text">
                 <span className="cs-next-title">{data.next.title}</span>
                 <span className="cs-next-line">{data.next.line}</span>

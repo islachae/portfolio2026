@@ -950,3 +950,7 @@ html[data-motion="reduced"] .nh *::after {
 .ab-note {
   width: min(459px, 85%);
 }
+/* About, “Working on something cool? Get in touch”: a violet border on hover, like the cards */
+.ab-touch:hover {
+  border-color: var(--accent-1);
+}

@@ -31,7 +31,7 @@ export function PlayPage({ id }: { id: PlayId }) {
     root.current?.focus({ preventScroll: true });
     document.title = `${p.title} · ${profile.name}`;
     return () => {
-      document.title = `${profile.name} · Product Designer`;
+      document.title = profile.name;
     };
   }, [p.title]);
 

@@ -67,7 +67,8 @@ const mono = localFont({
 export const metadata: Metadata = {
   // The live address, so share previews (Open Graph) resolve to chaewon.works
   metadataBase: new URL("https://chaewon.works"),
-  title: "Chaewon Lim · Product Designer",
+  // the browser tab says just her name (share previews keep the longer title, below)
+  title: "Chaewon Lim",
   description:
     "Product designer at Carnegie Mellon (MDes), designing AI that takes the repetitive work and leaves the judgment to people. Open to Summer 2027 internships.",
   openGraph: {
