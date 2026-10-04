@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   // Where “Try Pebbo” asks a live model: the site's own Vercel Function (api/pebbo.js), unless
   // NEXT_PUBLIC_PEBBO_API says otherwise. None in the claude.ai preview, which has Claude itself.
   env: {
+    // “Last updated on October 4” at the foot of Home: the day this build was made (New York time)
+    LAST_UPDATED: new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", timeZone: "America/New_York" }).format(new Date()),
     PEBBO_API: process.env.NEXT_PUBLIC_PEBBO_API ?? (process.env.PREVIEW_BUILD ? "" : "/api/pebbo"),
   },
 };

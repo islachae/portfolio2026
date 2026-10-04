@@ -538,7 +538,7 @@ html[data-motion="reduced"] .nh *::after {
 .nh-foot {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 6px var(--space-xl);
   margin: 0 var(--gutter);
@@ -549,6 +549,27 @@ html[data-motion="reduced"] .nh *::after {
 }
 .nh-foot p {
   margin: 0;
+}
+.nh-foot-r {
+  text-align: right;
+}
+.nh-foot kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+/* no keys on a touch screen: no line about them */
+@media (hover: none) {
+  .nh-foot-keys {
+    display: none;
+  }
+}
+@media (max-width: 799px) {
+  .nh-foot-r {
+    text-align: left;
+  }
 }
 .nh-foot a {
   color: var(--text);
@@ -953,4 +974,130 @@ html[data-motion="reduced"] .nh *::after {
 /* About, “Working on something cool? Get in touch”: a violet border on hover, like the cards */
 .ab-touch:hover {
   border-color: var(--accent-1);
+}
+
+/* ───────── ChaeLLM's run: the surprise behind P and Space (components/home/Runner.tsx) ───────── */
+.rn {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 60;
+  height: 250px;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  touch-action: manipulation;
+  user-select: none;
+  animation: rn-in 0.32s var(--ease-out) both;
+}
+@keyframes rn-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+.rn-score,
+.rn-keys {
+  position: absolute;
+  top: 16px;
+  margin: 0;
+  color: var(--text-muted);
+}
+.rn-score {
+  left: var(--space-xl);
+}
+.rn-score span {
+  margin-left: 0.6em;
+  color: var(--text);
+}
+.rn-keys {
+  right: 60px;
+}
+.rn-x {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.rn-x:hover {
+  color: var(--text);
+}
+.rn-x:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: -4px;
+}
+.rn-note {
+  position: absolute;
+  top: 58px;
+  right: var(--space-xl);
+  left: var(--space-xl);
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+/* the ground: a hairline; she and the blocks stand on it */
+.rn-lane {
+  position: absolute;
+  right: 0;
+  bottom: 44px;
+  left: 0;
+  height: 0;
+  border-bottom: 1px solid var(--border);
+}
+.rn-face {
+  position: absolute;
+  bottom: 0;
+  left: 72px;
+  width: 40px;
+  height: 40px;
+  will-change: transform;
+}
+.rn-face svg {
+  display: block;
+  animation: rn-bob 0.28s steps(2) infinite;
+}
+.rn[data-air] .rn-face svg,
+.rn[data-state="over"] .rn-face svg {
+  animation: none;
+}
+@keyframes rn-bob {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.rn[data-state="over"] .rn-face {
+  opacity: 0.45;
+}
+.rn-block {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--text);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-code);
+  font-size: 12px;
+  white-space: nowrap;
+  will-change: transform;
+}
+@media (max-width: 799px) {
+  .rn-keys {
+    display: none;
+  }
 }

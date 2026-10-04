@@ -372,18 +372,29 @@ function SayHi() {
   );
 }
 
-/** What the site was built with: Next.js, and the drink that kept her going (it links to HEYTEA). */
+/** What the site was built with (Next.js, and the drink that kept her going: it links to HEYTEA),
+ * the keys for the surprise, the year and when the site was last updated. */
 function Foot() {
   return (
     <footer className="nh-foot">
-      <p>
-        Built with Next.js &amp;{" "}
-        <a href="https://www.heytea.com/products" target="_blank" rel="noreferrer">
-          heytea’s crisp grape boom
-        </a>{" "}
-        <span aria-hidden>🍇</span>
-      </p>
-      <p suppressHydrationWarning>© {new Date().getFullYear()} Chaewon Lim</p>
+      <div>
+        <p>
+          Built with Next.js &amp;{" "}
+          <a href="https://www.heytea.com/products" target="_blank" rel="noreferrer">
+            heytea’s crisp grape boom
+          </a>{" "}
+          <span aria-hidden>🍇</span>
+        </p>
+        {/* the keys start ChaeLLM's run (components/Site.tsx); no keys on a touch screen, so no line */}
+        <p className="nh-foot-keys">
+          Press the <kbd>P</kbd> and <kbd>Space</kbd> keys for a surprise
+        </p>
+      </div>
+      <div className="nh-foot-r">
+        <p suppressHydrationWarning>© {new Date().getFullYear()} Chaewon Lim</p>
+        {/* the day the site was last built (next.config.ts) */}
+        <p>Last updated on {process.env.LAST_UPDATED}</p>
+      </div>
     </footer>
   );
 }

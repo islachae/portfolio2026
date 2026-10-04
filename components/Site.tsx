@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Home } from "./home/Home";
 import { ChatDrawer } from "./home/ChatDrawer";
@@ -15,6 +15,10 @@ import { whenQuiet } from "@/lib/quiet";
 
 type CaseComponent = typeof import("./case/CasePage").CasePage;
 type PlayComponent = typeof import("./home/PlayPage").PlayPage;
+type RunnerComponent = typeof import("./home/Runner").Runner;
+
+const typing = (t: EventTarget | null) =>
+  t instanceof HTMLElement && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable);
 
 /**
  * Home, and over it whichever page is open: a case study, About, or a play page. Home stays
@@ -77,6 +81,37 @@ export function Site() {
     };
   }, [Play, play, goHome]);
 
+  // The surprise the last line of Home promises: P and Space held together start ChaeLLM's run
+  // (components/home/Runner.tsx, fetched only now). Not while someone is typing.
+  const [Run, setRun] = useState<RunnerComponent | null>(null);
+  const [running, setRunning] = useState(false);
+  const stopRun = useCallback(() => setRunning(false), []);
+  useEffect(() => {
+    const held = new Set<string>();
+    const down = (e: KeyboardEvent) => {
+      if (e.code !== "KeyP" && e.code !== "Space") return;
+      if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return;
+      held.add(e.code);
+      if (held.size < 2) return;
+      e.preventDefault(); // (Space would scroll the page)
+      setRunning(true);
+      import("./home/Runner").then(
+        (m) => setRun(() => m.Runner),
+        () => setRunning(false),
+      );
+    };
+    const up = (e: KeyboardEvent) => held.delete(e.code);
+    const clear = () => held.clear();
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", clear);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", clear);
+    };
+  }, []);
+
   const caseOpen = caseStudy !== null && Case !== null;
   const playOpen = play !== null && Play !== null;
   // The outline of a link straight to a long read goes once the page itself is on screen
@@ -96,6 +131,7 @@ export function Site() {
       <CommandPalette />
       <Toast />
       <ImageMarks />
+      {running && Run && <Run onClose={stopRun} />}
     </>
   );
 }
