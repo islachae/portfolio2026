@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Component, useEffect, useRef, useState, type ReactNode } from "react";
+import { Component, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { reducedMotion } from "./shell-context";
 import { whenQuiet } from "@/lib/quiet";
 
@@ -15,6 +15,37 @@ import { whenQuiet } from "@/lib/quiet";
 // (about 0.4s of main thread on a mid phone, in one go); later calls are free.
 const load = () => import("shadergradient");
 const loadClock = () => import("./GradientClock");
+/**
+ * How finely the gradient is drawn: 2.5 canvas pixels per CSS pixel. On a 2x screen the grain still
+ * blends as softly as at 3, for about two thirds of the pixels (at 2 it turns hard and sandy).
+ */
+const DENSITY = 2.5;
+/**
+ * The most canvas pixels drawn per frame. Laptops and 1080p windows are under it and keep 2.5
+ * (a 1440-wide window is about 7 million); only very large windows are drawn less finely, so a
+ * 2560-wide monitor draws 12 million instead of 23.
+ */
+const MAX_PIXELS = 12_000_000;
+
+/** DENSITY, or less on a box so large that it would pass MAX_PIXELS (never under 1). */
+function useDensity(box: RefObject<HTMLDivElement | null>) {
+  const [density, setDensity] = useState(DENSITY);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      const area = el.clientWidth * el.clientHeight;
+      if (!area) return;
+      // in steps of 0.05, so dragging a window's edge doesn't change it on every pixel
+      const fit = Math.floor(Math.sqrt(MAX_PIXELS / area) * 20) / 20;
+      setDensity(Math.max(1, Math.min(DENSITY, fit)));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [box]);
+  return density;
+}
+
 /** The moment the gradient starts from, in seconds of its animation: the frame the still shows. */
 const START = 9;
 const ShaderGradientCanvas = dynamic(() => load().then((mod) => mod.ShaderGradientCanvas), {
@@ -113,6 +144,7 @@ export function ShaderHero({ active }: { active: boolean }) {
   const [mounted, setMounted] = useState(false);
   const [live, setLive] = useState(false);
   const box = useRef<HTMLDivElement>(null);
+  const density = useDensity(box);
 
   useEffect(() => {
     setStill(reducedMotion());
@@ -161,9 +193,7 @@ export function ShaderHero({ active }: { active: boolean }) {
             <ShaderGradientCanvas
               style={{ position: "absolute", inset: 0 }}
               fov={50}
-              // 2.5 canvas pixels per CSS pixel: on a 2x screen the grain still blends as softly as at 3,
-              // for about two thirds of the pixels drawn each frame (at 2 it turns hard and sandy)
-              pixelDensity={2.5}
+              pixelDensity={density}
             >
               <StartAt at={START} />
               <ShaderGradient
