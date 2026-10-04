@@ -1090,10 +1090,13 @@ html[data-motion="reduced"] .nh *::after {
     transform: translateY(1.5px);
   }
 }
-/* the body: same ink as the face, tucked up under the chin */
+/* the body: a dress in the face's ink, tucked up under the chin; the feet are text-dark */
 .rn-body {
-  margin-top: -4px;
+  margin-top: -3px;
   fill: var(--accent-1);
+}
+.rn-ft {
+  fill: var(--text);
 }
 .rn-body g {
   opacity: 0;

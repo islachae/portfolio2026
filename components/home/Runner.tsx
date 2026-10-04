@@ -5,7 +5,7 @@ import { PixelFace } from "../PixelFace";
 
 /**
  * The surprise the last line of Home promises: P and Space together, and ChaeLLM (the pixel face,
- * on a small pixel body) comes down to the bottom of the screen and runs. Space jumps the things a designer gets
+ * in a small pixel dress) comes down to the bottom of the screen and runs. Space jumps the things a designer gets
  * thrown at her; a hit ends the run and Space starts another. Esc (or the ×) closes it.
  *
  * It only exists once asked for (its own chunk: components/Site.tsx), and it moves by writing
@@ -147,37 +147,31 @@ export function Runner({ onClose }: { onClose: () => void }) {
       </button>
       <p className="rn-note" ref={note} aria-live="polite" />
       <div className="rn-lane" ref={lane}>
-        {/* her: the pixel face on a small pixel body. The legs swap between two strides while she
-            runs (.rn-a / .rn-b) and tuck in the air (.rn-j); the arms follow. */}
+        {/* her: the pixel face over a small dress. The feet (dark) and the short arms swap between
+            two strides while she runs (.rn-a / .rn-b); in the air the arms go up and the feet tuck (.rn-j). */}
         <div className="rn-face" ref={face}>
           <span className="rn-head">
             <PixelFace size={FACE} />
           </span>
           <svg className="rn-body" viewBox="0 0 16 8" width={FACE} height={FACE / 2} shapeRendering="crispEdges" aria-hidden>
-            <rect x="5" y="0" width="6" height="4" />
+            <path d="M6 0h4v1h1v1h1v2h1v2H3V4h1V2h1V1h1z" />
             <g className="rn-a">
               <rect x="3" y="1" width="2" height="1" />
               <rect x="11" y="2" width="2" height="1" />
-              <rect x="5" y="4" width="2" height="3" />
-              <rect x="4" y="7" width="3" height="1" />
-              <rect x="9" y="4" width="2" height="2" />
-              <rect x="10" y="5" width="3" height="1" />
+              <rect className="rn-ft" x="5" y="6" width="2" height="2" />
+              <rect className="rn-ft" x="9" y="6" width="2" height="1" />
             </g>
             <g className="rn-b">
               <rect x="3" y="2" width="2" height="1" />
               <rect x="11" y="1" width="2" height="1" />
-              <rect x="9" y="4" width="2" height="3" />
-              <rect x="9" y="7" width="3" height="1" />
-              <rect x="5" y="4" width="2" height="2" />
-              <rect x="3" y="5" width="3" height="1" />
+              <rect className="rn-ft" x="5" y="6" width="2" height="1" />
+              <rect className="rn-ft" x="9" y="6" width="2" height="2" />
             </g>
             <g className="rn-j">
-              <rect x="3" y="0" width="2" height="1" />
-              <rect x="11" y="0" width="2" height="1" />
-              <rect x="5" y="4" width="2" height="1" />
-              <rect x="4" y="5" width="3" height="1" />
-              <rect x="9" y="4" width="2" height="1" />
-              <rect x="9" y="5" width="3" height="1" />
+              <rect x="2" y="0" width="2" height="1" />
+              <rect x="12" y="0" width="2" height="1" />
+              <rect className="rn-ft" x="5" y="6" width="2" height="1" />
+              <rect className="rn-ft" x="9" y="6" width="2" height="1" />
             </g>
           </svg>
         </div>
