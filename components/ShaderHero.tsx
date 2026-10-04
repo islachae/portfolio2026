@@ -153,52 +153,56 @@ export function ShaderHero({ active }: { active: boolean }) {
   const colors = dark ? DARK : LIGHT;
   return (
     <div className="shader-hero" aria-hidden ref={box} data-live={live ? "" : undefined}>
-      {mounted && !still && (
-        <Quiet>
-          <ShaderGradientCanvas
-            style={{ position: "absolute", inset: 0 }}
-            fov={50}
-            // 2.5 canvas pixels per CSS pixel: on a 2x screen the grain still blends as softly as at 3,
-            // for about two thirds of the pixels drawn each frame (at 2 it turns hard and sandy)
-            pixelDensity={2.5}
-          >
-            <StartAt at={START} />
-            <ShaderGradient
-              type="waterPlane"
-              animate="on"
-              uTime={START}
-              uSpeed={0.12}
-              uStrength={1.3}
-              uDensity={1.5}
-              uFrequency={5.5}
-              uAmplitude={1}
-              positionX={-0.4}
-              positionY={0.1}
-              positionZ={0}
-              rotationX={0}
-              rotationY={10}
-              rotationZ={50}
-              color1={colors.color1}
-              color2={colors.color2}
-              color3={colors.color3}
-              reflection={0}
-              wireframe={false}
-              shader="defaults"
-              cAzimuthAngle={181}
-              cPolarAngle={84}
-              cDistance={2.64}
-              cameraZoom={1}
-              lightType="3d"
-              brightness={1}
-              envPreset="city"
-              grain="on"
-              zoomOut={false}
-              toggleAxis={false}
-              enableTransition={false}
-            />
-          </ShaderGradientCanvas>
-        </Quiet>
-      )}
+      {/* The still (this box's background) and the canvas over it drift together from the first
+          paint and settle, so the picture is never quite at rest while the gradient gets ready */}
+      <div className="shader-drift">
+        {mounted && !still && (
+          <Quiet>
+            <ShaderGradientCanvas
+              style={{ position: "absolute", inset: 0 }}
+              fov={50}
+              // 2.5 canvas pixels per CSS pixel: on a 2x screen the grain still blends as softly as at 3,
+              // for about two thirds of the pixels drawn each frame (at 2 it turns hard and sandy)
+              pixelDensity={2.5}
+            >
+              <StartAt at={START} />
+              <ShaderGradient
+                type="waterPlane"
+                animate="on"
+                uTime={START}
+                uSpeed={0.12}
+                uStrength={1.3}
+                uDensity={1.5}
+                uFrequency={5.5}
+                uAmplitude={1}
+                positionX={-0.4}
+                positionY={0.1}
+                positionZ={0}
+                rotationX={0}
+                rotationY={10}
+                rotationZ={50}
+                color1={colors.color1}
+                color2={colors.color2}
+                color3={colors.color3}
+                reflection={0}
+                wireframe={false}
+                shader="defaults"
+                cAzimuthAngle={181}
+                cPolarAngle={84}
+                cDistance={2.64}
+                cameraZoom={1}
+                lightType="3d"
+                brightness={1}
+                envPreset="city"
+                grain="on"
+                zoomOut={false}
+                toggleAxis={false}
+                enableTransition={false}
+              />
+            </ShaderGradientCanvas>
+          </Quiet>
+        )}
+      </div>
     </div>
   );
 }

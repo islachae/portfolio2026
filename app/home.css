@@ -197,20 +197,44 @@ html[data-booting] .nh {
 .nh-hero .shader-hero {
   bottom: -160px;
   z-index: -1;
-  /* A still of the gradient at the moment it starts from (START in components/ShaderHero.tsx),
-     there from the first paint; the live one fades in over it and carries on from it. The scene
-     scales with the box's height and is centred, so the still does too (it is 3:1, wider than
-     any window). With motion reduced, this is all there is. */
-  background: transparent url("/hero/gradient-light.webp") center / auto 100% no-repeat;
+  background: transparent;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 320px), transparent);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 320px), transparent);
 }
+/* A still of the gradient at the moment it starts from (START in components/ShaderHero.tsx),
+   there from the first paint; the live one fades in over it and carries on from it. The scene
+   scales with the box's height and is centred, so the still does too (it is 3:1, wider than
+   any window). With motion reduced, this is all there is.
+   The still and the canvas drift together and settle (clipped by .shader-hero), so nothing stands
+   frozen while the gradient gets ready. */
+.shader-drift {
+  position: absolute;
+  inset: 0;
+  background: transparent url("/hero/gradient-light.webp") center / auto 100% no-repeat;
+  animation: shader-drift 9s cubic-bezier(0.2, 0.55, 0.3, 1) both;
+}
+@keyframes shader-drift {
+  from {
+    transform: translate3d(1.5%, -1%, 0) scale(1.06);
+  }
+  to {
+    transform: none;
+  }
+}
+html[data-motion="reduced"] .shader-drift {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .shader-drift {
+    animation: none;
+  }
+}
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .nh-hero .shader-hero {
+  :root:not([data-theme="light"]) .shader-drift {
     background: #0b0b0c url("/hero/gradient-dark.webp") center / auto 100% no-repeat;
   }
 }
-:root[data-theme="dark"] .nh-hero .shader-hero {
+:root[data-theme="dark"] .shader-drift {
   background: #0b0b0c url("/hero/gradient-dark.webp") center / auto 100% no-repeat;
 }
 
