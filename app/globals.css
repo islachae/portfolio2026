@@ -5241,25 +5241,26 @@ button.cs-stop-dot:hover > span {
   border-radius: 50%;
   background: var(--cs-accent);
 }
-/* All three touchpoints share one cell, so switching never moves the page */
+/* The three touchpoints sit one under the other: the reader's scroll goes through them, and the
+   rail (pinned under the bar on screens with room for it) marks the one on screen. */
 .cs-tp-stack {
   display: grid;
+  gap: var(--space-xl);
+}
+.cs-tp {
+  padding: 28px 34px 40px;
   border: 1px solid var(--cs-frame);
   background: var(--cs-tint);
 }
-.cs-tp {
-  grid-area: 1 / 1;
-  padding: 28px 34px 40px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(8px);
-  transition: opacity 0.3s, transform 0.3s var(--ease-out), visibility 0s 0.3s;
-}
-.cs-tp[data-on] {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition: opacity 0.35s, transform 0.35s var(--ease-out), visibility 0s;
+@media (min-width: 641px) and (min-height: 620px) {
+  .cs-rail-scroll {
+    position: sticky;
+    top: 56px; /* the bar */
+    z-index: 3;
+    margin-top: var(--space-xs);
+    padding-top: var(--space-lg);
+    background: var(--bg);
+  }
 }
 .cs-tp-title {
   font-family: var(--font-display);

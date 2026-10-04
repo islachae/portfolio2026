@@ -323,6 +323,8 @@ export const pages: Page[] = [
     id: "lab",
     meta: "Playground",
     group: "fun",
+    // not ready to show yet: its card on Home says “Coming soon” and doesn't open (like ZipFlow's)
+    status: "soon",
     thumb: "/fun/lab-card.webp",
     title: "Interaction Lab",
     ticker: "LAB",

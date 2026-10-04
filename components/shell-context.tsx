@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { MotionConfig } from "motion/react";
-import { pages, profile, type PageId } from "@/content/site";
+import { pageById, pages, profile, type PageId } from "@/content/site";
 import { isCaseId, longHash, type LongId } from "@/content/cases/ids";
 import { isHomeSection, isPlayId, playHash, type HomeSection, type PlayId } from "@/content/routes";
 
@@ -53,12 +53,16 @@ export function useShell() {
 const ids = pages.map((p) => p.id);
 const isPage = (s: string): s is PageId => (ids as string[]).includes(s);
 
+/** A play page that can be opened (one marked “soon” in content/site.ts can't: its card says so). */
+const playIsOpen = (id: string): id is PlayId => isPlayId(id) && pageById[id].status !== "soon";
+
 type Route = { caseStudy: LongId | null; play: PlayId | null; section: HomeSection | null };
 const HOME: Route = { caseStudy: null, play: null, section: null };
 /**
  * What a hash means. "#case/tipping", "#about/story", "#play/wish", "#work" / "#play" / "#hi"
  * (a place on Home). The old deck's links still work: "#pebbo" opens the Pebbo case study,
  * "#wish" its play page, "#about" the About page, "#zipflow" the cards, "#hi" the note at the end.
+ * A play page that isn't open yet ("#play/lab", "#lab") lands on the play cards instead.
  */
 function routeFromHash(hash: string): Route {
   const h = hash.replace(/^#/, "");
@@ -66,9 +70,9 @@ function routeFromHash(hash: string): Route {
   const c = /^case\/([a-z-]+)$/.exec(h);
   if (c) return isCaseId(c[1]) ? { ...HOME, caseStudy: c[1] } : HOME;
   const p = /^play\/([a-z-]+)$/.exec(h);
-  if (p) return isPlayId(p[1]) ? { ...HOME, play: p[1] } : { ...HOME, section: "play" };
+  if (p) return playIsOpen(p[1]) ? { ...HOME, play: p[1] } : { ...HOME, section: "play" };
   if (isCaseId(h)) return { ...HOME, caseStudy: h };
-  if (isPlayId(h)) return { ...HOME, play: h };
+  if (isPlayId(h)) return playIsOpen(h) ? { ...HOME, play: h } : { ...HOME, section: "play" };
   if (h === "zipflow") return { ...HOME, section: "work" };
   if (isHomeSection(h)) return { ...HOME, section: h };
   return HOME;
@@ -213,7 +217,8 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
       if (id === "home") goHome("top");
       else if (id === "about") openCase("about");
       else if (isCaseId(id)) openCase(id);
-      else if (isPlayId(id)) openPlay(id);
+      else if (playIsOpen(id)) openPlay(id);
+      else if (isPlayId(id)) goHome("play"); // not open yet (“Coming soon”): its card
       else if (id === "hi") goHome("hi");
       else goHome("work"); // a project without a page of its own yet (ZipFlow): its card
     },

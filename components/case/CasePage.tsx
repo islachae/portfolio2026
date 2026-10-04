@@ -101,6 +101,7 @@ export function CasePage({ id }: { id: LongId }) {
   const root = useRef<HTMLDivElement>(null);
   const [el, setEl] = useState<HTMLElement | null>(null);
   const [pastHero, setPastHero] = useState(false);
+  const [tocFree, setTocFree] = useState(false);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -117,6 +118,13 @@ export function CasePage({ id }: { id: LongId }) {
       // of contents comes in. About has no such screen: a short scroll is enough.
       const first = r.querySelector<HTMLElement>(".csx");
       setPastHero(r.scrollTop > (first ? first.offsetHeight - 200 : 320));
+      // The table of contents sits where the first screen's left column passes on its way up, so
+      // it only comes in once that screen has cleared it (never over the title or “Scroll ↓”).
+      const toc = r.querySelector<HTMLElement>(".cs-toc");
+      // (its CSS `top`, not its box: the box shifts a little while it waits)
+      setTocFree(!first || !toc || first.getBoundingClientRect().bottom <= (parseFloat(getComputedStyle(toc).top) || 136) - 16);
+      // “Scroll ↓” has done its job at the first scroll
+      first?.toggleAttribute("data-moved", r.scrollTop > 24);
       // Table of contents: the last section whose top has passed ~30% of the view
       const line = r.getBoundingClientRect().top + r.clientHeight * 0.3;
       let i = 0;
@@ -268,8 +276,8 @@ export function CasePage({ id }: { id: LongId }) {
         {isCaseId(id) && <SplitHero id={id} />}
 
         {/* On this page: sits in the left margin on wide screens. A case study's first screen
-            uses that margin, so there it waits until the screen has been scrolled past. */}
-        <nav className="cs-toc" aria-label="On this page" data-wait={(!isAbout && !pastHero) || undefined} inert={!isAbout && !pastHero ? true : undefined}>
+            uses that margin, so there it waits until that screen has scrolled clear of it. */}
+        <nav className="cs-toc" aria-label="On this page" data-wait={(!isAbout && !tocFree) || undefined} inert={!isAbout && !tocFree ? true : undefined}>
           <ol>
             {data.toc.map((t, i) => (
               <li key={t.id}>

@@ -177,7 +177,7 @@ export const tippingCase = {
       { t: " after confirming service quality, because " },
       { t: "outcome-based tipping feels more justified.", b: true },
     ],
-    legend: { existing: "Existing flow", added: "New touchpoint", hint: "Select an orange dot to explore" },
+    legend: { existing: "Existing flow", added: "New touchpoint", hint: "Scroll, or select an orange dot" },
     // The whole order journey; the numbered stops are the three new touchpoints
     steps: [
       { label: "Menu selection" },

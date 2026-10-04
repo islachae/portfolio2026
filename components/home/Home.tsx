@@ -149,12 +149,15 @@ function cardLine(p: Page) {
  * click does is written next to the pointer while it is over the card (`CursorTag`, from
  * `data-go`); the keyboard and touch screens, which have no pointer to follow, get it at the end
  * of the small line instead (on focus; always, on touch screens).
- * ZipFlow has no case study yet: its card doesn't open anything and says “Coming soon” there.
+ * ZipFlow has no case study yet, and the Interaction Lab isn't ready to show (`status: "soon"` in
+ * content/site.ts): their cards don't open anything and say “Coming soon” there.
+ * A play card's large line is just its name, with what kind of piece it is and the year under it.
  * Phones show the play pieces as small cards, two to a row, with just the name.
  */
 function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
   const { openCase, openPlay } = useShell();
-  const headline = headlineOf(p);
+  // a play piece goes by its name (“Wish Tree”); a project by what it does, its name under it
+  const headline = play ? p.title : headlineOf(p);
   const soon = p.status === "soon";
   const toCase = isCaseId(p.id) ? p.id : null;
   const toPlay = isPlayId(p.id) ? p.id : null;
@@ -167,7 +170,7 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
       <span className="nh-card-media">{p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}</span>
       <span className="nh-card-title">{headline}</span>
       <span className="nh-card-line">
-        <span className="label">{`${p.title} • ${cardLine(p)}`}</span>
+        <span className="label">{play ? cardLine(p) : `${p.title} • ${cardLine(p)}`}</span>
         <span className="label nh-card-go" aria-hidden>
           {soon ? (
             "Coming soon"
@@ -181,6 +184,7 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
       {/* phones' small play cards show this instead of the two lines above */}
       <span className="nh-card-name" aria-hidden>
         {p.title}
+        {soon && <span className="label nh-card-soon">Coming soon</span>}
       </span>
     </>
   );
@@ -196,7 +200,7 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
     <a
       className={`nh-card${play ? " nh-card--play" : ""}`}
       href={href}
-      aria-label={`${p.title}: ${headline}. ${toCase ? "Read the case study" : "Open"}`}
+      aria-label={play ? `${p.title}. Open` : `${p.title}: ${headline}. Read the case study`}
       data-go={toCase ? "Read case study" : "Open"}
       onPointerEnter={warm}
       onFocus={warm}

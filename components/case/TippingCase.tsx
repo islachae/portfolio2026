@@ -377,11 +377,57 @@ function Principle() {
   );
 }
 
-/* Mechanism: the order journey with three new touchpoints to open */
+/* Mechanism: the order journey and its three new touchpoints.
+   The touchpoints sit one under the other and the reader's scroll goes through them; the rail
+   stays pinned under the bar meanwhile and marks the one on screen (01 → 02 → 03), so nobody has
+   to find the dots to see all three. A dot still jumps straight to its touchpoint.
+   (Pinning the whole block and swapping the panel in place, the way the Final design scene does,
+   would cut it off: a panel is taller than most laptop screens.) */
 function Mechanism() {
   const m = C.mechanism;
-  const [sel, setSel] = useState(1);
+  const root = useScrollRoot();
+  const rail = useRef<HTMLDivElement>(null);
+  const panels = useRef<(HTMLDivElement | null)[]>([]);
+  const [sel, setSel] = useState(m.touchpoints[0].n);
   const col = m.steps.findIndex((s) => s.n === sel);
+
+  // Which touchpoint is on screen: the last one whose top has come up to a line a little under the rail
+  useEffect(() => {
+    if (!root) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const view = root.getBoundingClientRect();
+      const under = Math.max(rail.current?.getBoundingClientRect().bottom ?? 0, view.top + 56);
+      const line = under + (view.bottom - under) * 0.35;
+      let n = m.touchpoints[0].n;
+      panels.current.forEach((el, i) => {
+        if (el && el.getBoundingClientRect().top <= line) n = m.touchpoints[i].n;
+      });
+      setSel(n);
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    root.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      root.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+      cancelAnimationFrame(raf);
+    };
+  }, [root, m]);
+
+  // A dot brings its touchpoint up to just under the rail
+  const jump = (n: number) => {
+    const el = panels.current[m.touchpoints.findIndex((t) => t.n === n)];
+    const r = rail.current;
+    if (!root || !el || !r) return;
+    const pinned = getComputedStyle(r).position === "sticky";
+    scrollToEl(root, el, pinned ? (parseFloat(getComputedStyle(r).top) || 0) + r.offsetHeight : 72);
+  };
+
   return (
     <section className="cs-sec" id="cs-solution" tabIndex={-1} aria-label={m.label}>
       <p className="cs-eyebrow">{m.label}</p>
@@ -402,7 +448,7 @@ function Mechanism() {
           </span>
           <span className="cs-legend-hint">{m.legend.hint}</span>
         </div>
-        <div className="cs-rail-scroll">
+        <div className="cs-rail-scroll" ref={rail}>
           <ol className="cs-rail" style={{ ["--n" as string]: m.steps.length }}>
             {m.steps.map((s) => (
               <li className="cs-stop" key={s.label} data-new={s.n ? "" : undefined} data-on={s.n === sel || undefined}>
@@ -410,9 +456,9 @@ function Mechanism() {
                 {s.n ? (
                   <button
                     className="cs-stop-dot"
-                    aria-pressed={s.n === sel}
+                    aria-current={s.n === sel ? "step" : undefined}
                     aria-label={`Touchpoint 0${s.n}: ${s.label.replace("\n", " ")}`}
-                    onClick={() => setSel(s.n!)}
+                    onClick={() => jump(s.n!)}
                   >
                     <span />
                   </button>
@@ -425,13 +471,20 @@ function Mechanism() {
               </li>
             ))}
           </ol>
-          {/* A pin runs from the chosen stop down to its details */}
+          {/* A pin runs from the stop on screen down to its details */}
           <span className="cs-pin" style={{ left: `${((col + 0.5) / m.steps.length) * 100}%` }} aria-hidden />
         </div>
 
         <div className="cs-tp-stack">
-          {m.touchpoints.map((tp) => (
-            <div className="cs-tp" key={tp.n} data-on={tp.n === sel || undefined} aria-hidden={tp.n !== sel}>
+          {m.touchpoints.map((tp, i) => (
+            <div
+              className="cs-tp"
+              key={tp.n}
+              ref={(el) => {
+                panels.current[i] = el;
+              }}
+              data-on={tp.n === sel || undefined}
+            >
               <h3 className="cs-tp-title">
                 <span className="cs-tp-n">0{tp.n}</span>
                 {tp.title}
