@@ -304,18 +304,18 @@ export function ChatDock() {
 }
 
 /** Floating button: ✦ ChaeLLM. */
-export function ChatToggle({ onClick, compact = false }: { onClick: () => void; compact?: boolean }) {
+export function ChatToggle({ onClick, compact = false, ask = false }: { onClick: () => void; compact?: boolean; ask?: boolean }) {
   const { open } = useChat();
   return (
     <button
-      className={`chat-toggle pf-hover${compact ? " chat-toggle--compact" : ""}`}
+      className={`chat-toggle pf-hover${compact ? " chat-toggle--compact" : ""}${ask ? " chat-toggle--ask" : ""}`}
       aria-pressed={open}
       aria-label={compact ? "Ask ChaeLLM" : undefined}
       title={open ? "Close ChaeLLM" : "Ask ChaeLLM"}
       onClick={onClick}
     >
       <PixelFace size={24} />
-      {!compact && <span>ChaeLLM</span>}
+      {!compact && <span>{ask ? "Ask ChaeLLM" : "ChaeLLM"}</span>}
     </button>
   );
 }

@@ -30,12 +30,11 @@ function useNavLinks() {
 }
 
 /**
- * The same four places on every page: Work, Play, About, Resume. ChaeLLM sits after a hairline.
+ * The same four places on every page: Work, Play, About, Resume.
  * (Wide screens; phones get the bar and the menu below.)
  */
 export function SiteNav({ at }: { at: NavPlace }) {
   const links = useNavLinks();
-  const chat = useChat();
   return (
     <nav className="sn" aria-label="Site">
       {links.map((l) => (
@@ -46,10 +45,18 @@ export function SiteNav({ at }: { at: NavPlace }) {
       <a className="sn-link" href={profile.links.resume} target="_blank" rel="noreferrer">
         Resume
       </a>
-      <span className="top-sep" aria-hidden />
-      <ChatToggle onClick={() => (chat.open ? chat.closeChat() : chat.openChat())} />
     </nav>
   );
+}
+
+/**
+ * Top right on every page: ChaeLLM. It is something to do, not a place to go, so it sits apart
+ * from the four places, as a button that says what it does. (Wide screens; phones keep the face
+ * in the bar.)
+ */
+export function SiteAsk() {
+  const chat = useChat();
+  return <ChatToggle ask onClick={() => (chat.open ? chat.closeChat() : chat.openChat())} />;
 }
 
 /** Top left on Home: who this is. The name goes to the top of Home; display settings sit beside it. */

@@ -11,7 +11,7 @@ import { ShaderHero } from "../ShaderHero";
 import { ExtArrow } from "../icons";
 import { loadCase } from "../case/load";
 import { loadPlay } from "./play-load";
-import { NameChip, PhoneBar, SiteNav } from "./Nav";
+import { NameChip, PhoneBar, SiteAsk, SiteNav } from "./Nav";
 
 /**
  * Home: who she is, then the work.
@@ -55,6 +55,7 @@ export function Home({ hidden }: { hidden: boolean }) {
         <div className="nh-top">
           <NameChip />
           <SiteNav at="work" />
+          <SiteAsk />
         </div>
         <div className="nh-intro">
           <Hello me now={false} />

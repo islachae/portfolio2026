@@ -8,7 +8,7 @@ import { ChatToggle, useChat } from "../ChaeLLM";
 import { ChevronLeft, MenuIcon } from "../icons";
 import { WordCocktail } from "../cocktail/WordCocktail";
 import { BakeryStage, LabStage, WishStage } from "../Stages";
-import { SiteNav } from "./Nav";
+import { SiteAsk, SiteNav } from "./Nav";
 
 const stages: Record<Exclude<PlayId, "cocktail">, () => React.ReactElement> = {
   wish: WishStage,
@@ -38,13 +38,15 @@ export function PlayPage({ id }: { id: PlayId }) {
   return (
     <div className="pp" ref={root} tabIndex={-1} data-play={id}>
       <header className="cs-bar">
-        <button className="cs-back" onClick={() => goHome()}>
-          <ChevronLeft size={16} />
-          Back
-        </button>
-        <span />
+        <div className="cs-bar-left">
+          <button className="cs-back" onClick={() => goHome()}>
+            <ChevronLeft size={16} />
+            Back
+          </button>
+        </div>
+        <SiteNav at="play" />
         <div className="cs-bar-links">
-          <SiteNav at="play" />
+          <SiteAsk />
           <span className="bar-phone">
             <ChatToggle compact onClick={openChat} />
             <button className="icon-btn" onClick={() => setNavOpen(true)} aria-label="Open menu" aria-haspopup="dialog">

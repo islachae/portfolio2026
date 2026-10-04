@@ -7,7 +7,7 @@ import { pageById, profile } from "@/content/site";
 import { reducedMotion, useShell } from "../shell-context";
 import { ChevronLeft, ExtArrow, MenuIcon } from "../icons";
 import { ChatToggle, useChat } from "../ChaeLLM";
-import { SiteNav } from "../home/Nav";
+import { SiteAsk, SiteNav } from "../home/Nav";
 import { SplitHero } from "./SplitHero";
 import { TippingCase } from "./TippingCase";
 import { PebboCase } from "./PebboCase";
@@ -253,16 +253,20 @@ export function CasePage({ id }: { id: LongId }) {
     <ScrollRoot.Provider value={el}>
       <div className="cs" ref={root} tabIndex={-1} data-case={id}>
         <header className="cs-bar">
-          <button className="cs-back" onClick={() => closeCase(id)}>
-            <ChevronLeft size={16} />
-            Back
-          </button>
-          <span className="cs-bar-title" data-show={pastHero || undefined} aria-hidden={!pastHero}>
-            {project.title}
-          </span>
-          {/* The same places as on Home; phones get ChaeLLM and the menu button */}
+          {/* Where you are: Back, then the project's name once the first screen has passed */}
+          <div className="cs-bar-left">
+            <button className="cs-back" onClick={() => closeCase(id)}>
+              <ChevronLeft size={16} />
+              Back
+            </button>
+            <span className="cs-bar-title" data-show={pastHero || undefined} aria-hidden={!pastHero}>
+              {project.title}
+            </span>
+          </div>
+          {/* The same four places as on Home, then ChaeLLM on the right (phones: her face and the menu button) */}
+          <SiteNav at={isAbout ? "about" : "work"} />
           <div className="cs-bar-links">
-            <SiteNav at={isAbout ? "about" : "work"} />
+            <SiteAsk />
             <span className="bar-phone">
               <ChatToggle compact onClick={openChat} />
               <button className="icon-btn" onClick={() => setNavOpen(true)} aria-label="Open menu" aria-haspopup="dialog">
