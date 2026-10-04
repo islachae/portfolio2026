@@ -205,7 +205,8 @@ html[data-booting] .nh {
 }
 .nh-facts > div {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
+  /* room for the longest label (“LINKEDIN” at 15px) and a gap after it */
+  grid-template-columns: 104px minmax(0, 1fr);
   align-items: center;
   min-height: 31px;
   border-bottom: 1px solid var(--hairline);
@@ -451,12 +452,12 @@ html[data-motion="reduced"] .nh *::after {
 }
 
 /* ───────── Say hi: the page closes the way it opens (a sentence, then facts) ───────── */
+/* no rule above it: like “The rest is play.”, room is what sets it apart */
 .nh-hi {
   display: grid;
   gap: 28px;
   margin: 72px var(--gutter) 0;
-  padding: 48px 0;
-  border-top: 1px solid var(--border);
+  padding: 0 0 48px;
   scroll-margin-top: var(--space-xl);
 }
 @media (min-width: 800px) {
@@ -465,7 +466,8 @@ html[data-motion="reduced"] .nh *::after {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: end;
     gap: var(--space-xl);
-    padding: 56px 0 64px;
+    margin-top: 104px;
+    padding: 0 0 64px;
   }
 }
 /* the same voice as the sentence at the top: key words in ink, the rest pale
@@ -527,6 +529,10 @@ html[data-motion="reduced"] .nh *::after {
 @media (max-width: 799px) {
   .nh-say {
     font-size: 23px;
+  }
+  /* no room for the “Copy” tag beside the address: a tap on the address still copies it */
+  .nh-copy {
+    display: none;
   }
 }
 
@@ -772,16 +778,17 @@ html[data-motion="reduced"] .nh *::after {
 .csx ~ .cs-main .cs-article > .cs-lede:first-child {
   margin-top: 0;
 }
+/* the walkthrough's chips wrap instead of pushing the prototype (and the page) sideways:
+   phones, and windows around 1024px where Melon's six chips are wider than the stage */
+.csx-stage {
+  grid-template-columns: minmax(0, 1fr);
+}
+.csx-stage .seg--stage {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
 @media (max-width: 640px) {
-  /* the walkthrough's chips wrap instead of pushing the prototype (and the page) sideways */
-  .csx-stage {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .csx-stage .seg--stage {
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 100%;
-  }
   .csx-stage .seg--stage .seg-opt {
     height: 36px;
     padding: 0 10px;
