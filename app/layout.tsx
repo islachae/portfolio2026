@@ -64,6 +64,17 @@ const mono = localFont({
   display: "swap",
 });
 
+// Visitor analytics: Umami Cloud (no cookies, so no consent banner). It records each page opened
+// (the hash too, so /#case/tipping counts on its own), the referrer, the city and the device, and
+// keeps ?ref=… on a link, so a link sent to one company can be told apart from another.
+// The Website ID is public (it ships in the page source): Umami → Websites → Edit → Tracking code.
+// Empty = off. Only visits on the real domain count (not localhost or …vercel.app previews), and
+// the claude.ai preview build leaves the script out (it can't load outside scripts).
+// To leave your own visits out, run once in your browser's console on chaewon.works:
+//   localStorage.setItem("umami.disabled", "1")
+const UMAMI_WEBSITE_ID: string = "6ea1a9f3-5443-4ced-a46e-f617d85ae615";
+const analyticsOn = UMAMI_WEBSITE_ID !== "" && !process.env.PREVIEW_BUILD;
+
 export const metadata: Metadata = {
   // The live address, so share previews (Open Graph) resolve to chaewon.works
   metadataBase: new URL("https://chaewon.works"),
@@ -106,6 +117,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
         {/* Inline, so the loader and the outline can paint before the stylesheet arrives */}
         <style dangerouslySetInnerHTML={{ __html: bootCss }} />
+        {/* Deferred: runs after the page is parsed, so it never holds up the first paint */}
+        {analyticsOn && (
+          <script
+            defer
+            src="https://cloud.umami.is/script.js"
+            data-website-id={UMAMI_WEBSITE_ID}
+            data-domains="chaewon.works,www.chaewon.works"
+          />
+        )}
       </head>
       <body>
         {/* The monogram loader: first visit to Home, only when the page is slow (lib/boot.ts) */}
