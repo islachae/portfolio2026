@@ -14,10 +14,14 @@ import { whenQuiet } from "@/lib/quiet";
 // One import for both pieces. The first call downloads three.js + shadergradient and runs them
 // (about 0.4s of main thread on a mid phone, in one go); later calls are free.
 const load = () => import("shadergradient");
+const loadClock = () => import("./GradientClock");
+/** The moment the gradient starts from, in seconds of its animation: the frame the still shows. */
+const START = 9;
 const ShaderGradientCanvas = dynamic(() => load().then((mod) => mod.ShaderGradientCanvas), {
   ssr: false,
 });
 const ShaderGradient = dynamic(() => load().then((mod) => mod.ShaderGradient), { ssr: false });
+const StartAt = dynamic(() => loadClock().then((mod) => mod.StartAt), { ssr: false });
 
 /** No WebGL (or it fails): keep the plain page colour instead of taking the page down with it. */
 class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -89,7 +93,7 @@ function useGradientReady(active: boolean) {
       cancel = () => mo.disconnect();
     };
     // (if the code can't be fetched, Home simply keeps its plain background)
-    const code = () => void load().then(afterIntro, () => {});
+    const code = () => void Promise.all([load(), loadClock()]).then(afterIntro, () => {});
     if (intro()) code();
     else cancel = whenQuiet(code, { after: 200 });
     return () => {
@@ -102,10 +106,12 @@ function useGradientReady(active: boolean) {
 
 export function ShaderHero({ active }: { active: boolean }) {
   const dark = useDark();
-  const ready = useGradientReady(active);
+  const [still, setStill] = useState(false);
+  // With motion reduced there is no canvas at all: the still (the box's background) is the gradient.
+  // (shadergradient 1.3.5 ignores animate="off": its clock keeps running.)
+  const ready = useGradientReady(active && !still);
   const [mounted, setMounted] = useState(false);
   const [live, setLive] = useState(false);
-  const [still, setStill] = useState(false);
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -147,7 +153,7 @@ export function ShaderHero({ active }: { active: boolean }) {
   const colors = dark ? DARK : LIGHT;
   return (
     <div className="shader-hero" aria-hidden ref={box} data-live={live ? "" : undefined}>
-      {mounted && (
+      {mounted && !still && (
         <Quiet>
           <ShaderGradientCanvas
             style={{ position: "absolute", inset: 0 }}
@@ -156,10 +162,11 @@ export function ShaderHero({ active }: { active: boolean }) {
             // for about two thirds of the pixels drawn each frame (at 2 it turns hard and sandy)
             pixelDensity={2.5}
           >
+            <StartAt at={START} />
             <ShaderGradient
               type="waterPlane"
-              animate={still ? "off" : "on"}
-              uTime={3.7}
+              animate="on"
+              uTime={START}
               uSpeed={0.12}
               uStrength={1.3}
               uDensity={1.5}
