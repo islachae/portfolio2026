@@ -359,12 +359,9 @@ a.nh-card:hover .nh-card-media,
 a.nh-card:focus-visible .nh-card-media {
   border-color: var(--accent-1);
 }
-.nh-card:hover .nh-card-go,
+/* the keyboard has no pointer for the tag to ride (see .nh-cursor), so focus writes it here */
 a.nh-card:focus-visible .nh-card-go {
   opacity: 1;
-}
-a.nh-card:hover .nh-card-arrow {
-  transform: translateX(3px);
 }
 a.nh-card:focus-visible .nh-card-media {
   outline: 2px solid var(--accent-1);
@@ -395,6 +392,48 @@ a.nh-card:focus-visible .nh-card-media {
   }
 }
 
+/* ───────── what a click does, riding the pointer over a card (mouse only) ───────── */
+.nh-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  height: 28px;
+  padding: 0 10px;
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  will-change: transform;
+}
+.nh-cursor[data-on] {
+  opacity: 1;
+}
+/* nothing to open yet: quieter, and no arrow */
+.nh-cursor[data-soon] {
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--border);
+  color: var(--text-muted);
+}
+.nh-cursor[data-soon] .nh-cursor-arrow {
+  display: none;
+}
+@media (hover: none) {
+  .nh-cursor {
+    display: none;
+  }
+}
+
 /* Reduced motion (the site's own setting, or the system's): nothing on Home eases. */
 html[data-motion="reduced"] .nh *,
 html[data-motion="reduced"] .nh *::before,
@@ -409,42 +448,119 @@ html[data-motion="reduced"] .nh *::after {
   }
 }
 
-/* ───────── Say hi ───────── */
+/* ───────── Say hi: the page closes the way it opens (a sentence, then facts) ───────── */
 .nh-hi {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-xl);
+  display: grid;
+  gap: 28px;
   margin: 72px var(--gutter) 0;
-  padding: var(--space-lg) 0 72px;
+  padding: 48px 0;
   border-top: 1px solid var(--border);
   scroll-margin-top: var(--space-xl);
 }
-.nh-hi-h {
-  margin: 4px 0 0;
+@media (min-width: 800px) {
+  .nh-hi {
+    /* two halves, like the cards above it */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: var(--space-xl);
+    padding: 56px 0 64px;
+  }
+}
+/* the same voice as the sentence at the top: key words in ink, the rest pale */
+.nh-bye {
+  margin: 0;
+  color: var(--text);
   font-family: var(--font-display);
   font-size: 28px;
-  font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.5;
 }
-.nh-hi-actions {
-  display: flex;
+.nh-dim {
+  color: color-mix(in srgb, var(--text-muted) 65%, var(--bg));
+}
+.nh-mail,
+.nh-out {
+  display: inline-flex;
+  /* a very narrow phone: “Copy” drops under the address instead of pushing the page wide */
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-xl);
+  column-gap: 14px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
 }
-.nh-hi-actions .btn {
-  height: 42px;
-  padding: 0 var(--space-md);
-  font-size: 15px;
+.nh-mail:hover,
+.nh-out:hover {
+  color: var(--accent-1);
+}
+.nh-out {
+  column-gap: 0;
+}
+.nh-mail:focus-visible,
+.nh-out:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 3px;
+}
+.nh-copy {
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  line-height: 1.5;
+  transition: border-color 0.2s, color 0.2s;
+}
+.nh-mail:hover .nh-copy {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
 }
 @media (max-width: 799px) {
-  .nh-hi-h {
+  .nh-bye {
     font-size: 23px;
   }
-  .nh-hi {
-    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ───────── the last line: what it was built with ───────── */
+.nh-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px var(--space-xl);
+  margin: 0 var(--gutter);
+  padding: 0 0 28px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.nh-foot p {
+  margin: 0;
+}
+.nh-foot a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.nh-foot a:hover {
+  color: var(--accent-1);
+  text-decoration-color: currentColor;
+}
+.nh-foot a:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 3px;
+}
+@media (max-width: 799px) {
+  .nh-foot {
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
   }
 }
 

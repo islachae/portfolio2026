@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { pages, profile, type Page } from "@/content/site";
 import { isCaseId, longHash } from "@/content/cases/ids";
 import { isPlayId, playHash } from "@/content/routes";
-import { useShell } from "../shell-context";
+import { reducedMotion, useShell } from "../shell-context";
 import { Hello, formatNY, useNow } from "../HomePage";
 import { ShaderHero } from "../ShaderHero";
 import { ExtArrow } from "../icons";
@@ -91,6 +91,8 @@ export function Home({ hidden }: { hidden: boolean }) {
       </section>
 
       <SayHi />
+      <Foot />
+      <CursorTag off={hidden} />
     </div>
   );
 }
@@ -147,8 +149,10 @@ function cardLine(p: Page) {
 /**
  * One project, labelled the way Rachel Chen labels hers: a large line that says what it is and
  * for whom, and under it the project's name, its status and the year.
- * The whole card is the link: a work card opens its case study, a play card its page; what a
- * click does appears at the end of the small line on hover or focus (always, on touch screens).
+ * The whole card is the link: a work card opens its case study, a play card its page. What a
+ * click does is written next to the pointer while it is over the card (`CursorTag`, from
+ * `data-go`); the keyboard and touch screens, which have no pointer to follow, get it at the end
+ * of the small line instead (on focus; always, on touch screens).
  * ZipFlow has no case study yet: its card doesn't open anything and says “Coming soon” there.
  * Phones show the play pieces as small cards, two to a row, with just the name.
  */
@@ -187,7 +191,7 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
 
   if (!href || soon)
     return (
-      <div className={`nh-card${play ? " nh-card--play" : ""}`} data-soon="">
+      <div className={`nh-card${play ? " nh-card--play" : ""}`} data-soon="" data-go="Coming soon">
         {body}
         <span className="sr-only">Coming soon</span>
       </div>
@@ -197,6 +201,7 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
       className={`nh-card${play ? " nh-card--play" : ""}`}
       href={href}
       aria-label={`${p.title}: ${headline}. ${toCase ? "Read the case study" : "Open"}`}
+      data-go={toCase ? "Read case study" : "Open"}
       onPointerEnter={warm}
       onFocus={warm}
       onClick={(e) => {
@@ -212,26 +217,173 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
   );
 }
 
+/**
+ * What a click on the card under the pointer does (“Read case study →”, “Open →”, “Coming soon”),
+ * written beside the pointer and moving with it, the way Rachel Chen's cards do.
+ * One element for the whole page: it reads `data-go` from the card under the pointer, trails the
+ * pointer by a few frames (not at all with reduced motion), and flips to the other side where it
+ * would leave the window. Mouse only; it rests while another page is open over Home.
+ */
+function CursorTag({ off }: { off: boolean }) {
+  const el = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const tag = el.current;
+    const home = tag?.parentElement;
+    const text = tag?.firstElementChild;
+    if (!tag || !home || !text) return;
+    if (off) {
+      tag.removeAttribute("data-on");
+      return;
+    }
+    let on = false;
+    let raf = 0;
+    let x = 0; // where the tag is
+    let y = 0;
+    let px = -1; // where the pointer is
+    let py = -1;
+    let w = 0;
+    let h = 0;
+    let snap = false; // reduced motion: it doesn't trail
+    /* below and to the right of the pointer; on the other side near the window's edge */
+    const spot = () =>
+      [px + 16 + w > window.innerWidth - 8 ? px - 12 - w : px + 16, py + 20 + h > window.innerHeight - 8 ? py - 12 - h : py + 20] as const;
+    const draw = () => {
+      tag.style.transform = `translate3d(${Math.round(x * 10) / 10}px, ${Math.round(y * 10) / 10}px, 0)`;
+    };
+    const frame = () => {
+      raf = 0;
+      const [tx, ty] = spot();
+      const k = snap ? 1 : 0.32;
+      x += (tx - x) * k;
+      y += (ty - y) * k;
+      if (Math.abs(tx - x) < 0.4 && Math.abs(ty - y) < 0.4) [x, y] = [tx, ty];
+      draw();
+      if (on && (x !== tx || y !== ty)) raf = requestAnimationFrame(frame);
+    };
+    const hide = () => {
+      if (!on) return;
+      on = false;
+      tag.removeAttribute("data-on");
+    };
+    const over = (target: EventTarget | null) => {
+      const card = target instanceof Element ? target.closest<HTMLElement>(".nh-card[data-go]") : null;
+      if (!card) return hide();
+      const label = card.dataset.go ?? "";
+      if (text.textContent !== label || !w) {
+        text.textContent = label;
+        tag.toggleAttribute("data-soon", card.hasAttribute("data-soon"));
+        w = tag.offsetWidth;
+        h = tag.offsetHeight;
+      }
+      if (!on) {
+        // it appears where the pointer is, it doesn't fly in from where it was last
+        on = true;
+        snap = reducedMotion();
+        [x, y] = spot();
+        draw();
+        tag.setAttribute("data-on", "");
+      }
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return hide();
+      px = e.clientX;
+      py = e.clientY;
+      over(e.target);
+    };
+    // the page moved under a still pointer: another card (or none) is under it now
+    const scrolled = () => {
+      if (px >= 0) over(document.elementFromPoint(px, py));
+    };
+    home.addEventListener("pointermove", move);
+    home.addEventListener("pointerleave", hide);
+    window.addEventListener("scroll", scrolled, { passive: true });
+    window.addEventListener("blur", hide);
+    return () => {
+      home.removeEventListener("pointermove", move);
+      home.removeEventListener("pointerleave", hide);
+      window.removeEventListener("scroll", scrolled);
+      window.removeEventListener("blur", hide);
+      cancelAnimationFrame(raf);
+      tag.removeAttribute("data-on");
+    };
+  }, [off]);
+  return (
+    <div className="nh-cursor" ref={el} aria-hidden>
+      <span />
+      <span className="nh-cursor-arrow">→</span>
+    </div>
+  );
+}
+
+/**
+ * The page closes the way it opens: a sentence on the left, facts on the right.
+ * 안녕 is both hello and goodbye (the greeting at the top says it too). The facts are the ways to
+ * reach her: the address copies itself on a click, the résumé and LinkedIn open in a new tab.
+ */
 function SayHi() {
   const { copyEmail } = useShell();
-  const hi = pages.find((p) => p.id === "hi");
   return (
-    <section className="nh-hi" id="hi" aria-labelledby="nh-hi-h">
-      <div>
-        <p className="label">Say hi</p>
-        <h2 className="nh-hi-h" id="nh-hi-h">
-          {hi?.tagline}
-        </h2>
-      </div>
-      <div className="nh-hi-actions">
-        <a className="sn-link" href={profile.links.resume} target="_blank" rel="noreferrer">
-          Resume
-          <ExtArrow />
-        </a>
-        <button className="btn btn--primary" onClick={copyEmail}>
-          Copy email
-        </button>
-      </div>
+    <section className="nh-hi" id="hi" aria-label="Say hi">
+      <h2 className="nh-bye">
+        <span lang="ko">안녕</span> <span className="nh-dim">means hi.</span>
+        <br />
+        <span className="nh-dim">It also means</span> bye<span className="nh-dim">.</span>
+      </h2>
+      <dl className="nh-facts nh-facts--hi">
+        <div>
+          <dt>Email</dt>
+          <dd>
+            <button type="button" className="nh-mail" onClick={copyEmail} aria-label={`Copy email address: ${profile.email}`}>
+              {profile.email}
+              <span className="label nh-copy" aria-hidden>
+                Copy
+              </span>
+            </button>
+          </dd>
+        </div>
+        <div>
+          <dt>Resume</dt>
+          <dd>
+            <a className="nh-out" href={profile.links.resume} target="_blank" rel="noreferrer">
+              PDF
+              <ExtArrow />
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt>LinkedIn</dt>
+          <dd>
+            <a className="nh-out" href={profile.links.linkedin} target="_blank" rel="noreferrer">
+              chaewon-lim
+              <ExtArrow />
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt>
+            <span className="nh-dot" aria-hidden />
+            <span className="sr-only">Status</span>
+          </dt>
+          <dd>{profile.status}</dd>
+        </div>
+      </dl>
     </section>
+  );
+}
+
+/** What the site was built with: Next.js, and the drink that kept her going (it links to HEYTEA). */
+function Foot() {
+  return (
+    <footer className="nh-foot">
+      <p>
+        Built with Next.js &amp;{" "}
+        <a href="https://www.heytea.com/products" target="_blank" rel="noreferrer">
+          heytea’s crisp grape boom
+        </a>{" "}
+        <span aria-hidden>🍇</span>
+      </p>
+      <p suppressHydrationWarning>© {new Date().getFullYear()} Chaewon Lim</p>
+    </footer>
   );
 }
