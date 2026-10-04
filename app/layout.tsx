@@ -113,16 +113,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* The backdrop is its own layer so it can fade with opacity (compositor-only) */}
           <i className="cwb-bg" />
           <div className="cwb-mark">
-            {/* The frame: a grey square track, and four bars that grow along its edges, clockwise
-                from the top left, as the page gets ready (transforms only; lib/boot.ts ring()) */}
-            <span className="cwb-ring">
-              <i className="cwb-track" />
-              <i className="cwb-edge cwb-edge--t" />
-              <i className="cwb-edge cwb-edge--r" />
-              <i className="cwb-edge cwb-edge--b" />
-              <i className="cwb-edge cwb-edge--l" />
-            </span>
-            <Monogram size={64} className="cwb-mono" tile />
+            {/* just the mark (a square tile) and, under it, the signature: no frame, no progress */}
+            <Monogram size={38} className="cwb-mono" tile />
           </div>
           {/* “Curiously, Chaewon”, written again stroke by stroke the way she wrote it (the pen
               draws on this canvas, lib/boot.ts); the violet full stop lands when the page is ready */}

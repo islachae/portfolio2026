@@ -6,19 +6,20 @@
  * 1. The monogram loader (#cw-boot): on Home only. The first visit on a browser plays it as an
  *    intro (~4.9s with the flight, localStorage "cw-intro"), whatever the speed; later visits show
  *    it only if the page isn't ready after 0.3s. Any click, tap, scroll or key skips it once the
- *    page is ready. The ring fills with real steps (page parsed → styles in → fonts in, waiting
- *    at most 0.4s for fonts; they swap in after), never a timer. Under it, “Curiously, Chaewon”
+ *    page is ready. It is just the mark (a small square tile) and, under it, “Curiously, Chaewon”:
+ *    no frame and no progress. It waits on real steps (page parsed → styles in → fonts in, at
+ *    most 0.4s for fonts; they swap in after), never a timer. The signature
  *    writes itself again the way she wrote it (lib/signature.ts, traced from a recording of her
  *    hand: stroke order, pace and pen lifts, ~3.5s, with a breath after the comma). When the page
  *    is ready and the writing has finished, the full stop lands as a small violet dot where she
- *    put hers (data-boot="done"); 0.26s later the ring fades, the signature sinks away and the
+ *    put hers (data-boot="done"); 0.26s later the signature sinks away and the
  *    monogram flies into the name chip (or the phone bar's mark), and the page is simply there
  *    under it. On a later visit, if the page gets ready mid-word, the rest is written 4× faster.
  *    Reduced motion: the signature is just there, the dot appears, it all fades.
  *    ⌘K → “Replay the intro” runs it again (window.cwIntro).
  *    It plays while React is waking the page up, so nothing in it may wait for the main thread:
  *    the pen draws on a canvas from a worker (OffscreenCanvas; on the main thread only where
- *    that's missing), the ring fills by two half-arcs turning in, the backdrop fades as a layer
+ *    that's missing), the mark flies and the backdrop fades as a layer
  *    (transforms and opacity, on the compositor). The Home gradient (three.js) waits until the
  *    intro is over (components/ShaderHero.tsx); compiling its shader used to freeze the flight.
  * 2. The outline (#cw-skel): a link straight to a long read draws its frame until the page itself
@@ -52,21 +53,14 @@ html[data-boot] #cw-boot{display:flex}
 .cwb-bg{position:absolute;inset:0;background:var(--bg)}
 .cwb-sig{position:relative;width:min(195px,49.4vw);color:var(--i)}
 .cwb-pen{display:block;width:100%;height:auto;aspect-ratio:${SIGNATURE.w}/${SIGNATURE.h}}
-html[data-boot] .cwb-edge,html[data-boot] .cwb-mono{will-change:transform}
+html[data-boot] .cwb-mono{will-change:transform}
 html[data-boot=on] .cwb-mark,html[data-boot=on] .cwb-sig{animation:cwb-in .3s ease-out both}
 @keyframes cwb-in{from{opacity:0;transform:translateY(4px)}}
 .cwb-dot{position:absolute;left:${dotX}%;top:${dotY}%;width:${dotD}%;aspect-ratio:1;margin:-${dotD / 2}% 0 0 -${dotD / 2}%;border-radius:50%;background:var(--v);transform:scale(0)}
 html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:cwb-dot .34s cubic-bezier(.3,1.7,.5,1) both}
 @keyframes cwb-dot{from{transform:scale(0)}to{transform:scale(1)}}
-.cwb-mark{position:relative;width:112px;height:112px}
-.cwb-ring{position:absolute;inset:6px}
-.cwb-track{position:absolute;inset:0;border:1.5px solid var(--l)}
-.cwb-edge{position:absolute;background:var(--i)}
-.cwb-edge--t{top:0;right:0;left:0;height:1.5px;transform-origin:0 50%;transform:scaleX(0)}
-.cwb-edge--r{top:0;right:0;bottom:0;width:1.5px;transform-origin:50% 0;transform:scaleY(0)}
-.cwb-edge--b{right:0;bottom:0;left:0;height:1.5px;transform-origin:100% 50%;transform:scaleX(0)}
-.cwb-edge--l{top:0;bottom:0;left:0;width:1.5px;transform-origin:50% 100%;transform:scaleY(0)}
-.cwb-mono{position:absolute;left:24px;top:24px;width:64px;height:64px;display:block}
+.cwb-mark{position:relative;width:38px;height:38px}
+.cwb-mono{display:block;width:38px;height:38px}
 html[data-boot=out] .me-chip-mark,html[data-boot=out] .mobilebar-home svg{visibility:hidden}
 html[data-booting] #cw-skel{display:block}
 #cw-skel{position:fixed;inset:0;z-index:30;overflow:hidden;background:var(--bg);color:var(--t);font:14px/1.4 system-ui,-apple-system,sans-serif}
@@ -115,23 +109,10 @@ if(CL.length){d.setAttribute("data-cssw","");for(var i=0;i<CL.length;i++){CL[i].
 
 /** Runs inside bootScript's function, where d = <html>, W = window, h = location.hash. */
 export const introScript = `
-var P=0,shown=0,busy=0,EA=[],AT=0,A0=0,A1=0;
+var P=0,shown=0,busy=0;
 function reduce(){return d.dataset.motion==="reduced"||!!(W.matchMedia&&W.matchMedia("(prefers-reduced-motion: reduce)").matches)}
-/* The frame around the mark is a square, like the mark: it fills clockwise from the top left
-   corner, one edge after the other, with transforms only (four bars growing along their edges), so
-   it keeps moving on the compositor while the page's JavaScript is busy.
-   A new step starts from wherever the last one had got to. */
-function edges(){var b=document.getElementById("cw-boot");return b?b.querySelectorAll(".cwb-edge"):[]}
-function sc(i,v){return(i%2?"scaleY(":"scaleX(")+v+")"}
-function part(i,p){return Math.min(1,Math.max(0,p*4-i))}
-function ring(p){var e=edges(),i,f,t,s,n;if(e.length<4)return;
-  var q=A1;if(EA.length){q=A0+(A1-A0)*Math.min(1,(Date.now()-AT)/450);for(i=0;i<EA.length;i++)EA[i].cancel();EA=[]}
-  A0=q;A1=p;AT=Date.now();
-  for(i=0;i<4;i++){f=part(i,q);t=part(i,p);e[i].style.transform=sc(i,t);
-    if(reduce()||!e[i].animate||p<=q||f===t)continue;
-    s=Math.min(1,Math.max(0,(Math.max(q,i/4)-q)/(p-q)));n=Math.max(s,Math.min(1,(Math.min(p,(i+1)/4)-q)/(p-q)));
-    EA.push(e[i].animate([{transform:sc(i,f),offset:0},{transform:sc(i,f),offset:s},{transform:sc(i,t),offset:n},{transform:sc(i,t),offset:1}],{duration:450,fill:"forwards",easing:"linear"}))}}
-function setP(p){if(p>P){P=p;ring(p)}}
+/* How far the page has got (nothing draws it now: the loader is just the mark and the signature) */
+function setP(p){if(p>P)P=p}
 /* The pen writes “Curiously, Chaewon” again the way she did (lib/signature.ts, at PACE). It draws
    on a canvas from a worker, so React waking the page up can't make it stop mid-word; pen() and
    penLoop() are sent to the worker as text, so they use nothing from out here. Where there's no
@@ -180,17 +161,16 @@ function whenReady(cb){var t0=Date.now();(function poll(){
   setTimeout(poll,50)})()}
 function target(){var e=document.querySelectorAll(".me-chip-mark, .mobilebar-home svg");for(var i=0;i<e.length;i++){var r=e[i].getBoundingClientRect();if(r.width>0&&r.height>0&&r.bottom>0)return r}return null}
 function reset(){var box=document.getElementById("cw-boot");if(box&&box.getAnimations)box.getAnimations({subtree:true}).forEach(function(a){a.cancel()});
-  EA=[];AT=0;A0=A1=P=0;var a=edges();for(var i=0;i<a.length;i++)a[i].style.transform=""}
+  P=0}
 function finish(){d.removeAttribute("data-boot");reset();busy=0}
 function done(){d.dataset.boot="done";setTimeout(out,reduce()?120:260)}
 /* Everything that moves here is transform or opacity, so it runs on the compositor: a busy
    main thread (React waking the page up) can't make the monogram stall mid-flight. */
 function out(){var box=document.getElementById("cw-boot");if(!box)return finish();
-  var mono=box.querySelector(".cwb-mono"),ring=box.querySelector(".cwb-ring"),sig=box.querySelector(".cwb-sig"),bg=box.querySelector(".cwb-bg");
+  var mono=box.querySelector(".cwb-mono"),sig=box.querySelector(".cwb-sig"),bg=box.querySelector(".cwb-bg");
   d.dataset.boot="out";var t=target(),r=mono.getBoundingClientRect();
   if(!reduce()&&t&&mono.animate){
     var dx=(t.left+t.width/2)-(r.left+r.width/2),dy=(t.top+t.height/2)-(r.top+r.height/2),k=t.width/r.width;
-    ring.animate([{opacity:1,transform:"scale(1)"},{opacity:0,transform:"scale(.86)"}],{duration:240,fill:"forwards",easing:"ease-in"});
     if(sig)sig.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(6px)"}],{duration:260,fill:"forwards",easing:"ease-in"});
     mono.animate([{transform:"none"},{transform:"translate("+dx+"px,"+dy+"px) scale("+k+")"}],{duration:760,delay:160,fill:"forwards",easing:"cubic-bezier(.65,0,.25,1)"});
     if(bg)bg.animate([{opacity:1},{opacity:0}],{duration:560,delay:300,fill:"forwards",easing:"ease-out"});
