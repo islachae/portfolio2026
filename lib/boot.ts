@@ -27,6 +27,7 @@
  *    contents, and the title and picture placeholders.
  */
 
+import { MONO_TILE } from "./mono";
 import { PACE, SIGNATURE } from "./signature";
 
 // Her full stop, as a share of the drawing: the violet dot lands there, a little wider than the pen
@@ -189,10 +190,10 @@ function out(){var box=document.getElementById("cw-boot");if(!box)return finish(
   var mono=box.querySelector(".cwb-mono"),ring=box.querySelector(".cwb-ring"),sig=box.querySelector(".cwb-sig"),bg=box.querySelector(".cwb-bg");
   d.dataset.boot="out";var t=target(),r=mono.getBoundingClientRect();
   if(!reduce()&&t&&mono.animate){
-    var dx=(t.left+t.width/2)-(r.left+r.width/2),dy=(t.top+t.height/2)-(r.top+r.height/2),k=t.width/r.width;
+    var dx=(t.left+t.width/2)-(r.left+r.width/2),dy=(t.top+t.height/2)-(r.top+r.height/2),k=t.width*${(1088 / MONO_TILE).toFixed(4)}/r.width;
     ring.animate([{opacity:1,transform:"scale(1)"},{opacity:0,transform:"scale(.86)"}],{duration:240,fill:"forwards",easing:"ease-in"});
     if(sig)sig.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(6px)"}],{duration:260,fill:"forwards",easing:"ease-in"});
-    mono.animate([{transform:"none"},{transform:"translate("+dx+"px,"+dy+"px) scale("+k+")"}],{duration:760,delay:160,fill:"forwards",easing:"cubic-bezier(.65,0,.25,1)"});
+    mono.animate([{transform:"none",clipPath:"inset(0)"},{transform:"translate("+dx+"px,"+dy+"px) scale("+k+")",clipPath:"inset(${(((1088 - MONO_TILE) / 2 / 1088) * 100).toFixed(2)}%)"}],{duration:760,delay:160,fill:"forwards",easing:"cubic-bezier(.65,0,.25,1)"});
     if(bg)bg.animate([{opacity:1},{opacity:0}],{duration:560,delay:300,fill:"forwards",easing:"ease-out"});
     setTimeout(finish,930)}
   else{if(box.animate)box.animate([{opacity:1},{opacity:0}],{duration:260,fill:"forwards"});setTimeout(finish,280)}}

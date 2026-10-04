@@ -58,7 +58,7 @@ export function NameChip() {
   return (
     <div className="me-chip">
       <a className="me-chip-main" href="/" onClick={inApp(() => goHome("top"))} aria-label={`${profile.name}, ${profile.role}. Home`}>
-        <Monogram size={28} className="me-chip-mark" />
+        <Monogram size={30} className="me-chip-mark" tile />
         <span className="me-chip-name">{profile.name}</span>
         <span className="me-chip-role">{profile.role}</span>
       </a>
@@ -76,7 +76,7 @@ export function PhoneBar() {
   return (
     <header className="mobilebar pb">
       <a className="mobilebar-home" href="/" onClick={inApp(() => goHome("top"))}>
-        <Monogram size={24} />
+        <Monogram size={24} tile />
         <span>{profile.name}</span>
       </a>
       <ChatToggle compact onClick={openChat} />
@@ -118,7 +118,7 @@ export function PhoneMenu({ at }: { at: NavPlace }) {
         >
           <div className="pm-bar">
             <span className="mobilebar-home">
-              <Monogram size={24} />
+              <Monogram size={24} tile />
               <span>{profile.name}</span>
             </span>
             <button className="icon-btn" onClick={() => setNavOpen(false)} aria-label="Close menu" autoFocus>

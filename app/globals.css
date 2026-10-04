@@ -3632,9 +3632,6 @@ button.handoff-row:hover .handoff-sym {
     font-size: 15px;
     text-transform: uppercase;
   }
-  .mobilebar-home svg {
-    border-radius: 6px;
-  }
   .sidebar {
     position: fixed;
     top: 0;
@@ -8072,7 +8069,7 @@ html[data-motion="reduced"] .hi-fly {
     font-size: 14px;
   }
   .me-chip-role {
-    max-width: 140px;
+    max-width: 160px;
     overflow: hidden;
     color: var(--text-muted);
     font-size: 13px;
@@ -10173,7 +10170,7 @@ html[data-motion="reduced"] .top-link::after {
   .me-chip:hover .me-chip-role,
   .me-chip:focus-within .me-chip-role,
   .me-chip:has([aria-expanded="true"]) .me-chip-role {
-    max-width: 140px;
+    max-width: 160px;
     opacity: 1;
   }
 }

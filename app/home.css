@@ -66,8 +66,24 @@ html[data-booting] .nh {
   }
   /* the chip always shows her role here (the old one folded it away to make room for the rail) */
   .nh-top .me-chip .me-chip-role {
-    max-width: 140px;
+    max-width: 160px;
     opacity: 1;
+  }
+  /* the mark is a square tile flush with the box's left edge; the name and the role speak in the
+     label voice (mono caps), like the menu on the right */
+  .nh-top .me-chip {
+    height: 32px;
+  }
+  .nh-top .me-chip-main {
+    gap: 10px;
+    padding: 0 12px 0 0;
+  }
+  .nh-top .me-chip-name,
+  .nh-top .me-chip .me-chip-role {
+    font-family: var(--font-code);
+    font-size: var(--label-size);
+    letter-spacing: var(--label-tracking);
+    text-transform: uppercase;
   }
   .nh-top .me-chip-main {
     color: inherit;
@@ -632,9 +648,6 @@ html[data-motion="reduced"] .nh *::after {
   font-family: var(--font-code);
   font-size: 12px;
   text-transform: uppercase;
-}
-.pm-bar .mobilebar-home svg {
-  border-radius: 6px;
 }
 .pm-links {
   display: flex;

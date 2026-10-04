@@ -88,7 +88,7 @@ export function CommandPalette() {
         group: "Actions",
         title: "Replay the intro",
         sub: "The loading screen slow connections see",
-        icon: <Monogram size={20} />,
+        icon: <Monogram size={20} tile />,
         terms: "intro loader loading screen replay monogram splash",
         run: () => {
           // Let the palette close first, then run the loader from lib/boot.ts
