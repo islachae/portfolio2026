@@ -265,13 +265,18 @@ html[data-booting] .nh {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-xl) var(--space-md);
   }
-  .nh-card--play .nh-card-title {
-    font-size: 16px;
-    letter-spacing: -0.02em;
-  }
-  .nh-card--play .nh-card-tag,
-  .nh-card--play .nh-card-end {
+  .nh-card--play .nh-card-title,
+  .nh-card--play .nh-card-line {
     display: none;
+  }
+  .nh-card--play .nh-card-name {
+    display: block;
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
   }
 }
 .nh-sech {
@@ -307,80 +312,49 @@ html[data-booting] .nh {
   height: 100%;
   object-fit: cover;
 }
+/* the large line: what it is, for whom */
+.nh-card-title {
+  display: block;
+  margin-top: 14px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+/* under it: name • status year, and (on hover) what a click does */
 .nh-card-line {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-md);
+  gap: 2px var(--space-md);
   min-height: 18px;
-  margin-top: 14px;
+  margin-top: 4px;
 }
 .nh-card-line .label {
   white-space: nowrap;
-}
-.nh-card-line .label:first-child {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* the year gives way to what a click does */
-.nh-card-end {
-  display: inline-grid;
-  justify-items: end;
-}
-.nh-card-end > span {
-  grid-area: 1 / 1;
-  transition: opacity 0.2s;
 }
 .nh-card-go {
   padding-right: 4px;
   color: var(--text);
   opacity: 0;
+  transition: opacity 0.2s;
 }
 .nh-card-arrow {
   display: inline-block;
   margin-left: 0.5em;
   transition: transform 0.25s var(--ease-out);
 }
-.nh-card-title {
-  display: flex;
-  align-items: center;
-  margin-top: 2px;
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.3;
-}
-.nh-card-title::before {
-  content: "";
-  flex: none;
-  width: 0;
-  height: 6px;
-  margin-right: 0;
-  background: var(--accent-1);
-  transition: width 0.2s var(--ease-out), margin 0.2s var(--ease-out);
-}
-.nh-card-tag {
-  display: block;
-  color: var(--text-muted);
-  font-size: 15px;
-  line-height: 1.45;
+.nh-card-name {
+  display: none;
 }
 a.nh-card:hover .nh-card-media,
 a.nh-card:focus-visible .nh-card-media {
   border-color: var(--text);
 }
-a.nh-card:hover .nh-card-title::before,
-a.nh-card:focus-visible .nh-card-title::before {
-  width: 6px;
-  margin-right: 9px;
-}
-a.nh-card:hover .nh-card-year,
-a.nh-card:focus-visible .nh-card-year {
-  opacity: 0;
-}
-a.nh-card:hover .nh-card-go,
+.nh-card:hover .nh-card-go,
 a.nh-card:focus-visible .nh-card-go {
   opacity: 1;
 }
@@ -391,21 +365,28 @@ a.nh-card:focus-visible .nh-card-media {
   outline: 2px solid var(--accent-1);
   outline-offset: 3px;
 }
-/* no page of its own yet */
+/* no page of its own yet: dimmed, and it says “Coming soon” where the others say what a click does */
+.nh-card[data-soon] {
+  cursor: default;
+}
 .nh-card[data-soon] .nh-card-media img {
   opacity: 0.42;
 }
-.nh-card[data-soon] .nh-card-title {
+.nh-card[data-soon] .nh-card-title,
+.nh-card[data-soon] .nh-card-go {
   color: var(--text-muted);
 }
-/* small screens and touch: there is no hover, so what a tap does is always written */
+/* touch: there is no hover, so what a tap does is always written */
 @media (hover: none) {
-  .nh-card-year {
-    opacity: 0;
-  }
   .nh-card-go {
     color: var(--text-muted);
     opacity: 1;
+  }
+}
+/* phones: it gets a line of its own, so every card reads the same way */
+@media (max-width: 799px) {
+  .nh-card-go {
+    flex-basis: 100%;
   }
 }
 

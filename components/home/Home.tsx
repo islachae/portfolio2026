@@ -133,20 +133,28 @@ function Clock() {
   );
 }
 
-/** "Payment UX • Concept 2025" → the label, and the year for the right end of the line. */
-function labelOf(p: Page) {
-  const m = /^(.*?)(?:\s*•\s*|\s+)(\d{4})$/.exec(p.meta);
-  return { label: m ? m[1] : p.meta, year: m ? m[2] : (p.year ?? "") };
+/** The large line: the card's own headline, or the tagline (a single sentence loses its full stop). */
+const headlineOf = (p: Page) => p.headline ?? p.tagline.replace(/^([^.]*)\.$/, "$1");
+
+/** After the name: status and year. Falls back to `meta`: "Motion • 3D • 2026" → "Motion · 3D 2026". */
+function cardLine(p: Page) {
+  if (p.card) return p.card;
+  const parts = p.meta.split(/\s*•\s*/);
+  const year = /^\d{4}$/.test(parts[parts.length - 1]) ? parts.pop() : "";
+  return [parts.join(" · "), year].filter(Boolean).join(" ");
 }
 
 /**
- * One project. The whole card is the link: a work card opens its case study, a play card its
- * page. ZipFlow has no case study yet, so its card says so and doesn't open anything.
- * Play cards are the same card; on phones they sit two to a row and drop the one-line tagline.
+ * One project, labelled the way Rachel Chen labels hers: a large line that says what it is and
+ * for whom, and under it the project's name, its status and the year.
+ * The whole card is the link: a work card opens its case study, a play card its page; what a
+ * click does appears at the end of the small line on hover or focus (always, on touch screens).
+ * ZipFlow has no case study yet: its card doesn't open anything and says “Coming soon” there.
+ * Phones show the play pieces as small cards, two to a row, with just the name.
  */
 function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
   const { openCase, openPlay } = useShell();
-  const { label, year } = labelOf(p);
+  const headline = headlineOf(p);
   const soon = p.status === "soon";
   const toCase = isCaseId(p.id) ? p.id : null;
   const toPlay = isPlayId(p.id) ? p.id : null;
@@ -157,21 +165,23 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
   const body = (
     <>
       <span className="nh-card-media">{p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}</span>
+      <span className="nh-card-title">{headline}</span>
       <span className="nh-card-line">
-        <span className="label">{label}</span>
-        {soon ? (
-          <span className="label">Coming soon</span>
-        ) : (
-          <span className="label nh-card-end">
-            <span className="nh-card-year">{year}</span>
-            <span className="nh-card-go" aria-hidden>
+        <span className="label">{`${p.title} • ${cardLine(p)}`}</span>
+        <span className="label nh-card-go" aria-hidden>
+          {soon ? (
+            "Coming soon"
+          ) : (
+            <>
               {toCase ? "Read case study" : "Open"} <span className="nh-card-arrow">→</span>
-            </span>
-          </span>
-        )}
+            </>
+          )}
+        </span>
       </span>
-      <span className="nh-card-title">{p.title}</span>
-      <span className="nh-card-tag">{p.tagline}</span>
+      {/* phones' small play cards show this instead of the two lines above */}
+      <span className="nh-card-name" aria-hidden>
+        {p.title}
+      </span>
     </>
   );
 
@@ -179,13 +189,14 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
     return (
       <div className={`nh-card${play ? " nh-card--play" : ""}`} data-soon="">
         {body}
+        <span className="sr-only">Coming soon</span>
       </div>
     );
   return (
     <a
       className={`nh-card${play ? " nh-card--play" : ""}`}
       href={href}
-      aria-label={`${p.title}. ${p.tagline} ${toCase ? "Read the case study" : "Open"}`}
+      aria-label={`${p.title}: ${headline}. ${toCase ? "Read the case study" : "Open"}`}
       onPointerEnter={warm}
       onFocus={warm}
       onClick={(e) => {

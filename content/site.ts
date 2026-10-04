@@ -33,6 +33,13 @@ export type Page = {
   meta: string;
   /** Year shown in the sidebar */
   year?: string;
+  /**
+   * Home card, labelled the way Rachel Chen labels hers: `headline` is the large line (what the
+   * project is, for whom, in plain words) and under it goes “<title> • <card>” (status and year).
+   * Without them the card falls back to the tagline and to `meta`.
+   */
+  headline?: string;
+  card?: string;
   /** Home card: the thumbnail (and, once, a small label on it) */
   tag?: string;
   thumb?: string;
@@ -126,6 +133,8 @@ export const pages: Page[] = [
     year: "2025",
     tag: "Payment UX",
     thumb: "/work/tipping.webp",
+    headline: "AI-assisted tipping that’s fairer for delivery apps",
+    card: "Concept 2025",
     group: "work",
     title: "Rethinking Tipping",
     ticker: "TIP",
@@ -157,6 +166,8 @@ export const pages: Page[] = [
     year: "2024",
     tag: "AI Companion",
     thumb: "/work/pebbo.webp",
+    headline: "AI companion that listens when eating brings guilt",
+    card: "Side project 2024",
     group: "work",
     title: "Pebbo",
     ticker: "PEBO",
@@ -190,6 +201,8 @@ export const pages: Page[] = [
     tag: "In progress",
     group: "progress",
     thumb: "/work/melon.webp",
+    headline: "Helping students catch key school emails, and advisors hear back",
+    card: "In progress 2026",
     title: "CMU Melon",
     ticker: "MELN",
     kind: "Communication · In progress",
@@ -221,6 +234,8 @@ export const pages: Page[] = [
     year: "2026",
     tag: "B2B SaaS",
     thumb: "/work/zipflow.webp",
+    headline: "Real estate SaaS: enter a listing once, use it everywhere",
+    card: "Team project 2026",
     group: "work",
     title: "ZipFlow",
     ticker: "ZIPF",
