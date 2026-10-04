@@ -20,7 +20,7 @@ export const aboutPage = {
     label: "Intro",
     title: "안녕! I’m Chaewon",
     badges: [
-      { icon: "pin", text: "New York City" },
+      { icon: "pin", text: "Pittsburgh" },
       { icon: "cap", text: "MDes, Carnegie Mellon" },
     ],
     text: about.intro,

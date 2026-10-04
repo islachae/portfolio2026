@@ -340,7 +340,7 @@ export const pages: Page[] = [
   },
   {
     id: "about",
-    meta: "About me • New York",
+    meta: "About me • Pittsburgh",
     group: "more",
     title: "About me",
     heading: "안녕! I’m Chaewon",
@@ -349,7 +349,7 @@ export const pages: Page[] = [
     tagline: "Interactive artist turned product designer.",
     summary: [],
     facts: [
-      { label: "Based in", value: "New York City" },
+      { label: "Based in", value: "Pittsburgh" },
       { label: "Studying", value: "MDes, Carnegie Mellon" },
       { label: "Before design", value: "Interactive art · 6 shows" },
       { label: "Speaks", value: "English, Korean, Spanish" },
