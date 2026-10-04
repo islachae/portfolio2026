@@ -72,15 +72,11 @@ export function Home({ hidden }: { hidden: boolean }) {
         </ul>
       </section>
 
-      <section className="nh-play" id="play" aria-labelledby="nh-play-h">
-        <header className="nh-sech">
-          <h2 className="label" id="nh-play-h">
-            Play
-          </h2>
-          <span className="label" aria-hidden>
-            {String(fun.length).padStart(2, "0")}
-          </span>
-        </header>
+      <section className="nh-play" id="play" aria-label="Play">
+        {/* no rule, no label: one line in the voice of the introduction turns the page to play */}
+        <h2 className="nh-say nh-play-h">
+          <span className="nh-dim">The rest is</span> play<span className="nh-dim">.</span>
+        </h2>
         <ul className="nh-grid nh-grid--play">
           {fun.map((p) => (
             <li key={p.id}>
@@ -325,7 +321,7 @@ function SayHi() {
   const { copyEmail } = useShell();
   return (
     <section className="nh-hi" id="hi" aria-label="Say hi">
-      <h2 className="nh-bye">
+      <h2 className="nh-say">
         <span lang="ko">안녕</span> <span className="nh-dim">means hi.</span>
         <br />
         <span className="nh-dim">It also means</span> bye<span className="nh-dim">.</span>

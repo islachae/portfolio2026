@@ -251,6 +251,18 @@ html[data-booting] .nh {
 .nh-play {
   margin-top: 72px;
 }
+/* “The rest is play.”: what separates the play pieces from the work is a sentence, not a rule */
+.nh-play .nh-play-h {
+  margin-bottom: var(--space-md);
+}
+@media (min-width: 800px) {
+  .nh-play {
+    margin-top: 104px;
+  }
+  .nh-play .nh-play-h {
+    margin-bottom: 22px;
+  }
+}
 .nh-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -283,18 +295,6 @@ html[data-booting] .nh {
     letter-spacing: -0.02em;
     line-height: 1.3;
   }
-}
-.nh-sech {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: var(--space-xxl);
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-}
-.nh-sech h2 {
-  margin: 0;
-  color: var(--text);
 }
 
 .nh-card {
@@ -466,8 +466,9 @@ html[data-motion="reduced"] .nh *::after {
     padding: 56px 0 64px;
   }
 }
-/* the same voice as the sentence at the top: key words in ink, the rest pale */
-.nh-bye {
+/* the same voice as the sentence at the top: key words in ink, the rest pale
+   (“The rest is play.” above the play pieces, and the goodbye here) */
+.nh-say {
   margin: 0;
   color: var(--text);
   font-family: var(--font-display);
@@ -522,7 +523,7 @@ html[data-motion="reduced"] .nh *::after {
   color: var(--accent-1);
 }
 @media (max-width: 799px) {
-  .nh-bye {
+  .nh-say {
     font-size: 23px;
   }
 }
