@@ -152,7 +152,9 @@ export function ShaderHero({ active }: { active: boolean }) {
           <ShaderGradientCanvas
             style={{ position: "absolute", inset: 0 }}
             fov={50}
-            pixelDensity={3}
+            // 2.5 canvas pixels per CSS pixel: on a 2x screen the grain still blends as softly as at 3,
+            // for about two thirds of the pixels drawn each frame (at 2 it turns hard and sandy)
+            pixelDensity={2.5}
           >
             <ShaderGradient
               type="waterPlane"
