@@ -996,7 +996,7 @@ html[data-motion="reduced"] .nh *::after {
   bottom: 0;
   left: 0;
   z-index: 60;
-  height: 250px;
+  height: 270px;
   overflow: hidden;
   border-top: 1px solid var(--border);
   background: var(--bg);
@@ -1074,21 +1074,62 @@ html[data-motion="reduced"] .nh *::after {
   bottom: 0;
   left: 72px;
   width: 40px;
-  height: 40px;
   will-change: transform;
 }
-.rn-face svg {
+.rn-head,
+.rn-head svg,
+.rn-body {
   display: block;
-  animation: rn-bob 0.28s steps(2) infinite;
 }
-.rn[data-air] .rn-face svg,
-.rn[data-state="over"] .rn-face svg {
-  animation: none;
+/* the head dips with each stride */
+.rn-head {
+  animation: rn-bob 0.24s steps(2) infinite;
 }
 @keyframes rn-bob {
   50% {
-    transform: translateY(-3px);
+    transform: translateY(1.5px);
   }
+}
+/* the body: same ink as the face, tucked up under the chin */
+.rn-body {
+  margin-top: -4px;
+  fill: var(--accent-1);
+}
+.rn-body g {
+  opacity: 0;
+}
+.rn-a {
+  animation: rn-a 0.24s steps(1) infinite;
+}
+.rn-b {
+  animation: rn-b 0.24s steps(1) infinite;
+}
+@keyframes rn-a {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes rn-b {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* in the air: legs tucked, arms up; stopped: she stands */
+.rn[data-air] .rn-head,
+.rn[data-state="over"] .rn-head,
+.rn[data-air] .rn-body g,
+.rn[data-state="over"] .rn-body g {
+  animation: none;
+}
+.rn[data-air] .rn-j,
+.rn[data-state="over"] .rn-a {
+  opacity: 1;
 }
 .rn[data-state="over"] .rn-face {
   opacity: 0.45;
