@@ -133,40 +133,22 @@ export const melonCase = {
     ],
     assumptionsTitle: "What we assumed, and what held",
     assumptions: [
-      { a: "If information is sent, students are informed.", v: "broke" as Verdict, why: "Students let anything without a date or consequence pass by, then went back to wherever they first saw it." },
-      { a: "Students can tell what’s urgent or important.", v: "broke" as Verdict, why: "Importance was personal: a due date or a consequence. “Important” in a subject line didn’t decide it." },
-      { a: "Students check email often.", v: "held" as Verdict, why: "They do, and they also use it as storage: starring, and searching “Donna” to find things again." },
-      { a: "Email is the most effective channel.", v: "partly" as Verdict, why: "For Donna it’s a paper trail she relies on. Students pieced events together from email, Slack, a newsletter and posters." },
+      { a: "If information is sent, students are informed.", v: "broke" as Verdict, why: "Students let anything without a date or consequence pass by, then went back to wherever they first saw it. Donna re-sends to everyone once two or three students ask the same thing.", said: { q: "I don’t get to know.", who: "Donna" } },
+      { a: "Students can tell what’s urgent or important.", v: "broke" as Verdict, why: "Importance was personal: a due date or a consequence. Seeing something several times told them more than the word in the subject line.", said: { q: "…I kept seeing it multiple times, so I started thinking it must be important.", who: "First-year student" } },
+      { a: "Students check email often.", v: "held" as Verdict, why: "They do, and they also use it as storage, starring messages to find them again.", said: { q: "I search “Donna” all the time.", who: "Student" } },
+      { a: "Email is the most effective channel.", v: "partly" as Verdict, why: "Donna relies on it as a record. Students pieced events together from email, Slack, a newsletter and posters.", said: { q: "…a paper trail.", who: "Donna" } },
     ],
   },
 
+  // What used to be its own section, “What we heard”: the one-picture finding and the closing quote
+  // now sit in Research, and what was said is quoted under each assumption there (`said`).
   heard: {
-    label: "What we heard",
-    title: ["Both sides tried hard.", "Nothing connected them."],
     flow: {
       from: "Donna",
       to: "Students",
       out: "Email, Slack, reminders",
       back: "Only when someone writes in",
     },
-    insights: [
-      {
-        h: "Repetition, not labels, told students what mattered",
-        quotes: [{ q: "…I kept seeing it multiple times, so I started thinking it must be important.", who: "First-year student" }],
-      },
-      {
-        h: "Everyone used email as a filing cabinet",
-        quotes: [
-          { q: "I search “Donna” all the time.", who: "Student" },
-          { q: "…a paper trail.", who: "Donna" },
-        ],
-      },
-      {
-        h: "Donna couldn’t see what landed",
-        quotes: [{ q: "I don’t get to know.", who: "Donna" }],
-        note: "She re-sends to everyone once two or three students ask the same thing.",
-      },
-    ],
     pull: { q: "There are many days I come here and I feel like I’m just in an email factory.", src: "Donna" },
   },
 

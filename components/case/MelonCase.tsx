@@ -20,7 +20,6 @@ export function MelonCase() {
       <Gap />
       <Scope />
       <Research />
-      <Heard />
       <Survey />
       <Frame />
       <Directions />
@@ -202,6 +201,7 @@ const VERDICT: Record<Verdict, string> = { held: "Held", partly: "Partly", broke
 
 function Research() {
   const r = C.research;
+  const h = C.heard;
   return (
     <Section label={r.label} id="ml-research">
       <h2 className="cs-h2">
@@ -219,29 +219,6 @@ function Research() {
         ))}
       </ul>
 
-      <h3 className="cs-h3 ml-h3">{r.assumptionsTitle}</h3>
-      <ul className="ml-assume">
-        {r.assumptions.map((a) => (
-          <li key={a.a} data-v={a.v}>
-            <span className="ml-assume-a">{a.a}</span>
-            <span className="ml-verdict" data-v={a.v}>
-              {VERDICT[a.v]}
-            </span>
-            <span className="ml-assume-why">{a.why}</span>
-          </li>
-        ))}
-      </ul>
-    </Section>
-  );
-}
-
-function Heard() {
-  const h = C.heard;
-  return (
-    <Section label={h.label} id="ml-heard">
-      <h2 className="cs-h2">
-        <Lines lines={h.title} />
-      </h2>
       {/* The whole finding in one picture: messages go out, almost nothing comes back */}
       <div className="ml-flow" role="img" aria-label={`${h.flow.from} to ${h.flow.to}: ${h.flow.out}. Back: ${h.flow.back}.`}>
         <span className="ml-flow-node">{h.flow.from}</span>
@@ -257,21 +234,24 @@ function Heard() {
         </span>
         <span className="ml-flow-node">{h.flow.to}</span>
       </div>
-      <ol className="ml-insights">
-        {h.insights.map((it, i) => (
-          <li key={it.h}>
-            <span className="ml-insight-n">0{i + 1}</span>
-            <h3 className="ml-insight-h">{it.h}</h3>
-            {it.quotes.map((q) => (
-              <figure className="ml-insight-q" key={q.q}>
-                <blockquote>“{q.q}”</blockquote>
-                <figcaption>{q.who}</figcaption>
-              </figure>
-            ))}
-            {"note" in it && it.note ? <p className="ml-insight-note">{it.note}</p> : null}
+
+      <h3 className="cs-h3 ml-h3">{r.assumptionsTitle}</h3>
+      <ul className="ml-assume">
+        {r.assumptions.map((a) => (
+          <li key={a.a} data-v={a.v}>
+            <span className="ml-assume-a">{a.a}</span>
+            <span className="ml-verdict" data-v={a.v}>
+              {VERDICT[a.v]}
+            </span>
+            <span className="ml-assume-why">{a.why}</span>
+            {/* what someone said that settled it */}
+            <figure className="ml-insight-q ml-assume-q">
+              <blockquote>“{a.said.q}”</blockquote>
+              <figcaption>{a.said.who}</figcaption>
+            </figure>
           </li>
         ))}
-      </ol>
+      </ul>
       <figure className="ml-pull">
         <blockquote>“{h.pull.q}”</blockquote>
         <figcaption>{h.pull.src}</figcaption>
@@ -498,3 +478,4 @@ function Advisor() {
     </Section>
   );
 }
+

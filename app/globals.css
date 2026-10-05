@@ -10911,6 +10911,21 @@ html[data-motion="reduced"] .top-link::after {
   line-height: 1.55;
 }
 
+.ml-assume-q {
+  grid-column: 1 / -1;
+  max-width: 600px;
+  margin-top: 6px;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+}
+.ml-assume-q blockquote {
+  color: var(--text);
+}
+.ml-assume-q figcaption {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
 /* ── What we heard ── */
 .ml-heard {
   display: grid;
