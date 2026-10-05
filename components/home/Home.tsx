@@ -143,6 +143,71 @@ function cardLine(p: Page) {
 }
 
 
+
+/**
+ * Small lights that drift up over a card's picture and fade (Wish Tree). Where each one starts,
+ * how big it is and how long it takes are fixed here, so the page draws the same ones every time.
+ * They only move while the card is on screen and Home is the page in front; CSS does the moving
+ * (app/home.css, .nh-lights), and holds them still with reduced motion.
+ */
+const LIGHTS = (() => {
+  let s = 7;
+  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const colors = ["#ff9bd0", "#8dffb0", "#ffe27a", "#c7a6ff", "#8fd0ff", "#ffb38a"];
+  return Array.from({ length: 30 }, () => {
+    const t = 12 + rnd() * 16;
+    return {
+      "--x": `${(18 + rnd() * 78).toFixed(1)}%`,
+      "--y": `${(38 + rnd() * 58).toFixed(1)}%`,
+      "--d": `${(0.26 + rnd() * 0.32).toFixed(2)}cqw`,
+      "--c": colors[Math.floor(rnd() * colors.length)],
+      "--o": (0.55 + rnd() * 0.4).toFixed(2),
+      "--t": `${t.toFixed(1)}s`,
+      "--dl": `${(-rnd() * t).toFixed(1)}s`,
+      "--sw": `${(0.5 + rnd() * 0.9).toFixed(2)}cqw`,
+      "--ts": `${(2.4 + rnd() * 3.6).toFixed(1)}s`,
+    } as React.CSSProperties;
+  });
+})();
+
+function CardLights() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    const media = el?.parentElement;
+    if (!el || !media) return;
+    const root = document.documentElement;
+    const home = el.closest(".nh");
+    let inView = false;
+    const sync = () => {
+      const on = inView && !root.dataset.boot && !home?.hasAttribute("data-hidden");
+      media.setAttribute("data-lights", on ? "on" : "");
+    };
+    const io = new IntersectionObserver(
+      ([e]) => {
+        inView = e.isIntersecting;
+        sync();
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(media);
+    const mo = new MutationObserver(sync);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-boot"] });
+    if (home) mo.observe(home, { attributes: true, attributeFilter: ["data-hidden"] });
+    return () => {
+      io.disconnect();
+      mo.disconnect();
+    };
+  }, []);
+  return (
+    <span className="nh-lights" ref={ref} aria-hidden>
+      {LIGHTS.map((style, i) => (
+        <i key={i} style={style} />
+      ))}
+    </span>
+  );
+}
+
 /**
  * A card whose picture moves. A short clip plays once when the card is on screen, and again each
  * time the pointer or focus comes to the card, then rests on its last frame (the poster is that
@@ -233,8 +298,9 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
 
   const body = (
     <>
-      <span className="nh-card-media">
+      <span className="nh-card-media" data-lights={p.lights ? "" : undefined}>
         {p.clip && p.thumb ? <CardClip clip={p.clip} poster={p.thumb} /> : p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}
+        {p.lights && <CardLights />}
       </span>
       <span className="nh-card-title">{headline}</span>
       <span className="nh-card-line">

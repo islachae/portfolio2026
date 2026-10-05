@@ -397,6 +397,67 @@ html[data-motion="reduced"] .shader-drift {
   height: 100%;
   object-fit: cover;
 }
+/* Lights over a card's picture (Wish Tree): each drifts up about 40% of the card and fades, swaying
+   a little. Sizes are in cqw so they keep their proportion on the small phone cards. They run only
+   while data-lights="on" (CardLights sets it when the card is on screen). */
+.nh-card-media[data-lights] {
+  position: relative;
+  container-type: inline-size;
+}
+.nh-lights {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.nh-lights i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: max(1.5px, var(--d));
+  height: max(1.5px, var(--d));
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 1cqw 0.28cqw var(--c), 0 0 2.4cqw 0.5cqw var(--c);
+  opacity: 0;
+  animation:
+    nh-light-rise var(--t) linear var(--dl) infinite,
+    nh-light-sway var(--ts) ease-in-out var(--dl) infinite alternate;
+  animation-play-state: paused;
+}
+.nh-card-media[data-lights="on"] .nh-lights i {
+  animation-play-state: running;
+}
+@keyframes nh-light-rise {
+  0% {
+    translate: 0 0;
+    opacity: 0;
+  }
+  14% {
+    opacity: var(--o);
+  }
+  34% {
+    opacity: calc(var(--o) * 0.55);
+  }
+  52% {
+    opacity: var(--o);
+  }
+  74% {
+    opacity: calc(var(--o) * 0.5);
+  }
+  100% {
+    translate: 0 -23cqw;
+    opacity: 0;
+  }
+}
+@keyframes nh-light-sway {
+  from {
+    transform: translateX(calc(var(--sw) * -1));
+  }
+  to {
+    transform: translateX(var(--sw));
+  }
+}
 /* the large line: what it is, for whom */
 .nh-card-title {
   display: block;
@@ -513,6 +574,18 @@ a.nh-card:focus-visible .nh-card-media {
 @media (hover: none) {
   .nh-cursor {
     display: none;
+  }
+}
+
+/* Reduced motion: the card lights stay where they are, lit */
+html[data-motion="reduced"] .nh-lights i {
+  animation: none;
+  opacity: calc(var(--o) * 0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nh-lights i {
+    animation: none;
+    opacity: calc(var(--o) * 0.7);
   }
 }
 

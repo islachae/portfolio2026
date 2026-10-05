@@ -47,6 +47,8 @@ export type Page = {
    *  (`thumb` is that frame); a `loop` one keeps playing while the card is on screen (`thumb` is a
    *  frame from it). Either way `thumb` is what shows wherever video can't play. */
   clip?: { mp4: string; webm: string; loop?: boolean };
+  /** Home card: small lights that drift up over the still (Wish Tree) */
+  lights?: boolean;
   /** Extra words ⌘K search matches on */
   keywords: string[];
   /** The deck's big heading when it shouldn't just be the page name (About: “안녕! I’m Chaewon”) */
@@ -308,6 +310,7 @@ export const pages: Page[] = [
     year: "2024",
     group: "fun",
     thumb: "/fun/wish-cover.webp?v=2",
+    lights: true,
     title: "Wish Tree",
     ticker: "WISH",
     kind: "XR · Gestural interaction",
