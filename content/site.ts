@@ -307,7 +307,7 @@ export const pages: Page[] = [
     meta: "XR • Gesture • 2024",
     year: "2024",
     group: "fun",
-    thumb: "/fun/wish-cover.webp",
+    thumb: "/fun/wish-cover.webp?v=2",
     title: "Wish Tree",
     ticker: "WISH",
     kind: "XR · Gestural interaction",
