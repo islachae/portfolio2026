@@ -49,7 +49,7 @@ export const tippingCase = {
         value: 58,
         suffix: "%",
         pic: { kind: "grid", of: 100 },
-        text: "say tipping experience push them to eat home instead of delivery",
+        text: "say tipping pushes them to eat at home instead of ordering delivery",
         source: "Pew Research Center, 2023",
       },
       {
@@ -75,7 +75,7 @@ export const tippingCase = {
       toAfter: "See after delivery",
       toBefore: "Back to checkout",
       /** The line under the receipt: before a pick, after a pick, and after the reveal. {tip} = the reader's pick. */
-      prompt: "Pick a tip, then see what actually happened.",
+      prompt: "Pick a tip, then see how the delivery went.",
       picked: "Locked in {tip}. Now see what happened.",
       verdict: "You tipped {tip} before knowing any of this.",
       verdictAgain: "Would you pick the same now?",
@@ -90,7 +90,7 @@ export const tippingCase = {
       { title: "No reference point", text: "Without past tipping history or clear standards, users have to decide how much to tip every time." },
       {
         title: "Best effort leads to random tip",
-        text: "Couriers who provide better service may earn less in tips than those who provide poorer service, because tips are determined before delivery.",
+        text: "Couriers who provide better service may earn less in tips than those who provide poorer service.",
       },
     ],
   },
@@ -158,9 +158,9 @@ export const tippingCase = {
         rows: [
           { label: "Core value", value: "Reduces “where's my food?” anxiety" },
           { label: "Features", value: "Live GPS map • clear status stages • visual cues on delays" },
-          { label: "Evidence", value: "Reduced customer inquiries by 20—35%" },
+          { label: "Evidence", value: "Reduced customer inquiries by 20–35%" },
         ],
-        insight: "Users value predictability. Yet tipping is decided before any service quality is known.",
+        insight: "Users value predictability. Knowing what comes next lowers anxiety.",
       },
       {
         brand: "DoorDash",
@@ -185,7 +185,7 @@ export const tippingCase = {
     label: "Solution",
     title: "Agentic AI automates the repetitive parts of tipping, using actual delivery quality and individual priorities",
     quote: [
-      { t: "Harvard Business school’s research insight stated that customers " },
+      { t: "Harvard Business School research found that customers " },
       { t: "tend to tip more", b: true },
       { t: " after confirming service quality, because " },
       { t: "outcome-based tipping feels more justified.", b: true },
@@ -269,7 +269,7 @@ export const tippingCase = {
           alt: "Tested version of the post-delivery rating screen with a plain grey avatar placeholder",
           note: "view reason button",
           title: "Hard to trust AI when its reasoning is buried",
-          text: "Users appreciated the concept, but the “View reason” button was easy to miss, leaving the tip adjustment unclear.",
+          text: "The “View reason” button was easy to miss, leaving the tip adjustment unclear.",
         },
         iterated: {
           src: img("test1-iterated"),
@@ -332,7 +332,7 @@ export const tippingCase = {
 
   system: {
     label: "Systemic thinking",
-    title: "A Self-reinforcing loop, not a customer-only solution",
+    title: "A self-reinforcing loop, not a customer-only solution",
     text: "Explore how clearer, outcome-based tipping creates better incentives for every part of the system.",
     hint: "Select a stakeholder to explore",
     // Order matters: platform (left), customers (top), couriers (right), restaurants (bottom).
@@ -351,7 +351,7 @@ export const tippingCase = {
         sub: "Less guesswork",
         arrow: "Fair, transparent tips",
         headline: "Tip with confidence in what you received.",
-        text: "Tips reflect your priorities and the service delivered, with clear explanations for adjustments and an agent to help handle issues.",
+        text: "Tips follow the service delivered, with a reason for every change.",
         benefits: ["Less tipping anxiety and guesswork", "Less effort to resolve delivery issues"],
       },
       {
@@ -359,7 +359,7 @@ export const tippingCase = {
         sub: "Service recognized",
         arrow: "Verified service quality",
         headline: "Let good service earn recognition.",
-        text: "Service strengths translate into tip rewards and achievement badges, helping couriers understand what customers value and build their reputation.",
+        text: "Good service shows up in tips and badges, and builds a reputation over time.",
         benefits: ["Rewards tied to service quality", "Recognition that builds over time"],
       },
       {
