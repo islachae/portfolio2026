@@ -10090,7 +10090,7 @@ html[data-motion="reduced"] .pb-board-head {
   }
 }
 
-/* ═════════ CMU Melon: the prototype recording ═════════
+/* ═════════ CMU Mellon: the prototype recording ═════════
    The panel keeps its own rounded corners (it's the product's UI); the stage stays square. */
 .melon-demo {
   position: relative;
@@ -10505,8 +10505,8 @@ html[data-motion="reduced"] .top-link::after {
   }
 }
 
-/* ═════════════ Case study: CMU Melon (/#case/melon) — first draft ═════════════
-   Melon's red marks what matters. Structure stays square (DESIGN.md); the product's own
+/* ═════════════ Case study: CMU Mellon (/#case/melon) — first draft ═════════════
+   Mellon's red marks what matters. Structure stays square (DESIGN.md); the product's own
    rounded UI shows up only inside screenshots. */
 .cs[data-case="melon"] {
   --cs-accent: #c8203b;
@@ -11399,7 +11399,7 @@ html[data-motion="reduced"] .top-link::after {
   }
 }
 
-/* ── Melon: lighter “What we heard”, rules and limits ── */
+/* ── Mellon: lighter “What we heard”, rules and limits ── */
 .ml-flow {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -13713,7 +13713,7 @@ html[data-motion="reduced"] .cue-head {
   }
 }
 
-/* ═════════ Melon: the student survey (/#case/melon, Survey) ═════════ */
+/* ═════════ Mellon: the student survey (/#case/melon, Survey) ═════════ */
 .cs[data-case="melon"] {
   --ml-bar: #c8203b;
   --ml-bar-rest: #8b939b;
@@ -13729,7 +13729,7 @@ html[data-motion="reduced"] .cue-head {
   --ml-bar-rest: #6b7178;
 }
 /* Three numbers: count, squares (one per student who answered), a short headline, its place in
-   Melon. Columns between hairlines; nothing else competes. */
+   Mellon. Columns between hairlines; nothing else competes. */
 .ml-finds {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

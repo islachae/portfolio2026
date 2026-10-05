@@ -56,7 +56,7 @@ export const aboutPage = {
     items: [
       {
         ...about.philosophy[0],
-        where: { project: "Melon", to: { case: "melon" as const }, text: "Each school email becomes a short summary, with a link back to the original." },
+        where: { project: "Mellon", to: { case: "melon" as const }, text: "Each school email becomes a short summary, with a link back to the original." },
       },
       {
         ...about.philosophy[1],

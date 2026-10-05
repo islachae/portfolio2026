@@ -409,14 +409,14 @@ export function PebboStage() {
 
 /* ───────────────────── MELN · the inbox that knows you ───────────────────── */
 
-/* The Melon prototype, as recorded: chapters jump through the 43-second walkthrough. */
+/* The Mellon prototype, as recorded: chapters jump through the 43-second walkthrough. */
 const MELON_CHAPTERS = [
   { t: 0, label: "Triage" },
   { t: 9, label: "Filter" },
   { t: 15, label: "Calendar" },
   { t: 21, label: "AI summary" },
   { t: 27, label: "All clear" },
-  { t: 33, label: "Ask Melon" },
+  { t: 33, label: "Ask Mellon" },
 ];
 
 export function MelonStage() {
@@ -475,7 +475,7 @@ export function MelonStage() {
             loop
             playsInline
             preload="metadata"
-            aria-label="Screen recording of the Melon prototype: sorting and bulk-clearing updates, filtering by department and sender, a calendar of what's due, an AI summary with quick actions, and asking Melon a question."
+            aria-label="Screen recording of the Mellon prototype: sorting and bulk-clearing updates, filtering by department and sender, a calendar of what's due, an AI summary with quick actions, and asking Mellon a question."
             onTimeUpdate={onTime}
             onPlay={() => setPlaying(true)}
             onPause={() => setPlaying(false)}

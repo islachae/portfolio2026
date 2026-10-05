@@ -1,5 +1,5 @@
 /**
- * CMU Melon: the case study (opens at /#case/melon). FIRST DRAFT.
+ * CMU Mellon: the case study (opens at /#case/melon). FIRST DRAFT.
  * Sources: the team's research deck (Team Shadyside), the advisor and student interview transcripts,
  * Donna's written answers about a "Mini Donna" assistant, the project hypothesis, the card and chat
  * explorations and the prototype recording. Donna agreed to be named; students are not named.
@@ -23,7 +23,7 @@ export const melonCase = {
   readingTime: "6 min",
   hero: {
     src: "/work/melon/melon-poster.webp",
-    alt: "The Melon side panel: an Updates list of school emails with All, Starred and Unread filters and an Ask Melon box",
+    alt: "The Mellon side panel: an Updates list of school emails with All, Starred and Unread filters and an Ask Mellon box",
   },
   /** Left table of contents, Rachel's way: mostly names a reader recognizes at a glance (Problem,
    *  Solution, Research…), plus one or two that only this project has. Each label matches the mono
@@ -41,7 +41,7 @@ export const melonCase = {
     { id: "cs-takeaways", label: "Reflection" },
   ],
   overview:
-    "Melon is a Gmail side panel for School of Design graduate students and their program coordinator. It sorts school email by what needs doing, summarizes each message with a link back to the original, and answers questions only from what the coordinator has already sent. On the other side, it shows her what students opened, asked and found unclear.",
+    "Mellon is a Gmail side panel for School of Design graduate students and their program coordinator. It sorts school email by what needs doing, summarizes each message with a link back to the original, and answers questions only from what the coordinator has already sent. On the other side, it shows her what students opened, asked and found unclear.",
   glance: [
     {
       k: "Problem",
@@ -158,13 +158,13 @@ export const melonCase = {
     label: "Survey · 12 students",
     title: ["The answers are out there.", "Students want certainty, with Donna behind it."],
     /** The three answers the design leans on: a count (drawn one square per student who
-     *  answered), what it means in a few words, and where it shows up in Melon. */
+     *  answered), what it means in a few words, and where it shows up in Mellon. */
     findings: [
       { n: 5, of: 9, unit: "wanted Donna’s confirmation", h: "Ask Donna to be sure, not because it’s missing", melon: "Answers link to her own email" },
       { n: 6, of: 8, unit: "asked another student instead", h: "Unasked questions go to classmates", melon: "Donna sees what students ask" },
       { n: 6, of: 7, unit: "want an AI to say when it’s unsure", h: "Trust an AI that admits doubt", melon: "Unsure? It hands over to Donna" },
     ],
-    melonLabel: "In Melon",
+    melonLabel: "In Mellon",
     open: {
       k: "Still open",
       v: "Funding: a top reason to ask Donna (4 of 9), and the topic fewest would trust an AI with (1 of 6).",
@@ -239,18 +239,18 @@ export const melonCase = {
       { h: "Feedback in one tap", why: "Students and Donna are both short on time." },
       { h: "No extra work for Donna", why: "The system already runs on her manual work." },
     ],
-    limitsTitle: "Where Melon stops",
+    limitsTitle: "Where Mellon stops",
     limitsText: "We asked Donna what a “Mini Donna” could answer without her. Her answers became three lanes.",
     lanes: [
       {
         tone: "ok",
-        k: "Melon answers",
+        k: "Mellon answers",
         v: "Anything already in her emails or the graduate handbook, with a link to the source.",
         ex: ["When does registration open?", "How do I apply for conference funding?"],
       },
       {
         tone: "unsure",
-        k: "Melon checks with Donna",
+        k: "Mellon checks with Donna",
         v: "When it isn’t confident, it says so and refers the student to her.",
         ex: ["Will this elective run in the spring?"],
       },
@@ -283,7 +283,7 @@ export const melonCase = {
   melon: {
     label: "Prototype",
     title: ["A side panel that sorts,", "summarizes and answers."],
-    text: "Melon (a nod to Mellon) sits beside Gmail, so nothing moves to a new channel and Donna keeps sending email the way she does now.",
+    text: "Mellon sits beside Gmail, so nothing moves to a new channel and Donna keeps sending email the way she does now.",
     video: { mp4: "/work/melon/melon-demo.mp4", webm: "/work/melon/melon-demo.webm", poster: "/work/melon/melon-poster.webp" },
     chapters: [
       { t: 0, k: "Sorted by what needs doing", v: "Updates show the sender, date and one action. Clear what’s done in bulk, with undo." },
@@ -291,11 +291,11 @@ export const melonCase = {
       { t: 15, k: "A calendar of what’s due", v: "Tap a date to see the updates behind it." },
       { t: 21, k: "Summary first, source one tap away", v: "Students go back to where they first saw something, and Donna keeps her paper trail, so every summary links to the original email." },
       { t: 27, k: "All clear", v: "When nothing is left, the panel says so." },
-      { t: 33, k: "Ask Melon", v: "Answers come from Donna’s emails and the handbook, with quick actions like finding a location or setting a reminder." },
+      { t: 33, k: "Ask Mellon", v: "Answers come from Donna’s emails and the handbook, with quick actions like finding a location or setting a reminder." },
     ],
     explore: [
       { src: img("card-explorations"), alt: "Nineteen variations of an update card: minimal, with tags, with priority, with snippets, with dates and actions", w: 1800, h: 1200, k: "19 ways to show one update", v: "The final card keeps the title, sender and date, an unread dot or star, and at most one action." },
-      { src: img("chat-options"), alt: "Five chat layouts for Ask Melon: minimal chat, card with quick actions, rich info with links, conversational follow-up and compact", w: 1800, h: 1200, k: "5 ways to answer", v: "The final answer is a short summary with a link to the email, then the next steps as buttons." },
+      { src: img("chat-options"), alt: "Five chat layouts for Ask Mellon: minimal chat, card with quick actions, rich info with links, conversational follow-up and compact", w: 1800, h: 1200, k: "5 ways to answer", v: "The final answer is a short summary with a link to the email, then the next steps as buttons." },
     ],
   },
 
@@ -305,7 +305,7 @@ export const melonCase = {
     text: "The same panel gives Donna what email never has: signals about how her messages landed, without adding a new tool to watch.",
     signals: [
       { k: "Reach", v: "How many students opened an update, and which ones haven’t." },
-      { k: "Questions", v: "What students asked Melon about it, grouped by topic." },
+      { k: "Questions", v: "What students asked Mellon about it, grouped by topic." },
       { k: "One clarification", v: "When the same question comes up a few times, a nudge to answer everyone at once, the move she already makes by instinct." },
     ],
     // TODO(Chaewon): add the advisor view screens
@@ -327,7 +327,7 @@ export const melonCase = {
       },
       {
         title: "Let the assistant quote the person, not imitate her",
-        text: "Donna tried AI and stopped because it didn’t sound like her. Melon answers from her own words, links back to them, and hands over anything sensitive.",
+        text: "Donna tried AI and stopped because it didn’t sound like her. Mellon answers from her own words, links back to them, and hands over anything sensitive.",
         evidence: { id: "ml-limits", label: "Evidence: where the assistant stops" },
       },
     ],

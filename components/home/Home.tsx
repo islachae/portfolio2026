@@ -142,6 +142,64 @@ function cardLine(p: Page) {
   return [parts.join(" · "), year].filter(Boolean).join(" ");
 }
 
+
+/**
+ * A card whose picture moves: a short clip that plays once when the card is on screen, and again
+ * each time the pointer or focus comes to the card, then rests on its last frame. The poster is
+ * that same frame, so the card reads the same before it plays, after, and where video can't play.
+ * It waits while the intro or another page covers Home, loads nothing until it is about to play,
+ * and never plays with reduced motion.
+ */
+function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || reducedMotion()) return;
+    const root = document.documentElement;
+    const home = v.closest(".nh");
+    const card = v.closest(".nh-card");
+    let inView = false;
+    let played = false;
+    const play = () => {
+      if (!v.paused && !v.ended) return;
+      v.currentTime = 0;
+      void v.play().catch(() => {});
+    };
+    const first = () => {
+      if (played || !inView || root.dataset.boot || home?.hasAttribute("data-hidden")) return;
+      played = true;
+      play();
+    };
+    const io = new IntersectionObserver(
+      ([e]) => {
+        inView = e.isIntersecting;
+        first();
+      },
+      { threshold: 0.6 },
+    );
+    io.observe(v);
+    // the intro leaving, or the page over Home closing, is the other moment it can start
+    const mo = new MutationObserver(first);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-boot"] });
+    if (home) mo.observe(home, { attributes: true, attributeFilter: ["data-hidden"] });
+    card?.addEventListener("pointerenter", play);
+    card?.addEventListener("focus", play);
+    return () => {
+      io.disconnect();
+      mo.disconnect();
+      card?.removeEventListener("pointerenter", play);
+      card?.removeEventListener("focus", play);
+    };
+  }, []);
+  return (
+    <video ref={ref} poster={poster} muted playsInline preload="none" aria-hidden tabIndex={-1} disablePictureInPicture>
+      {/* H.264 for Safari and most browsers; VP9 for builds without it */}
+      <source src={clip.mp4} type="video/mp4" />
+      <source src={clip.webm} type="video/webm" />
+    </video>
+  );
+}
+
 /**
  * One project, labelled the way Rachel Chen labels hers: a large line that says what it is and
  * for whom, and under it the project's name, its status and the year.
@@ -167,7 +225,9 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
 
   const body = (
     <>
-      <span className="nh-card-media">{p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}</span>
+      <span className="nh-card-media">
+        {p.clip && p.thumb ? <CardClip clip={p.clip} poster={p.thumb} /> : p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}
+      </span>
       <span className="nh-card-title">{headline}</span>
       <span className="nh-card-line">
         <span className="label">{play ? cardLine(p) : `${p.title} • ${cardLine(p)}`}</span>

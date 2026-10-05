@@ -390,7 +390,8 @@ html[data-motion="reduced"] .shader-drift {
   background: #ffffff;
   transition: border-color 0.2s;
 }
-.nh-card-media img {
+.nh-card-media img,
+.nh-card-media video {
   display: block;
   width: 100%;
   height: 100%;
@@ -923,7 +924,7 @@ html[data-motion="reduced"] .nh *::after {
   margin-top: 0;
 }
 /* the walkthrough's chips wrap instead of pushing the prototype (and the page) sideways:
-   phones, and windows around 1024px where Melon's six chips are wider than the stage */
+   phones, and windows around 1024px where Mellon's six chips are wider than the stage */
 .csx-stage {
   grid-template-columns: minmax(0, 1fr);
 }
@@ -997,7 +998,7 @@ html[data-motion="reduced"] .nh *::after {
   }
 }
 
-/* Melon's prototype section: what each part of the recording shows, as a plain list */
+/* Mellon's prototype section: what each part of the recording shows, as a plain list */
 .ml-parts {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0 40px;

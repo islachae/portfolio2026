@@ -43,6 +43,9 @@ export type Page = {
   /** Home card: the thumbnail (and, once, a small label on it) */
   tag?: string;
   thumb?: string;
+  /** Home card: a short clip in place of the still. `thumb` is its last frame (what shows before
+   *  it plays, after it ends, and wherever video can't play). */
+  clip?: { mp4: string; webm: string };
   /** Extra words ⌘K search matches on */
   keywords: string[];
   /** The deck's big heading when it shouldn't just be the page name (About: “안녕! I’m Chaewon”) */
@@ -205,16 +208,17 @@ export const pages: Page[] = [
     year: "2026",
     tag: "In progress",
     group: "progress",
-    thumb: "/work/melon.webp",
+    thumb: "/work/melon/meet-mellon.webp",
+    clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm" },
     headline: "Helping students catch key school emails, and advisors hear back",
     card: "In progress 2026",
-    title: "CMU Melon",
+    title: "CMU Mellon",
     ticker: "MELN",
     kind: "Communication · In progress",
     tagline: "School email, made two-way.",
     summary: [
       "School of Design graduate students get most program information by email from one coordinator, and each of them decides alone what matters. Almost nothing tells her what landed.",
-      "On a team of three, I led the project, mapped how orientation information reaches students, and framed the problem. Melon is a Gmail side panel that sorts school email by what needs doing, answers questions from what the coordinator already sent, and shows her what students found unclear.",
+      "On a team of three, I led the project, mapped how orientation information reaches students, and framed the problem. Mellon is a Gmail side panel that sorts school email by what needs doing, answers questions from what the coordinator already sent, and shows her what students found unclear.",
     ],
     handoff: {
       automated: ["Sorting and summarizing the inbox", "Answering from what was already sent"],
@@ -222,7 +226,7 @@ export const pages: Page[] = [
     },
     challenge: "Students couldn’t tell which school emails were meant for them, and their advisor couldn’t tell what landed.",
     didLabel: "My part",
-    did: "Led a team of 3, mapped the orientation communication system and framed the problem behind Melon, a Gmail side panel.",
+    did: "Led a team of 3, mapped the orientation communication system and framed the problem behind Mellon, a Gmail side panel.",
     facts: [
       { label: "Role", value: "Team lead · systems mapping & framing" },
       // TODO(Chaewon): exact weeks

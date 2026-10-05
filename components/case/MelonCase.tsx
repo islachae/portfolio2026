@@ -8,7 +8,7 @@ import { reducedMotion } from "../shell-context";
 import { Lines, Section, Takeaways } from "./kit";
 
 /**
- * CMU Melon: a systems project first, a product second. The page follows the work in that order:
+ * CMU Mellon: a systems project first, a product second. The page follows the work in that order:
  * the gap between sender and reader, one event traced through the system, what both sides said,
  * the framing and limits, then the panel and the advisor's side. Two interactions only:
  * the same email read two ways, and the prototype recording with its chapters.
@@ -264,7 +264,7 @@ function Research() {
 
 /**
  * The survey in three numbers. Each column: the count, one square per student who answered (the
- * ones counted in Melon red), what it means in a few words, and where it shows up in Melon. The
+ * ones counted in Mellon red), what it means in a few words, and where it shows up in Mellon. The
  * funding question we haven't settled is one line under it, and every answer stays one click away
  * under “All answers” (bar charts, count at the tip, share on hover).
  */

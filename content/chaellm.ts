@@ -29,8 +29,8 @@ const answers: Answer[] = [
   },
   {
     q: "What are you working on right now?",
-    keys: ["working on", "right now", "current", "melon", "cmu melon", "in progress"],
-    a: "CMU Melon, for students and advisors at Carnegie Mellon. School email buries the one message that matters, so Melon sorts and summarizes the inbox. What matters to you, and when to reach out, stays with you. It’s still in progress.",
+    keys: ["working on", "right now", "current", "mellon", "cmu mellon", "melon", "cmu melon", "in progress"],
+    a: "CMU Mellon, for students and advisors at Carnegie Mellon. School email buries the one message that matters, so Mellon sorts and summarizes the inbox. What matters to you, and when to reach out, stays with you. It’s still in progress.",
     follow: ["How do you design with AI?", "Tell me about ZipFlow", "Are you open to internships?"],
   },
   {

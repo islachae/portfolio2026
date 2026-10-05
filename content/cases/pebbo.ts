@@ -396,5 +396,5 @@ export const pebboCase = {
     back: "Back to takeaways",
   },
 
-  next: { id: "melon" as const, title: "CMU Melon", line: "School email, made two-way." },
+  next: { id: "melon" as const, title: "CMU Mellon", line: "School email, made two-way." },
 };

@@ -60,7 +60,7 @@ const REVEAL = [
   ".pb-scale",
   ".pba-copy",
   ".pba-phone",
-  /* Melon */
+  /* Mellon */
   ".ml-glance",
   ".ml-read",
   ".ml-fig",
