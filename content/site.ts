@@ -142,7 +142,8 @@ export const pages: Page[] = [
     year: "2025",
     tag: "Payment UX",
     thumb: "/work/tipping-card.webp",
-    // drawn from the real screens (checkout, feedback, feedback sheet) with the tip beside the phone
+    // drawn for the card: one order in four moments (checkout, on the way, delivered, tip settled),
+    // with only the words that matter, large, and the tip beside the phone
     clip: { mp4: "/work/tipping-card.mp4", webm: "/work/tipping-card.webm", loop: true },
     headline: "AI-assisted tipping that’s fairer for delivery apps",
     card: "Concept 2025",
