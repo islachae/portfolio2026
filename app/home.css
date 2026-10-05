@@ -687,6 +687,25 @@ html[data-motion="reduced"] .nh *::after {
     gap: 4px;
   }
 }
+/* Phones: the two buttons in the bar are drawn 30px but answer to a larger touch (40 × 44px) */
+@media (max-width: 799px) {
+  .bar-phone .icon-btn,
+  .bar-phone .chat-toggle,
+  .mobilebar .icon-btn,
+  .mobilebar .chat-toggle {
+    position: relative;
+  }
+  .bar-phone .icon-btn::after,
+  .bar-phone .chat-toggle::after,
+  .mobilebar .icon-btn::after,
+  .mobilebar .chat-toggle::after {
+    content: "";
+    position: absolute;
+    /* 44px tall, 40px wide: the last button sits 6px from the screen's edge, and a wider area
+       would make the page scroll sideways */
+    inset: -7px -5px;
+  }
+}
 .pm {
   position: fixed;
   inset: 0;

@@ -59,7 +59,8 @@ export const profile = {
   /** The small photo in Home's greeting (“Hi! I’m Chaewon [photo],”) */
   photo: "/about/me.webp",
   links: {
-    resume: "/resume.pdf",
+    // (the same file is also at /resume.pdf, for links shared before it was renamed)
+    resume: "/Chaewon-Lim-Resume.pdf",
     linkedin: "https://www.linkedin.com/in/chaewon-lim-7591891a4/",
   },
   bio: {

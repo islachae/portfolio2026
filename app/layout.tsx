@@ -80,6 +80,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://chaewon.works"),
   // the browser tab says just her name (share previews keep the longer title, below)
   title: "Chaewon Lim",
+  // one address for the whole site, whatever the link someone followed looked like
+  alternates: { canonical: "/" },
   description:
     "Product designer at Carnegie Mellon (MDes), designing AI that takes the repetitive work and leaves the judgment to people. Open to Summer 2027 internships.",
   openGraph: {

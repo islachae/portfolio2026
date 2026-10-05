@@ -37,7 +37,7 @@ npm run dev        # http://localhost:3000
 - `handoff` — the “How I design with AI” ledger. Keep each phrase short enough for one line.
 - Tipping copy is placeholder until the new case study is written.
 
-Images live in `public/about`, `public/work`, `public/fun`. Resume is `public/resume.pdf`.
+Images live in `public/about`, `public/work`, `public/fun`. Resume is `public/Chaewon-Lim-Resume.pdf` (the name a recruiter's download gets; the PDF's title is set too). `public/resume.pdf` is the same file, kept for links shared earlier: replace both together. `app/robots.ts` and `app/sitemap.ts` write `/robots.txt` and `/sitemap.xml` at build time, and the page names `https://chaewon.works/` as its canonical address.
 
 ## ChaeLLM (chat mode)
 

@@ -4411,6 +4411,8 @@ html[data-booting="case"] .app {
 .cs {
   --cs-accent: #f55c2d; /* dots, lines, fills */
   --cs-ink: #c2410c; /* orange text (4.5:1+ on the page and tints) */
+  --cs-solid: #c2410c; /* behind white text (5.2:1; the accent is 3.3:1) */
+  --text-muted: #636c77; /* the site's grey, a step darker: 4.5:1+ on the tinted panels too */
   --cs-tint: #fff7f3; /* warm panels */
   --cs-tint-2: #fbede8; /* chosen / iterated */
   --cs-good: #1c8a4c;
@@ -4437,6 +4439,7 @@ html[data-booting="case"] .app {
     --cs-frame: var(--border);
     --cs-accent: #ff7a4d;
     --cs-ink: #ff9a70;
+    --text-muted: #9e9fa0;
     --cs-tint: #1b1512;
     --cs-tint-2: #2a1b15;
     --cs-good: #45c98a;
@@ -4446,6 +4449,7 @@ html[data-booting="case"] .app {
   --cs-frame: var(--border);
   --cs-accent: #ff7a4d;
   --cs-ink: #ff9a70;
+  --text-muted: #9e9fa0;
   --cs-tint: #1b1512;
   --cs-tint-2: #2a1b15;
   --cs-good: #45c98a;
@@ -4776,7 +4780,7 @@ html[data-booting="case"] .app {
   width: 212px;
   height: 48px;
   margin: var(--space-xl) auto 0;
-  background: var(--cs-accent);
+  background: var(--cs-solid);
   color: #fff;
   font-size: 15px;
   font-weight: 500;

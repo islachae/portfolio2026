@@ -111,7 +111,7 @@ export const melonCase = {
     mine: "My part",
     mapText: "I mapped every person, channel and device a new student meets around orientation, colored by when it happens. The same details arrive by email, Slack, a shared calendar, the admissions packet, posters and word of mouth, and the paths shift over time.",
     map: { src: img("system-map"), alt: "System map of the School of Design MDes/MA orientation process: people (students, the coordinator, faculty, career and support staff), channels (email, Slack, Google Calendar, surveys, Canvas, the website, Handshake, LinkedIn and more) and devices, with arrows colored for before, during and after orientation", w: 1766, h: 1056 },
-    // TODO(Chaewon): the map names other staff by first name (Andrew, Jonathan, Peter, Ray). Swap for roles before publishing.
+    // (The map names staff by first name. Chaewon confirmed the names can be shown.)
     findings: [
       "Almost every path passes through email, and through one person: Donna.",
       "Before orientation, students lean on the packet, Slack and surveys. After it, on Handshake, LinkedIn and the website.",
