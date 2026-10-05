@@ -29,9 +29,11 @@ export function AboutCase() {
 }
 
 /**
- * The one motion the photos have: as the page scrolls, each `data-drift` element moves a few
- * pixels against it, at its own pace (the number is the most it travels, in px). Wide screens
- * only, and not with reduced motion.
+ * The one motion the photos have: as the page scrolls, each `data-drift` element slides a little
+ * against it at its own pace, some ahead of the scroll and some behind, so neighbours shift
+ * against each other. The number is how far it travels (px) between the middle of the window
+ * and one window away; positive runs ahead, negative lags. Wide screens only, and not with
+ * reduced motion.
  */
 function useDrift(ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -93,7 +95,7 @@ function Intro() {
       <div className="ab-intro-grid">
         <div className="ab-collage">
           {I.photos.map((p, i) => (
-            <figure key={p.src} className={`ab-ph ab-pol ab-pol--${i}`} data-drift={[8, 20, 14][i]}>
+            <figure key={p.src} className={`ab-ph ab-pol ab-pol--${i}`} data-drift={[-30, 44, 22][i]}>
               <img src={p.src} alt={p.alt} width={p.w} height={p.h} />
               <figcaption>{p.cap}</figcaption>
             </figure>
@@ -159,7 +161,7 @@ function Art() {
         </ol>
         <div className="ab-show-photos">
           {R.photos.map((p, i) => (
-            <img key={p.src} src={p.src} alt={p.alt} className={`ab-show-ph ab-show-ph--${i}`} loading="lazy" />
+            <img key={p.src} src={p.src} alt={p.alt} className={`ab-show-ph ab-show-ph--${i}`} data-drift={[-18, 30, -24, 16][i]} loading="lazy" />
           ))}
         </div>
       </div>
@@ -209,7 +211,7 @@ function Off() {
       <h2 className="cs-h2">{O.title}</h2>
       <ul className="ab-off">
         {O.items.map((x, i) => (
-          <li key={x.src} className="ab-off-item" data-drift={[8, 18, 12][i]}>
+          <li key={x.src} className="ab-off-item" data-drift={[-26, 40, -14][i]}>
             <figure className={`ab-ph ab-off-pol ab-off-pol--${i}`}>
               <img src={x.src} alt={x.alt} width={750} height={1000} loading="lazy" />
               <figcaption>{x.cap}</figcaption>

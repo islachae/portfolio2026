@@ -13114,27 +13114,27 @@ html[data-motion="reduced"] .tp-nudge i {
   top: 0;
   left: 0;
   width: 262px;
-  transform: rotate(2deg);
+  transform: translate3d(0, var(--dy, 0px), 0) rotate(2deg);
 }
 .ab-show-ph--1 {
   top: 196px;
   left: 124px;
   z-index: 1;
   width: 148px;
-  transform: rotate(4deg);
+  transform: translate3d(0, var(--dy, 0px), 0) rotate(4deg);
 }
 .ab-show-ph--2 {
   top: 214px;
   left: 6px;
   width: 128px;
-  transform: rotate(-3deg);
+  transform: translate3d(0, var(--dy, 0px), 0) rotate(-3deg);
 }
 .ab-show-ph--3 {
   top: 404px;
   left: 20px;
   z-index: 2;
   width: 236px;
-  transform: rotate(-2deg);
+  transform: translate3d(0, var(--dy, 0px), 0) rotate(-2deg);
 }
 
 /* Principles: four square cards, each ending on where it shows up (and a way there) */

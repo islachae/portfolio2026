@@ -79,7 +79,7 @@ export const aboutPage = {
     items: [
       { src: "/fun/bake-pancakes.webp", alt: "A stack of pancakes with berries and banana", cap: "hardcore baker", note: "Michelin-starred kitchen alum", link: { page: "bakery" as const, text: "Bakery Log" } },
       { src: "/about/cats.webp", alt: "Chaewon holding two cats next to a Christmas tree", cap: "proud foster mom", note: "14 cats and 1 dog" },
-      { src: "/about/mets.webp", alt: "At a Mets game, holding up a Let's Go Mets sign", cap: "mets fan", note: "still rooting..." },
+      { src: "/about/mets.webp", alt: "At a Mets game, holding up a Let's Go Mets sign", cap: "mets fan", note: "yes I’m still rooting..." },
     ],
   },
 
