@@ -12913,41 +12913,51 @@ html[data-motion="reduced"] .tp-nudge i {
 }
 .ab-collage {
   position: relative;
-  height: 560px;
+  height: 590px;
+}
+/* An About photo: the picture as it is, no frame. Size, place and a slight tilt arrange them
+   (the picture tilts, its caption stays level); --dy is the scroll drift (useDrift). */
+.ab-ph {
+  margin: 0;
+}
+.ab-ph img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(var(--r));
+  pointer-events: none;
+  user-select: none;
+}
+.ab-ph figcaption {
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.3;
 }
 .ab-pol {
   position: absolute;
-  margin: 0;
-  transform: rotate(var(--r));
-  transition: transform 0.4s var(--ease-out);
-}
-.ab-pol figcaption {
-  font-size: 15px;
-}
-.ab-pol:hover {
-  z-index: 5;
-  transform: rotate(0deg) scale(1.02);
+  transform: translate3d(0, var(--dy, 0px), 0);
 }
 .ab-pol--0 {
-  --r: -3deg;
+  --r: -2deg;
   top: 0;
-  left: 6px;
+  left: 0;
   z-index: 1;
-  width: 228px;
+  width: 246px;
 }
 .ab-pol--1 {
-  --r: 5deg;
-  top: 318px;
-  left: 170px;
-  z-index: 4;
-  width: 134px;
+  --r: 0deg;
+  top: 356px;
+  left: 172px;
+  z-index: 2;
+  width: 128px;
 }
 .ab-pol--2 {
-  --r: -5deg;
-  top: 360px;
+  --r: -3deg;
+  top: 452px;
   left: 0;
   z-index: 3;
-  width: 180px;
+  width: 150px;
 }
 .ab-intro-text {
   padding-top: 36px;
@@ -13099,11 +13109,6 @@ html[data-motion="reduced"] .tp-nudge i {
   display: block;
   height: auto;
   box-shadow: 0 16px 32px -16px rgba(30, 40, 55, 0.35);
-  transition: transform 0.4s var(--ease-out);
-}
-.ab-show-ph:hover {
-  z-index: 5;
-  transform: rotate(0deg) scale(1.03);
 }
 .ab-show-ph--0 {
   top: 0;
@@ -13223,8 +13228,9 @@ html[data-motion="reduced"] .tp-nudge i {
 /* Off the clock: three polaroids */
 .ab-off {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr) minmax(0, 1fr);
   gap: 32px;
+  align-items: start;
   margin: 44px 0 0;
   padding: 0;
   list-style: none;
@@ -13232,50 +13238,67 @@ html[data-motion="reduced"] .tp-nudge i {
 .ab-off-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  transform: translate3d(0, var(--dy, 0px), 0);
 }
 .ab-off-pol {
   width: 100%;
-  margin: 0;
-  transform: rotate(var(--r));
-  transition: transform 0.4s var(--ease-out);
-}
-.ab-off-pol:hover {
-  transform: rotate(0deg) scale(1.02);
 }
 .ab-off-pol--0 {
-  --r: -3deg;
+  --r: -1.5deg;
 }
 .ab-off-pol--1 {
-  --r: 2deg;
-  margin-top: 18px;
+  --r: 0deg;
+  margin-top: 64px;
 }
 .ab-off-pol--2 {
-  --r: 4deg;
+  --r: 2deg;
+  margin-top: 20px;
 }
 .ab-off-pol img {
   aspect-ratio: 3 / 4;
   object-fit: cover;
 }
+.ab-off-pol figcaption {
+  margin-top: 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+}
 .ab-off-note {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 18px;
+  align-items: flex-start;
+  margin-top: 4px;
   color: var(--text-muted);
   font-size: 14px;
-  text-align: center;
 }
 .ab-off-note .ab-link {
   margin-top: 6px;
 }
 
 /* Say hi: the handwritten note, then the ways to reach me */
+/* The note is ink on the page: its white paper drops out (multiply), and in the dark the ink
+   turns light (invert, then screen). */
 .ab-note {
-  width: min(540px, 100%);
-  margin: 40px auto 0;
-  padding: 10px;
-  transform: rotate(-1.5deg);
+  width: min(500px, 100%);
+  margin: 32px auto 0;
+  mix-blend-mode: multiply;
+}
+.ab-note img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+:root[data-theme="dark"] .ab-note {
+  filter: invert(1);
+  mix-blend-mode: screen;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ab-note {
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
 }
 .ab-hi-actions {
   display: flex;
@@ -13307,24 +13330,31 @@ html[data-motion="reduced"] .tp-nudge i {
   }
   .ab-collage {
     display: flex;
-    justify-content: center;
     align-items: flex-start;
+    gap: 12px;
     height: auto;
-    margin-top: 36px;
-    padding: 0 4%;
+    margin-top: 32px;
   }
   .ab-pol {
     position: relative;
     top: auto;
     left: auto;
-    width: 36%;
-    margin: 0 -2%;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+  .ab-pol--0 {
+    flex-grow: 1.5;
   }
   .ab-pol--1 {
-    margin-top: 28px;
+    margin-top: 32px;
+  }
+  .ab-pol--2 {
+    flex-grow: 1.2;
+    margin-top: 72px;
   }
   .ab-pol figcaption {
-    font-size: 12px;
+    font-size: 11.5px;
   }
   .ab-lists {
     grid-template-columns: minmax(0, 1fr);
@@ -13359,14 +13389,15 @@ html[data-motion="reduced"] .tp-nudge i {
   .ab-off-pol {
     width: 62%;
   }
-  .ab-off-pol--1 {
+  .ab-off-pol--1,
+  .ab-off-pol--2 {
     margin-top: 0;
   }
   .ab-off-item:nth-child(2) {
     align-items: flex-end;
   }
   .ab-off-item:nth-child(2) .ab-off-note {
-    align-self: center;
+    width: 62%;
   }
 }
 
@@ -13402,16 +13433,16 @@ html[data-motion="reduced"] .tp-nudge i {
   --sk-photo: #2b2824;
 }
 :where(.card-media, .wish-frame, .cs-main)
-  img:not(.cs-tile img, .polaroid img, .ab-show-ph, .pba-phone img, .pb-stage-phone img, [src$=".svg"]):not([data-ld="1"]) {
+  img:not(.cs-tile img, .polaroid img, .pba-phone img, .pb-stage-phone img, [src$=".svg"]):not([data-ld="1"]) {
   background: linear-gradient(100deg, var(--sk) 36%, var(--sk-hi) 50%, var(--sk) 64%) 0 0 / 300% 100% var(--sk);
   animation: sk-sheen 1.6s linear infinite;
 }
 :where(.card-media, .wish-frame, .cs-main)
-  img:not(.cs-tile img, .polaroid img, .ab-show-ph, .pba-phone img, .pb-stage-phone img, [src$=".svg"])[data-ld="x"] {
+  img:not(.cs-tile img, .polaroid img, .pba-phone img, .pb-stage-phone img, [src$=".svg"])[data-ld="x"] {
   animation: none;
 }
 :where(.card-media, .wish-frame, .cs-main)
-  img:not(.cs-tile img, .polaroid img, .ab-show-ph, .pba-phone img, .pb-stage-phone img, [src$=".svg"])[data-anim] {
+  img:not(.cs-tile img, .polaroid img, .pba-phone img, .pb-stage-phone img, [src$=".svg"])[data-anim] {
   animation: sk-ink 0.5s var(--ease-out) both;
 }
 /* Off screen, the sheen holds still (ImageMarks sets data-vis="0"). It moves a background, which
@@ -13434,13 +13465,11 @@ html[data-motion="reduced"] .tp-nudge i {
   }
 }
 .polaroid img,
-.bake-face img,
-.ab-show-ph {
+.bake-face img {
   background-color: var(--sk-photo);
 }
 .polaroid img[data-anim],
-.bake-face img[data-anim],
-.ab-show-ph[data-anim] {
+.bake-face img[data-anim] {
   animation: sk-develop 1s var(--ease-out) both;
 }
 @keyframes sk-develop {

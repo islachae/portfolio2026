@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { useEffect, useRef } from "react";
 import { aboutPage as A } from "@/content/cases/about";
 import { profile, type PageId } from "@/content/site";
 import type { CaseId } from "@/content/cases";
@@ -11,11 +12,13 @@ import { ArrowRight, MailIcon } from "../icons";
  * The About page, in the order chaewon.works/about tells it: who I am, the art I made before
  * design, the words I design by (each with where it shows up in the work), off the clock, and
  * the handwritten note at the end. Square structure and hairlines; the photos are the only
- * things that tilt.
+ * things that tilt. They sit on the page as they are (no frame around them), at different sizes.
  */
 export function AboutCase() {
+  const ref = useRef<HTMLElement>(null);
+  useDrift(ref);
   return (
-    <article className="cs-article ab">
+    <article className="cs-article ab" ref={ref}>
       <Intro />
       <Art />
       <Principles />
@@ -23,6 +26,44 @@ export function AboutCase() {
       <Hi />
     </article>
   );
+}
+
+/**
+ * The one motion the photos have: as the page scrolls, each `data-drift` element moves a few
+ * pixels against it, at its own pace (the number is the most it travels, in px). Wide screens
+ * only, and not with reduced motion.
+ */
+function useDrift(ref: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const root = ref.current?.closest(".cs") as HTMLElement | null;
+    if (!ref.current || !root || reducedMotion()) return;
+    const els = [...ref.current.querySelectorAll<HTMLElement>("[data-drift]")];
+    const wide = window.matchMedia("(min-width: 761px)");
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const view = root.getBoundingClientRect();
+      const at = els.map((el) => {
+        const box = el.parentElement!.getBoundingClientRect();
+        return (box.top + box.height / 2 - view.top - view.height / 2) / view.height;
+      });
+      els.forEach((el, i) => {
+        const p = wide.matches ? Math.max(-1, Math.min(1, at[i])) : 0;
+        el.style.setProperty("--dy", `${(p * Number(el.dataset.drift)).toFixed(1)}px`);
+      });
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    root.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      root.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+    };
+  }, [ref]);
 }
 
 /* ───────────── Intro ───────────── */
@@ -52,8 +93,7 @@ function Intro() {
       <div className="ab-intro-grid">
         <div className="ab-collage">
           {I.photos.map((p, i) => (
-            <figure key={p.src} className={`polaroid ab-pol ab-pol--${i}`}>
-              <span className="tape-strip" aria-hidden />
+            <figure key={p.src} className={`ab-ph ab-pol ab-pol--${i}`} data-drift={[8, 20, 14][i]}>
               <img src={p.src} alt={p.alt} width={p.w} height={p.h} />
               <figcaption>{p.cap}</figcaption>
             </figure>
@@ -169,9 +209,8 @@ function Off() {
       <h2 className="cs-h2">{O.title}</h2>
       <ul className="ab-off">
         {O.items.map((x, i) => (
-          <li key={x.src} className="ab-off-item">
-            <figure className={`polaroid ab-off-pol ab-off-pol--${i}`}>
-              <span className="tape-strip" aria-hidden />
+          <li key={x.src} className="ab-off-item" data-drift={[8, 18, 12][i]}>
+            <figure className={`ab-ph ab-off-pol ab-off-pol--${i}`}>
               <img src={x.src} alt={x.alt} width={750} height={1000} loading="lazy" />
               <figcaption>{x.cap}</figcaption>
             </figure>
@@ -199,8 +238,7 @@ function Hi() {
   return (
     <section className="cs-sec ab-hi" id="ab-hi" aria-label={H.label}>
       <p className="cs-eyebrow">{H.label}</p>
-      <figure className="polaroid ab-note">
-        <span className="tape-strip" aria-hidden />
+      <figure className="ab-note">
         <img src={H.note} alt={H.alt} width={1000} height={738} loading="lazy" />
       </figure>
       <div className="ab-hi-actions">
