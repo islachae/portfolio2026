@@ -298,8 +298,12 @@ export const tippingCase = {
     ],
   },
 
-  // A scroll-driven walkthrough of one order. Step copy follows the Mechanism text; the numbers are
-  // the ones on Chaewon's screens (checkout, breakdown card, feedback sheet).
+  // A scroll-driven walkthrough of one order: how the tip moves. "Solution" says what is new at each
+  // touchpoint, so the step copy here stays with the numbers and doesn't repeat it. The numbers are
+  // the ones on Chaewon's screens (checkout, breakdown card, feedback sheet); the amounts in the
+  // step copy are preTip, maxReward and final below.
+  // (A "Prototype" section used to follow, with three tabs of screens: all three are already shown
+  // under Solution and Testing, so it was removed.)
   scene: {
     label: "Final design",
     title: "The tip only moves when something actually happens.",
@@ -310,22 +314,10 @@ export const tippingCase = {
     rewardRange: "+$1.50 – $3.50 after delivery",
     eta: "2:45 PM",
     steps: [
-      {
-        title: "Checkout",
-        text: "Set your tipping priorities once, lock in a minimum tip, and pre-authorize a maximum for after delivery.",
-      },
-      {
-        title: "In delivery",
-        text: "The tip waits. No running totals or overwhelming live updates while the order is on its way.",
-      },
-      {
-        title: "Delivered",
-        text: "The AI agent weighs arrival time, drop-off accuracy and communication alongside your priorities.",
-      },
-      {
-        title: "Tip settles",
-        text: "The final tip arrives with the service details behind it, one tap from the reason.",
-      },
+      { title: "Checkout", text: "$2.00 is locked in. Up to $3.50 more can follow after delivery." },
+      { title: "In delivery", text: "The tip waits. Nothing moves until the order arrives." },
+      { title: "Delivered", text: "Each service detail moves the tip, one line at a time." },
+      { title: "Tip settles", text: "$4.50, with every line that led to it. The reason is one tap away." },
     ],
     // From the Trust-First Tipping breakdown card
     lines: [
@@ -336,16 +328,6 @@ export const tippingCase = {
     ] as { label: string; value: string; delta: string; dir: "up" | "down" | "ok" }[],
     postReward: 2.5,
     final: 4.5,
-  },
-
-  final: {
-    label: "Prototype",
-    title: "Try the flow. Tip for what actually happened.",
-    tabs: [
-      { label: "Checkout", src: img("checkout"), alt: "Checkout screen with Trust-First Tipping", w: 596, h: 1500 },
-      { label: "Delivery feedback", src: img("final-feedback"), alt: "Delivery feedback screen with verified drop-off details", w: 572, h: 1244 },
-      { label: "Adjust tip", src: img("final-adjust"), alt: "Adjust tip slider after delivery", w: 1268, h: 518 },
-    ],
   },
 
   system: {

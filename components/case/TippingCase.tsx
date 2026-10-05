@@ -22,7 +22,6 @@ export function TippingCase() {
       <Mechanism />
       <Testing />
       <TipScene />
-      <FinalDesign />
       <System />
       <Takeaways t={C.takeaways} />
     </article>
@@ -759,66 +758,6 @@ function TipScene() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </Section>
-  );
-}
-
-function FinalDesign() {
-  const f = C.final;
-  const [tab, setTab] = useState(0);
-  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const onKey = (e: React.KeyboardEvent, i: number) => {
-    const n = f.tabs.length;
-    let next = -1;
-    if (e.key === "ArrowRight") next = (i + 1) % n;
-    if (e.key === "ArrowLeft") next = (i - 1 + n) % n;
-    if (e.key === "Home") next = 0;
-    if (e.key === "End") next = n - 1;
-    if (next < 0) return;
-    e.preventDefault();
-    setTab(next);
-    tabs.current[next]?.focus();
-  };
-  return (
-    <Section label={f.label} id="cs-final">
-      <h2 className="cs-h2">{f.title}</h2>
-      <div className="cs-stage">
-        <div className="cs-tabs" role="tablist" aria-label="Final design screens">
-          {f.tabs.map((t, i) => (
-            <button
-              key={t.label}
-              ref={(el) => {
-                tabs.current[i] = el;
-              }}
-              role="tab"
-              id={`cs-tab-${i}`}
-              aria-selected={tab === i}
-              aria-controls={`cs-tabpanel-${i}`}
-              tabIndex={tab === i ? 0 : -1}
-              className="cs-tab"
-              onClick={() => setTab(i)}
-              onKeyDown={(e) => onKey(e, i)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <div className="cs-stage-view">
-          {f.tabs.map((t, i) => (
-            <div
-              key={t.label}
-              role="tabpanel"
-              id={`cs-tabpanel-${i}`}
-              aria-labelledby={`cs-tab-${i}`}
-              hidden={tab !== i}
-              className="cs-stage-panel"
-              data-wide={t.w > t.h || undefined}
-            >
-              <img src={t.src} alt={t.alt} width={t.w} height={t.h} loading="lazy" />
-            </div>
-          ))}
         </div>
       </div>
     </Section>
