@@ -324,7 +324,9 @@ export const pages: Page[] = [
     id: "bakery",
     meta: "Off the clock",
     group: "fun",
-    thumb: "/fun/bakery-card.webp",
+    thumb: "/fun/bakery-clip.webp",
+    // the stack being flipped through: a bake, its recipe card, the next one
+    clip: { mp4: "/fun/bakery-card.mp4", webm: "/fun/bakery-card.webm", loop: true },
     title: "Bakery Log",
     ticker: "BAKE",
     kind: "Off the clock",
