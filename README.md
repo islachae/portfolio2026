@@ -142,7 +142,7 @@ Rethinking Tipping has a full case study at `/#case/tipping`: a page of its own 
   - **Tested vs iterated:** the two versions sit side by side (no extra interaction); the note lines sit on the dashed lines drawn in the screenshots.
   - **Takeaways:** each links to its evidence (`evidence.id`), scrolls there with a brief highlight, and shows a “Back to takeaways” button.
   - With reduced motion, the timeline shows its finished state and nothing animates.
-- TODO: the DoorDash reference card still needs its core value, features and evidence (`principle.doordash.rows`). Until then it says “Write-up in progress.”
+- Design principle shows two references (`principle.refs` in `content/cases/tipping.ts`: Uber Eats, DoorDash). One is open with its screenshots and notes; the other waits beside it as a strip and opens on a click. The DoorDash screenshots were cut from Chaewon's card image (`public/work/tipping-case/doordash-*.webp`, 480px wide): replace them with the originals when they are at hand.
 
 ## Visitor poll
 

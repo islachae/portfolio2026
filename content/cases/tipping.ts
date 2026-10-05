@@ -147,25 +147,38 @@ export const tippingCase = {
     label: "Design principle",
     title: "Users want predictability and transparency.",
     text: "I examined two successful UX case studies and identified predictability and transparency as key principles in payment experiences. I used these insights to define design opportunities for a more trustworthy tipping experience.",
-    uber: {
-      brand: "Uber Eats",
-      title: "Real-time tracking",
-      src: img("ubereats-tracking"),
-      alt: "Uber Eats live tracking screen with the ETA banner highlighted",
-      rows: [
-        { label: "Core value", value: "Reduces “where's my food?” anxiety" },
-        { label: "Features", value: "Live GPS map • clear status stages • visual cues on delays" },
-        { label: "Evidence", value: "Reduced customer inquiries by 20—35%" },
-      ],
-      insight: "Users value predictability. Yet tipping is decided before any service quality is known.",
-    },
-    doordash: {
-      brand: "DoorDash",
-      title: "Savings transparency",
-      // TODO(Chaewon): the canvas still has a placeholder here. Fill in rows like the Uber Eats card.
-      rows: [] as { label: string; value: string }[],
-      placeholder: "Core value, features and evidence for the DoorDash example",
-    },
+    // One is open at a time; the other waits beside it as a strip. `mark` draws the highlight box
+    // over the Uber Eats screenshot (the DoorDash ones have theirs drawn in).
+    refs: [
+      {
+        brand: "Uber Eats",
+        title: "Real-time tracking",
+        mark: true,
+        shots: [{ src: img("ubereats-tracking"), alt: "Uber Eats live tracking screen with the ETA banner highlighted", caption: "" }],
+        rows: [
+          { label: "Core value", value: "Reduces “where's my food?” anxiety" },
+          { label: "Features", value: "Live GPS map • clear status stages • visual cues on delays" },
+          { label: "Evidence", value: "Reduced customer inquiries by 20—35%" },
+        ],
+        insight: "Users value predictability. Yet tipping is decided before any service quality is known.",
+      },
+      {
+        brand: "DoorDash",
+        title: "Savings transparency",
+        mark: false,
+        shots: [
+          { src: img("doordash-summary"), alt: "DashPass summary with “You’ve saved $1202.71 in fees” highlighted", caption: "Saving summary" },
+          { src: img("doordash-order"), alt: "DoorDash order total with the waived fees and “Saving $7.18 with DashPass” highlighted", caption: "Order saving" },
+        ],
+        rows: [
+          { label: "Core value", value: "Transparency + honesty in savings" },
+          { label: "Features", value: "“You’ve saved $__ today” • clear savings breakdown • no hidden or unclear fees" },
+          { label: "Evidence", value: "Customer retention increased by 20% (DoorDash data)" },
+        ],
+        insight: "Users are highly sensitive to savings, efficiency, and fairness. Loyalty naturally grows with transparency.",
+      },
+    ],
+    more: "Show details",
   },
 
   mechanism: {

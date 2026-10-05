@@ -4983,6 +4983,10 @@ html[data-booting="case"] .app {
   margin-top: 40px;
   border: 1px solid var(--border);
 }
+/* the second reference is open: it takes the wide column, on the right */
+.cs-refs[data-open="1"] {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+}
 .cs-ref {
   padding: 20px;
   background: var(--bg);
@@ -5006,10 +5010,25 @@ html[data-booting="case"] .app {
   gap: var(--space-lg);
   margin-top: var(--space-md);
 }
+.cs-ref-shots {
+  display: grid;
+  align-self: start;
+  gap: var(--space-md);
+}
 .cs-ref-shot {
   position: relative;
-  align-self: start;
+  margin: 0;
   background: #f0eeec;
+}
+.cs-ref-shot figcaption {
+  padding-top: 6px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+/* two landscape screenshots need a little more width than one phone screen */
+.cs-ref-body[data-shots="2"] {
+  grid-template-columns: 216px minmax(0, 1fr);
 }
 .cs-ref-shot img {
   display: block;
@@ -5058,10 +5077,12 @@ html[data-booting="case"] .app {
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  border-left: 1px solid var(--border);
   color: var(--text);
   text-align: center;
   transition: background-color 0.15s;
+}
+.cs-ref + .cs-ref {
+  border-left: 1px solid var(--border);
 }
 .cs-ref--more:hover {
   background: var(--cs-tint);
@@ -5947,13 +5968,21 @@ html[data-motion="reduced"] .cs *::before {
   .cs-refs {
     grid-template-columns: 1fr;
   }
+  .cs-refs[data-open="1"] {
+    grid-template-columns: 1fr;
+  }
   .cs-ref--more {
     min-height: 120px;
+  }
+  .cs-ref + .cs-ref {
     border-left: 0;
     border-top: 1px solid var(--border);
   }
   .cs-ref-body {
     grid-template-columns: 120px minmax(0, 1fr);
+  }
+  .cs-ref-body[data-shots="2"] {
+    grid-template-columns: minmax(0, 1fr);
   }
   .cs-legend-hint {
     width: 100%;

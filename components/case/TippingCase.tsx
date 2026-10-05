@@ -323,66 +323,60 @@ function WhyNow() {
 
 function Principle() {
   const p = C.principle;
-  const [open, setOpen] = useState(false);
+  // The two references share the frame: one is open, the other waits beside it as a strip
+  const [open, setOpen] = useState(0);
   return (
     <Section label={p.label} id="cs-principle">
       <h2 className="cs-h2">{p.title}</h2>
       <p className="cs-body cs-measure">{p.text}</p>
-      <div className="cs-refs">
-        <div className="cs-ref">
-          <div className="cs-ref-head">
-            <h3 className="cs-h3">{p.uber.title}</h3>
-            <span className="cs-ref-brand">{p.uber.brand}</span>
-          </div>
-          <div className="cs-ref-body">
-            <div className="cs-ref-shot">
-              <img src={p.uber.src} alt={p.uber.alt} loading="lazy" />
-              <span className="cs-ref-mark" aria-hidden />
+      <div className="cs-refs" data-open={open}>
+        {p.refs.map((r, i) =>
+          i === open ? (
+            <div className="cs-ref" key={r.brand}>
+              <div className="cs-ref-head">
+                <h3 className="cs-h3">{r.title}</h3>
+                <span className="cs-ref-brand">{r.brand}</span>
+              </div>
+              <div className="cs-ref-body" data-shots={r.shots.length}>
+                <div className="cs-ref-shots">
+                  {r.shots.map((sh) => (
+                    <figure className="cs-ref-shot" key={sh.src}>
+                      <img src={sh.src} alt={sh.alt} loading="lazy" />
+                      {r.mark && <span className="cs-ref-mark" aria-hidden />}
+                      {sh.caption && <figcaption>{sh.caption}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
+                <div className="cs-ref-text">
+                  <dl>
+                    {r.rows.map((row) => (
+                      <div key={row.label}>
+                        <dt>{row.label}</dt>
+                        <dd>{row.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <p className="cs-ref-insight">{r.insight}</p>
+                </div>
+              </div>
             </div>
-            <div className="cs-ref-text">
-              <dl>
-                {p.uber.rows.map((r) => (
-                  <div key={r.label}>
-                    <dt>{r.label}</dt>
-                    <dd>{r.value}</dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="cs-ref-insight">{p.uber.insight}</p>
-            </div>
-          </div>
-        </div>
-        <button className="cs-ref cs-ref--more" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-          <span className="cs-ref-brand">{p.doordash.brand}</span>
-          <span className="cs-h3">{p.doordash.title}</span>
-          {open ? (
-            p.doordash.rows.length ? (
-              <dl className="cs-ref-dl">
-                {p.doordash.rows.map((r) => (
-                  <div key={r.label}>
-                    <dt>{r.label}</dt>
-                    <dd>{r.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : (
-              <span className="cs-ref-todo">Write-up in progress.</span>
-            )
           ) : (
-            <span className="cs-ref-hint">Show details</span>
-          )}
-        </button>
+            <button className="cs-ref cs-ref--more" key={r.brand} aria-expanded={false} onClick={() => setOpen(i)}>
+              <span className="cs-ref-brand">{r.brand}</span>
+              <span className="cs-h3">{r.title}</span>
+              <span className="cs-ref-hint">{p.more}</span>
+            </button>
+          ),
+        )}
       </div>
     </Section>
   );
 }
 
 /* Mechanism: the order journey and its three new touchpoints.
-   The touchpoints sit one under the other and the reader's scroll goes through them; the rail
-   stays pinned under the bar meanwhile and marks the one on screen (01 → 02 → 03), so nobody has
-   to find the dots to see all three. A dot still jumps straight to its touchpoint.
-   (Pinning the whole block and swapping the panel in place, the way the Final design scene does,
-   would cut it off: a panel is taller than most laptop screens.) */
+   The touchpoints stand in a row with one in view. Where the rail and a whole touchpoint fit in
+   the window the block pins under the bar and the page's scroll moves the row (01 → 02 → 03), as
+   in "Why now?"; otherwise the row is swiped sideways. A dot jumps straight to its touchpoint. */
 /** Where the row of touchpoints stands (0 … n-1) at scroll progress p: each one holds for a stretch, then slides to the next. */
 function slideAt(p: number, n: number, hold = 0.58) {
   if (n < 2) return 0;
