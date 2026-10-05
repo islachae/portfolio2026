@@ -185,11 +185,15 @@ W.cwIntro=function(){if(busy)return;busy=1;reset();d.dataset.boot="on";penGo();
    Later visits: it shows only if the styles aren't in after 0.3s (fonts alone never trigger it),
    and once the page is ready the rest of the signature is written within about half a second.
    Any click, tap, scroll or key skips it as soon as the page is ready. */
-var home=!h||h==="#"||h==="#home",first=false,ready=0,skipped=0,went=0,timer=0;
+var home=!h||h==="#"||h==="#home",first=false,ready=0,skipped=0,went=0,timer=0,off=0;
+/* A page that isn't Home (the not-found page, which has no hash either) calls this as it is parsed:
+   no intro there, nothing would ever end it. A first visit that lands there keeps its intro for Home. */
+W.cwNoIntro=function(){off=1;clearTimeout(timer);busy=0;d.removeAttribute("data-boot");
+  try{if(first)W.localStorage.removeItem("cw-intro")}catch(e){}};
 try{first=W.localStorage.getItem("cw-intro")!=="1"}catch(e){first=false}
 function go(){if(went)return;went=1;if(skipped&&!reduce()){d.dataset.boot="done";out()}else done()}
 function skip(){skipped=1;if(ready)go()}
-function start(){d.dataset.boot="on";shown=Date.now();penGo();
+function start(){if(off)return;d.dataset.boot="on";shown=Date.now();penGo();
   try{W.localStorage.setItem("cw-intro","1")}catch(e){}
   ["pointerdown","wheel","keydown","touchstart"].forEach(function(t){W.addEventListener(t,skip,{once:true,passive:true})})}
 if(home){busy=1;

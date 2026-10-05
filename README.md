@@ -267,6 +267,7 @@ Styles follow the “Rachelchen” DESIGN.md (alpha), applied to a three-pane la
 - **Color:** canvas `#FAFCFD`, ink `#32404F`, one violet accent `#6C4FE0` (`#A996FF` in dark mode) for active nav, hover, “You decide”. Light and dark themes use the spec’s `themes` values. Muted text is `#6A737E` instead of `#78828C` so it passes AA contrast.
 - **Type:** heading1 = Satoshi Medium 48 / 55.2 / −2px (cover and page titles), Satoshi 22px for the cover's second line, Satoshi headings 17px, Geist body 15px/1.5, Geist Mono 12px caps for labels. Satoshi stands in for the spec's Tiempos Text; it's from Fontshare (Indian Type Foundry, free license), self-hosted as `app/fonts/Satoshi-*.woff2`.
 - **Shape:** 0px corners on structure, pills only for primary CTAs. One shadow tier; everything else is separated by hairlines and surface color.
+- **Not found** (`app/not-found.tsx`, `.nf` at the end of `app/home.css`): any address that isn't a page shows “404” with ChaeLLM's face as the zero, and two ways on, Back to Home and Ask ChaeLLM (`/#ask` opens the chat on Home: `components/Site.tsx`).
 - **Link previews**: `app/opengraph-image.png` and `app/twitter-image.png` (1200×630, with their `.alt.txt`) are what LinkedIn, Slack and Messages show for chaewon.works. They are a picture of Home's first screen without the menu and the clock; take it again when the first screen changes.
 - **Spacing:** 4 / 8 / 12 / 16 / 20 / 24 / 32 / 48.
 

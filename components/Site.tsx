@@ -8,6 +8,7 @@ import { PhoneMenu, type NavPlace } from "./home/Nav";
 import { loadPlay, playLoaded } from "./home/play-load";
 import { caseLoaded, loadCase } from "./case/load";
 import { useShell } from "./shell-context";
+import { useChat } from "./ChaeLLM";
 import { CommandPalette } from "./CommandPalette";
 import { Toast } from "./Chrome";
 import { ImageMarks } from "./ImageMarks";
@@ -26,6 +27,12 @@ const typing = (t: EventTarget | null) =>
  */
 export function Site() {
   const { caseStudy, play, goHome } = useShell();
+  // /#ask opens ChaeLLM on Home (the "Ask ChaeLLM" button on the not-found page). The shell tidies
+  // the address afterwards, as it does for any hash that isn't a page.
+  const { openChat } = useChat();
+  useEffect(() => {
+    if (window.location.hash === "#ask") openChat();
+  }, [openChat]);
   // The long reads and the play pages are their own chunks (components/case/load.ts,
   // components/home/play-load.ts). Until one is here Home stays on screen (or, on a link
   // straight to a long read, the outline from lib/boot.ts).
