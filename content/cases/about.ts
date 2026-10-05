@@ -32,7 +32,7 @@ export const aboutPage = {
     ],
     good: { label: "What I’m good at", items: about.strengths },
     pulls: { label: "What pulls me in", items: about.interests },
-    touch: { lead: "안녕 means hi.", cta: "Get in touch" },
+    touch: { lead: "Want the longer story?", cta: "Get in touch" },
   },
 
   art: {
