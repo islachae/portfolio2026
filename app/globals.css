@@ -8362,6 +8362,78 @@ html[data-motion="reduced"] .hi-fly {
 .pb-facts {
   margin-top: 40px;
 }
+/* Solution: the clinical ground for journaling, one line under the text */
+.pb-basis {
+  max-width: 640px;
+  margin-top: var(--space-lg);
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  background: var(--cs-tint);
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.pb-basis b {
+  color: var(--text);
+  font-weight: 500;
+}
+.pb-basis .cs-src {
+  display: block;
+  margin-top: 4px;
+}
+/* Research: the one clear ask leads the section */
+.pb-insight--lead {
+  max-width: 760px;
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  font-size: 30px;
+  line-height: 1.3;
+}
+/* Trust: the pointer to the working chat, and what Pebbo does when it is out of its depth */
+.pb-try {
+  max-width: 640px;
+  margin-top: var(--space-lg);
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.pb-try button {
+  color: var(--cs-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pb-limits {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  margin-top: 48px;
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  background: var(--cs-tint);
+}
+.pb-limits .cs-body {
+  margin-top: var(--space-xs);
+}
+.pb-limits ul {
+  display: grid;
+  gap: var(--space-sm);
+}
+.pb-limits a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--line-2);
+  text-underline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .pb-limits {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .pb-insight--lead {
+    font-size: 23px;
+  }
+}
 .pb-facts .cs-src {
   margin-top: var(--space-md);
 }

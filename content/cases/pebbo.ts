@@ -40,9 +40,9 @@ export const pebboCase = {
     { id: "pb-problem", label: "Problem" },
     { id: "pb-device", label: "Solution" },
     { id: "pb-scene", label: "User journey" },
+    { id: "pb-trust", label: "Designing for trust" },
     { id: "pb-research", label: "Research" },
     { id: "pb-approach", label: "Approach" },
-    { id: "pb-trust", label: "Designing for trust" },
     { id: "cs-takeaways", label: "Reflection" },
   ],
   overview:
@@ -51,7 +51,6 @@ export const pebboCase = {
   problem: {
     label: "Problem",
     title: ["Eating and well-being are linked.", "Most of us overlook it."],
-    text: "Using the Deloitte Access Economics report, the Barriers and Negative Nudges study and related clinical research, I looked at the scale of eating-related mental health challenges and how they are treated.",
     // One sentence to read, not two tiles to count (Tipping already counts people). Figures from the
     // Deloitte Access Economics report with Harvard STRIPED (2020); 1 in 11 is its 9%.
     scale: {
@@ -62,16 +61,14 @@ export const pebboCase = {
       notes: ["28.8 million people, about 9% of the population.", "Economic cost in 2018–19."],
       source: "Deloitte Access Economics, with Harvard STRIPED and the Academy for Eating Disorders, 2020",
     },
-    cards: [
-      { title: "Expanding demographics", text: "Once niche, now a generational and cultural problem.", source: "National Eating Disorders Association" },
-      { title: "Journaling works", text: "Clinically proven two-track treatment: nutrition and mind.", source: "Weight Loss Maintenance Trial Research Group" },
-    ],
   },
 
   device: {
     label: "Solution",
     title: ["Bridging food tracking and emotional care,", "digitally and physically."],
     text: "Pebbo pairs a private AI chat with a pocket-sized companion that clips onto your keychain. It supports emotional expression through everyday touch and conversation, without social stigma. One click of its button starts talking, and everything syncs to the app.",
+    // Why a conversation and not a food log (it was a card under Problem)
+    basis: { k: "Journaling works. ", t: "Clinically proven two-track treatment: nutrition and mind.", source: "Weight Loss Maintenance Trial Research Group" },
     src: img("device-calm"),
     alt: "The Pebbo keychain device: a pebble-shaped body with a glowing face and a small microphone button",
     // Callouts on the render, in % of the image
@@ -231,42 +228,32 @@ export const pebboCase = {
     title: ["Four problems, four features.", "Three in the app, one in your hand."],
     core: "Struggle to recognize the link between healthy eating and psychological well-being",
     rows: ["Defining problem", "Solution", "Method", "Key feature"],
+    // The table links each problem to its feature; what the features do is told in the two journeys.
     cols: [
       {
         problem: "Distorted beliefs about healthy eating",
         solution: "Mindful eating guide",
         method: "App",
         feature: "Log, explore, quest, peek suggestions",
-        text: "AI offers context-aware micro-suggestions, with low-barrier ways in, like mini quests or recipes.",
       },
       {
         problem: "Unnoticed emotional states",
         solution: "Mood insights",
         method: "App",
         feature: "Monthly, daily, yearly summary",
-        text: "Scattered conversations are synthesized into visual insights of emotional and eating patterns.",
       },
       {
         problem: "Fear of open expression",
         solution: "Judgment-free, private AI chat",
         method: "App",
         feature: "Private AI chat mode",
-        text: "Speak freely with AI, without judgment. A disclaimer and an “Erase all” button keep you in control.",
       },
       {
         problem: "Losing long-term habit formation",
         solution: "Anti-perfectionist journaling",
         method: "Device",
         feature: "Talk mode & tactile feedback",
-        text: "Speaking out loud clarifies tangled feelings. Squeezing triggers haptic feedback to relieve stress while tracking patterns.",
       },
-    ],
-    iaLabel: "Information architecture",
-    ia: [
-      { k: "Home", items: ["Header", "Today’s prompt", "Action suggestion chips", "Chat input bar"] },
-      { k: "Summary", items: ["Monthly", "Daily", "Yearly"] },
-      { k: "Saved", items: ["Chat bubbles"] },
-      { k: "Profile", items: ["Account info", "Privacy & data", "Preferences"] },
     ],
     wire: {
       src: img("wireframe"),
@@ -304,6 +291,13 @@ export const pebboCase = {
       src: img("screen-profile"),
       alt: "Profile screen: linked Pebble, app lock, privacy chat mode, export chat and a red Erase All Chat button",
       footnote: "Talking with your AI. Stays private unless you want.",
+    },
+    // Under the reasoning demo: the same thing works in the chat on the first screen
+    tryAbove: { t: "This isn’t a mock-up. Hold any of Pebbo’s replies in the working chat at the top of this page.", go: "Go to the chat" },
+    // Shown in the working chat when a message sounds like more than a hard day (tryIt.help)
+    limits: {
+      k: "Knows its limits",
+      t: "Pebbo is a companion, not treatment. When a message sounds like more than a hard day, it steps back and points to people who can help.",
     },
     onboarding: {
       k: "A soft start",

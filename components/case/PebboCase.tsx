@@ -30,10 +30,10 @@ export function PebboCase() {
       <Device />
       <Scene />
       <Daily />
+      <Trust />
       <Research />
       <Define />
       <Approach />
-      <Trust />
       <Takeaways t={C.takeaways} />
     </article>
   );
@@ -57,18 +57,7 @@ function Problem() {
       <h2 className="cs-h2">
         <Lines lines={p.title} />
       </h2>
-      <p className="cs-body cs-measure">{p.text}</p>
       <Scale />
-      <div className="cs-cards pb-facts">
-        {p.cards.map((c) => (
-          <div className="cs-card" key={c.title}>
-            <span className="cs-card-dot" aria-hidden />
-            <h3 className="cs-h3">{c.title}</h3>
-            <p className="cs-body">{c.text}</p>
-            <p className="cs-src">{c.source}</p>
-          </div>
-        ))}
-      </div>
     </Section>
   );
 }
@@ -154,6 +143,12 @@ function Device() {
         <Lines lines={d.title} />
       </h2>
       <p className="cs-body cs-measure">{d.text}</p>
+      {/* why a conversation and not a food log: the clinical ground for journaling */}
+      <p className="pb-basis">
+        <b>{d.basis.k}</b>
+        {d.basis.t}
+        <span className="cs-src">{d.basis.source}</span>
+      </p>
 
       <div className="pb-dev">
         <figure className="pb-dev-fig">
@@ -521,8 +516,8 @@ function Research() {
       <h2 className="cs-h2">
         <Lines lines={r.title} />
       </h2>
+      <p className="pb-insight pb-insight--lead">{r.insight}</p>
       <p className="cs-body cs-measure">{r.text}</p>
-      <p className="pb-insight">{r.insight}</p>
 
       <figure className="pb-voice">
         <p className="pb-voice-q">Q. {r.q}</p>
@@ -644,7 +639,6 @@ function Approach() {
   const a = C.approach;
   const [ref, p] = useScrollProgress<HTMLDivElement>(0.85, 0.3);
   const shown = (row: number) => p >= row * 0.24 || undefined;
-  const [iaRef, iaSeen] = useInView<HTMLDivElement>(0.35);
   const appCols = a.cols.filter((c) => c.method === "App").length;
   return (
     <Section label={a.label} id="pb-approach">
@@ -672,7 +666,6 @@ function Approach() {
               </span>
               <span className="pb-map-cell pb-map-cell--feature" style={{ gridColumn: i + 2, gridRow: 4 }} data-in={shown(3)}>
                 <b>{c.feature}</b>
-                <span>{c.text}</span>
               </span>
             </Fragment>
           ))}
@@ -689,23 +682,6 @@ function Approach() {
         </div>
       </div>
 
-      <div className="pb-ia" ref={iaRef} data-in={iaSeen || undefined}>
-        <p className="pb-k">{a.iaLabel}</p>
-        <div className="pb-ia-root">Pebbo</div>
-        <div className="pb-ia-cols">
-          {a.ia.map((col, i) => (
-            <div className="pb-ia-col" key={col.k} style={{ ["--i" as string]: i }}>
-              <span className="pb-ia-k">{col.k}</span>
-              <ul>
-                {col.items.map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <figure className="pb-wire">
         <img src={a.wire.src} alt={a.wire.alt} width={a.wire.w} height={a.wire.h} loading="lazy" />
         <figcaption>Wireframe · home and chat</figcaption>
@@ -718,6 +694,7 @@ function Approach() {
 
 function Trust() {
   const t = C.trust;
+  const root = useScrollRoot();
   return (
     <Section label={t.label} id="pb-trust">
       <h2 className="cs-h2">
@@ -725,6 +702,12 @@ function Trust() {
       </h2>
       <p className="cs-body cs-measure">{t.text}</p>
       <Reasoning />
+      <p className="pb-try">
+        {t.tryAbove.t}{" "}
+        <button type="button" onClick={() => root?.scrollTo({ top: 0, behavior: reducedMotion() ? "auto" : "smooth" })}>
+          {t.tryAbove.go}
+        </button>
+      </p>
       <div className="pb-priv">
         <figure className="pb-priv-col">
           <span className="pb-priv-shot">
@@ -745,6 +728,21 @@ function Trust() {
             <p className="cs-body">{t.onboarding.t}</p>
           </figcaption>
         </figure>
+      </div>
+      <div className="pb-limits">
+        <div>
+          <h3 className="cs-h3">{t.limits.k}</h3>
+          <p className="cs-body">{t.limits.t}</p>
+        </div>
+        <ul>
+          {C.tryIt.help.map((h) => (
+            <li key={h.href}>
+              <a href={h.href} target="_blank" rel="noopener noreferrer">
+                {h.label}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </Section>
   );
