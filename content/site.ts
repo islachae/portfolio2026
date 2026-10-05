@@ -141,7 +141,9 @@ export const pages: Page[] = [
     meta: "Payment UX • Concept 2025",
     year: "2025",
     tag: "Payment UX",
-    thumb: "/work/tipping.webp",
+    thumb: "/work/tipping-card.webp",
+    // drawn from the real screens (checkout, feedback, feedback sheet) with the tip beside the phone
+    clip: { mp4: "/work/tipping-card.mp4", webm: "/work/tipping-card.webm", loop: true },
     headline: "AI-assisted tipping that’s fairer for delivery apps",
     card: "Concept 2025",
     group: "work",
