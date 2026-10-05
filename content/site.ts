@@ -283,7 +283,9 @@ export const pages: Page[] = [
     id: "cocktail",
     meta: "Motion • 3D • 2026",
     group: "fun",
-    thumb: "/fun/cocktail-card.webp",
+    thumb: "/fun/cocktail-clip.webp",
+    // 눈치 being made: the garnish drops in, the word and its receipt come out
+    clip: { mp4: "/fun/cocktail-card.mp4", webm: "/fun/cocktail-card.webm", loop: true },
     title: "Untranslatable word bar",
     ticker: "MIX",
     kind: "Motion · 3D · Toy",
