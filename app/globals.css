@@ -9931,7 +9931,8 @@ html[data-motion="reduced"] .pb-board-head {
     gap: var(--space-md);
   }
   .pb-stage {
-    --h: min(400px, calc(100vh - 300px));
+    /* its three columns and padding are 0.91 of --h wide: on a narrow phone the width bounds it too */
+    --h: min(400px, calc(100vh - 300px), calc((100vw - 34px) / 0.91));
     justify-content: center;
     width: 100%;
   }

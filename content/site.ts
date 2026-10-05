@@ -369,7 +369,7 @@ export const pages: Page[] = [
     title: "Say hi",
     ticker: "HI",
     kind: "Contact",
-    tagline: "Working on something cool? Let's talk.",
+    tagline: "안녕 means hi. It also means bye.",
     summary: ["I'm looking for a product design internship in New York for Summer 2027. Big tech, B2B SaaS, fintech, or productivity tools: if you're building something people rely on, I'd love to hear about it."],
     facts: [
       { label: "Email", value: "chaewon2@andrew.cmu.edu" },

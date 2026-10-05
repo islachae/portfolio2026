@@ -207,15 +207,37 @@ export function Hello({ me = false, now = true }: { me?: boolean; now?: boolean 
   );
 }
 
+/**
+ * A tap anywhere else puts an open note away. (On a phone, tapping plain text doesn't take focus
+ * off the phrase, so its blur never comes.)
+ */
+function useOutsideClose(open: boolean, close: () => void) {
+  const fn = useRef(close);
+  fn.current = close;
+  useEffect(() => {
+    if (!open) return;
+    const down = (e: PointerEvent) => {
+      if (!(e.target instanceof Element) || !e.target.closest(".phrase, .peek")) fn.current();
+    };
+    document.addEventListener("pointerdown", down);
+    return () => document.removeEventListener("pointerdown", down);
+  }, [open]);
+}
+
 function Bio() {
   const { bio } = profile;
   const [open, setOpen] = useState<number | null>(null);
   const closeTimer = useRef<number | undefined>(undefined);
+  // when the note last opened: a tap focuses the phrase (which opens it) and then clicks it, and
+  // that click must not close what the same tap just opened
+  const openedAt = useRef(0);
 
   const show = (i: number) => {
     window.clearTimeout(closeTimer.current);
+    if (open !== i) openedAt.current = performance.now();
     setOpen(i);
   };
+  useOutsideClose(open !== null, () => setOpen(null));
   const hide = () => {
     window.clearTimeout(closeTimer.current);
     closeTimer.current = window.setTimeout(() => setOpen(null), 90);
@@ -238,7 +260,7 @@ function Bio() {
             onPointerLeave={(e) => e.pointerType === "mouse" && hide()}
             onFocus={() => show(i)}
             onBlur={hide}
-            onClick={() => (open === i ? setOpen(null) : show(i))}
+            onClick={() => (open === i && performance.now() - openedAt.current > 400 ? setOpen(null) : show(i))}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -322,10 +344,13 @@ function BioAfter() {
   const { after, afterEm, afterPeekTitle, afterPeek } = profile.bio;
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<number | undefined>(undefined);
+  const openedAt = useRef(0); // (see Bio)
   const show = () => {
     window.clearTimeout(closeTimer.current);
+    if (!open) openedAt.current = performance.now();
     setOpen(true);
   };
+  useOutsideClose(open, () => setOpen(false));
   const hide = () => {
     window.clearTimeout(closeTimer.current);
     closeTimer.current = window.setTimeout(() => setOpen(false), 90);
@@ -345,7 +370,7 @@ function BioAfter() {
         onPointerLeave={(e) => e.pointerType === "mouse" && hide()}
         onFocus={show}
         onBlur={hide}
-        onClick={() => (open ? setOpen(false) : show())}
+        onClick={() => (open && performance.now() - openedAt.current > 400 ? setOpen(false) : show())}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

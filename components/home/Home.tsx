@@ -8,7 +8,6 @@ import { isPlayId, playHash } from "@/content/routes";
 import { reducedMotion, useShell } from "../shell-context";
 import { Hello, formatNY, useNow } from "../HomePage";
 import { ShaderHero } from "../ShaderHero";
-import { ExtArrow } from "../icons";
 import { loadCase } from "../case/load";
 import { loadPlay } from "./play-load";
 import { NameChip, PhoneBar, SiteAsk, SiteNav } from "./Nav";
@@ -348,7 +347,6 @@ function SayHi() {
           <dd>
             <a className="nh-out" href={profile.links.resume} target="_blank" rel="noreferrer">
               PDF
-              <ExtArrow />
             </a>
           </dd>
         </div>
@@ -357,7 +355,6 @@ function SayHi() {
           <dd>
             <a className="nh-out" href={profile.links.linkedin} target="_blank" rel="noreferrer">
               chaewon-lim
-              <ExtArrow />
             </a>
           </dd>
         </div>
