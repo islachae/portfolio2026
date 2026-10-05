@@ -378,7 +378,7 @@ function SayHi() {
 function Foot() {
   return (
     <footer className="nh-foot">
-      <div>
+      <div className="nh-foot-l">
         <p>
           Built with Next.js &amp;{" "}
           <a href="https://www.heytea.com/products" target="_blank" rel="noreferrer">

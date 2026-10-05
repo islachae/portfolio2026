@@ -9,7 +9,7 @@ export const tippingCase = {
   id: "tipping" as const,
   eyebrow: "Trust in AI · Design strategy · UX/UI design",
   title: "Rethinking tipping for the age of AI",
-  subtitle: "No more guessing. Tip for what actually happened.",
+  subtitle: "No more guessing.\nTip for what actually happened.",
   meta: [
     { label: "Role", value: "Product Designer" },
     { label: "Timeline", value: "120 hours · March 2025" },
@@ -177,7 +177,7 @@ export const tippingCase = {
       { t: " after confirming service quality, because " },
       { t: "outcome-based tipping feels more justified.", b: true },
     ],
-    legend: { existing: "Existing flow", added: "New touchpoint", hint: "Scroll, or select an orange dot" },
+    legend: { existing: "Existing flow", added: "New touchpoint", hint: "Scroll, or select an orange dot", hintSwipe: "Swipe, or select an orange dot" },
     // The whole order journey; the numbered stops are the three new touchpoints
     steps: [
       { label: "Menu selection" },

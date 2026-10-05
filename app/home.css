@@ -631,12 +631,15 @@ html[data-motion="reduced"] .nh *::after {
 .nh-foot-r {
   text-align: right;
 }
+/* the two keys: filled, in the accent */
 .nh-foot kbd {
   padding: 1px 5px;
-  border: 1px solid var(--border);
+  background: var(--accent-1);
+  color: #fff;
+  font: inherit;
+}
+.nh-foot-l {
   color: var(--text);
-  font-family: var(--font-code);
-  font-size: 12px;
 }
 /* no keys on a touch screen: no line about them */
 @media (hover: none) {
@@ -650,14 +653,13 @@ html[data-motion="reduced"] .nh *::after {
   }
 }
 .nh-foot a {
-  color: var(--text);
+  color: var(--accent-1);
   text-decoration: underline;
-  text-decoration-color: var(--border);
+  text-decoration-color: transparent;
   text-underline-offset: 3px;
-  transition: color 0.15s, text-decoration-color 0.15s;
+  transition: text-decoration-color 0.15s;
 }
 .nh-foot a:hover {
-  color: var(--accent-1);
   text-decoration-color: currentColor;
 }
 .nh-foot a:focus-visible {
@@ -819,8 +821,10 @@ html[data-motion="reduced"] .nh *::after {
 }
 
 /* ───────── case study: the bar, and the split first screen ───────── */
+/* The page under it (Home) doesn't scroll along, but a sideways two-finger swipe still goes back:
+   `contain` on both axes switches the browser's swipe navigation off. */
 .cs {
-  overscroll-behavior: contain;
+  overscroll-behavior: auto contain;
 }
 /* the bar is laid out as on Home: where you are on the left (Back, then the project's name once
    the first screen has passed); the four places and the ChaeLLM button together on the right */
@@ -1017,7 +1021,7 @@ html[data-motion="reduced"] .nh *::after {
   background: var(--bg);
   color: var(--text);
   outline: none;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto contain;
 }
 .pp .cs-bar {
   flex: none;

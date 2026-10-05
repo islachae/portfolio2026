@@ -383,49 +383,101 @@ function Principle() {
    to find the dots to see all three. A dot still jumps straight to its touchpoint.
    (Pinning the whole block and swapping the panel in place, the way the Final design scene does,
    would cut it off: a panel is taller than most laptop screens.) */
+/** Where the row of touchpoints stands (0 … n-1) at scroll progress p: each one holds for a stretch, then slides to the next. */
+function slideAt(p: number, n: number, hold = 0.58) {
+  if (n < 2) return 0;
+  const h = hold / n;
+  const s = (1 - hold) / (n - 1);
+  for (let i = 0; i < n - 1; i++) {
+    const t = p - i * (h + s);
+    if (t < h) return i;
+    if (t < h + s) {
+      const k = (t - h) / s;
+      return i + k * k * (3 - 2 * k);
+    }
+  }
+  return n - 1;
+}
+/** The scroll progress at which touchpoint i sits still (the middle of its hold). */
+const holdAt = (i: number, n: number, hold = 0.58) => (n < 2 ? 0 : i * (hold / n + (1 - hold) / (n - 1)) + hold / n / 2);
+
 function Mechanism() {
   const m = C.mechanism;
   const root = useScrollRoot();
-  const rail = useRef<HTMLDivElement>(null);
-  const panels = useRef<(HTMLDivElement | null)[]>([]);
-  const [sel, setSel] = useState(m.touchpoints[0].n);
+  const scene = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
+  const view = useRef<HTMLDivElement>(null);
+  const raw = useStickyProgress(scene, frame);
+  const [still, setStill] = useState(false);
+  useEffect(() => setStill(reducedMotion()), []);
+  const count = m.touchpoints.length;
+  const [at, setAt] = useState(0);
+  const [pin, setPin] = useState(false); // (for the hint's wording; the layout reads data-pin)
+  const sel = m.touchpoints[at]?.n ?? m.touchpoints[0].n;
   const col = m.steps.findIndex((s) => s.n === sel);
 
-  // Which touchpoint is on screen: the last one whose top has come up to a line a little under the rail
+  /* The touchpoints stand in a row and one is in view at a time. Where there's room, the frame
+     pins under the bar and the page's scroll moves the row (as in "Why now?"); on a phone, a short
+     window, or with motion reduced, the row is swiped sideways instead. */
+  const pinned = () => !!scene.current?.hasAttribute("data-pin");
+  // Pin only if the rail and a whole touchpoint fit in the window: the phone screens give way
+  // (down to 180px tall) to make them fit, and under that the row is swiped instead.
   useEffect(() => {
-    if (!root) return;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const view = root.getBoundingClientRect();
-      const under = Math.max(rail.current?.getBoundingClientRect().bottom ?? 0, view.top + 56);
-      const line = under + (view.bottom - under) * 0.35;
-      let n = m.touchpoints[0].n;
-      panels.current.forEach((el, i) => {
-        if (el && el.getBoundingClientRect().top <= line) n = m.touchpoints[i].n;
-      });
-      setSel(n);
+    const sc = scene.current;
+    const fr = frame.current;
+    if (!root || !sc || !fr || typeof ResizeObserver === "undefined") return;
+    const fit = () => {
+      const shot = fr.querySelector<HTMLElement>(".cs-shot");
+      if (!shot) return;
+      const bar = 56;
+      const room = root.clientHeight - bar - 12;
+      // measured as it would be pinned (the pinned frame is a little tighter), before anything paints
+      sc.setAttribute("data-pin", "");
+      const h = Math.min(430, Math.floor(room - (fr.offsetHeight - shot.offsetHeight)));
+      const pin = !still && h >= 180 && window.matchMedia("(min-width: 641px)").matches;
+      sc.toggleAttribute("data-pin", pin);
+      setPin(pin);
+      if (pin) fr.style.setProperty("--shot-h", `${h}px`);
+      else fr.style.removeProperty("--shot-h");
     };
-    const on = () => {
-      if (!raf) raf = requestAnimationFrame(update);
+    const ro = new ResizeObserver(fit);
+    ro.observe(root);
+    ro.observe(fr);
+    fit();
+    return () => ro.disconnect();
+  }, [root, still]);
+  useEffect(() => {
+    const place = () => {
+      const v = view.current;
+      if (v && pinned()) v.scrollLeft = slideAt(raw, count) * v.clientWidth;
     };
-    update();
-    root.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
-    return () => {
-      root.removeEventListener("scroll", on);
-      window.removeEventListener("resize", on);
-      cancelAnimationFrame(raf);
-    };
-  }, [root, m]);
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [raw, count, still]);
 
-  // A dot brings its touchpoint up to just under the rail
+  // Which touchpoint is in view, however the row was moved
+  useEffect(() => {
+    const v = view.current;
+    if (!v) return;
+    const on = () => setAt(Math.max(0, Math.min(count - 1, Math.round(v.scrollLeft / Math.max(1, v.clientWidth)))));
+    on();
+    v.addEventListener("scroll", on, { passive: true });
+    return () => v.removeEventListener("scroll", on);
+  }, [count]);
+
+  // A dot brings its touchpoint into view
   const jump = (n: number) => {
-    const el = panels.current[m.touchpoints.findIndex((t) => t.n === n)];
-    const r = rail.current;
-    if (!root || !el || !r) return;
-    const pinned = getComputedStyle(r).position === "sticky";
-    scrollToEl(root, el, pinned ? (parseFloat(getComputedStyle(r).top) || 0) + r.offsetHeight : 72);
+    const i = m.touchpoints.findIndex((t) => t.n === n);
+    const v = view.current;
+    const sc = scene.current;
+    const fr = frame.current;
+    if (i < 0 || !v) return;
+    const behavior = reducedMotion() ? "auto" : "smooth";
+    if (!pinned() || !root || !sc || !fr) return v.scrollTo({ left: i * v.clientWidth, behavior });
+    const top = sc.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop;
+    const stick = parseFloat(getComputedStyle(fr).top) || 0;
+    root.scrollTo({ top: top - stick + (sc.offsetHeight - fr.offsetHeight) * holdAt(i, count) + 1, behavior });
   };
 
   return (
@@ -446,9 +498,11 @@ function Mechanism() {
             <span className="cs-legend-dot" aria-hidden />
             {m.legend.added}
           </span>
-          <span className="cs-legend-hint">{m.legend.hint}</span>
+          <span className="cs-legend-hint">{pin ? m.legend.hint : m.legend.hintSwipe}</span>
         </div>
-        <div className="cs-rail-scroll" ref={rail}>
+        <div className="cs-tp-scene" ref={scene} data-still={still || undefined}>
+        <div className="cs-tp-frame" ref={frame}>
+        <div className="cs-rail-scroll">
           <ol className="cs-rail" style={{ ["--n" as string]: m.steps.length }}>
             {m.steps.map((s) => (
               <li className="cs-stop" key={s.label} data-new={s.n ? "" : undefined} data-on={s.n === sel || undefined}>
@@ -475,16 +529,9 @@ function Mechanism() {
           <span className="cs-pin" style={{ left: `${((col + 0.5) / m.steps.length) * 100}%` }} aria-hidden />
         </div>
 
-        <div className="cs-tp-stack">
-          {m.touchpoints.map((tp, i) => (
-            <div
-              className="cs-tp"
-              key={tp.n}
-              ref={(el) => {
-                panels.current[i] = el;
-              }}
-              data-on={tp.n === sel || undefined}
-            >
+        <div className="cs-tp-view" ref={view}>
+          {m.touchpoints.map((tp) => (
+            <div className="cs-tp" key={tp.n} data-on={tp.n === sel || undefined}>
               <h3 className="cs-tp-title">
                 <span className="cs-tp-n">0{tp.n}</span>
                 {tp.title}
@@ -510,6 +557,8 @@ function Mechanism() {
               </div>
             </div>
           ))}
+        </div>
+        </div>
         </div>
       </div>
     </section>

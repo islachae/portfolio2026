@@ -4593,6 +4593,7 @@ html[data-booting="case"] .app {
   font-family: var(--font-display);
   font-size: 20px;
   letter-spacing: -0.01em;
+  white-space: pre-line;
 }
 .cs-meta {
   display: grid;
@@ -5238,26 +5239,66 @@ button.cs-stop-dot:hover > span {
   border-radius: 50%;
   background: var(--cs-accent);
 }
-/* The three touchpoints sit one under the other: the reader's scroll goes through them, and the
-   rail (pinned under the bar on screens with room for it) marks the one on screen. */
-.cs-tp-stack {
-  display: grid;
-  gap: var(--space-xl);
+/* The three touchpoints stand in a row, one in view at a time. By default the row is swiped
+   sideways (phones, short windows, motion reduced); where there's room the frame pins under the
+   bar and the page's scroll moves the row, as in "Why now?" (Mechanism in TippingCase.tsx sets
+   data-pin). */
+.cs-tp-scene {
+  position: relative;
+}
+.cs-tp-view {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.cs-tp-view::-webkit-scrollbar {
+  display: none;
 }
 .cs-tp {
+  flex: 0 0 100%;
+  min-width: 0;
   padding: 28px 34px 40px;
   border: 1px solid var(--cs-frame);
   background: var(--cs-tint);
+  scroll-snap-align: start;
 }
-@media (min-width: 641px) and (min-height: 620px) {
-  .cs-rail-scroll {
-    position: sticky;
-    top: 56px; /* the bar */
-    z-index: 3;
-    margin-top: var(--space-xs);
-    padding-top: var(--space-lg);
-    background: var(--bg);
-  }
+/* pinned (set by Mechanism when the rail and a whole touchpoint fit in the window) */
+/* the scroll runway (sticky only moves within the content box, so this can't be padding) */
+.cs-tp-scene[data-pin]::after {
+  content: "";
+  display: block;
+  height: 170vh;
+}
+.cs-tp-scene[data-pin] .cs-tp-frame {
+  position: sticky;
+  top: 56px; /* the bar */
+}
+.cs-tp-scene[data-pin] .cs-rail-scroll {
+  margin-top: var(--space-xs);
+  padding-top: var(--space-md);
+  padding-bottom: 28px;
+}
+.cs-tp-scene[data-pin] .cs-pin {
+  height: 20px;
+}
+.cs-tp-scene[data-pin] .cs-tp-view {
+  overflow: hidden;
+  scroll-snap-type: none;
+}
+.cs-tp-scene[data-pin] .cs-tp {
+  padding-top: 20px;
+  padding-bottom: 24px;
+}
+.cs-tp-scene[data-pin] .cs-tp-cols {
+  margin-top: var(--space-md);
+}
+/* the phone screens give way so it all fits (--shot-h is their height, from Mechanism) */
+.cs-tp-scene[data-pin] .cs-shot {
+  width: min(100%, calc(var(--shot-h, 430px) * 300 / 312));
+}
+.cs-tp-scene[data-pin] .cs-tp-col .cs-h3 {
+  margin-top: var(--space-md);
 }
 .cs-tp-title {
   font-family: var(--font-display);
