@@ -105,6 +105,9 @@ export const viewport: Viewport = {
 // 1. saved theme/motion, so there's no flash;
 // 2. a link straight to a case study or the About page: hide Home and draw that page's outline;
 // 3. the first visit to Home in a session: the monogram loader (only if the page isn't ready in 0.3s).
+/** The notes in lib/boot.ts are for whoever edits it: the page itself is sent without them. */
+const lean = (code: string) => code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\n\s*\n/g, "\n");
+
 const bootScript = `(function(){var d=document.documentElement,W=window,h=location.hash;
 try{var s=JSON.parse(localStorage.getItem("cw-settings")||"{}");if(s.theme==="light"||s.theme==="dark")d.dataset.theme=s.theme;if(s.motion==="reduced")d.dataset.motion="reduced";}catch(e){}
 if(/^#(case\\/|(tipping|pebbo|melon)$)/.test(h))d.dataset.booting="case";else if(/^#about(\\/story)?$/.test(h))d.dataset.booting="about";
@@ -116,9 +119,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable}`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
+        <script dangerouslySetInnerHTML={{ __html: lean(bootScript) }} />
         {/* Inline, so the loader and the outline can paint before the stylesheet arrives */}
-        <style dangerouslySetInnerHTML={{ __html: bootCss }} />
+        <style dangerouslySetInnerHTML={{ __html: lean(bootCss) }} />
         {/* Deferred: runs after the page is parsed, so it never holds up the first paint */}
         {analyticsOn && (
           <script
@@ -145,6 +148,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <i className="cwb-dot" />
           </div>
           <script dangerouslySetInnerHTML={{ __html: "window.cwPen&&cwPen()" }} />
+          {/* how to get past it: shown a second in, while the intro is running (any click, tap,
+              scroll or key ends it as soon as the page is ready: lib/boot.ts) */}
+          <p className="cwb-skip">
+            <span className="k">Click or press any key to skip</span>
+            <span className="t">Tap to skip</span>
+          </p>
         </div>
         {/* A case study or About opened from a link: the page's outline until it's ready */}
         <div id="cw-skel" aria-hidden="true">

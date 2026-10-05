@@ -60,6 +60,11 @@ html[data-boot=on] .cwb-mark,html[data-boot=on] .cwb-sig{animation:cwb-in .3s ea
 html[data-boot=done] .cwb-dot,html[data-boot=out] .cwb-dot{animation:cwb-dot .34s cubic-bezier(.3,1.7,.5,1) both}
 @keyframes cwb-dot{from{transform:scale(0)}to{transform:scale(1)}}
 .cwb-mark{position:relative;width:38px;height:38px}
+.cwb-skip{position:absolute;left:0;right:0;bottom:max(28px,env(safe-area-inset-bottom));margin:0;text-align:center;color:var(--t);font:12px/1 var(--font-mono,ui-monospace),ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;opacity:0}
+html[data-boot=on] .cwb-skip{animation:cwb-skip .4s ease-out 1s both}
+@keyframes cwb-skip{to{opacity:1}}
+.cwb-skip .t{display:none}
+@media (hover:none){.cwb-skip .k{display:none}.cwb-skip .t{display:inline}}
 .cwb-mono{display:block;width:38px;height:38px}
 html[data-boot=out] .me-chip-mark,html[data-boot=out] .mobilebar-home svg{visibility:hidden}
 html[data-booting] #cw-skel{display:block}

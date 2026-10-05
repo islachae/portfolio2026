@@ -268,6 +268,7 @@ Styles follow the “Rachelchen” DESIGN.md (alpha), applied to a three-pane la
 - **Type:** heading1 = Satoshi Medium 48 / 55.2 / −2px (cover and page titles), Satoshi 22px for the cover's second line, Satoshi headings 17px, Geist body 15px/1.5, Geist Mono 12px caps for labels. Satoshi stands in for the spec's Tiempos Text; it's from Fontshare (Indian Type Foundry, free license), self-hosted as `app/fonts/Satoshi-*.woff2`.
 - **Shape:** 0px corners on structure, pills only for primary CTAs. One shadow tier; everything else is separated by hairlines and surface color.
 - **Not found** (`app/not-found.tsx`, `.nf` at the end of `app/home.css`): any address that isn't a page shows “404” with ChaeLLM's face as the zero, and two ways on, Back to Home and Ask ChaeLLM (`/#ask` opens the chat on Home: `components/Site.tsx`).
+- **The intro says how to get past it**: a second in, “Click or press any key to skip” (“Tap to skip” on touch screens) fades in under the signature (`.cwb-skip` in `lib/boot.ts`). The notes written inside the inline loader code are taken out of the page that is sent (`lean` in `app/layout.tsx`).
 - **Link previews**: `app/opengraph-image.png` and `app/twitter-image.png` (1200×630, with their `.alt.txt`) are what LinkedIn, Slack and Messages show for chaewon.works. They are a picture of Home's first screen without the menu and the clock; take it again when the first screen changes.
 - **Spacing:** 4 / 8 / 12 / 16 / 20 / 24 / 32 / 48.
 
