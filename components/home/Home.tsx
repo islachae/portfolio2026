@@ -144,11 +144,11 @@ function cardLine(p: Page) {
 
 
 /**
- * A card whose picture moves: a short clip that plays once when the card is on screen, and again
- * each time the pointer or focus comes to the card, then rests on its last frame. The poster is
- * that same frame, so the card reads the same before it plays, after, and where video can't play.
- * It waits while the intro or another page covers Home, loads nothing until it is about to play,
- * and never plays with reduced motion.
+ * A card whose picture moves. A short clip plays once when the card is on screen, and again each
+ * time the pointer or focus comes to the card, then rests on its last frame (the poster is that
+ * same frame). A `loop` clip (a longer recording) plays for as long as the card is on screen and
+ * pauses when it isn't. Both wait while the intro or another page covers Home, load nothing until
+ * they are about to play, and never play with reduced motion: the poster stands in.
  */
 function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: string }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -166,7 +166,13 @@ function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: s
       void v.play().catch(() => {});
     };
     const first = () => {
-      if (played || !inView || root.dataset.boot || home?.hasAttribute("data-hidden")) return;
+      const free = inView && !root.dataset.boot && !home?.hasAttribute("data-hidden");
+      if (clip.loop) {
+        if (free) void v.play().catch(() => {});
+        else v.pause();
+        return;
+      }
+      if (played || !free) return;
       played = true;
       play();
     };
@@ -175,24 +181,26 @@ function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: s
         inView = e.isIntersecting;
         first();
       },
-      { threshold: 0.6 },
+      { threshold: clip.loop ? 0.35 : 0.6 },
     );
     io.observe(v);
     // the intro leaving, or the page over Home closing, is the other moment it can start
     const mo = new MutationObserver(first);
     mo.observe(root, { attributes: true, attributeFilter: ["data-boot"] });
     if (home) mo.observe(home, { attributes: true, attributeFilter: ["data-hidden"] });
-    card?.addEventListener("pointerenter", play);
-    card?.addEventListener("focus", play);
+    if (!clip.loop) {
+      card?.addEventListener("pointerenter", play);
+      card?.addEventListener("focus", play);
+    }
     return () => {
       io.disconnect();
       mo.disconnect();
       card?.removeEventListener("pointerenter", play);
       card?.removeEventListener("focus", play);
     };
-  }, []);
+  }, [clip.loop]);
   return (
-    <video ref={ref} poster={poster} muted playsInline preload="none" aria-hidden tabIndex={-1} disablePictureInPicture>
+    <video ref={ref} poster={poster} muted playsInline loop={clip.loop} preload="none" aria-hidden tabIndex={-1} disablePictureInPicture>
       {/* H.264 for Safari and most browsers; VP9 for builds without it */}
       <source src={clip.mp4} type="video/mp4" />
       <source src={clip.webm} type="video/webm" />

@@ -43,9 +43,10 @@ export type Page = {
   /** Home card: the thumbnail (and, once, a small label on it) */
   tag?: string;
   thumb?: string;
-  /** Home card: a short clip in place of the still. `thumb` is its last frame (what shows before
-   *  it plays, after it ends, and wherever video can't play). */
-  clip?: { mp4: string; webm: string };
+  /** Home card: a clip in place of the still. A short one plays once and rests on its last frame
+   *  (`thumb` is that frame); a `loop` one keeps playing while the card is on screen (`thumb` is a
+   *  frame from it). Either way `thumb` is what shows wherever video can't play. */
+  clip?: { mp4: string; webm: string; loop?: boolean };
   /** Extra words ⌘K search matches on */
   keywords: string[];
   /** The deck's big heading when it shouldn't just be the page name (About: “안녕! I’m Chaewon”) */
@@ -173,7 +174,8 @@ export const pages: Page[] = [
     meta: "AI companion • 2024",
     year: "2024",
     tag: "AI Companion",
-    thumb: "/work/pebbo.webp",
+    thumb: "/work/pebbo-card.webp",
+    clip: { mp4: "/work/pebbo-card.mp4", webm: "/work/pebbo-card.webm", loop: true },
     headline: "AI companion that listens when eating brings guilt",
     card: "Side project 2024",
     group: "work",
