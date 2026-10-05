@@ -2138,7 +2138,7 @@ html[data-motion="reduced"] .phrase .emoji {
 .wish-frame {
   position: relative;
   height: min(100cqh, calc(100cqw * 0.924));
-  aspect-ratio: 1600 / 1479;
+  aspect-ratio: 2000 / 1848;
   overflow: hidden;
   border-radius: 4px;
   background: #1a1230;

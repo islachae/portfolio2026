@@ -535,8 +535,8 @@ export function WishStage() {
       {
         id,
         c: wishColors[id % wishColors.length],
-        x: 44 + Math.random() * 22,
-        y: 12 + Math.random() * 18,
+        x: 46 + Math.random() * 26,
+        y: 16 + Math.random() * 18,
       },
     ]);
   };
@@ -545,7 +545,7 @@ export function WishStage() {
       <div className="stage-visual wish-stage">
         <div className="wish-frame">
           <img
-            src="/fun/wish-tree.webp"
+            src="/fun/wish-scene.webp"
             alt="A glowing tree on a hill, lit by colorful wish ribbons, with a person in a VR headset looking up at it."
             loading="lazy"
           />
@@ -554,10 +554,10 @@ export function WishStage() {
               key={w.id}
               className="wish"
               style={{ ["--c" as string]: w.c }}
-              initial={{ left: "73%", top: "66%", opacity: 0, scale: 0.4 }}
+              initial={{ left: "69%", top: "73%", opacity: 0, scale: 0.4 }}
               animate={{
-                left: ["73%", "64%", `${w.x}%`],
-                top: ["66%", "44%", `${w.y}%`],
+                left: ["69%", "64%", `${w.x}%`],
+                top: ["73%", "50%", `${w.y}%`],
                 opacity: [0, 1, 1],
                 scale: [0.4, 1, 0.8],
               }}
