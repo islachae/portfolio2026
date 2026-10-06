@@ -390,6 +390,11 @@ html[data-motion="reduced"] .shader-drift {
   background: #ffffff;
   transition: border-color 0.2s;
 }
+/* Before a clip's still arrives the box is the skeleton grey of the theme, not white (a card's
+   still image gets the moving skeleton from globals.css, "Skeletons") */
+.nh-card-media[data-clip] {
+  background: var(--sk);
+}
 .nh-card-media img,
 .nh-card-media video {
   display: block;

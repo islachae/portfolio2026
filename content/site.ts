@@ -45,8 +45,9 @@ export type Page = {
   thumb?: string;
   /** Home card: a clip in place of the still. A short one plays once and rests on its last frame
    *  (`thumb` is that frame); a `loop` one keeps playing while the card is on screen (`thumb` is a
-   *  frame from it). Either way `thumb` is what shows wherever video can't play. */
-  clip?: { mp4: string; webm: string; loop?: boolean };
+   *  frame from it). Either way `thumb` is what shows wherever video can't play. `sm` is the same
+   *  clip at 720px wide, which is what phones are sent (their cards are a quarter of the area). */
+  clip?: { mp4: string; webm: string; loop?: boolean; sm?: { mp4: string; webm: string } };
   /** Home card: small lights that drift up over the still (Wish Tree) */
   lights?: boolean;
   /** Extra words ⌘K search matches on */
@@ -149,7 +150,7 @@ export const pages: Page[] = [
     // drawn for the card: one order in three moments (checkout, on the way while each service detail
     // is checked and the tip climbs, then the settled tip),
     // with only the words that matter, large, and the tip beside the phone
-    clip: { mp4: "/work/tipping-card.mp4?v=7", webm: "/work/tipping-card.webm?v=7", loop: true },
+    clip: { mp4: "/work/tipping-card.mp4?v=7", webm: "/work/tipping-card.webm?v=7", loop: true, sm: { mp4: "/work/tipping-card-sm.mp4?v=7", webm: "/work/tipping-card-sm.webm?v=7" } },
     headline: "AI-assisted tipping that’s fairer for delivery apps",
     card: "Concept 2025",
     group: "work",
@@ -183,7 +184,7 @@ export const pages: Page[] = [
     year: "2024",
     tag: "AI Companion",
     thumb: "/work/pebbo-card.webp",
-    clip: { mp4: "/work/pebbo-card.mp4", webm: "/work/pebbo-card.webm", loop: true },
+    clip: { mp4: "/work/pebbo-card.mp4", webm: "/work/pebbo-card.webm", loop: true, sm: { mp4: "/work/pebbo-card-sm.mp4", webm: "/work/pebbo-card-sm.webm" } },
     headline: "AI companion that listens when eating brings guilt",
     card: "Side project 2024",
     group: "work",
@@ -219,7 +220,7 @@ export const pages: Page[] = [
     tag: "In progress",
     group: "progress",
     thumb: "/work/melon/meet-mellon.webp",
-    clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm" },
+    clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm", sm: { mp4: "/work/melon/meet-mellon-sm.mp4", webm: "/work/melon/meet-mellon-sm.webm" } },
     headline: "Helping students catch key school emails, and advisors hear back",
     card: "In progress 2026",
     title: "CMU Mellon",
@@ -289,7 +290,7 @@ export const pages: Page[] = [
     group: "fun",
     thumb: "/fun/cocktail-clip.webp",
     // 눈치 being made: the garnish drops in, the word and its receipt come out
-    clip: { mp4: "/fun/cocktail-card.mp4", webm: "/fun/cocktail-card.webm", loop: true },
+    clip: { mp4: "/fun/cocktail-card.mp4", webm: "/fun/cocktail-card.webm", loop: true, sm: { mp4: "/fun/cocktail-card-sm.mp4", webm: "/fun/cocktail-card-sm.webm" } },
     title: "Untranslatable word bar",
     ticker: "MIX",
     kind: "Motion · 3D · Toy",
@@ -331,7 +332,7 @@ export const pages: Page[] = [
     group: "fun",
     thumb: "/fun/bakery-clip.webp",
     // the stack being flipped through: a bake, its recipe card, the next one
-    clip: { mp4: "/fun/bakery-card.mp4", webm: "/fun/bakery-card.webm", loop: true },
+    clip: { mp4: "/fun/bakery-card.mp4", webm: "/fun/bakery-card.webm", loop: true, sm: { mp4: "/fun/bakery-card-sm.mp4", webm: "/fun/bakery-card-sm.webm" } },
     title: "Bakery Log",
     ticker: "BAKE",
     kind: "Off the clock",

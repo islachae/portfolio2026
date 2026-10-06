@@ -220,6 +220,13 @@ function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: s
   useEffect(() => {
     const v = ref.current;
     if (!v || reducedMotion()) return;
+    // phones get the small file: nothing has been fetched yet (preload is "none")
+    if (clip.sm && window.matchMedia("(max-width: 760px)").matches) {
+      const [mp4, webm] = v.querySelectorAll("source");
+      mp4.src = clip.sm.mp4;
+      webm.src = clip.sm.webm;
+      v.load();
+    }
     const root = document.documentElement;
     const home = v.closest(".nh");
     const card = v.closest(".nh-card");
@@ -263,7 +270,7 @@ function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: s
       card?.removeEventListener("pointerenter", play);
       card?.removeEventListener("focus", play);
     };
-  }, [clip.loop]);
+  }, [clip.loop, clip.sm]);
   return (
     <video ref={ref} poster={poster} muted playsInline loop={clip.loop} preload="none" aria-hidden tabIndex={-1} disablePictureInPicture>
       {/* H.264 for Safari and most browsers; VP9 for builds without it */}
@@ -298,7 +305,7 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
 
   const body = (
     <>
-      <span className="nh-card-media" data-lights={p.lights ? "" : undefined}>
+      <span className="nh-card-media" data-lights={p.lights ? "" : undefined} data-clip={p.clip ? "" : undefined}>
         {p.clip && p.thumb ? <CardClip clip={p.clip} poster={p.thumb} /> : p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}
         {p.lights && <CardLights />}
       </span>
