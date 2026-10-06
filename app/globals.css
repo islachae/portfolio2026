@@ -13434,12 +13434,12 @@ html[data-motion="reduced"] .tp-nudge i {
   --sk-hi: #26272a;
   --sk-photo: #2b2824;
 }
-:where(.card-media, .nh-card-media, .wish-frame, .cs-main)
+:where(.card-media, .wish-frame, .cs-main)
   img:not(.cs-tile img, .polaroid img, .pba-phone img, .pb-stage-phone img, [src$=".svg"]):not([data-ld="1"]) {
   background: linear-gradient(100deg, var(--sk) 36%, var(--sk-hi) 50%, var(--sk) 64%) 0 0 / 300% 100% var(--sk);
   animation: sk-sheen 1.6s linear infinite;
 }
-:where(.card-media, .nh-card-media, .wish-frame, .cs-main)
+:where(.card-media, .wish-frame, .cs-main)
   img:not(.cs-tile img, .polaroid img, .pba-phone img, .pb-stage-phone img, [src$=".svg"])[data-ld="x"] {
   animation: none;
 }

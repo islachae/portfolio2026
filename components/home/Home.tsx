@@ -210,12 +210,12 @@ function CardLights() {
 
 /**
  * A card whose picture moves. A short clip plays once when the card is on screen, and again each
- * time the pointer or focus comes to the card, then rests on its last frame (the poster is that
+ * time the pointer or focus comes to the card, then rests on its last frame (the still under it is that
  * same frame). A `loop` clip (a longer recording) plays for as long as the card is on screen and
  * pauses when it isn't. Both wait while the intro or another page covers Home, load nothing until
- * they are about to play, and never play with reduced motion: the poster stands in.
+ * they are about to play, and never play with reduced motion: the still under them stands in.
  */
-function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: string }) {
+function CardClip({ clip }: { clip: NonNullable<Page["clip"]> }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = ref.current;
@@ -272,7 +272,7 @@ function CardClip({ clip, poster }: { clip: NonNullable<Page["clip"]>; poster: s
     };
   }, [clip.loop, clip.sm]);
   return (
-    <video ref={ref} poster={poster} muted playsInline loop={clip.loop} preload="none" aria-hidden tabIndex={-1} disablePictureInPicture>
+    <video ref={ref} muted playsInline loop={clip.loop} preload="none" aria-hidden tabIndex={-1} disablePictureInPicture>
       {/* H.264 for Safari and most browsers; VP9 for builds without it */}
       <source src={clip.mp4} type="video/mp4" />
       <source src={clip.webm} type="video/webm" />
@@ -305,8 +305,10 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
 
   const body = (
     <>
-      <span className="nh-card-media" data-lights={p.lights ? "" : undefined} data-clip={p.clip ? "" : undefined}>
-        {p.clip && p.thumb ? <CardClip clip={p.clip} poster={p.thumb} /> : p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}
+      <span className="nh-card-media" data-lights={p.lights ? "" : undefined} style={p.tone ? ({ "--tone": p.tone } as React.CSSProperties) : undefined}>
+        {/* the still is always there (it fades in over the card's tone); a clip plays on top of it */}
+        {p.thumb && <img src={p.thumb} alt="" loading="lazy" decoding="async" />}
+        {p.clip && <CardClip clip={p.clip} />}
         {p.lights && <CardLights />}
       </span>
       <span className="nh-card-title">{headline}</span>

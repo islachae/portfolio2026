@@ -383,17 +383,14 @@ html[data-motion="reduced"] .shader-drift {
   outline: none;
 }
 .nh-card-media {
+  position: relative;
   display: block;
   aspect-ratio: 678 / 368;
   overflow: hidden;
   border: 1px solid var(--border);
-  background: #ffffff;
+  /* until the picture arrives: the card's own pale colour (content/site.ts, tone) */
+  background: var(--tone, #ffffff);
   transition: border-color 0.2s;
-}
-/* Before a clip's still arrives the box is the skeleton grey of the theme, not white (a card's
-   still image gets the moving skeleton from globals.css, "Skeletons") */
-.nh-card-media[data-clip] {
-  background: var(--sk);
 }
 .nh-card-media img,
 .nh-card-media video {
@@ -401,6 +398,15 @@ html[data-motion="reduced"] .shader-drift {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+/* a clip lies over its still, and is clear until it has a frame to show */
+.nh-card-media video {
+  position: absolute;
+  inset: 0;
+}
+/* a "coming soon" card dims its picture over white, as before, once the picture is there */
+.nh-card[data-soon] .nh-card-media:has(img[data-ld="1"]) {
+  background: #ffffff;
 }
 /* Lights over a card's picture (Wish Tree): each drifts up about 40% of the card and fades, swaying
    a little. Sizes are in cqw so they keep their proportion on the small phone cards. They run only

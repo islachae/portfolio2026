@@ -48,6 +48,9 @@ export type Page = {
    *  frame from it). Either way `thumb` is what shows wherever video can't play. `sm` is the same
    *  clip at 720px wide, which is what phones are sent (their cards are a quarter of the area). */
   clip?: { mp4: string; webm: string; loop?: boolean; sm?: { mp4: string; webm: string } };
+  /** Home card: the colour its box has before the picture arrives (a pale version of the
+   *  project's own colour, so no card waits as a grey or white box) */
+  tone?: string;
   /** Home card: small lights that drift up over the still (Wish Tree) */
   lights?: boolean;
   /** Extra words ⌘K search matches on */
@@ -147,6 +150,7 @@ export const pages: Page[] = [
     // ?v= changes whenever these three files are redrawn: browsers keep media for an hour (and show
     // the old copy for up to a week while they re-check), so a new address is what gets it seen
     thumb: "/work/tipping-card.webp?v=7",
+    tone: "#fbe3d8",
     // drawn for the card: one order in three moments (checkout, on the way while each service detail
     // is checked and the tip climbs, then the settled tip),
     // with only the words that matter, large, and the tip beside the phone
@@ -184,6 +188,7 @@ export const pages: Page[] = [
     year: "2024",
     tag: "AI Companion",
     thumb: "/work/pebbo-card.webp",
+    tone: "#fde9cf",
     clip: { mp4: "/work/pebbo-card.mp4", webm: "/work/pebbo-card.webm", loop: true, sm: { mp4: "/work/pebbo-card-sm.mp4", webm: "/work/pebbo-card-sm.webm" } },
     headline: "AI companion that listens when eating brings guilt",
     card: "Side project 2024",
@@ -220,6 +225,7 @@ export const pages: Page[] = [
     tag: "In progress",
     group: "progress",
     thumb: "/work/melon/meet-mellon.webp",
+    tone: "#f8d9d5",
     clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm", sm: { mp4: "/work/melon/meet-mellon-sm.mp4", webm: "/work/melon/meet-mellon-sm.webm" } },
     headline: "Helping students catch key school emails, and advisors hear back",
     card: "In progress 2026",
@@ -254,6 +260,7 @@ export const pages: Page[] = [
     year: "2026",
     tag: "B2B SaaS",
     thumb: "/work/zipflow.webp",
+    tone: "#d9e8fc",
     headline: "Real estate SaaS: enter a listing once, use it everywhere",
     card: "Team project 2026",
     group: "work",
@@ -289,6 +296,7 @@ export const pages: Page[] = [
     meta: "Motion • 3D • 2026",
     group: "fun",
     thumb: "/fun/cocktail-clip.webp",
+    tone: "#e6f2c9",
     // 눈치 being made: the garnish drops in, the word and its receipt come out
     clip: { mp4: "/fun/cocktail-card.mp4", webm: "/fun/cocktail-card.webm", loop: true, sm: { mp4: "/fun/cocktail-card-sm.mp4", webm: "/fun/cocktail-card-sm.webm" } },
     title: "Untranslatable word bar",
@@ -311,6 +319,7 @@ export const pages: Page[] = [
     year: "2024",
     group: "fun",
     thumb: "/fun/wish-cover.webp?v=2",
+    tone: "#3a2a4a",
     lights: true,
     title: "Wish Tree",
     ticker: "WISH",
@@ -331,6 +340,7 @@ export const pages: Page[] = [
     meta: "Off the clock",
     group: "fun",
     thumb: "/fun/bakery-clip.webp",
+    tone: "#f5dbe2",
     // the stack being flipped through: a bake, its recipe card, the next one
     clip: { mp4: "/fun/bakery-card.mp4", webm: "/fun/bakery-card.webm", loop: true, sm: { mp4: "/fun/bakery-card-sm.mp4", webm: "/fun/bakery-card-sm.webm" } },
     title: "Bakery Log",
@@ -351,6 +361,7 @@ export const pages: Page[] = [
     // not ready to show yet: its card on Home says “Coming soon” and doesn't open (like ZipFlow's)
     status: "soon",
     thumb: "/fun/lab-card.webp",
+    tone: "#e8e4f6",
     title: "Interaction Lab",
     ticker: "LAB",
     kind: "Playground",
