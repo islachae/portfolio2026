@@ -322,7 +322,7 @@ html[data-motion="reduced"] .shader-drift {
 .nh-play {
   margin-top: 104px;
 }
-/* “The rest is play.”: what separates the play pieces from the work is a sentence, not a rule */
+/* “Play is where I try things.”: what separates the play pieces from the work is a sentence, not a rule */
 .nh-play .nh-play-h {
   margin-bottom: var(--space-md);
 }
@@ -615,7 +615,7 @@ html[data-motion="reduced"] .nh *::after {
 }
 
 /* ───────── Say hi: the page closes the way it opens (a sentence, then facts) ───────── */
-/* no rule above it: like “The rest is play.”, room is what sets it apart */
+/* no rule above it: like “Play is where I try things.”, room is what sets it apart */
 .nh-hi {
   display: grid;
   gap: 28px;
@@ -634,7 +634,7 @@ html[data-motion="reduced"] .nh *::after {
   }
 }
 /* the same voice as the sentence at the top: key words in ink, the rest pale
-   (“The rest is play.” above the play pieces, and the goodbye here) */
+   (“Play is where I try things.” above the play pieces, and the goodbye here) */
 .nh-say {
   margin: 0;
   color: var(--text);

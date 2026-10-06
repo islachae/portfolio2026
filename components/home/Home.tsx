@@ -75,7 +75,7 @@ export function Home({ hidden }: { hidden: boolean }) {
       <section className="nh-play" id="play" aria-label="Play">
         {/* no rule, no label: one line in the voice of the introduction turns the page to play */}
         <h2 className="nh-say nh-play-h">
-          <span className="nh-dim">The rest is</span> play<span className="nh-dim">.</span>
+          Play <span className="nh-dim">is where I try things.</span>
         </h2>
         <ul className="nh-grid nh-grid--play">
           {fun.map((p) => (
