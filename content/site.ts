@@ -149,12 +149,12 @@ export const pages: Page[] = [
     tag: "Payment UX",
     // ?v= changes whenever these three files are redrawn: browsers keep media for an hour (and show
     // the old copy for up to a week while they re-check), so a new address is what gets it seen
-    thumb: "/work/tipping-card.webp?v=7",
+    thumb: "/work/tipping-card.webp?v=8",
     tone: "#fbe3d8",
     // drawn for the card: one order in three moments (checkout, on the way while each service detail
     // is checked and the tip climbs, then the settled tip),
     // with only the words that matter, large, and the tip beside the phone
-    clip: { mp4: "/work/tipping-card.mp4?v=7", webm: "/work/tipping-card.webm?v=7", loop: true, sm: { mp4: "/work/tipping-card-sm.mp4?v=7", webm: "/work/tipping-card-sm.webm?v=7" } },
+    clip: { mp4: "/work/tipping-card.mp4?v=8", webm: "/work/tipping-card.webm?v=8", loop: true, sm: { mp4: "/work/tipping-card-sm.mp4?v=8", webm: "/work/tipping-card-sm.webm?v=8" } },
     headline: "AI-assisted tipping that’s fairer for delivery apps",
     card: "Concept 2025",
     group: "work",
