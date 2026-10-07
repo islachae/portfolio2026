@@ -154,7 +154,7 @@ export const menu: Cocktail[] = [
 
 /** Words on the experience chrome. */
 export const cocktailCopy = {
-  title: "Untranslatable Word Bar",
+  title: "Untranslatable",
   intro: ["Some words just don’t translate into English.", "So let’s see the recipe for that word!"],
   menuLabel: "Menu",
   soon: "Still mixing this one.",

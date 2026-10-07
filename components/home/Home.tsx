@@ -131,16 +131,20 @@ function Clock() {
   );
 }
 
-/** The large line: the card's own headline, or the tagline (a single sentence loses its full stop). */
-const headlineOf = (p: Page) => p.headline ?? p.tagline.replace(/^([^.]*)\.$/, "$1");
-
-/** After the name: status and year. Falls back to `meta`: "Motion • 3D • 2026" → "Motion · 3D 2026". */
-function cardLine(p: Page) {
-  if (p.card) return p.card;
+/** `meta` without its year, and the year: "Motion • 3D • 2026" → ["Motion · 3D", "2026"]. */
+function metaOf(p: Page): [string, string] {
   const parts = p.meta.split(/\s*•\s*/);
-  const year = /^\d{4}$/.test(parts[parts.length - 1]) ? parts.pop() : "";
-  return [parts.join(" · "), year].filter(Boolean).join(" ");
+  const year = /^\d{4}$/.test(parts[parts.length - 1]) ? (parts.pop() as string) : "";
+  return [parts.join(" · "), year];
 }
+
+/** Under the name: what kind of thing it is. A project says it in a line of its own (`headline`,
+ *  or the tagline without its full stop); a play piece in its `meta` ("Motion · 3D"). */
+const kindOf = (p: Page, play: boolean) =>
+  play ? metaOf(p)[0] : (p.headline ?? p.tagline.replace(/^([^.]*)\.$/, "$1"));
+
+/** At the end of the name's row: the year (`card` replaces it where there is more to say: “In progress 2026”). */
+const whenOf = (p: Page) => p.card ?? p.year ?? metaOf(p)[1];
 
 
 
@@ -281,21 +285,21 @@ function CardClip({ clip }: { clip: NonNullable<Page["clip"]> }) {
 }
 
 /**
- * One project, labelled the way Rachel Chen labels hers: a large line that says what it is and
- * for whom, and under it the project's name, its status and the year.
+ * One project: its name, with the year at the end of that row, and under it one line that says
+ * what kind of thing it is.
  * The whole card is the link: a work card opens its case study, a play card its page. What a
  * click does is written next to the pointer while it is over the card (`CursorTag`, from
  * `data-go`); the keyboard and touch screens, which have no pointer to follow, get it at the end
  * of the small line instead (on focus; always, on touch screens).
  * ZipFlow has no case study yet, and the Interaction Lab isn't ready to show (`status: "soon"` in
  * content/site.ts): their cards don't open anything and say “Coming soon” there.
- * A play card's large line is just its name, with what kind of piece it is and the year under it.
+ * A play card reads the same way (name and year, then what kind of piece it is).
  * Phones show the play pieces as small cards, two to a row, with just the name.
  */
 function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
   const { openCase, openPlay } = useShell();
-  // a play piece goes by its name (“Wish Tree”); a project by what it does, its name under it
-  const headline = play ? p.title : headlineOf(p);
+  const kind = kindOf(p, play);
+  const when = whenOf(p);
   const soon = p.status === "soon";
   const toCase = isCaseId(p.id) ? p.id : null;
   const toPlay = isPlayId(p.id) ? p.id : null;
@@ -311,9 +315,12 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
         {p.clip && <CardClip clip={p.clip} />}
         {p.lights && <CardLights />}
       </span>
-      <span className="nh-card-title">{headline}</span>
+      <span className="nh-card-head">
+        <span className="nh-card-title">{p.title}</span>
+        {when && <span className="label nh-card-when">{when}</span>}
+      </span>
       <span className="nh-card-line">
-        <span className="label">{play ? cardLine(p) : `${p.title} • ${cardLine(p)}`}</span>
+        <span className="nh-card-kind">{kind}</span>
         <span className="label nh-card-go" aria-hidden>
           {soon ? (
             "Coming soon"
@@ -343,7 +350,7 @@ function Card({ page: p, play = false }: { page: Page; play?: boolean }) {
     <a
       className={`nh-card${play ? " nh-card--play" : ""}`}
       href={href}
-      aria-label={play ? `${p.title}. Open` : `${p.title}: ${headline}. Read the case study`}
+      aria-label={play ? `${p.title}. Open` : `${p.title}: ${kind}. Read the case study`}
       data-go={toCase ? "Read case study" : "Open"}
       onPointerEnter={warm}
       onFocus={warm}

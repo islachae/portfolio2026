@@ -24,8 +24,8 @@ const answers: Answer[] = [
   {
     q: "How do you design with AI?",
     keys: ["design with ai", "ai", "trust", "automate", "agency", "judgment", "approach", "process"],
-    a: "I let AI take the repetitive work and keep the judgment calls with people. In Rethinking Tipping, AI does the math and brings the context you’d otherwise guess at,, but what good service was worth is still your call.",
-    follow: ["Tell me about Rethinking Tipping", "What are you working on right now?", "Are you open to internships?"],
+    a: "I let AI take the repetitive work and keep the judgment calls with people. In Trust Tip, AI does the math and brings the context you’d otherwise guess at, but what good service was worth is still your call.",
+    follow: ["Tell me about Trust Tip", "What are you working on right now?", "Are you open to internships?"],
   },
   {
     q: "What are you working on right now?",
@@ -40,9 +40,9 @@ const answers: Answer[] = [
     follow: ["What’s your background?", "How do you design with AI?", "What are you working on right now?"],
   },
   {
-    q: "Tell me about Rethinking Tipping",
-    keys: ["tipping", "tip", "checkout", "payment"],
-    a: "Tipping hasn’t kept up with how we pay. The screen asks for a number at the most awkward moment, with almost nothing to go on. Rethinking Tipping puts AI inside the payment flow without taking the decision away from the person who’s tipping.",
+    q: "Tell me about Trust Tip",
+    keys: ["trust tip", "tipping", "tip", "checkout", "payment"],
+    a: "Tipping hasn’t kept up with how we pay. The screen asks for a number at the most awkward moment, with almost nothing to go on. Trust Tip puts AI inside the payment flow without taking the decision away from the person who’s tipping.",
     follow: ["Tell me about Pebbo", "Tell me about ZipFlow", "How do you design with AI?"],
   },
   {
@@ -55,7 +55,7 @@ const answers: Answer[] = [
     q: "Tell me about Pebbo",
     keys: ["pebbo", "companion", "eating", "mood"],
     a: "Pebbo is a companion that listens when eating feels heavy. It turns scattered chats into mood patterns and suggests one small next step. What you share, and what gets erased, is always up to you.",
-    follow: ["Tell me about Rethinking Tipping", "How do you design with AI?", "What’s your background?"],
+    follow: ["Tell me about Trust Tip", "How do you design with AI?", "What’s your background?"],
   },
   {
     q: "Are you open to internships?",

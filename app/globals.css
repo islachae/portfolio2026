@@ -10128,7 +10128,7 @@ html[data-motion="reduced"] .pb-board-head {
   }
 }
 
-/* ═════════ Rethinking Tipping: the prototype, replayed ═════════
+/* ═════════ Trust Tip: the prototype, replayed ═════════
    Real screens in a phone (a product illustration, so it keeps rounded corners).
    Checkout scrolls down to the Trust-First Tipping card; the sheets slide up over "Delivered". */
 .tp-phone {
@@ -12604,7 +12604,7 @@ html[data-motion="reduced"] .pba-prompt i {
   animation: none;
 }
 
-/* ═════════ Rethinking Tipping stage: focus pull ═════════
+/* ═════════ Trust Tip stage: focus pull ═════════
    Each step shows its screen, then the camera leans into one element (--zx, --zy in 0–1 of the
    screen, --zs the scale; --zt is 1 while leaning in), rings it and captions it underneath, then
    eases back out. The stage clips the zoomed phone and fades its edges into the page. */
@@ -15074,7 +15074,7 @@ html[data-motion="reduced"] .wc-paper-sway {
   }
 }
 
-/* ═════════ Untranslatable word bar: the bar as this page's stage (layout v2) ═════════
+/* ═════════ Untranslatable: the bar as this page's stage (layout v2) ═════════
    The page keeps the portfolio's own header and background. Under it, one centred column
    (the counter of the bar): sign + menu on top, the object in the middle, the one action under
    it. Every phase uses the same column; only the final widens so the receipt can print beside

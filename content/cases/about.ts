@@ -90,5 +90,5 @@ export const aboutPage = {
   },
 
   /** The footer: the About page hands off to the work */
-  next: { id: "tipping" as const, label: "Start with the work", title: "Rethinking Tipping", line: "Tipping, rethought for checkouts with AI in the loop." },
+  next: { id: "tipping" as const, label: "Start with the work", title: "Trust Tip", line: "Tipping, rethought for checkouts with AI in the loop." },
 };

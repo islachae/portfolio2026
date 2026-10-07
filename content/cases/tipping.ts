@@ -1,5 +1,5 @@
 /**
- * Rethinking Tipping: the full case study (opens at /#case/tipping).
+ * Trust Tip (first called Rethinking Tipping): the full case study (opens at /#case/tipping).
  * Copy comes from Chaewon's "Rethinking Tipping – Portfolio Case Study" canvas; images live in
  * public/work/tipping-case/. Edit words here; the layout reads from this file.
  */

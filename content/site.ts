@@ -34,9 +34,9 @@ export type Page = {
   /** Year shown in the sidebar */
   year?: string;
   /**
-   * Home card, labelled the way Rachel Chen labels hers: `headline` is the large line (what the
-   * project is, for whom, in plain words) and under it goes “<title> • <card>” (status and year).
-   * Without them the card falls back to the tagline and to `meta`.
+   * Home card: the name is the large line, with the year at the end of its row, and `headline`
+   * is the line under it (what kind of thing it is). `card` replaces the year where there is
+   * more to say (“In progress 2026”). Without them the card falls back to the tagline and `meta`.
    */
   headline?: string;
   card?: string;
@@ -107,7 +107,7 @@ export const profile = {
     afterEm: "fintech and wellness",
     /** The note under those words, like the ones under the three phrases. */
     afterPeekTitle: "Why these two",
-    afterPeek: "Money and health are where a screen has to earn trust. Rethinking Tipping and Pebbo are my two tries at it.",
+    afterPeek: "Money and health are where a screen has to earn trust. Trust Tip and Pebbo are my two tries at it.",
   },
   facts: [
     { label: "Now", value: "MDes, Carnegie Mellon" },
@@ -155,10 +155,9 @@ export const pages: Page[] = [
     // is checked and the tip climbs, then the settled tip),
     // with only the words that matter, large, and the tip beside the phone
     clip: { mp4: "/work/tipping-card.mp4?v=10", webm: "/work/tipping-card.webm?v=10", loop: true, sm: { mp4: "/work/tipping-card-sm.mp4?v=10", webm: "/work/tipping-card-sm.webm?v=10" } },
-    headline: "AI-assisted tipping that’s fairer for delivery apps",
-    card: "Concept 2025",
+    headline: "Delivery tipping that adjusts to the service",
     group: "work",
-    title: "Rethinking Tipping",
+    title: "Trust Tip",
     ticker: "TIP",
     kind: "Payment UX · AI",
     tagline: "Tipping, rethought for checkouts with AI in the loop.",
@@ -180,7 +179,7 @@ export const pages: Page[] = [
     ],
     // TODO(Chaewon): the real tool stack. Only Figma is filled in for now.
     tools: ["Figma"],
-    keywords: ["fintech", "payments", "checkout", "tip", "tipping", "restaurant", "pos", "toast", "ai", "agentic", "trust", "money", "receipt"],
+    keywords: ["trust tip", "rethinking tipping", "fintech", "payments", "checkout", "tip", "tipping", "restaurant", "pos", "toast", "ai", "agentic", "trust", "money", "receipt"],
   },
   {
     id: "pebbo",
@@ -190,8 +189,7 @@ export const pages: Page[] = [
     thumb: "/work/pebbo-card.webp",
     tone: "#fde9cf",
     clip: { mp4: "/work/pebbo-card.mp4", webm: "/work/pebbo-card.webm", loop: true, sm: { mp4: "/work/pebbo-card-sm.mp4", webm: "/work/pebbo-card-sm.webm" } },
-    headline: "AI companion that listens when eating brings guilt",
-    card: "Side project 2024",
+    headline: "AI companion for guilt around eating",
     group: "work",
     title: "Pebbo",
     ticker: "PEBO",
@@ -227,7 +225,7 @@ export const pages: Page[] = [
     thumb: "/work/melon/meet-mellon.webp",
     tone: "#f8d9d5",
     clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm", sm: { mp4: "/work/melon/meet-mellon-sm.mp4", webm: "/work/melon/meet-mellon-sm.webm" } },
-    headline: "Helping students catch key school emails, and advisors hear back",
+    headline: "Gmail side panel for school email",
     card: "In progress 2026",
     title: "CMU Mellon",
     ticker: "MELN",
@@ -261,8 +259,7 @@ export const pages: Page[] = [
     tag: "B2B SaaS",
     thumb: "/work/zipflow.webp",
     tone: "#d9e8fc",
-    headline: "Real estate SaaS: enter a listing once, use it everywhere",
-    card: "Team project 2026",
+    headline: "Listing workflow for real estate agents",
     group: "work",
     title: "ZipFlow",
     ticker: "ZIPF",
@@ -299,7 +296,7 @@ export const pages: Page[] = [
     tone: "#e6f2c9",
     // 눈치 being made: the garnish drops in, the word and its receipt come out
     clip: { mp4: "/fun/cocktail-card.mp4", webm: "/fun/cocktail-card.webm", loop: true, sm: { mp4: "/fun/cocktail-card-sm.mp4", webm: "/fun/cocktail-card-sm.webm" } },
-    title: "Untranslatable word bar",
+    title: "Untranslatable",
     ticker: "MIX",
     kind: "Motion · 3D · Toy",
     tagline: "Words English doesn’t have, mixed as cocktails.",

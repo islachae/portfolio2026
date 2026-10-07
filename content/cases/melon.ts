@@ -335,5 +335,5 @@ export const melonCase = {
   },
 
   // (ZipFlow has no case study yet, so the last one leads back to the first)
-  next: { id: "tipping" as const, title: "Rethinking Tipping", line: "Tipping, rethought for checkouts with AI in the loop." },
+  next: { id: "tipping" as const, title: "Trust Tip", line: "Tipping, rethought for checkouts with AI in the loop." },
 };
