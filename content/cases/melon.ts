@@ -289,15 +289,27 @@ export const melonCase = {
       { k: "The advisor invests", v: "Her effort, resources and time go where the questions are." },
       { k: "Support comes back", v: "Her answer returns to students as a new update." },
     ],
-    loopNote: "Then the next question starts the loop again.",
+    // The loop is pinned while the page scrolls, and the scroll carries one question round it.
+    // One line says what is happening at each step.
+    loopHint: "Scroll to send one question round the loop.",
+    loopWatch: [
+      "A student asks a question.",
+      "It travels to Donna’s dashboard.",
+      "Funding questions are rising, so she acts.",
+      "Her guide travels back.",
+      "It reaches every student who asked. Then the loop starts again.",
+    ],
+    loopPost: "Post a funding guide",
+    loopPosted: "Guide posted",
+    loopEmpty: "Nothing new yet",
     loopAsk: "where can i find sources for funding?",
     loopRows: [
-      { k: "Career", n: "12", up: true },
-      { k: "Funding & financial", n: "6", up: true, plus: "+1" },
-      { k: "Events & community", n: "5", up: false },
+      { k: "Career", s: "Career", n: "12", up: true, was: "", plus: "" },
+      { k: "Funding & financial", s: "Funding", n: "6", up: true, was: "5", plus: "+1" },
+      { k: "Events & community", s: "Events", n: "5", up: false, was: "", plus: "" },
     ],
     loopInvest: { src: img("loop-advisor"), alt: "Donna at her laptop, looking at a list where one row is rising", words: ["Effort", "Resources", "Time"] },
-    loopBack: { src: img("loop-card"), alt: "A new update in the panel: Funding sources guide, from Donna, posted today" },
+    loopBack: { tag: "New", title: "Funding sources guide", from: "From Donna", meta: "Posted today · 6 students asked", view: "View" },
     sideLabels: { student: "Student sees", donna: "Donna sees" },
     // The two problems, each answered on both sides. Pins are in percent of each picture.
     sides: [
