@@ -409,14 +409,12 @@ export function PebboStage() {
 
 /* ───────────────────── MELN · the inbox that knows you ───────────────────── */
 
-/* The Mellon prototype, as recorded: chapters jump through the 43-second walkthrough. */
+/* The Mellon prototype, as recorded: chapters jump through the 38-second walkthrough. */
 const MELON_CHAPTERS = [
-  { t: 0, label: "Triage" },
-  { t: 9, label: "Filter" },
-  { t: 15, label: "Calendar" },
-  { t: 21, label: "AI summary" },
-  { t: 27, label: "All clear" },
-  { t: 33, label: "Ask Mellon" },
+  { t: 0, label: "Updates" },
+  { t: 3.8, label: "Summary" },
+  { t: 16.8, label: "Ask Mellon" },
+  { t: 34.6, label: "Bulk clear" },
 ];
 
 export function MelonStage() {
@@ -470,19 +468,19 @@ export function MelonStage() {
           <video
             ref={video}
             className="melon-video"
-            poster="/work/melon/melon-poster.webp"
+            poster="/work/melon/mellon-panel.webp"
             muted
             loop
             playsInline
             preload="metadata"
-            aria-label="Screen recording of the Mellon prototype: sorting and bulk-clearing updates, filtering by department and sender, a calendar of what's due, an AI summary with quick actions, and asking Mellon a question."
+            aria-label="Screen recording of the Mellon side panel in Gmail: updates sorted by what needs doing, a summary of one email with a link to the original, a question typed to Ask Mellon, and clearing updates in bulk"
             onTimeUpdate={onTime}
             onPlay={() => setPlaying(true)}
             onPause={() => setPlaying(false)}
           >
             {/* H.264 for Safari and most browsers; VP9 for builds without it */}
-            <source src="/work/melon/melon-demo.mp4" type='video/mp4; codecs="avc1.640028"' />
-            <source src="/work/melon/melon-demo.webm" type='video/webm; codecs="vp9"' />
+            <source src="/work/melon/mellon-panel.mp4" type="video/mp4" />
+            <source src="/work/melon/mellon-panel.webm" type="video/webm" />
           </video>
         </div>
       </div>

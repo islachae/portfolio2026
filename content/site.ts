@@ -218,22 +218,20 @@ export const pages: Page[] = [
   },
   {
     id: "melon",
-    meta: "Communication • In progress",
+    meta: "Communication • Team project 2026",
     year: "2026",
-    tag: "In progress",
-    group: "progress",
+    group: "work",
     thumb: "/work/melon/meet-mellon.webp",
     tone: "#f8d9d5",
     clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm", sm: { mp4: "/work/melon/meet-mellon-sm.mp4", webm: "/work/melon/meet-mellon-sm.webm" } },
     headline: "Gmail side panel for school email",
-    card: "In progress 2026",
     title: "CMU Mellon",
     ticker: "MELN",
-    kind: "Communication · In progress",
+    kind: "Communication · Team project",
     tagline: "School email, made two-way.",
     summary: [
-      "School of Design graduate students get most program information by email from one coordinator, and each of them decides alone what matters. Almost nothing tells her what landed.",
-      "On a team of three, I led the project, mapped how orientation information reaches students, and framed the problem. Mellon is a Gmail side panel that sorts school email by what needs doing, answers questions from what the coordinator already sent, and shows her what students found unclear.",
+      "School of Design graduate students get most program information by email from one advisor, and each of them decides alone what matters. Almost nothing tells her what landed.",
+      "On a team of three, I led the project, framed the problem and designed the screens. Mellon is a Gmail side panel that sorts school email by what needs doing and answers questions from what the advisor already sent, with a dashboard that shows her what students are asking.",
     ],
     handoff: {
       automated: ["Sorting and summarizing the inbox", "Answering from what was already sent"],
@@ -241,11 +239,10 @@ export const pages: Page[] = [
     },
     challenge: "Students couldn’t tell which school emails were meant for them, and their advisor couldn’t tell what landed.",
     didLabel: "My part",
-    did: "Led a team of 3, mapped the orientation communication system and framed the problem behind Mellon, a Gmail side panel.",
+    did: "Led a team of 3, framed the problem and designed the screens for Mellon: a Gmail side panel for students and a dashboard for their advisor.",
     facts: [
-      { label: "Role", value: "Team lead · systems mapping & framing" },
-      // TODO(Chaewon): exact weeks
-      { label: "Timeline", value: "Fall 2026 · in progress" },
+      { label: "Role", value: "Team lead · framing & interface design" },
+      { label: "Timeline", value: "Fall 2026" },
       { label: "Type", value: "Team of 3 · MDes studio" },
     ],
     // TODO(Chaewon): the real tool stack. Only Figma is filled in for now.

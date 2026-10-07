@@ -51,7 +51,7 @@ export function Sidebar({ open, onHide }: { open: boolean; onHide: () => void })
               </kbd>
             </button>
 
-            {groups.map((g) => (
+            {groups.filter((g) => pages.some((p) => p.group === g.key)).map((g) => (
               <NavGroup key={g.key} label={g.label}>
                 {pages
                   .filter((p) => p.group === g.key)

@@ -1,13 +1,15 @@
 /**
- * CMU Mellon: the case study (opens at /#case/melon). FIRST DRAFT.
- * Sources: the team's research deck (Team Shadyside), the advisor and student interview transcripts,
- * Donna's written answers about a "Mini Donna" assistant, the project hypothesis, the card and chat
- * explorations and the prototype recording. Donna agreed to be named; students are not named.
- * Everything marked TODO(Chaewon) needs a real value before this goes public.
+ * CMU Mellon: the case study (opens at /#case/melon).
+ * Sources: the team's final presentation (Team Shadyside, Fall 2026), the advisor and student
+ * interview transcripts, Donna's written answers, the student survey, the card and chat
+ * explorations, the prototype (student panel and advisor dashboard) and its recording.
+ * Donna agreed to be named; students are not named.
  */
 const img = (name: string) => `/work/melon-case/${name}.webp`;
 
-export type Verdict = "held" | "partly" | "broke";
+/** A numbered mark on a screenshot (x, y in percent of the picture) and what it points at. */
+export type Pin = { x: number; y: number; t: string };
+export type Shot = { src: string; alt: string; w: number; h: number; pins: Pin[]; cap?: string };
 
 export const melonCase = {
   id: "melon" as const,
@@ -15,61 +17,66 @@ export const melonCase = {
   title: "Making school email a two-way conversation",
   subtitle: "Students couldn’t tell which School of Design emails were meant for them. Their advisor couldn’t tell whether anything landed.",
   meta: [
-    { label: "Role", value: "Team lead · systems mapping & framing" },
-    // TODO(Chaewon): exact weeks
-    { label: "Timeline", value: "Fall 2026 · in progress" },
+    { label: "Role", value: "Team lead · framing & interface design" },
+    { label: "Timeline", value: "Fall 2026" },
     { label: "Type", value: "Team of 3 · MDes studio" },
   ],
   readingTime: "6 min",
   hero: {
-    src: "/work/melon/melon-poster.webp",
-    alt: "The Mellon side panel: an Updates list of school emails with All, Starred and Unread filters and an Ask Mellon box",
+    src: "/work/melon/mellon-panel.webp",
+    alt: "The Mellon side panel: an Updates list with what needs action first, and an Ask Mellon box",
   },
-  /** Left table of contents, Rachel's way: mostly names a reader recognizes at a glance (Problem,
-   *  Solution, Research…), plus one or two that only this project has. Each label matches the mono
+  /** Left table of contents: names a reader recognizes at a glance. Each label matches the mono
    *  label on its section, and the set and order follow this story. */
   toc: [
     { id: "cs-overview", label: "Overview" },
     { id: "ml-gap", label: "Problem" },
-    { id: "ml-scope", label: "Scope" },
     { id: "ml-research", label: "Research" },
-    { id: "ml-survey", label: "Survey" },
     { id: "ml-frame", label: "Framing" },
     { id: "ml-directions", label: "Concepts" },
-    { id: "ml-melon", label: "Prototype" },
-    { id: "ml-advisor", label: "Advisor view" },
+    { id: "ml-melon", label: "Solution" },
+    { id: "ml-react", label: "Reactions" },
     { id: "cs-takeaways", label: "Reflection" },
   ],
   overview:
-    "Mellon is a Gmail side panel for School of Design graduate students and their program coordinator. It sorts school email by what needs doing, summarizes each message with a link back to the original, and answers questions only from what the coordinator has already sent. On the other side, it shows her what students opened, asked and found unclear.",
+    "Mellon is a Gmail side panel for School of Design graduate students, and a dashboard for the advisor who writes to them. Students see what needs doing first and get answers from emails already sent. Their advisor, Donna, sees what students are asking, answers a new question once, and lets Mellon handle it the next time.",
   glance: [
     {
       k: "Problem",
-      v: "One coordinator sends most program information by email. Each student decides alone what matters, and almost nothing tells her what landed.",
+      v: "One advisor sends most program information by email. Each student decides alone what matters, and almost nothing tells her what landed.",
     },
     {
       k: "What we made",
-      v: "A side panel inside Gmail: updates sorted by action, a calendar of what’s due, summaries that link to the source, and an assistant with clear limits.",
+      v: "A side panel inside Gmail that sorts updates by action and answers from the source, and a dashboard where the advisor sees what students ask and saves answers Mellon can reuse.",
     },
     {
       k: "My part",
-      v: "Led the team (agendas, decisions, deliverables), mapped the orientation communication system, and framed the problem we designed for.",
+      v: "Led the team, framed the problem we designed for, and designed the screens on both sides: the student panel and the advisor dashboard.",
     },
   ],
   team: "With Jamie and Pragya, in the MDes Communication Design Studio at Carnegie Mellon.",
 
-  // ── The gap: one email, read two ways. Illustrative: composed from the kinds of messages we studied.
+  // ── The problem: the first Monday of the semester, then one email read two ways.
+  //    Both are illustrative: composed from what the two sides told us.
   gap: {
     label: "Problem",
     title: ["One email,", "two readers."],
-    text: "Donna, the School of Design’s graduate program coordinator, marks a message “Important” when something is pending and worth keeping. A student reading the same message looks for one thing: is there a due date or an action? The label meant different things on each side, and nothing flowed back to show Donna which reading won.",
+    story: [
+      { face: img("sb-donna"), who: "Donna", k: "Donna sends", q: "Everything students will need might be in here!" },
+      { face: img("sb-student-later"), who: "A student", k: "Student stars it", q: "I will come back later…" },
+      { face: img("sb-donna-q"), who: "Donna", k: "Donna wonders", q: "Why don’t I get any replies? Maybe it wasn’t helpful?" },
+      { face: img("sb-student-q"), who: "The student", k: "Student wonders", q: "Where are the career events? Maybe I missed an email?" },
+    ],
+    storyNote: "The first Monday of the semester. The lines are illustrative, written from what both sides told us.",
+    readTitle: "The same email, read two ways",
+    text: "Donna, the School of Design’s graduate academic advisor, marks a message “Important” when something is pending and worth keeping. A student reading the same message looks for one thing: is there a due date or an action? The label meant different things on each side, and nothing flowed back to show Donna which reading won.",
     modes: [
       { id: "donna", label: "As Donna sent it" },
       { id: "student", label: "As a student read it" },
     ],
     note: "Illustrative email, composed from the kinds of messages we studied.",
     email: {
-      from: "Donna · Graduate Program Coordinator",
+      from: "Donna · Graduate Academic Advisor",
       subject: "Important: Spring registration + resources",
       subjectMark: { donna: 1, student: 4 },
       lines: [
@@ -97,58 +104,44 @@ export const melonCase = {
     },
   },
 
-  scope: {
-    label: "Scope",
-    title: ["CMU’s information system is huge.", "We followed one event through it."],
-    text: "We started wide, photographing boards, posters, signage, portals and drives around campus. Everything touched everything, so we narrowed to one event every graduate student goes through: the MDes/MA orientation.",
-    photo: { src: img("ecosystem"), alt: "Collage of campus communication: a campus map board, a plaque, a Google Drive folder, a wall of flyers, a Convocation poster, wayfinding signage and the student portal", w: 1578, h: 1194 },
-    reasons: [
-      { k: "An opening", v: "A class activity on campus channels showed us where students and staff already felt the strain." },
-      { k: "Awareness first", v: "We focused on how students learn something exists and whether it’s for them, before any action." },
-      { k: "A scope we could test", v: "One event, with a clear before, during and after, and one coordinator at its center." },
-    ],
-    mapTitle: "Mapping orientation",
-    mine: "My part",
-    mapText: "I mapped every person, channel and device a new student meets around orientation, colored by when it happens. The same details arrive by email, Slack, a shared calendar, the admissions packet, posters and word of mouth, and the paths shift over time.",
-    map: { src: img("system-map"), alt: "System map of the School of Design MDes/MA orientation process: people (students, the coordinator, faculty, career and support staff), channels (email, Slack, Google Calendar, surveys, Canvas, the website, Handshake, LinkedIn and more) and devices, with arrows colored for before, during and after orientation", w: 1766, h: 1056 },
-    // (The map names staff by first name. Chaewon confirmed the names can be shown.)
-    findings: [
-      "Almost every path passes through email, and through one person: Donna.",
-      "Before orientation, students lean on the packet, Slack and surveys. After it, on Handshake, LinkedIn and the website.",
-      "Nothing in the map flows back to Donna, except a student who writes to her directly.",
-    ],
-  },
-
+  // ── Research: one event followed through the system, the belief underneath, and the survey.
   research: {
     label: "Research",
-    title: ["We talked to both ends", "of the same inbox."],
+    title: ["We followed one event", "through the whole system."],
+    text: "CMU’s information system is huge, and everything touches everything. So we traced one event every graduate student goes through, the MDes/MA orientation, and mapped every person, channel and device a new student meets around it.",
     methods: [
       { n: "1", k: "Advisor interview", v: "Donna, 17 years at CMU, on how she filters, times and follows up." },
-      // TODO(Chaewon): how many students
-      { n: null, k: "Student interviews", v: "New and returning students, walking through a real event and a real email." },
-      // TODO(Chaewon): number of written questions
-      { n: null, k: "Written follow-up", v: "Donna’s answers on what an assistant could and couldn’t say for her." },
       { n: "16", k: "Channels mapped", v: "From email and Slack to Handshake, Canvas and word of mouth." },
-      { n: "12", k: "Student survey", v: "Who writes to Donna, why, what happens when they don’t, and what would make an AI answer trustworthy." },
+      { n: "12", k: "Survey responses", v: "Who writes to Donna, why, and what would make an AI answer trustworthy." },
     ],
-    assumptionsTitle: "What we assumed, and what held",
-    assumptions: [
-      { a: "If information is sent, students are informed.", v: "broke" as Verdict, why: "Students let anything without a date or consequence pass by, then went back to wherever they first saw it. Donna re-sends to everyone once two or three students ask the same thing.", said: { q: "I don’t get to know.", who: "Donna" } },
-      { a: "Students can tell what’s urgent or important.", v: "broke" as Verdict, why: "Importance was personal: a due date or a consequence. Seeing something several times told them more than the word in the subject line.", said: { q: "…I kept seeing it multiple times, so I started thinking it must be important.", who: "First-year student" } },
-      { a: "Students check email often.", v: "held" as Verdict, why: "They do, and they also use it as storage, starring messages to find them again.", said: { q: "I search “Donna” all the time.", who: "Student" } },
-      { a: "Email is the most effective channel.", v: "partly" as Verdict, why: "Donna relies on it as a record. Students pieced events together from email, Slack, a newsletter and posters.", said: { q: "…a paper trail.", who: "Donna" } },
-    ],
-  },
-
-  // What used to be its own section, “What we heard”: the one-picture finding and the closing quote
-  // now sit in Research, and what was said is quoted under each assumption there (`said`).
-  heard: {
-    flow: {
-      from: "Donna",
-      to: "Students",
-      out: "Email, Slack, reminders",
-      back: "Only when someone writes in",
+    methodsNote: "Plus interviews with new and returning students, each walking through a real event and a real email, and written follow-up answers from Donna.",
+    mapTitle: "Four things the map showed",
+    map: {
+      w: 1800,
+      h: 732,
+      alt: "Map of how orientation information reaches a School of Design student: faculty, staff and campus offices on the left, Donna and email in the middle, then Slack, Zoom, Google Calendar, Canvas, the website, shared documents, surveys, Handshake and other channels, all ending at the student",
     },
+    // (The map names staff by first name. Chaewon confirmed the names can be shown.)
+    findings: [
+      { src: img("map-1"), h: "Donna relays much of the information", v: "Faculty, staff and campus offices send through her. She filters, organises and passes it on." },
+      { src: img("map-2"), h: "Email is the primary channel", v: "Almost every path to a student runs through it." },
+      { src: img("map-3"), h: "Messages repeat across channels", v: "The same details arrive by email, Slack, a shared calendar, the admissions packet and word of mouth." },
+      { src: img("map-4"), h: "Receiving information does not always lead to action", v: "Nothing on the map flows back to Donna, unless a student writes to her directly." },
+    ],
+    rootTitle: "The root is a belief: sent means informed.",
+    rootLabels: { seen: "Visible", hidden: "Hidden", assume: "We assume that" },
+    root: [
+      { k: "Event", v: ["Information is missed, actions are delayed, and questions surface later."] },
+      { k: "Pattern", v: ["Students keep returning to information after it is sent.", "Emails mix different levels of importance."] },
+      { k: "Structure", v: ["Email serves as both communication and storage.", "Follow-up depends on remembering to return, act or ask.", "Feedback arrives through separate, individual questions."] },
+      { k: "Mental model", v: ["Students can recognize urgency and importance.", "If information is sent, students are informed."] },
+    ],
+    brokeTitle: "Both beliefs broke in interviews",
+    brokeLabels: { a: "We assumed", q: "We heard", area: "The problem" },
+    broke: [
+      { a: "Students can recognize urgency and importance.", q: "Honestly, it doesn’t feel that important to me. But from Donna’s perspective, I guess it’s important.", who: "Graduate student", area: "Different ideas of importance" },
+      { a: "If information is sent, students are informed.", q: "I’m never really sure if they understand my email responses.", who: "Donna", area: "Limited feedback" },
+    ],
     pull: { q: "There are many days I come here and I feel like I’m just in an email factory.", src: "Donna" },
   },
 
@@ -156,7 +149,7 @@ export const melonCase = {
   //    who answered each question; most questions were “choose everything that applies”.
   survey: {
     label: "Survey · 12 students",
-    title: ["The answers are out there.", "Students want certainty, with Donna behind it."],
+    title: "The answers are out there. Students want certainty, with Donna behind it.",
     /** The three answers the design leans on: a count (drawn one square per student who
      *  answered), what it means in a few words, and where it shows up in Mellon. */
     findings: [
@@ -224,20 +217,25 @@ export const melonCase = {
   frame: {
     label: "Framing",
     hmw: [
-      { t: "How might we create a more " },
-      { t: "visible, two-way", hi: true },
-      { t: " communication process that helps students understand " },
-      { t: "which School of Design events are relevant to them", hi: true },
-      { t: ", while helping Donna understand " },
-      { t: "how students are receiving and acting on it", hi: true },
+      { t: "How might we make School of Design communication " },
+      { t: "easier for students to recognize and follow up on", hi: true },
+      { t: ", while making " },
+      { t: "their needs more visible to the graduate academic advisor", hi: true },
       { t: "?" },
     ],
-    rulesTitle: "Four rules we held ourselves to",
+    hypoTitle: "Our design hypothesis",
+    hypoLabels: { area: "Problem", ifs: "If", then: "Then", because: "Because" },
+    hypo: [
+      { area: "Different ideas of importance", ifs: "we nudge students toward information they care about, need to know, or need to act on", then: "students can act and follow up more easily," },
+      { area: "Limited feedback", ifs: "and make it easy to ask questions in context,", then: "while the advisor can see where clarification is needed." },
+    ],
+    because: "This can reduce the time and effort for both students and the advisor, and ultimately improve trust in correspondence.",
+    rulesTitle: "Four constraints, four decisions",
     rules: [
-      { h: "Show me what’s mine", why: "Every student has different priorities." },
-      { h: "Stay inside email", why: "Each channel has its own habits. Don’t add one more." },
-      { h: "Feedback in one tap", why: "Students and Donna are both short on time." },
-      { h: "No extra work for Donna", why: "The system already runs on her manual work." },
+      { h: "Updates sorted by what matters to each student", why: "Each student has different priorities and needs." },
+      { h: "A side panel on top of email, not another channel", why: "Each channel has its own character and purpose." },
+      { h: "Quick, low-effort feedback. Donna answers only new questions", why: "Advisor and students have limited time and attention." },
+      { h: "Reusable answers for repeated questions", why: "The system runs on manual coordination: Donna filters, organises and distributes information across channels." },
     ],
     limitsTitle: "Where Mellon stops",
     limitsText: "We asked Donna what a “Mini Donna” could answer without her. Her answers became three lanes.",
@@ -261,14 +259,12 @@ export const melonCase = {
         ex: ["I’m having a hard week. Who can I talk to?"],
       },
     ],
-    // TODO(Chaewon): the rest of her answer to question 9
     limitsFoot: "Example questions are illustrative. At first, Donna keeps strong control over what it says.",
   },
 
   directions: {
     label: "Concepts",
     title: ["Five ways to close the loop.", "We kept two and combined them."],
-    // TODO(Chaewon): confirm the reasons we set three aside
     concepts: [
       { src: img("concept-1"), name: "Mini Donna", v: "An assistant that answers student questions from what Donna has sent.", keep: true, why: "Kept, with her limits." },
       { src: img("concept-2"), name: "Smart email bot", v: "Sorts event emails into labels like Action needed, Important or For later.", keep: true, why: "Kept: it works where students already read." },
@@ -281,39 +277,151 @@ export const melonCase = {
   },
 
   melon: {
-    label: "Prototype",
-    title: ["A side panel that sorts,", "summarizes and answers."],
-    text: "Mellon sits beside Gmail, so nothing moves to a new channel and Donna keeps sending email the way she does now.",
-    video: { mp4: "/work/melon/melon-demo.mp4", webm: "/work/melon/melon-demo.webm", poster: "/work/melon/melon-poster.webp" },
-    chapters: [
-      { t: 0, k: "Sorted by what needs doing", v: "Updates show the sender, date and one action. Clear what’s done in bulk, with undo." },
-      { t: 9, k: "Filter by who and what", v: "Department, sender, type and whether action is needed." },
-      { t: 15, k: "A calendar of what’s due", v: "Tap a date to see the updates behind it." },
-      { t: 21, k: "Summary first, source one tap away", v: "Students go back to where they first saw something, and Donna keeps her paper trail, so every summary links to the original email." },
-      { t: 27, k: "All clear", v: "When nothing is left, the panel says so." },
-      { t: 33, k: "Ask Mellon", v: "Answers come from Donna’s emails and the handbook, with quick actions like finding a location or setting a reminder." },
+    label: "Solution",
+    title: ["A side panel for students,", "a dashboard for Donna."],
+    text: "Mellon sits beside Gmail, so nothing moves to a new channel and Donna keeps sending email the way she does now. What changes is that each side can see the other.",
+    video: { mp4: "/work/melon/mellon-panel.mp4", webm: "/work/melon/mellon-panel.webm", poster: "/work/melon/mellon-panel.webp" },
+    // The loop the two screens make together (the presentation's four steps).
+    loopTitle: "How a question becomes support",
+    loop: [
+      { k: "A student asks", v: "In the panel, in their own words." },
+      { k: "Interest shows up", v: "Questions gather by topic on Donna’s dashboard, with what is rising." },
+      { k: "The advisor invests", v: "Her effort, resources and time go where the questions are." },
+      { k: "Support comes back", v: "Her answer returns to students as a new update." },
     ],
+    loopNote: "Then the next question starts the loop again.",
+    loopAsk: "where can i find sources for funding?",
+    loopRows: [
+      { k: "Career", n: "12", up: true },
+      { k: "Funding & financial", n: "6", up: true, plus: "+1" },
+      { k: "Events & community", n: "5", up: false },
+    ],
+    loopInvest: { src: img("loop-advisor"), alt: "Donna at her laptop, looking at a list where one row is rising", words: ["Effort", "Resources", "Time"] },
+    loopBack: { src: img("loop-card"), alt: "A new update in the panel: Funding sources guide, from Donna, posted today" },
+    sideLabels: { student: "Student sees", donna: "Donna sees" },
+    // The two problems, each answered on both sides. Pins are in percent of each picture.
+    sides: [
+      {
+        id: "ml-matters",
+        area: "Different ideas of importance",
+        title: "Both sides see what matters",
+        student: {
+          h: "What needs my action, first",
+          shots: [
+            {
+              src: img("panel-updates"), w: 640, h: 1552,
+              alt: "The Updates list in the Mellon panel: two updates under Action needed, one graded essay under Today, older updates below, and an Ask Mellon box",
+              pins: [
+                { x: 95.6, y: 6.4, t: "Filters by sender, type and action" },
+                { x: 45.6, y: 19.5, t: "Action needed comes first" },
+                { x: 6.3, y: 57.9, t: "The key point is the title" },
+                { x: 93.8, y: 68.3, t: "One clear action per update" },
+              ],
+            },
+          ] as Shot[],
+        },
+        donna: {
+          h: "Which topics students care about",
+          shots: [
+            {
+              src: img("donna-overview"), w: 2194, h: 1080,
+              alt: "Donna’s Overview: questions by category for the last seven days with arrows on the ones that are rising, 19 questions waiting for her answer, 41 answered by Mellon, two topics that need her answer, and two topics no Graduate Programs email covers yet",
+              pins: [
+                { x: 36.4, y: 17.6, t: "Shows where interest is rising" },
+                { x: 69.1, y: 28.7, t: "Separates new questions from repeats Mellon already answered" },
+                { x: 17.5, y: 56.1, t: "Lists what needs her answer" },
+                { x: 22.2, y: 81.3, t: "Surfaces interests no email covers yet" },
+              ],
+            },
+          ] as Shot[],
+        },
+      },
+      {
+        id: "ml-back",
+        area: "Limited feedback",
+        title: "Donna hears back",
+        student: {
+          h: "Donna’s answer, with its source",
+          shots: [
+            {
+              src: img("panel-source"), w: 640, h: 1552,
+              alt: "Ask Mellon answering “where can i find sources for funding?”: Donna sent the conference funding details on Aug 31, with a card from that email showing the application dates and an Open this email button",
+              pins: [
+                { x: 93.8, y: 30.4, t: "Answers from Donna’s emails" },
+                { x: 93.8, y: 41.4, t: "Shows the source clearly" },
+                { x: 6.3, y: 67.9, t: "Opens the original email" },
+              ],
+            },
+            {
+              src: img("panel-draft"), w: 640, h: 1552,
+              alt: "Ask Mellon after a question it could not answer: it says so, then shows a draft email to the person who sent the original, with Send email and Discard",
+              pins: [
+                { x: 93.8, y: 34.3, t: "Says when it can’t find an answer" },
+                { x: 93.8, y: 47.7, t: "Drafts the email for you" },
+                { x: 6.3, y: 84.1, t: "The student chooses to send" },
+              ],
+            },
+          ] as Shot[],
+        },
+        donna: {
+          h: "Where her email left questions",
+          shots: [
+            {
+              src: img("donna-reply"), w: 1720, h: 1200,
+              alt: "Donna answering one student’s question about Convocation: the related topic and source email, her answer, a checkbox to send it to the student and a checkbox to save it as a reusable answer with names left out",
+              pins: [
+                { x: 2.6, y: 43.8, t: "Each question sits beside the email it came from" },
+                { x: 2.6, y: 73.8, t: "She replies to the student privately" },
+                { x: 2.6, y: 81.3, t: "Answer once, Mellon answers next time" },
+              ],
+            },
+            {
+              src: img("donna-answers"), w: 2194, h: 820,
+              alt: "Reusable answers: two saved answers, each showing its topic and how many similar questions it has been used for (34 and 7)",
+              pins: [],
+              cap: "Every saved answer shows how many similar questions it has covered.",
+            },
+          ] as Shot[],
+        },
+      },
+    ],
+    partsTitle: "In the recording",
+    chapters: [
+      { t: 0, k: "Sorted by what needs doing", v: "Action needed first, then today, then earlier this week." },
+      { t: 3.8, k: "Summary first, source one tap away", v: "Students go back to where they first saw something, and Donna keeps her paper trail, so every summary links to the original email." },
+      { t: 16.8, k: "Ask next to the email", v: "A question typed beside the update it is about." },
+      { t: 34.6, k: "Clear in bulk", v: "Select what’s done and discard it together." },
+    ],
+    exploreTitle: "How the panel got here",
     explore: [
-      { src: img("card-explorations"), alt: "Nineteen variations of an update card: minimal, with tags, with priority, with snippets, with dates and actions", w: 1800, h: 1200, k: "19 ways to show one update", v: "The final card keeps the title, sender and date, an unread dot or star, and at most one action." },
+      { src: img("card-explorations"), alt: "Nineteen variations of an update card: minimal, with tags, with priority, with snippets, with dates and actions", w: 1800, h: 1200, k: "19 ways to show one update", v: "The final card keeps the title, the sender or date, and at most one action." },
       { src: img("chat-options"), alt: "Five chat layouts for Ask Mellon: minimal chat, card with quick actions, rich info with links, conversational follow-up and compact", w: 1800, h: 1200, k: "5 ways to answer", v: "The final answer is a short summary with a link to the email, then the next steps as buttons." },
     ],
   },
 
-  advisor: {
-    label: "Advisor view",
-    title: ["What Donna sees", "on the other side."],
-    text: "The same panel gives Donna what email never has: signals about how her messages landed, without adding a new tool to watch.",
-    signals: [
-      { k: "Reach", v: "How many students opened an update, and which ones haven’t." },
-      { k: "Questions", v: "What students asked Mellon about it, grouped by topic." },
-      { k: "One clarification", v: "When the same question comes up a few times, a nudge to answer everyone at once, the move she already makes by instinct." },
+  // ── First reactions (the presentation’s last research slide) and where it could go.
+  react: {
+    label: "First reactions",
+    title: ["What would they", "use it for?"],
+    text: "We asked students and Donna what they would use Mellon for.",
+    students: {
+      k: "Students",
+      src: "Google Forms survey",
+      a: ["Internship and job assistance", "Kind of questions that I can get the answer from the handbook.", "Administrative process", "School events, resources, professor info"],
+    },
+    donna: { k: "Graduate advisor", src: "Written interview with Donna", q: "Possibly everything" },
+    note: "These are first reactions to the concept. We have not measured use.",
+    nextTitle: "Where it could go",
+    next: [
+      { k: "Today", v: "School of Design" },
+      { k: "Next", v: "CMU-wide programs" },
+      { k: "Long term", v: "A platform for schools anywhere" },
     ],
-    // TODO(Chaewon): add the advisor view screens
-    pending: "Advisor view screens coming soon",
+    close: ["With Mellon,", "sent can mean informed."],
   },
 
   takeaways: {
-    label: "Reflection · so far",
+    label: "Reflection",
     items: [
       {
         title: "Follow one event, not the whole system",
