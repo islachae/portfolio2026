@@ -56,6 +56,7 @@ function noteLine(it, done) {
     it.action_label ? `action: ${it.action_label}${it.action_required ? ' (required)' : ''}` : 'no action',
     it.deadline ? `deadline ${it.deadline}` : 'no deadline',
     done ? 'marked done' : '',
+    it.suspicion?.flag ? `POSSIBLE PHISHING (${it.suspicion.type}): warn the student` : '',
     `— ${it.summary}`,
   ]
     .filter(Boolean)

@@ -25,4 +25,7 @@ async function setMarks(kind, ids, on) {
 export const getDone = () => getMarks('done');
 export const setDone = (id, isDone) => setMarks('done', [id], isDone);
 export const getHidden = () => getMarks('hidden');
+// Emails the student checked and marked as safe despite a phishing warning.
+export const getSafe = () => getMarks('safe');
+export const setSafe = (id, isSafe) => setMarks('safe', [id], isSafe);
 export const setHidden = (ids, isHidden) => setMarks('hidden', ids, isHidden);

@@ -19,7 +19,7 @@ export const CATEGORIES = [
 const SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['title', 'summary', 'action_label', 'action_required', 'deadline', 'category', 'key_details', 'event'],
+  required: ['title', 'summary', 'action_label', 'action_required', 'deadline', 'category', 'key_details', 'event', 'suspicion'],
   properties: {
     title: {
       type: 'string',
@@ -59,6 +59,22 @@ const SCHEMA = {
       },
       description: 'Up to 4 short facts worth knowing: when, where, how much, who to contact, links or forms mentioned.',
     },
+    suspicion: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['flag', 'type', 'evidence'],
+      description: 'Whether this looks like phishing or a scam aimed at a student.',
+      properties: {
+        flag: { type: 'boolean' },
+        type: {
+          type: 'string',
+          enum: ['none', 'credentials', 'payment', 'personal_info', 'fake_offer', 'lookalike', 'other'],
+          description:
+            'credentials = asks to log in, verify an account or give a password; payment = asks for money, gift cards or bank details; personal_info = asks for SSN, ID, address, bank info; fake_offer = job or money offer that is too good or vague; lookalike = sender pretends to be CMU or a known service from another domain; other = other scam signs.',
+        },
+        evidence: { type: 'string', description: 'One short sentence: what in the email is suspicious. Empty if flag is false.' },
+      },
+    },
     event: {
       type: 'object',
       additionalProperties: false,
@@ -83,6 +99,7 @@ Rules:
 - Dates: relative words in an email ("today", "tonight", "tomorrow", "this Friday", "next week") are relative to the day the email was SENT, not to today. Work them out from the "Sent" date given above the email.
 - Never write relative dates ("today", "tomorrow", "tonight", "this week") in the title, summary or key details: write the exact day, e.g. "Thu, Oct 8, 3:30–7:30 PM". The app shows relative words itself, always up to date.
 - If the event or deadline is already over by the "Today" date, still give its real date (the app will show it as past).
+- Phishing: flag the email if it pressures the student to log in, "verify" an account, pay, buy gift cards, share personal or bank details, or offers an easy job or money, especially when the sender is not an @cmu.edu / @andrew.cmu.edu address, the sender name and address do not match, or links point somewhere unexpected. Real CMU offices (HUB, SIO, Canvas, Handshake, Workday) are fine when they match their usual addresses. When flagged, do not mark the action as required.
 - Write in plain, short English.
 Categories:
 - Career: jobs, internships, recruiting, portfolio reviews, career fairs.
@@ -104,7 +121,8 @@ const cacheKey = (id) => `analysis:${id}`;
 // Bumped when the reading rules change, so older saved results are read once more.
 // v2: relative dates are counted from the day an email was sent, and written as exact dates.
 // v3: also pulls out the event (start, end, place) for "Put in my calendar".
-export const ANALYSIS_VERSION = 3;
+// v4: also judges whether an email looks like phishing.
+export const ANALYSIS_VERSION = 4;
 
 export async function getCachedAnalysis(id, { anyVersion = false } = {}) {
   const key = cacheKey(id);

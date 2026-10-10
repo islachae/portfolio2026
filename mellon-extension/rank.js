@@ -62,11 +62,12 @@ export function reasonLabel(item, interests, now = new Date()) {
 
 // items: [{ id, date, action_required, deadline, category, ... }]
 // Returns [{ key, label, items }] with empty groups removed.
-export function rankUpdates(items, interests = [], now = new Date()) {
+export function rankUpdates(items, interests = [], now = new Date(), { safe = {} } = {}) {
   const enriched = items.map((it) => {
     const deadline = parseDeadline(it.deadline);
     return {
       ...it,
+      suspect: safe[it.id] ? null : suspicionOf(it),
       deadlineDate: deadline,
       urgent: isUrgent(deadline, now),
       interest: interests.includes(it.category),
@@ -74,7 +75,11 @@ export function rankUpdates(items, interests = [], now = new Date()) {
     };
   });
 
-  const action = enriched
+  // Anything that looks like phishing goes to its own group, never among the to-dos.
+  const check = enriched.filter((it) => it.suspect).sort((a, b) => b.date - a.date);
+  const clean = enriched.filter((it) => !it.suspect);
+
+  const action = clean
     .filter((it) => it.action_required)
     .sort((a, b) => {
       if (a.deadlineDate && b.deadlineDate) return a.deadlineDate - b.deadlineDate;
@@ -85,12 +90,13 @@ export function rankUpdates(items, interests = [], now = new Date()) {
 
   const byInterestThenNewest = (a, b) => b.interest - a.interest || b.date - a.date;
   const todayStart = startOfDay(now).getTime();
-  const rest = enriched.filter((it) => !it.action_required);
+  const rest = clean.filter((it) => !it.action_required);
   const today = rest.filter((it) => it.date >= todayStart).sort(byInterestThenNewest);
   const earlier = rest.filter((it) => it.date < todayStart).sort(byInterestThenNewest);
 
   return [
     { key: 'action', label: t('group.action'), items: action },
+    { key: 'check', label: t('group.check'), items: check },
     { key: 'today', label: t('group.today'), items: today },
     { key: 'earlier', label: t('group.earlier'), items: earlier },
   ].filter((g) => g.items.length);
@@ -131,4 +137,28 @@ export function detailList(item) {
   return (item.key_details || []).map((d) =>
     typeof d === 'string' ? { kind: guessKind(d), text: d } : { kind: DETAIL_KINDS.includes(d.kind) ? d.kind : 'note', text: d.text }
   );
+}
+
+// ---------- phishing ----------
+// Two checks, either is enough: Claude's reading of the email, and Mellon's own rule on the
+// sender address (no AI): outside cmu.edu while asking to log in or pay, or imitating CMU.
+
+export function senderDomain(from) {
+  const m = /<([^>]+)>/.exec(from || '') || /([^\s<>]+@[^\s<>]+)/.exec(from || '');
+  const addr = (m ? m[1] : '').toLowerCase();
+  return addr.includes('@') ? addr.split('@').pop() : '';
+}
+
+const isCmu = (domain) => domain === 'cmu.edu' || domain.endsWith('.cmu.edu');
+
+export function suspicionOf(item) {
+  const domain = senderDomain(item.from);
+  const ai = item.suspicion?.flag ? item.suspicion.type || 'other' : null;
+  if (ai && ai !== 'none') return { type: ai, domain, evidence: item.suspicion.evidence || '' };
+  if (!domain || isCmu(domain)) return null;
+  if (/cmu|carnegie|andrew/.test(domain)) return { type: 'lookalike', domain, evidence: '' };
+  const text = `${item.action_label || ''} ${item.title || ''} ${item.summary || ''}`;
+  if (/\b(log ?in|sign ?in|verify|password|credentials?|account (?:suspend|lock|expir))/i.test(text)) return { type: 'credentials', domain, evidence: '' };
+  if (item.action_required && /\b(pay|payment|wire|gift ?cards?|bank|deposit|invoice)\b/i.test(text)) return { type: 'payment', domain, evidence: '' };
+  return null;
 }

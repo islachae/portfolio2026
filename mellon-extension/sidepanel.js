@@ -1,7 +1,7 @@
 import { getGoogleClientId, getGoogleToken, getSignedInEmail, rememberEmail } from './auth.js';
 import { getProfile, getMessageFull } from './gmail.js';
 import { getClaudeKey, CATEGORIES } from './claude.js';
-import { getDone, setDone, getHidden, setHidden } from './done.js';
+import { getDone, setDone, getHidden, setHidden, getSafe, setSafe } from './done.js';
 import { loadUpdates } from './updates.js';
 import { rankUpdates, senderName, receivedLabel, parseDeadline, detailList } from './rank.js';
 import { loadLang, t, getLang, locale, catLabel, applyStatic } from './i18n.js';
@@ -22,6 +22,7 @@ const state = {
   loading: false,
   done: {}, // { messageId: timeMarkedDone }
   hidden: {}, // { messageId: timeDiscarded }
+  safe: {}, // { messageId: timeMarkedSafe } despite a phishing warning
   showDone: false,
   selecting: false,
   selected: new Set(),
@@ -54,6 +55,7 @@ const ICON = {
   tag: '<svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg>',
   chevron: '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>',
   out: '<svg viewBox="0 0 24 24"><path d="M8 16L17 7M9 7h8v8"></path></svg>',
+  warn: '<svg viewBox="0 0 24 24" class="wi"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>',
   tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
 };
 
@@ -223,6 +225,7 @@ async function load() {
     applyLanguage();
     state.done = await getDone();
     state.hidden = await getHidden();
+    state.safe = await getSafe();
     // Let the caption finish typing before the list deals in, as in the design.
     await new Promise((r) => setTimeout(r, Math.max(0, 1900 - (Date.now() - started))));
     renderList({ arrive: true });
@@ -319,6 +322,30 @@ function updateCard(it) {
     </div>`;
 }
 
+// Looks like phishing: no action button (nothing to click by reflex), and a warning line.
+function checkCard(it) {
+  return `
+    <div class="tk suspect" data-open="${esc(it.id)}" data-pick="${esc(it.id)}" role="button" tabindex="0">
+      <span class="slot" aria-hidden="true"><span class="ck ${state.selected.has(it.id) ? 'on' : ''}">${ICON.tick}</span></span>
+      <div class="bd">
+        <div class="tt">${esc(it.title)}</div>
+        <div class="fr">${esc(senderName(it.from))} · <span class="dom">${esc(it.suspect.domain || '')}</span></div>
+        <div class="warnLine">${ICON.warn}<span>${esc(t(`warn.${it.suspect.type}`))}</span></div>
+      </div>
+    </div>`;
+}
+
+function warnBox(it) {
+  return `
+    <div class="warnBox" role="note">
+      <div class="warnHead">${ICON.warn}<span>${esc(t('warn.title'))}</span></div>
+      <p>${esc(t(`warn.${it.suspect.type}`))}${it.suspect.domain ? ` · ${esc(t('warn.from', { domain: it.suspect.domain }))}` : ''}</p>
+      ${it.suspect.evidence && getLang() === 'en' ? `<p class="ev">${esc(it.suspect.evidence)}</p>` : ''}
+      <p class="tip">${esc(t('warn.tip'))}</p>
+      <button class="txt" id="markSafe">${esc(t('warn.safe'))}</button>
+    </div>`;
+}
+
 function doneCard(it) {
   return `
     <div class="tk rd isdone" data-open="${esc(it.id)}" role="button" tabindex="0">
@@ -336,7 +363,7 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
   setScreen('list');
   if (detailKeyHandler) document.removeEventListener('keydown', detailKeyHandler);
   detailKeyHandler = null;
-  const groups = rankUpdates(visibleItems(), await interests());
+  const groups = rankUpdates(visibleItems(), await interests(), new Date(), { safe: state.safe || {} });
   const countAll = activeItems().length;
   const countUnread = activeItems().filter((it) => it.unread).length;
   const done = doneItems();
@@ -349,7 +376,7 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
     .map(
       (g, i) =>
         `<div class="sh ${i === 0 ? 'first' : ''}">${esc(g.label)} <small>${g.items.length}</small></div>` +
-        g.items.map((it) => row(it, g.key === 'action' ? actionCard(it) : updateCard(it))).join('')
+        g.items.map((it) => row(it, g.key === 'action' ? actionCard(it) : g.key === 'check' ? checkCard(it) : updateCard(it))).join('')
     )
     .join('');
 
@@ -824,7 +851,7 @@ function fullDate(d) {
 
 async function renderDetail(id) {
   const listScroll = document.getElementById('lst')?.scrollTop || 0;
-  const groups = rankUpdates(state.items.filter((x) => !isHidden(x)), await interests());
+  const groups = rankUpdates(state.items.filter((x) => !isHidden(x)), await interests(), new Date(), { safe: state.safe || {} });
   const all = groups.flatMap((g) => g.items.map((it) => ({ ...it, group: g.key })));
   const it = all.find((x) => x.id === id);
   if (!it) return;
@@ -833,7 +860,7 @@ async function renderDetail(id) {
   setSelecting(false);
   const others = visibleItems().filter((x) => x.id !== id).length;
 
-  const cardHtml = done ? doneCard(it) : it.group === 'action' ? actionCard(it) : updateCard(it);
+  const cardHtml = done ? doneCard(it) : it.group === 'action' ? actionCard(it) : it.group === 'check' ? checkCard(it) : updateCard(it);
   const card = cardHtml.replace('class="tk', 'class="tk still').replace(/<button class="doneBtn"[^>]*>.*?<\/button>/, '');
   const deadline = parseDeadline(it.deadline);
   const facts = [
@@ -855,10 +882,11 @@ async function renderDetail(id) {
         <div class="dotRow" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="sgrid"><div>
           <div class="sin">
+            ${it.suspect ? warnBox(it) : ''}
             <div class="cap" style="color: var(--green);">${esc(t('detail.summary'))}</div>
             <div class="prose">${esc(it.summary)}</div>
             <div style="display: flex; flex-direction: column; gap: 8px;">${facts}</div>
-            ${calendarPlan(it) ? '<div class="calRow" id="calRow"></div>' : ''}
+            ${calendarPlan(it) && !it.suspect ? '<div class="calRow" id="calRow"></div>' : ''}
             <button class="goMail" data-mail="${esc(it.threadId)}">${esc(t('detail.goMail'))}${ICON.out}</button>
           </div>
         </div></div>
@@ -895,6 +923,10 @@ async function renderDetail(id) {
   document.getElementById('showOrig').addEventListener('click', () => showOriginal(it, false));
   document.getElementById('showKo')?.addEventListener('click', () => showOriginal(it, true));
   renderCalRow(it);
+  document.getElementById('markSafe')?.addEventListener('click', async () => {
+    state.safe = await setSafe(id, true);
+    renderDetail(id);
+  });
 }
 
 // ---------- Put in my calendar ----------
