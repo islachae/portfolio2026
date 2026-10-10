@@ -26,6 +26,15 @@
       </div>
     </header>
     <main class="scr" id="app"></main>
+    <div class="dock" id="dock">
+      <div class="sugs" id="sugs"></div>
+      <form class="inp" id="askForm" autocomplete="off">
+        <input type="text" id="askInput" placeholder="Ask Mellon…" maxlength="500" />
+        <button class="go" id="askSend" type="submit" aria-label="Send">
+          <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+        </button>
+      </form>
+    </div>
     <div class="pop" id="calPop" role="dialog" aria-label="Calendar"></div>
     <div class="toast" id="toast" role="status"><span id="toastText"></span><button id="toastUndo" data-i18n="toast.undo">Undo</button></div>
   </div>

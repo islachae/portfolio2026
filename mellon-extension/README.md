@@ -24,6 +24,9 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 - **Select** several updates and **Discard** them from Mellon (the Gmail messages are not touched). This works with Undo.
 - **Calendar**: shows a dot on each date with a deadline. Tap a date to see what is due.
 - **English or Korean (한국어)**: the language switch also translates Mellon's titles and summaries. You can read any original email translated into Korean.
+- **Ask Mellon** (chat box at the bottom):
+  - On a card, ask about that one email ("What do I need to do?", "Draft a reply").
+  - From the list, ask about all your mail ("What's due this week?"). Mellon answers from its notes on recent mail, and can search older Gmail (read-only) when needed. Answers link to the emails they came from.
 - On first run, you pick a language and the categories you care about.
 
 ## Privacy and cost
@@ -33,6 +36,8 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 - **Your Claude API key is entered in Mellon's Settings** and saved only in Chrome on your computer. It is never in the code or on GitHub.
 - **It uses Claude Haiku 5.5**, the lowest-cost model. Each email is sent once, and its result is saved and reused. A full refresh of 30 new emails usually costs a few cents.
 - The Google sign-in token is kept in memory only, so it is gone when Chrome closes.
+- **Chat:** a question about one email sends that email and your question to Claude. A question from the list sends Mellon's short notes on recent mail. If Claude decides it needs more, it can search Gmail or open a specific email (read-only) and include that in its answer. Conversations are kept in memory only, and they are gone when the panel closes.
+- **Cost of chat:** with Claude Haiku 5.5, a question is usually well under 1 cent (about $0.0005–$0.005). Settings → **Claude usage** shows an estimate of everything Mellon has spent.
 - In Korean, only Mellon's short notes (title, summary, action, key details) are sent to Claude for translation, once per email. A translated original email is shown on screen only and never saved.
 
 ## What you need
@@ -108,6 +113,10 @@ Mellon is in **testing mode** on Google Cloud. Only Google accounts listed as **
 | Bring it back | Click **Undo** in the message at the bottom, or open **Done** → **Undo** |
 | See only unopened mail | **Unread** tab |
 | Scan again | The refresh icon, or the Mellon logo |
+| Ask about one email | Open its card → type in **Ask Mellon…** at the bottom |
+| Ask about all your mail | From the list → type in **Ask Mellon…**, or tap a suggested question |
+| Use a drafted reply | Click **Copy** under Mellon's answer and paste it into Gmail (Mellon can't send mail) |
+| See what Mellon has cost | Settings → **Claude usage** |
 | Hide updates you don't need | **Select** → tap cards → **Discard** (to-dos can't be selected; mark them done instead) |
 | See deadlines by date | Calendar icon → tap a date |
 | Switch between English and 한국어 | Gear icon → Settings → **Language** (or on the welcome screen) |
@@ -141,6 +150,7 @@ Plain JavaScript, with no build step and no dependencies. Edit a file, then clic
 | `rank.js` | Ranking rules, due labels ("due tonight"), urgency (< 24 h) |
 | `done.js` | Which updates are done or discarded (kept 30 days) |
 | `i18n.js` | All interface text in English and Korean |
+| `chat.js` | Ask Mellon: one-email chats, and all-mail chats with read-only `search_mail` / `read_email` tools |
 | `translate.js` | Korean versions of Mellon's notes (cached) and of original emails (in memory only) |
 | `sidepanel.*` | The panel: welcome, loading, list, card detail, Done, Undo |
 | `options.*` | The Settings page |

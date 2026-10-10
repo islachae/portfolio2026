@@ -6,6 +6,7 @@ import { loadUpdates } from './updates.js';
 import { rankUpdates, senderName, receivedLabel, parseDeadline } from './rank.js';
 import { loadLang, t, getLang, locale, catLabel, applyStatic } from './i18n.js';
 import { ensureKorean, applyKorean, translateEmail } from './translate.js';
+import { newChat, ask } from './chat.js';
 
 const app = document.getElementById('app');
 const refreshBtn = document.getElementById('refresh');
@@ -24,7 +25,19 @@ const state = {
   selecting: false,
   selected: new Set(),
   cal: { open: false, month: null, day: null }, // month: first day of the shown month
+  screen: 'other', // 'list' | 'detail' | 'chat' | 'other'
+  detailId: null,
+  chats: {}, // 'all' or a message id -> { chat, display: [{ role, text, sources }] }; memory only
+  asking: false,
 };
+
+const root = document.querySelector('.root');
+function setScreen(name, detailId = null) {
+  state.screen = name;
+  state.detailId = detailId;
+  root.dataset.screen = name;
+  updateDock();
+}
 
 const ICON = {
   cal: '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>',
@@ -57,6 +70,7 @@ refreshBtn.addEventListener('click', () => load());
 // ---------- setup and sign-in states ----------
 
 function showCenter({ face = true, title, text, button, onClick }) {
+  setScreen('other');
   app.innerHTML = `
     <div class="center">
       ${face ? '<img src="icons/mellon.svg" width="64" height="64" alt="" />' : ''}
@@ -81,6 +95,7 @@ async function signIn() {
 
 function showLoading() {
   const SCAN_TEXT = t('load.scan');
+  setScreen('other');
   app.innerHTML = `
     <div class="ld" role="status" aria-label="${esc(SCAN_TEXT)}">
       <img src="icons/mellon.svg" alt="" />
@@ -113,6 +128,7 @@ async function showOnboarding() {
   const { interests: saved = [] } = await chrome.storage.local.get('interests');
   const picked = onbPicked || new Set(saved);
   onbPicked = picked;
+  setScreen('other');
   app.innerHTML = `
     <div class="onb">
       <div class="onbTop">
@@ -305,6 +321,7 @@ function doneCard(it) {
 let detailKeyHandler = null;
 
 async function renderList({ arrive = false, scrollTop = 0 } = {}) {
+  setScreen('list');
   if (detailKeyHandler) document.removeEventListener('keydown', detailKeyHandler);
   detailKeyHandler = null;
   const groups = rankUpdates(visibleItems(), await interests());
@@ -358,6 +375,7 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
       </div>
     </div></div></div>`;
   app.classList.toggle('sel', state.selecting);
+  root.classList.toggle('selecting', state.selecting);
   updateSelBar();
 
   app.classList.toggle('arrive', arrive);
@@ -396,6 +414,7 @@ function setSelecting(on) {
   state.selected.clear();
   if (on) closeCalendar();
   app.classList.toggle('sel', on);
+  root.classList.toggle('selecting', on);
   app.querySelectorAll('.tk.picked').forEach((el) => el.classList.remove('picked'));
   app.querySelectorAll('.slot .ck.on').forEach((el) => el.classList.remove('on'));
   const btn = document.getElementById('selectToggle');
@@ -646,6 +665,143 @@ app.addEventListener('keydown', (e) => {
   }
 });
 
+// ---------- Ask Mellon ----------
+
+const dock = document.getElementById('dock');
+const askForm = document.getElementById('askForm');
+const askInput = document.getElementById('askInput');
+const sugs = document.getElementById('sugs');
+
+const chatKey = () => (state.screen === 'detail' ? state.detailId : 'all');
+
+function updateDock() {
+  askInput.placeholder = t('chat.placeholder');
+  document.getElementById('askSend').setAttribute('aria-label', t('chat.send'));
+  const key = chatKey();
+  const started = state.chats[key]?.display.length;
+  const list = state.screen === 'detail' ? [t('chat.sugTodo'), t('chat.sugDraft')] : [t('chat.sugDue'), t('chat.sugFind')];
+  sugs.innerHTML = started ? '' : list.map((q) => `<button class="q" type="button" data-ask="${esc(q)}">${esc(q)}</button>`).join('');
+}
+
+sugs.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-ask]');
+  if (b) handleAsk(b.dataset.ask);
+});
+askForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const q = askInput.value.trim();
+  if (q) handleAsk(q);
+});
+
+// A question asked from the list opens its own screen, under a stack tile back to the updates.
+function renderChat() {
+  const listScroll = document.getElementById('lst')?.scrollTop || 0;
+  setSelecting(false);
+  app.innerHTML = `
+    <div class="detail" id="detail">
+      <button class="stk" id="back" aria-label="${esc(t('detail.back'))}">
+        <span class="e2"></span><span class="e1"></span>
+        <span class="face"><span>${esc(t('chat.updatesN', { n: visibleItems().length }))}</span>${ICON.chevron}</span>
+      </button>
+      <p class="chatNote">${esc(t('chat.note'))}</p>
+      <div class="msgs" id="msgs"></div>
+    </div>`;
+  setScreen('chat');
+  const back = () => renderList({ scrollTop: listScroll });
+  detailKeyHandler = (e) => e.key === 'Escape' && back();
+  document.addEventListener('keydown', detailKeyHandler);
+  document.getElementById('back').addEventListener('click', back);
+  renderMessages();
+}
+
+// Light formatting for answers: **bold** and line breaks; everything else is plain text.
+function fmt(text) {
+  return esc(text).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+}
+
+function renderMessages(status) {
+  const box = document.getElementById('msgs');
+  const entry = state.chats[chatKey()];
+  if (!box) return;
+  const rows = (entry?.display || []).map((m, i) => {
+    if (m.role === 'user') return `<div class="sent">${esc(m.text)}</div>`;
+    return `<div class="mrow"><img src="icons/mellon.svg" width="22" height="22" alt="Mellon" /><div class="mcol">
+      <div class="mb ${m.error ? 'err' : ''}">${fmt(m.text)}</div>
+      ${m.sources?.length ? `<div class="srcs">${m.sources.map((src) => `<button class="srcChip" data-src="${esc(src.id)}" data-thread="${esc(src.threadId || '')}">${esc(src.title)}${ICON.out}</button>`).join('')}</div>` : ''}
+      ${m.error ? '' : `<button class="txt copy" data-copy="${i}">${esc(t('chat.copy'))}</button>`}
+    </div></div>`;
+  });
+  if (status) rows.push(`<div class="mrow"><img src="icons/mellon.svg" width="22" height="22" alt="" /><div class="typing" aria-hidden="true"><i></i><i></i><i></i></div><span class="tyl" role="status">${esc(status)}</span></div>`);
+  box.innerHTML = rows.join('');
+  const scroller = document.getElementById('detail');
+  if (scroller && (status || entry?.display.length)) scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
+}
+
+app.addEventListener('click', async (e) => {
+  const src = e.target.closest('[data-src]');
+  if (src) {
+    e.stopPropagation();
+    if (state.items.some((it) => it.id === src.dataset.src)) return renderDetail(src.dataset.src);
+    if (src.dataset.thread) return openInGmail(src.dataset.thread);
+  }
+  const copy = e.target.closest('[data-copy]');
+  if (copy) {
+    e.stopPropagation();
+    const text = state.chats[chatKey()]?.display[+copy.dataset.copy]?.text || '';
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    copy.textContent = t('chat.copied');
+    setTimeout(() => (copy.textContent = t('chat.copy')), 1400);
+  }
+});
+
+async function handleAsk(question) {
+  if (state.asking || !['list', 'detail', 'chat'].includes(state.screen)) return;
+  if (state.screen === 'list') renderChat();
+  const key = chatKey();
+  state.asking = true;
+  askInput.value = '';
+  askInput.disabled = true;
+  const entry = (state.chats[key] ||= { chat: null, display: [] });
+  entry.display.push({ role: 'user', text: question });
+  updateDock();
+  renderMessages(t('chat.thinking'));
+  try {
+    const token = state.token || (await getGoogleToken());
+    if (!entry.chat) {
+      const doneIds = new Set(Object.keys(state.done));
+      if (key === 'all') {
+        entry.chat = newChat({ items: state.items.filter((it) => !isHidden(it)), doneIds });
+      } else {
+        const item = state.items.find((it) => it.id === key);
+        const mail = await getMessageFull(token, key);
+        entry.chat = newChat({ items: [item], doneIds, email: { item, subject: mail.subject, from: mail.from, date: mail.date, body: mail.body || mail.snippet } });
+      }
+    }
+    const answer = await ask(entry.chat, question, token, ({ tool, input }) => {
+      if (chatKey() !== key) return;
+      renderMessages(tool === 'search_mail' ? t('chat.searching', { q: input.query }) : t('chat.reading'));
+    });
+    entry.display.push({ role: 'mellon', text: answer.text || t('chat.empty'), sources: answer.sources });
+  } catch (err) {
+    entry.display.push({ role: 'mellon', text: t('chat.error', { msg: err.message }), error: true });
+  } finally {
+    state.asking = false;
+    askInput.disabled = false;
+    if (chatKey() === key) {
+      renderMessages();
+      askInput.focus();
+    }
+  }
+}
+
 // ---------- detail ----------
 
 function fullDate(d) {
@@ -701,7 +857,10 @@ async function renderDetail(id) {
         ${getLang() === 'ko' ? `<button class="q" id="showKo">${esc(t('detail.translate'))}</button>` : ''}
       </div>
       <div id="orig"></div>
+      <div class="msgs" id="msgs"></div>
     </div>`;
+  setScreen('detail', id);
+  renderMessages();
 
   const detail = document.getElementById('detail');
   // The typing bubble opens up into the summary, as an incoming message does.

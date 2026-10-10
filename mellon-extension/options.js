@@ -1,4 +1,4 @@
-import { CATEGORIES } from './claude.js';
+import { CATEGORIES, usageCost } from './claude.js';
 import { signOut } from './auth.js';
 import { loadLang, t, getLang, catLabel, applyStatic } from './i18n.js';
 
@@ -27,6 +27,14 @@ async function load() {
   $('account').textContent = all.googleEmail ? t('opt.signedIn', { email: all.googleEmail }) : t('opt.notSignedIn');
   $('signout').style.display = all.googleEmail ? '' : 'none';
   $('cacheCount').textContent = t('opt.cacheCount', { n: Object.keys(all).filter((k) => k.startsWith('analysis:')).length });
+  const u = all.usage;
+  $('usageLine').textContent = u?.requests
+    ? t('opt.usageLine', {
+        requests: u.requests,
+        since: new Date(u.since).toLocaleDateString(getLang() === 'ko' ? 'ko-KR' : 'en-US', { month: 'short', day: 'numeric' }),
+        cost: usageCost(u) < 0.01 ? t('opt.costUnder') : t('opt.cost', { cost: usageCost(u).toFixed(2) }),
+      })
+    : t('opt.usageNone');
   $('hiddenCount').textContent = t('opt.hiddenCount', { n: Object.keys(all.hidden || {}).length });
 }
 
@@ -70,3 +78,8 @@ $('signout').addEventListener('click', async () => {
 });
 
 load();
+
+$('usageReset').addEventListener('click', async () => {
+  await chrome.storage.local.remove('usage');
+  load();
+});

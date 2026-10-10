@@ -93,13 +93,16 @@ ${body}`;
 
 // Returns { ...analysis, cached: true|false }.
 // One request to the Claude API, straight from this browser (the key never leaves this computer
-// except to api.anthropic.com). With a schema, the answer comes back as parsed JSON.
-export async function callClaude({ system, content, schema, maxTokens = 4000 }) {
+// except to api.anthropic.com). Returns the raw response: { content, stop_reason, usage }.
+export async function requestClaude({ system, messages, tools, toolChoice, schema, maxTokens = 4000 }) {
   const apiKey = await getClaudeKey();
   if (!apiKey) throw new Error('NO_CLAUDE_KEY');
 
   const output_config = { effort: 'low' };
   if (schema) output_config.format = { type: 'json_schema', schema };
+  const body = { model: MODEL, max_tokens: maxTokens, system, output_config, messages };
+  if (tools) body.tools = tools;
+  if (toolChoice) body.tool_choice = toolChoice;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -110,13 +113,7 @@ export async function callClaude({ system, content, schema, maxTokens = 4000 }) 
       // Required for calls made directly from a browser.
       'anthropic-dangerous-direct-browser-access': 'true',
     },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: maxTokens,
-      system,
-      output_config,
-      messages: [{ role: 'user', content }],
-    }),
+    body: JSON.stringify(body),
   });
 
   if (res.status === 401) throw new Error('Claude API key is not valid. Check it in Settings.');
@@ -127,9 +124,28 @@ export async function callClaude({ system, content, schema, maxTokens = 4000 }) 
   await addUsage(data.usage);
   if (data.stop_reason === 'refusal') throw new Error('Claude declined this request.');
   if (data.stop_reason === 'max_tokens') throw new Error('Claude ran out of room for this answer.');
-  const text = (data.content || []).find((b) => b.type === 'text')?.text;
+  return data;
+}
+
+export const textOf = (data) =>
+  (data.content || [])
+    .filter((b) => b.type === 'text')
+    .map((b) => b.text)
+    .join('\n')
+    .trim();
+
+// Single question, single answer. With a schema, the answer comes back as parsed JSON.
+export async function callClaude({ system, content, schema, maxTokens = 4000 }) {
+  const data = await requestClaude({ system, messages: [{ role: 'user', content }], schema, maxTokens });
+  const text = textOf(data);
   if (!text) throw new Error('Claude returned no answer.');
   return schema ? JSON.parse(text) : text;
+}
+
+// Rough cost of the saved usage, at Claude Haiku 5.5 prices ($0.10 / $0.50 per million tokens).
+export function usageCost(usage) {
+  if (!usage) return 0;
+  return (usage.input * 0.1 + usage.output * 0.5) / 1e6;
 }
 
 // Running token count, so Settings can show roughly what Mellon has cost.

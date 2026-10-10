@@ -93,3 +93,9 @@ export async function listUnreadIds(token, { days = 7 } = {}) {
   const data = await gmailGet(token, `messages?q=${q}&maxResults=100`);
   return (data.messages || []).map((m) => m.id);
 }
+
+// Read-only Gmail search (any Gmail query, e.g. "scholarship newer_than:60d").
+export async function searchMessages(token, query, max = 8) {
+  const data = await gmailGet(token, `messages?q=${encodeURIComponent(query)}&maxResults=${max}`);
+  return Promise.all((data.messages || []).map((m) => getMessageMeta(token, m.id)));
+}

@@ -254,6 +254,47 @@ button.ck:hover svg { opacity: .35; stroke: var(--ink); }
 .seg button.on { background: var(--acc); color: var(--accink); }
 :lang(ko) .dt, :lang(ko) .cap { letter-spacing: 0.02em; }
 
+/* Ask Mellon: the dock at the bottom, as in the design */
+.dock { display: none; flex-shrink: 0; padding: 0 20px 18px; background: var(--bg); }
+.root[data-screen="list"] .dock, .root[data-screen="detail"] .dock, .root[data-screen="chat"] .dock { display: block; }
+.root.selecting .dock { display: none; }
+.sugs { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: 10px; }
+.sugs:empty { display: none; }
+.inp { height: 44px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 6px; background: var(--card); display: flex; align-items: center; gap: 8px; padding: 0 7px 0 13px; margin: 0; transition: border-color 120ms ease; }
+.inp:focus-within { border-color: #B9BCAF; }
+.inp input { flex: 1; min-width: 0; border: none; background: none; outline: none; font: inherit; font-size: 14px; color: var(--ink); }
+.inp input::placeholder { color: var(--mute); }
+.go { width: 30px; height: 30px; flex: none; border-radius: 99px; border: none; padding: 0; background: var(--acc); color: var(--accink); display: flex; align-items: center; justify-content: center; transition: transform 190ms var(--out); }
+.go:active { transform: scale(0.92); transition-duration: 45ms; }
+.go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* messages: a sent message rises from the input; the reply grows from its tail */
+.msgs { display: flex; flex-direction: column; gap: 10px; }
+.msgs:empty { display: none; }
+.chatNote { margin: 0; font-size: 12px; color: var(--mute); line-height: 1.5; }
+.sent { align-self: flex-end; max-width: 85%; background: var(--ink); color: #FFFFFF; border-radius: 16px 16px 5px 16px; padding: 9px 13px; font-size: 13px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; transform-origin: 100% 100%; animation: sendUp 300ms var(--morph) both; }
+@keyframes sendUp { from { transform: translateY(30px) scale(0.96); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+.mrow { display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.mrow > img { display: block; flex-shrink: 0; margin-bottom: 2px; }
+.mrow:has(.mcol) { align-items: flex-start; }
+.mrow:has(.mcol) > img { margin-top: 6px; }
+.mcol { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; max-width: calc(100% - 30px); }
+.mb { background: var(--wash); border-radius: 16px 16px 16px 5px; padding: 9px 13px; font-size: 13px; line-height: 1.5; word-break: break-word; transform-origin: 0 100%; animation: growIn 220ms var(--out) both; }
+.mb b { font-weight: 600; }
+.mb.err { background: #F6E3E0; color: #7A2A22; }
+@keyframes growIn { from { transform: scale(0.5); opacity: 0; } to { transform: none; opacity: 1; } }
+.typing { width: 58px; height: 36px; background: var(--wash); border-radius: 16px 16px 16px 5px; display: flex; align-items: center; justify-content: center; gap: 5px; transform-origin: 0 100%; animation: growIn 200ms var(--out) both; }
+.typing i { width: 6px; height: 6px; border-radius: 99px; background: #8E9186; display: block; animation: typing 1.2s infinite ease-in-out; }
+.typing i:nth-child(2) { animation-delay: 0.2s; }
+.typing i:nth-child(3) { animation-delay: 0.4s; }
+.tyl { font-size: 12px; color: var(--mute); padding-bottom: 9px; animation: fadeIn 200ms ease 260ms both; }
+.srcs { display: flex; flex-wrap: wrap; gap: 6px; }
+.srcChip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: 28px; padding: 0 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--card); font-size: 12px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srcChip:hover { border-color: var(--line2); }
+.srcChip svg { width: 11px; height: 11px; flex: none; fill: none; stroke: var(--mute); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.copy { height: 22px; font-size: 11.5px; padding: 0 2px; align-self: flex-start; }
+.detail { padding-bottom: 20px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; transition-delay: 0ms !important; }
 }
