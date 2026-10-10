@@ -1,5 +1,5 @@
 // Builds the Updates list: recent inbox mail -> Claude analysis (cached) -> items.
-import { listRecentIds, getMessageMeta, getMessageFull } from './gmail.js';
+import { listRecentIds, listUnreadIds, getMessageMeta, getMessageFull } from './gmail.js';
 import { analyzeEmail, getCachedAnalysis } from './claude.js';
 
 const DAYS = 7;
@@ -8,7 +8,11 @@ const PARALLEL = 4; // emails sent to Claude at the same time
 
 // onProgress({ done, total, sent }) is called as each email finishes.
 export async function loadUpdates(token, onProgress = () => {}) {
-  const ids = await listRecentIds(token, { days: DAYS, max: MAX_EMAILS });
+  const [ids, unreadIds] = await Promise.all([
+    listRecentIds(token, { days: DAYS, max: MAX_EMAILS }),
+    listUnreadIds(token, { days: DAYS }),
+  ]);
+  const unread = new Set(unreadIds);
   const items = [];
   const failed = [];
   let done = 0;
@@ -25,7 +29,7 @@ export async function loadUpdates(token, onProgress = () => {}) {
         item = await analyzeEmail(await getMessageFull(token, id));
         sent++;
       }
-      items.push({ ...item, id });
+      items.push({ ...item, id, unread: unread.has(id) });
     } catch (err) {
       if (err.message === 'SIGNED_OUT' || err.message === 'NO_CLAUDE_KEY') throw err;
       failed.push({ id, error: err.message });

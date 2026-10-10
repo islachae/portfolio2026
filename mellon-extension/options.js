@@ -1,4 +1,5 @@
 import { CATEGORIES } from './claude.js';
+import { signOut } from './auth.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -14,6 +15,8 @@ async function load() {
   $('claudeKey').value = all.claudeApiKey || '';
   const interests = all.interests || [];
   document.querySelectorAll('#interests input').forEach((box) => (box.checked = interests.includes(box.value)));
+  $('account').textContent = all.googleEmail ? `Signed in as ${all.googleEmail}` : 'Not signed in';
+  $('signout').style.display = all.googleEmail ? '' : 'none';
   $('cacheCount').textContent = Object.keys(all).filter((k) => k.startsWith('analysis:')).length;
 }
 
@@ -24,7 +27,7 @@ $('save').addEventListener('click', async () => {
     interests: [...document.querySelectorAll('#interests input:checked')].map((box) => box.value),
   });
   await chrome.storage.session.remove('googleToken');
-  $('status').textContent = 'Saved.';
+  $('status').textContent = 'Saved';
 });
 
 $('clearCache').addEventListener('click', async () => {
@@ -34,3 +37,8 @@ $('clearCache').addEventListener('click', async () => {
 });
 
 load();
+
+$('signout').addEventListener('click', async () => {
+  await signOut();
+  load();
+});

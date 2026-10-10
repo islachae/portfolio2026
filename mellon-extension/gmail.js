@@ -86,3 +86,10 @@ export async function getMessageFull(token, id) {
     body: body.replace(/\n{3,}/g, '\n\n').trim(),
   };
 }
+
+// Ids of unread inbox mail from the last `days` days (for the Unread tab).
+export async function listUnreadIds(token, { days = 7 } = {}) {
+  const q = encodeURIComponent(`in:inbox is:unread newer_than:${days}d`);
+  const data = await gmailGet(token, `messages?q=${q}&maxResults=100`);
+  return (data.messages || []).map((m) => m.id);
+}

@@ -3,16 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <title>Mellon</title>
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="sidepanel.css" />
 </head>
 <body>
-  <main>
-    <header class="top">
-      <h1>Mellon</h1>
-      <button id="settings" class="link">Settings</button>
+  <div class="root">
+    <header class="hd">
+      <button class="logoBtn" id="logo" aria-label="Mellon, scan the inbox again">
+        <img src="icons/mellon.svg" alt="" />
+        <span>Mellon</span>
+      </button>
+      <div style="display: flex; align-items: center;">
+        <button class="ib" id="refresh" aria-label="Scan the inbox again" title="Refresh">
+          <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"></path><path d="M4 3v5h5"></path><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"></path><path d="M20 21v-5h-5"></path></svg>
+        </button>
+        <button class="ib" id="settings" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+        </button>
+      </div>
     </header>
-    <div id="app"></div>
-  </main>
+    <main class="scr" id="app"></main>
+  </div>
   <script type="module" src="sidepanel.js"></script>
 </body>
 </html>

@@ -3,12 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <title>Mellon settings</title>
-  <link rel="stylesheet" href="sidepanel.css" />
+  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="options.css" />
 </head>
 <body>
-  <main class="settings">
-    <h1>Mellon settings</h1>
+  <main>
+    <div class="brand"><img src="icons/mellon.svg" alt="" /><h1>Settings</h1></div>
     <p class="muted">Everything here is saved only in this Chrome on this computer. It is never uploaded anywhere.</p>
+
+    <section>
+      <h2>Your interests</h2>
+      <p class="muted" style="margin-top: 0;">Updates in these categories are shown first and marked with ★.</p>
+      <div id="interests" class="checks"></div>
+    </section>
 
     <section>
       <h2>Google sign-in</h2>
@@ -16,6 +23,10 @@
       <input id="clientId" type="text" placeholder="1234-abc.apps.googleusercontent.com" spellcheck="false" />
       <p class="muted">Paste this into Google Cloud as the <b>Authorized redirect URI</b>:</p>
       <code id="redirect"></code>
+      <div class="row" style="margin-top: 12px;">
+        <span class="muted" id="account"></span>
+        <button id="signout">Sign out</button>
+      </div>
     </section>
 
     <section>
@@ -26,21 +37,17 @@
     </section>
 
     <section>
-      <h2>Your interests</h2>
-      <p class="muted">Updates in these categories are shown first and marked with ★.</p>
-      <div id="interests" class="checks"></div>
-    </section>
-
-    <section>
       <h2>Saved results</h2>
-      <p class="muted"><span id="cacheCount">0</span> emails already read by Claude (not sent again).</p>
-      <button id="clearCache" class="secondary">Forget saved results</button>
+      <div class="row">
+        <span class="muted"><span id="cacheCount">0</span> emails already read by Claude (not sent again).</span>
+        <button id="clearCache">Forget saved results</button>
+      </div>
     </section>
 
-    <p>
-      <button id="save">Save</button>
-      <span id="status" class="muted"></span>
-    </p>
+    <div class="saveRow">
+      <button id="save" class="pri">Save</button>
+      <span id="status"></span>
+    </div>
   </main>
   <script type="module" src="options.js"></script>
 </body>

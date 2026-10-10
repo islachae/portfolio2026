@@ -95,3 +95,13 @@ export function senderName(from) {
   if (m) return m[1].trim() || m[2];
   return (from || '').trim();
 }
+
+// When an email arrived, as the cards show it: "just now", "3h ago", "Fri", "Sep 25".
+export function receivedLabel(date, now = new Date()) {
+  const d = new Date(date);
+  const mins = Math.round((now - d) / 60000);
+  if (mins < 60 && d >= startOfDay(now)) return mins < 2 ? 'just now' : `${mins}m ago`;
+  if (d >= startOfDay(now)) return `${Math.floor(mins / 60)}h ago`;
+  if (now - d < 6 * DAY) return d.toLocaleDateString('en-US', { weekday: 'short' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}

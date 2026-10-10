@@ -1,11 +1,21 @@
 {
   "manifest_version": 3,
   "name": "Mellon",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Reads your recent email and sorts it into a priority list of Updates.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAra59xlMQ80hOSj1XdHjCatm3SMLylSF0pBhCh5VOIOo3LD8mzneiR7Bw9zuyVpd/NWtbW6G0J/mFGj1FhA9WX752yRSYIxJjAFoGHOtR9esh1Vb3eJGKcd5ufLCpyqMvn0sFSTGIGaHNU0mpvOMULqT1k7/+qHHemid7g2zDELwBmLtiX7fA3O2fBNPAHE5M80wL/tzp4awod2ou+/n1dToIKbsv+F5bIbnRnMZWsNeyVyNbkI7iD0SDKxpBkdyhhmiUhRmo+mF7Tqth6IjYul5UF/qAWzC9HpbxPeN0EGlmN2zXru6ogJCrLGlZ/lEZGP3PUj7CeugWOa/o4/eF/wIDAQAB",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "action": {
-    "default_title": "Open Mellon"
+    "default_title": "Open Mellon",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
   },
   "background": {
     "service_worker": "background.js"
