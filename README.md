@@ -250,8 +250,9 @@ Optional variables: `PEBBO_MODEL` (default `claude-haiku-4-5-20251001`), `PEBBO_
 - Play pages: `#play/cocktail`, `#play/wish`, `#play/bakery`, `#play/lab`.
 - Places on Home: `#work` (the cards), `#play` (the play row), `#hi` (Say hi).
 - The deck's old links still lead somewhere sensible: `#tipping`, `#pebbo`, `#melon` open the case studies, `#cocktail` / `#wish` / `#bakery` / `#lab` the play pages, `#about` the About page, `#zipflow` the cards.
+- **Links to share** (each with its own preview in Slack, LinkedIn, KakaoTalk…): `chaewon.works/tipping`, `/pebbo`, `/mellon` (`/melon` too). A link with `#case/…` always shows Home's preview, because the preview is made without running the page and never sees what comes after the `#`. These are small pages of their own (`public/share/*.html`, served at those addresses by the rewrites in `vercel.json`) with the case study's title, line and a 1200×630 picture (`public/share/*.png`: name and line on the left, the project's card picture on the right), and they send the visitor straight on to `/#case/…`. To change a picture, replace the PNG; to change the words, edit the page's `og:`/`twitter:` tags.
 
-Send `#case/tipping` to a fintech team, `#case/pebbo` to a wellness team.
+Send `chaewon.works/tipping` to a fintech team, `chaewon.works/pebbo` to a wellness team.
 
 ## Shortcuts
 

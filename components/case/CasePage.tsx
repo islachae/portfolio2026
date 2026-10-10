@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { holdTitle } from "@/lib/title";
 import { caseStudies, isCaseId, type LongId } from "@/content/cases";
 import { aboutPage } from "@/content/cases/about";
 import { pageById, profile } from "@/content/site";
@@ -91,6 +92,9 @@ const REVEAL = [
 ].join(",");
 
 
+/** Whether a reload has already had its page put back where it was (see CasePage). */
+let putBack = false;
+
 export function CasePage({ id }: { id: LongId }) {
   const { closeCase, copyEmail, setNavOpen } = useShell();
   const { openChat } = useChat();
@@ -136,7 +140,7 @@ export function CasePage({ id }: { id: LongId }) {
     setEl(r);
     r.scrollTop = 0;
     r.focus({ preventScroll: true });
-    document.title = isAbout ? `About · ${profile.name}` : `${project.title} · Case study · ${profile.name}`;
+    const letTitleGo = holdTitle(isAbout ? `About · ${profile.name}` : `${project.title} · Case study · ${profile.name}`, profile.name);
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -169,9 +173,45 @@ export function CasePage({ id }: { id: LongId }) {
     return () => {
       r.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
-      document.title = profile.name;
+      letTitleGo();
     };
   }, [project.title, data.toc, isAbout]);
+
+  // A reload in the middle of a long read comes back where it was: the page scrolls in its own box,
+  // so the browser can't do it. Kept per page for this tab (sessionStorage); only the first page
+  // opened after a reload is put back, so any other way in still starts at the top.
+  useEffect(() => {
+    const r = root.current;
+    if (!r) return;
+    const key = `cw-at-${id}`;
+    let back = 0;
+    try {
+      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      if (!putBack && nav?.type === "reload") back = Number(sessionStorage.getItem(key)) || 0;
+    } catch {}
+    putBack = true;
+    let t = 0;
+    if (back > 0) {
+      const go = () => r.scrollTo({ top: back, behavior: "instant" as ScrollBehavior });
+      requestAnimationFrame(go);
+      t = window.setTimeout(go, 400); // once late pictures have settled the page's height
+    }
+    let save = 0;
+    const keep = () => {
+      window.clearTimeout(save);
+      save = window.setTimeout(() => {
+        try {
+          sessionStorage.setItem(key, String(Math.round(r.scrollTop)));
+        } catch {}
+      }, 200);
+    };
+    r.addEventListener("scroll", keep, { passive: true });
+    return () => {
+      r.removeEventListener("scroll", keep);
+      window.clearTimeout(save);
+      window.clearTimeout(t);
+    };
+  }, [id]);
 
   const jump = (e: React.MouseEvent, id: string) => {
     e.preventDefault();

@@ -17234,3 +17234,11 @@ html[data-motion="reduced"] .wc-hl {
     font-size: 16px;
   }
 }
+/* Safari (with a mouse, or "always show scrollbars") hides a scrollbar only through its own
+   pseudo-element: these scroll with scrollbar-width: none, like the rows that already had this */
+.sidebar-scroll::-webkit-scrollbar,
+.inspector-scroll::-webkit-scrollbar,
+.chat-log::-webkit-scrollbar,
+.pba-log::-webkit-scrollbar {
+  display: none;
+}

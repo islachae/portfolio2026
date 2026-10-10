@@ -9,6 +9,7 @@ import { ChevronLeft, MenuIcon } from "../icons";
 import { WordCocktail } from "../cocktail/WordCocktail";
 import { BakeryStage, LabStage, WishStage } from "../Stages";
 import { SiteAsk, SiteNav } from "./Nav";
+import { holdTitle } from "@/lib/title";
 
 const stages: Record<Exclude<PlayId, "cocktail">, () => React.ReactElement> = {
   wish: WishStage,
@@ -29,10 +30,7 @@ export function PlayPage({ id }: { id: PlayId }) {
 
   useEffect(() => {
     root.current?.focus({ preventScroll: true });
-    document.title = `${p.title} · ${profile.name}`;
-    return () => {
-      document.title = profile.name;
-    };
+    return holdTitle(`${p.title} · ${profile.name}`, profile.name);
   }, [p.title]);
 
   return (

@@ -95,5 +95,39 @@
       "destination": "/",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/tipping",
+      "destination": "/share/tipping.html"
+    },
+    {
+      "source": "/tipping/",
+      "destination": "/share/tipping.html"
+    },
+    {
+      "source": "/pebbo",
+      "destination": "/share/pebbo.html"
+    },
+    {
+      "source": "/pebbo/",
+      "destination": "/share/pebbo.html"
+    },
+    {
+      "source": "/mellon",
+      "destination": "/share/mellon.html"
+    },
+    {
+      "source": "/mellon/",
+      "destination": "/share/mellon.html"
+    },
+    {
+      "source": "/melon",
+      "destination": "/share/mellon.html"
+    },
+    {
+      "source": "/melon/",
+      "destination": "/share/mellon.html"
+    }
   ]
 }
