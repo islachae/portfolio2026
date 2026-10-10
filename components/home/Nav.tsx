@@ -159,7 +159,7 @@ export function PhoneMenu({ at }: { at: NavPlace }) {
             }}
           >
             <PixelFace size={26} />
-            <span>Ask ChaeLLM</span>
+            <span>Ask Chaewon</span>
             <span aria-hidden>→</span>
           </button>
           <div className="pm-hi">

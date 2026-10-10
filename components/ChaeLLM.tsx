@@ -303,19 +303,20 @@ export function ChatDock() {
   );
 }
 
-/** Floating button: ✦ ChaeLLM. */
+/** The button that opens the chat: “Ask Chaewon”. Inside, the chat still introduces itself as
+    ChaeLLM, an AI version of her, so nobody mistakes it for Chaewon typing. */
 export function ChatToggle({ onClick, compact = false, ask = false }: { onClick: () => void; compact?: boolean; ask?: boolean }) {
   const { open } = useChat();
   return (
     <button
       className={`chat-toggle pf-hover${compact ? " chat-toggle--compact" : ""}${ask ? " chat-toggle--ask" : ""}`}
       aria-pressed={open}
-      aria-label={compact ? "Ask ChaeLLM" : undefined}
-      title={open ? "Close ChaeLLM" : "Ask ChaeLLM"}
+      aria-label={compact ? "Ask Chaewon" : undefined}
+      title={open ? "Close the chat" : "Ask Chaewon"}
       onClick={onClick}
     >
       <PixelFace size={24} />
-      {!compact && <span>{ask ? "Ask ChaeLLM" : "ChaeLLM"}</span>}
+      {!compact && <span>{ask ? "Ask Chaewon" : "ChaeLLM"}</span>}
     </button>
   );
 }

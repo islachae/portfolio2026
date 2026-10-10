@@ -34,7 +34,7 @@ export default function NotFound() {
             Back to Home
           </a>
           <a className="nf-btn nf-btn--ghost" href="/#ask">
-            Ask ChaeLLM
+            Ask Chaewon
           </a>
         </p>
       </div>

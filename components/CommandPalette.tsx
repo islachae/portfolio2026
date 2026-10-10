@@ -52,10 +52,10 @@ export function CommandPalette() {
       {
         id: "chaellm",
         group: "Actions",
-        title: "Ask ChaeLLM",
+        title: "Ask Chaewon",
         sub: "Chat with an AI version of Chaewon",
         icon: <PixelFace size={24} />,
-        terms: "chat ai llm ask question chaellm bot assistant",
+        terms: "chat ai llm ask chaewon question chaellm bot assistant",
         run: openChat,
       },
       {

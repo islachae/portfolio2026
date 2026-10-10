@@ -27,7 +27,7 @@ const typing = (t: EventTarget | null) =>
  */
 export function Site() {
   const { caseStudy, play, goHome } = useShell();
-  // /#ask opens ChaeLLM on Home (the "Ask ChaeLLM" button on the not-found page). The shell tidies
+  // /#ask opens ChaeLLM on Home (the "Ask Chaewon" button on the not-found page). The shell tidies
   // the address afterwards, as it does for any hash that isn't a page.
   const { openChat } = useChat();
   useEffect(() => {
