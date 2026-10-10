@@ -9932,13 +9932,19 @@ html[data-motion="reduced"] .pb-board-head {
   .pb-stage {
     /* its three columns and padding are 0.91 of --h wide: on a narrow phone the width bounds it too */
     --h: min(400px, calc(100vh - 300px), calc((100vw - 34px) / 0.91));
+    /* a wider middle, so the 12px “Squeeze logged” clears the phone; the device gives the room */
+    grid-template-columns: calc(var(--h) * 0.22) calc(var(--h) * 0.15) calc(var(--h) * 0.46);
     justify-content: center;
     width: 100%;
+  }
+  .pb-stage-link-k {
+    letter-spacing: 0;
   }
 }
 @media (max-width: 640px) {
   .pb-dev-stage {
-    width: 44%;
+    /* the labels need 104px each side: on narrow phones (360, 320) the device shrinks to leave it */
+    width: min(44%, calc(100% - 208px));
   }
   .pb-part-label {
     font-size: 12px;
