@@ -409,7 +409,17 @@ export function PebboStage() {
 
 /* ───────────────────── MELN · the inbox that knows you ───────────────────── */
 
-/* The Mellon prototype, as recorded: chapters jump through the 38-second walkthrough. */
+/* The team's concept film (2:13, its words burned into the picture): the first screen plays it
+   without sound, chapters jump through it, and "Sound on" brings the voice and music in. */
+const MELON_FILM_CHAPTERS = [
+  { t: 0, label: "The problem" },
+  { t: 24, label: "Student" },
+  { t: 71, label: "Advisor" },
+  { t: 110, label: "The loop" },
+];
+
+/* The Mellon prototype, as recorded (now in the case study's Solution): chapters jump through the
+   38-second walkthrough. */
 const MELON_CHAPTERS = [
   { t: 0, label: "Updates" },
   { t: 3.8, label: "Summary" },
@@ -417,26 +427,26 @@ const MELON_CHAPTERS = [
   { t: 34.6, label: "Bulk clear" },
 ];
 
-export function MelonStage() {
-  const active = useActive("melon");
+/** A recording with chapter pills and a pause button; `on` says when it may play. */
+function useRecording(chapters: { t: number }[], on: boolean) {
   const video = useRef<HTMLVideoElement>(null);
   const [chapter, setChapter] = useState(0);
   const [playing, setPlaying] = useState(false);
   // Set by a pause the visitor chose, so leaving and coming back doesn't restart it
   const held = useRef(false);
 
-  // Plays only while the page is on screen, and never on its own with reduced motion
+  // Plays only while it's on screen, and never on its own with reduced motion
   useEffect(() => {
     const v = video.current;
     if (!v) return;
-    if (active && !held.current && !reducedMotion()) v.play().catch(() => {});
-    if (!active) v.pause();
-  }, [active]);
+    if (on && !held.current && !reducedMotion()) v.play().catch(() => {});
+    if (!on) v.pause();
+  }, [on]);
 
   const seek = (i: number) => {
     const v = video.current;
     if (!v) return;
-    v.currentTime = MELON_CHAPTERS[i].t;
+    v.currentTime = chapters[i].t;
     setChapter(i);
     held.current = false;
     v.play().catch(() => {});
@@ -455,57 +465,128 @@ export function MelonStage() {
   const onTime = () => {
     const t = video.current?.currentTime ?? 0;
     let i = 0;
-    MELON_CHAPTERS.forEach((c, k) => {
+    chapters.forEach((c, k) => {
       if (t >= c.t) i = k;
     });
     setChapter((c) => (c === i ? c : i));
+  };
+  const events = { onTimeUpdate: onTime, onPlay: () => setPlaying(true), onPause: () => setPlaying(false) };
+  return { video, chapter, playing, seek, toggle, events, held };
+}
+
+function PlayIcon({ playing }: { playing: boolean }) {
+  return playing ? (
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+      <rect x="2" y="1.5" width="2.6" height="9" rx="0.6" fill="currentColor" />
+      <rect x="7.4" y="1.5" width="2.6" height="9" rx="0.6" fill="currentColor" />
+    </svg>
+  ) : (
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+      <path d="M3 1.8v8.4a.6.6 0 0 0 .9.5l6.8-4.2a.6.6 0 0 0 0-1L3.9 1.3a.6.6 0 0 0-.9.5Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function MelonStage() {
+  const active = useActive("melon");
+  const r = useRecording(MELON_FILM_CHAPTERS, active);
+  const [sound, setSound] = useState(false);
+  const toggleSound = () => {
+    const v = r.video.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setSound(!v.muted);
+    if (!v.muted && v.paused) {
+      r.held.current = false;
+      v.play().catch(() => {});
+    }
   };
 
   return (
     <>
       <div className="stage-visual melon-stage">
-        <div className="melon-demo">
+        <div className="melon-film-box">
           <video
-            ref={video}
-            className="melon-video"
-            poster="/work/melon/mellon-panel.webp"
+            ref={r.video}
+            className="melon-film"
+            poster="/work/melon/mellon-concept.webp"
             muted
             loop
             playsInline
             preload="metadata"
-            aria-label="Screen recording of the Mellon side panel in Gmail: updates sorted by what needs doing, a summary of one email with a link to the original, a question typed to Ask Mellon, and clearing updates in bulk"
-            onTimeUpdate={onTime}
-            onPlay={() => setPlaying(true)}
-            onPause={() => setPlaying(false)}
+            aria-label="The team's concept film for Mellon, 2 minutes 13, with captions: a week of school email getting lost, then Mellon in Gmail for the student, the advisor seeing what students ask, and the guide that comes back to them"
+            {...r.events}
           >
-            {/* H.264 for Safari and most browsers; VP9 for builds without it */}
-            <source src="/work/melon/mellon-panel.mp4" type="video/mp4" />
-            <source src="/work/melon/mellon-panel.webm" type="video/webm" />
+            {/* phones get the 720p file (8.8 MB), wider screens the 1080p one (19 MB); H.264 plays everywhere */}
+            <source src="/work/melon/mellon-concept-sm.mp4" type="video/mp4" media="(max-width: 799px)" />
+            <source src="/work/melon/mellon-concept.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
       <StageControls>
         <Pills
+          name="Jump to a part of the film"
+          value={r.chapter}
+          onChange={r.seek}
+          options={MELON_FILM_CHAPTERS.map((c, i) => ({ value: i, label: c.label }))}
+        />
+        <button className="stage-btn" onClick={r.toggle} aria-label={r.playing ? "Pause the film" : "Play the film"}>
+          <PlayIcon playing={r.playing} />
+        </button>
+        <button className="stage-btn stage-btn--label" onClick={toggleSound} aria-pressed={sound}>
+          {sound ? "Sound off" : "Sound on"}
+        </button>
+        <span className="stage-caption">Concept film · 2:13</span>
+      </StageControls>
+    </>
+  );
+}
+
+/** The panel prototype as recorded, in the case study: plays while it's on screen. */
+export function MelonPanelClip() {
+  const box = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setSeen(e.isIntersecting), { threshold: 0.4 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const r = useRecording(MELON_CHAPTERS, seen);
+
+  return (
+    <div className="melon-clip" ref={box}>
+      <div className="melon-demo">
+        <video
+          ref={r.video}
+          className="melon-video"
+          poster="/work/melon/mellon-panel.webp"
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-label="Screen recording of the Mellon side panel in Gmail: updates sorted by what needs doing, a summary of one email with a link to the original, a question typed to Ask Mellon, and clearing updates in bulk"
+          {...r.events}
+        >
+          {/* H.264 for Safari and most browsers; VP9 for builds without it */}
+          <source src="/work/melon/mellon-panel.mp4" type="video/mp4" />
+          <source src="/work/melon/mellon-panel.webm" type="video/webm" />
+        </video>
+      </div>
+      <StageControls>
+        <Pills
           name="Jump to a part of the recording"
-          value={chapter}
-          onChange={seek}
+          value={r.chapter}
+          onChange={r.seek}
           options={MELON_CHAPTERS.map((c, i) => ({ value: i, label: c.label }))}
         />
-        <button className="stage-btn" onClick={toggle} aria-label={playing ? "Pause the recording" : "Play the recording"}>
-          {playing ? (
-            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-              <rect x="2" y="1.5" width="2.6" height="9" rx="0.6" fill="currentColor" />
-              <rect x="7.4" y="1.5" width="2.6" height="9" rx="0.6" fill="currentColor" />
-            </svg>
-          ) : (
-            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-              <path d="M3 1.8v8.4a.6.6 0 0 0 .9.5l6.8-4.2a.6.6 0 0 0 0-1L3.9 1.3a.6.6 0 0 0-.9.5Z" fill="currentColor" />
-            </svg>
-          )}
+        <button className="stage-btn" onClick={r.toggle} aria-label={r.playing ? "Pause the recording" : "Play the recording"}>
+          <PlayIcon playing={r.playing} />
         </button>
         <span className="stage-caption">Working prototype.</span>
       </StageControls>
-    </>
+    </div>
   );
 }
 

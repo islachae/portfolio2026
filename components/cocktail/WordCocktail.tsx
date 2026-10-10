@@ -70,7 +70,8 @@ function Typed({ lines, run }: { lines: string[]; run: boolean }) {
   const done = n >= full.length;
   let from = 0;
   return (
-    <p className="wc-lede" aria-label={lines.join(" ")}>
+    <p className="wc-lede">
+      <span className="sr-only">{lines.join(" ")}</span>
       {/* every line is there from the start; what hasn't been typed yet is only hidden, so nothing moves.
           The first line is the statement (large), the rest sit under it (small) */}
       {lines.map((l, i) => {

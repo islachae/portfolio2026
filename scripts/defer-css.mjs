@@ -58,9 +58,19 @@ console.log(`prefetch gradient: ${gl.join(", ") || "none found"}`);
 // only once the app is running. A link straight to one (/#case/…, /#about/story) preloads it from
 // <head> instead, so it downloads alongside the page's own scripts rather than after them.
 const page = readFileSync(index, "utf8");
-const longRead = readdirSync(CHUNKS).filter(
-  (f) => f.endsWith(".js") && !page.includes(f) && readFileSync(join(CHUNKS, f), "utf8").includes("cs-foot-actions"),
+// The stages (each first screen's prototype: components/Stages.tsx) are a chunk both kinds of page
+// import, fetched only after theirs has arrived; a deep link preloads it too.
+const stages = readdirSync(CHUNKS).filter(
+  (f) => f.endsWith(".js") && !page.includes(f) && readFileSync(join(CHUNKS, f), "utf8").includes("stage-btn"),
 );
+const longRead = [
+  ...new Set([
+    ...readdirSync(CHUNKS).filter(
+      (f) => f.endsWith(".js") && !page.includes(f) && readFileSync(join(CHUNKS, f), "utf8").includes("cs-foot-actions"),
+    ),
+    ...stages,
+  ]),
+];
 if (longRead.length) {
   const prefix = (page.match(/src="([^"]*)_next\/static\/chunks\//) || [, "/"])[1];
   const hrefs = JSON.stringify(longRead.map((f) => `${prefix}_next/static/chunks/${f}`));
@@ -73,9 +83,14 @@ console.log(`preload long reads on a deep link: ${longRead.join(", ") || "none f
 // The play pages are a chunk of their own too (components/home/play-load.ts): same treatment for
 // a link straight to one (/#play/wish, or the old /#wish).
 const page2 = readFileSync(index, "utf8");
-const playChunk = readdirSync(CHUNKS).filter(
-  (f) => f.endsWith(".js") && !page2.includes(f) && readFileSync(join(CHUNKS, f), "utf8").includes("data-play"),
-);
+const playChunk = [
+  ...new Set([
+    ...readdirSync(CHUNKS).filter(
+      (f) => f.endsWith(".js") && !page2.includes(f) && readFileSync(join(CHUNKS, f), "utf8").includes("data-play"),
+    ),
+    ...stages,
+  ]),
+];
 if (playChunk.length) {
   const prefix = (page2.match(/src="([^"]*)_next\/static\/chunks\//) || [, "/"])[1];
   const hrefs = JSON.stringify(playChunk.map((f) => `${prefix}_next/static/chunks/${f}`));

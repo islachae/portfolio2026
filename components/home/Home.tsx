@@ -47,7 +47,7 @@ export function Home({ hidden }: { hidden: boolean }) {
   const fun = pages.filter((p) => p.group === "fun");
 
   return (
-    <div className="nh" id="main" data-hidden={hidden || undefined} aria-hidden={hidden || undefined} inert={hidden ? true : undefined}>
+    <main className="nh" id="main" data-hidden={hidden || undefined} aria-hidden={hidden || undefined} inert={hidden ? true : undefined}>
       <PhoneBar />
       <section className="nh-hero" ref={hero} aria-label="Introduction">
         <ShaderHero active={seen && !hidden} />
@@ -89,7 +89,7 @@ export function Home({ hidden }: { hidden: boolean }) {
       <SayHi />
       <Foot />
       <CursorTag off={hidden} />
-    </div>
+    </main>
   );
 }
 
@@ -224,19 +224,24 @@ function CardClip({ clip }: { clip: NonNullable<Page["clip"]> }) {
   useEffect(() => {
     const v = ref.current;
     if (!v || reducedMotion()) return;
-    // phones get the small file: nothing has been fetched yet (preload is "none")
-    if (clip.sm && window.matchMedia("(max-width: 760px)").matches) {
+    // phones get the small file, swapped in the first time it plays: until then nothing is fetched
+    // (preload is "none"), not even while Home waits behind a page opened from a link
+    let sized = !clip.sm || !window.matchMedia("(max-width: 799px)").matches;
+    const size = () => {
+      if (sized || !clip.sm) return;
+      sized = true;
       const [mp4, webm] = v.querySelectorAll("source");
       mp4.src = clip.sm.mp4;
       webm.src = clip.sm.webm;
       v.load();
-    }
+    };
     const root = document.documentElement;
     const home = v.closest(".nh");
     const card = v.closest(".nh-card");
     let inView = false;
     let played = false;
     const play = () => {
+      size();
       if (!v.paused && !v.ended) return;
       v.currentTime = 0;
       void v.play().catch(() => {});
@@ -244,8 +249,10 @@ function CardClip({ clip }: { clip: NonNullable<Page["clip"]> }) {
     const first = () => {
       const free = inView && !root.dataset.boot && !home?.hasAttribute("data-hidden");
       if (clip.loop) {
-        if (free) void v.play().catch(() => {});
-        else v.pause();
+        if (free) {
+          size();
+          void v.play().catch(() => {});
+        } else v.pause();
         return;
       }
       if (played || !free) return;

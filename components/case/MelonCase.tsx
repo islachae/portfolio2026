@@ -6,6 +6,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { melonCase as C, type Shot } from "@/content/cases/melon";
 import { reducedMotion } from "../shell-context";
 import { Lines, Section, Takeaways, clamp, useStickyProgress } from "./kit";
+import { useScrollRoot } from "./scroll-root";
+import { MelonPanelClip } from "../Stages";
 
 /**
  * CMU Mellon. The page follows the presentation's argument: one email read two ways, the belief
@@ -447,7 +449,7 @@ function ShotFig({ shot, kind }: { shot: Shot; kind: "panel" | "wide" }) {
   return (
     <figure className="ml-shot" data-kind={kind}>
       {/* a wide screen keeps a readable size on a phone and scrolls sideways inside this box */}
-      <span className="ml-shot-scroll">
+      <span className="ml-shot-scroll" data-scroll-label={`${shot.alt} (scrolls sideways)`}>
         <span className="ml-shot-pic">
           <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} loading="lazy" decoding="async" />
           {shot.pins.map((p, i) => (
@@ -494,7 +496,24 @@ function Loop() {
   // where things leave from and land, measured inside the frame
   const [pts, setPts] = useState<{ ask: [Pt, Pt]; guide: [Pt, Pt] } | null>(null);
 
-  useEffect(() => setStill(reducedMotion()), []);
+  const root = useScrollRoot();
+  // pinned only where the whole frame fits under the bar (a phone on its side, a window zoomed to
+  // 200%, a short laptop: there it would hide steps 03 and 04); otherwise the finished loop is shown
+  useEffect(() => {
+    if (reducedMotion()) return setStill(true);
+    const sc = scene.current;
+    const fr = frame.current;
+    if (!sc || !fr || !root) return;
+    const check = () => {
+      sc.removeAttribute("data-still"); // measured as it would be pinned
+      const fits = (parseFloat(getComputedStyle(fr).top) || 0) + fr.offsetHeight <= root.clientHeight;
+      if (!fits) sc.setAttribute("data-still", "");
+      setStill(!fits);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [root]);
   useEffect(() => {
     const fr = frame.current;
     if (!fr) return;
@@ -611,7 +630,7 @@ function Loop() {
                           {m.loopPost}
                         </span>
                       ) : (
-                        <span className="ml-loop-words">{step >= 3 ? m.loopPosted : m.loopInvest.words.join(" · ")}</span>
+                        <span className="ml-loop-words">{step >= 3 ? m.loopPosted : m.loopInvest.words.join("\u00a0· ")}</span>
                       )}
                     </>
                   )}
@@ -690,6 +709,11 @@ function Solution() {
           </div>
         </div>
       ))}
+
+      <div className="ml-clip">
+        <h3 className="cs-h3">{m.clipTitle}</h3>
+        <MelonPanelClip />
+      </div>
 
       <div className="ml-limits" id="ml-limits" tabIndex={-1}>
         <h3 className="cs-h3">{f.limitsTitle}</h3>

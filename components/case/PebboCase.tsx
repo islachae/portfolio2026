@@ -425,7 +425,7 @@ function Daily() {
             <h3 className="cs-h3">{d.summaryTitle}</h3>
             <p className="cs-body">{d.summaryText}</p>
           </div>
-          <div className="pb-sums">
+          <div className="pb-sums" data-scroll-label="Summaries">
             {d.summaries.map((s) => (
               <figure className="pb-sum" key={s.cap}>
                 <span className="pb-sum-shot">
@@ -645,7 +645,7 @@ function Approach() {
       <h2 className="cs-h2">
         <Lines lines={a.title} />
       </h2>
-      <div className="pb-map" ref={ref} style={{ ["--cols" as string]: a.cols.length }}>
+      <div className="pb-map" ref={ref} style={{ ["--cols" as string]: a.cols.length }} data-scroll-label="Research map">
         <p className="pb-map-core">
           <span className="pb-k">Problem core</span>
           {a.core}

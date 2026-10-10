@@ -64,7 +64,6 @@
   --font-ui: var(--font-sans), "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, -apple-system, sans-serif;
   --font-display: var(--font-satoshi), "Apple SD Gothic Neo", "Pretendard", system-ui, -apple-system, sans-serif;
   --font-code: var(--font-mono), Consolas, "Courier New", monospace;
-  --display-size: 44px;
   /* heading1: Satoshi Medium 48 / 55.2 / -2px */
   --h1-size: 48px;
   --h1-leading: 1.15;
@@ -87,11 +86,6 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   color-scheme: light;
-}
-@media (min-width: 1280px) {
-  :root {
-    --display-size: 56px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -3585,8 +3579,7 @@ button.handoff-row:hover .handoff-sym {
 /* Short screens */
 @media (max-height: 780px) and (min-width: 800px) {
   :root {
-    --display-size: 44px;
-    --h1-size: 44px;
+      --h1-size: 44px;
   }
   .cover-top {
     padding-block: var(--space-xl);
@@ -5865,8 +5858,8 @@ html[data-motion="reduced"] .cs *::before {
   }
 }
 
-/* Tablet */
-@media (max-width: 860px) {
+/* Phones (the side-by-side layouts fit from 800px) */
+@media (max-width: 799px) {
   .cs {
     --cs-gap: 112px;
   }
@@ -6039,7 +6032,9 @@ html[data-motion="reduced"] .cs *::before {
     display: none;
   }
   .cs-arc-label {
-    font-size: 10.5px;
+    /* wide enough that 12px still sets in two lines */
+    width: 28%;
+    font-size: 12px;
   }
   .cs-foot-row {
     flex-direction: column;
@@ -6226,6 +6221,9 @@ html[data-motion="reduced"] .cs *::before {
   gap: 56px;
   align-items: center;
   height: calc(100vh - 96px);
+  /* svh, here and in the other pinned scenes: what Safari shows with its toolbars out. A case study
+     scrolls in its own box, so the toolbars never fold away and 100vh would run under them */
+  height: calc(100svh - 96px);
 }
 
 /* Steps: a track that fills with your scroll */
@@ -6332,7 +6330,7 @@ html[data-motion="reduced"] .cs *::before {
   place-items: center;
 }
 .cs-ph {
-  --h: min(580px, calc(100vh - 170px));
+  --h: min(580px, calc(100svh - 170px));
   height: var(--h);
   aspect-ratio: 290 / 580;
   padding: calc(var(--h) * 0.014);
@@ -6584,7 +6582,7 @@ html[data-motion="reduced"] .cs *::before {
 }
 
 /* Phones: the current step sits above a smaller phone */
-@media (max-width: 700px) {
+@media (max-width: 799px) {
   .cs-scene {
     height: 360vh;
   }
@@ -6594,6 +6592,7 @@ html[data-motion="reduced"] .cs *::before {
     align-content: start;
     gap: var(--space-md);
     height: calc(100vh - 76px);
+    height: calc(100svh - 76px);
     padding-top: var(--space-xs);
   }
   .cs-scene-steps {
@@ -6619,7 +6618,7 @@ html[data-motion="reduced"] .cs *::before {
     margin: 6px 0 0;
   }
   .cs-ph {
-    --h: min(440px, calc(100vh - 250px));
+    --h: min(440px, calc(100svh - 250px));
   }
 }
 
@@ -6861,6 +6860,7 @@ html[data-motion="reduced"] .cs-rv {
 .cs-tl-frame {
   position: sticky;
   top: max(80px, calc(50vh - 270px));
+  top: max(80px, calc(50svh - 270px));
   display: grid;
   grid-template-columns: 188px minmax(0, 1fr);
   column-gap: 32px;
@@ -7137,6 +7137,7 @@ html[data-motion="reduced"] .cs [data-flash] {
   }
   .cs-tl-frame {
     top: max(68px, calc(50vh - 260px));
+    top: max(68px, calc(50svh - 260px));
     grid-template-columns: minmax(0, 1fr);
     row-gap: 10px;
     padding: 18px 16px 20px;
@@ -8834,7 +8835,7 @@ html[data-motion="reduced"] .hi-fly {
 .pb-bridge-n {
   color: #8a5a3a;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -8842,7 +8843,7 @@ html[data-motion="reduced"] .hi-fly {
   gap: 40px;
 }
 .pb-stage {
-  --h: min(520px, calc(100vh - 190px));
+  --h: min(520px, calc(100svh - 190px));
   position: relative;
   display: grid;
   grid-template-columns: calc(var(--h) * 0.27) calc(var(--h) * 0.1) calc(var(--h) * 0.46);
@@ -9006,7 +9007,7 @@ html[data-motion="reduced"] .hi-fly {
 .pb-stage-link-k {
   color: #6b6b72;
   font-family: var(--font-code);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-align: center;
   text-transform: uppercase;
@@ -9513,7 +9514,7 @@ html[data-motion="reduced"] .hi-fly {
   align-self: center;
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   line-height: 1.35;
   text-transform: uppercase;
@@ -9919,8 +9920,8 @@ html[data-motion="reduced"] .pb-board-head {
   opacity: 1 !important;
 }
 
-/* Tablet */
-@media (max-width: 860px) {
+/* Phones (the side-by-side layouts fit from 800px) */
+@media (max-width: 799px) {
   .pb-reason {
     grid-template-columns: 1fr;
   }
@@ -9930,23 +9931,29 @@ html[data-motion="reduced"] .pb-board-head {
   }
 }
 /* Phones */
-@media (max-width: 700px) {
+@media (max-width: 799px) {
   .pb-scene-frame {
     gap: var(--space-md);
   }
   .pb-stage {
     /* its three columns and padding are 0.91 of --h wide: on a narrow phone the width bounds it too */
-    --h: min(400px, calc(100vh - 300px), calc((100vw - 34px) / 0.91));
+    --h: min(400px, calc(100svh - 300px), calc((100vw - 34px) / 0.91));
+    /* a wider middle, so the 12px “Squeeze logged” clears the phone; the device gives the room */
+    grid-template-columns: calc(var(--h) * 0.22) calc(var(--h) * 0.15) calc(var(--h) * 0.46);
     justify-content: center;
     width: 100%;
+  }
+  .pb-stage-link-k {
+    letter-spacing: 0;
   }
 }
 @media (max-width: 640px) {
   .pb-dev-stage {
-    width: 44%;
+    /* the labels need 104px each side: on narrow phones (360, 320) the device shrinks to leave it */
+    width: min(44%, calc(100% - 208px));
   }
   .pb-part-label {
-    font-size: 11.5px;
+    font-size: 12px;
     white-space: normal;
     width: 76px;
     line-height: 1.25;
@@ -10568,7 +10575,7 @@ html[data-motion="reduced"] .top-link::after {
 }
 .ml-glance dt {
   color: var(--cs-ink);
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
 }
 .ml-glance dd {
@@ -10713,7 +10720,7 @@ html[data-motion="reduced"] .top-link::after {
   background: #c8203b;
   color: #fff;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   vertical-align: 1px;
 }
@@ -10741,7 +10748,7 @@ html[data-motion="reduced"] .top-link::after {
 .ml-read-note {
   margin-top: 12px;
   color: var(--text-muted);
-  font-size: 11.5px;
+  font-size: 12px;
   text-transform: uppercase;
 }
 
@@ -11250,7 +11257,8 @@ html[data-motion="reduced"] .top-link::after {
   text-transform: uppercase;
 }
 
-@media (max-width: 860px) {
+/* Tablets: five concepts in a row only from 1024px */
+@media (max-width: 1023px) {
   .ml-methods {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -11730,7 +11738,7 @@ html[data-motion="reduced"] .top-link::after {
   margin-left: 3px;
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0;
   vertical-align: super;
   line-height: 0;
@@ -11752,7 +11760,7 @@ html[data-motion="reduced"] .top-link::after {
 .pb-scale-notes li span {
   margin-right: 8px;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
 }
 .pb-scale-notes .cs-src {
   margin-top: 6px;
@@ -12573,7 +12581,7 @@ html[data-motion="reduced"] .pb-scale mark {
   white-space: nowrap;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 799px) {
   .pba-wrap {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -13158,7 +13166,7 @@ html[data-motion="reduced"] .tp-nudge i {
 .ab-card-n {
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
 }
 .ab-card-h {
@@ -13201,7 +13209,7 @@ html[data-motion="reduced"] .tp-nudge i {
   grid-column: 1;
   color: var(--accent-1);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -13315,7 +13323,7 @@ html[data-motion="reduced"] .tp-nudge i {
   font-size: 14.5px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 799px) {
   .ab-intro {
     padding-top: 48px;
   }
@@ -13356,7 +13364,7 @@ html[data-motion="reduced"] .tp-nudge i {
     margin-top: 72px;
   }
   .ab-pol figcaption {
-    font-size: 11.5px;
+    font-size: 12px;
   }
   .ab-lists {
     grid-template-columns: minmax(0, 1fr);
@@ -13639,8 +13647,7 @@ html[data-motion="reduced"] .cue-head {
   cursor: default;
 }
 
-/* Phone bar: About me and Résumé take room, so the name stays on one line (and steps aside on tiny
-   screens). “About me” is longer than “About” was: the name drops to 12px, the box to 8px padding,
+/* Phone bar: About me and Résumé take room, so the name stays on one line. “About me” is longer than “About” was: the name drops to 12px, the box to 8px padding,
    and the bar's right edge to 6px, so a 390px phone keeps an 8px gap between name and box. */
 @media (max-width: 799px) {
   .mobilebar {
@@ -13655,11 +13662,6 @@ html[data-motion="reduced"] .cue-head {
   }
   .mobilebar-about {
     padding: 0 8px;
-  }
-}
-@media (max-width: 380px) {
-  .mobilebar-home span {
-    display: none;
   }
 }
 
@@ -13809,7 +13811,7 @@ html[data-motion="reduced"] .cue-head {
 .ml-find-melon b {
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -13887,7 +13889,7 @@ html[data-motion="reduced"] .cue-head {
 .ml-chart figcaption span {
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -13961,7 +13963,7 @@ html[data-motion="reduced"] .cue-head {
   margin-right: 6px;
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -14279,7 +14281,7 @@ html[data-motion="reduced"] .cue-head {
   margin-top: 4px !important;
   color: var(--wc-muted);
   font-family: var(--wc-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
 }
@@ -15655,7 +15657,7 @@ html[data-motion="reduced"] .wc-hl {
   gap: 8px;
   color: #62655a;
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -15829,7 +15831,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-berg-v em {
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 400;
   letter-spacing: var(--label-tracking);
@@ -15936,7 +15938,7 @@ html[data-motion="reduced"] .wc-hl {
   border-bottom: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -16106,7 +16108,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-loop-words {
   color: #62655a;
   font-family: var(--font-code);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-align: center;
   text-transform: uppercase;
@@ -16129,7 +16131,7 @@ html[data-motion="reduced"] .wc-hl {
   background: var(--cs-tint-2);
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -16211,7 +16213,7 @@ html[data-motion="reduced"] .wc-hl {
   box-shadow: 0 0 0 2px #fff;
   color: #fff;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 500;
   line-height: 1;
@@ -16299,7 +16301,7 @@ html[data-motion="reduced"] .wc-hl {
   padding-top: 8px;
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -16346,7 +16348,8 @@ html[data-motion="reduced"] .wc-hl {
   color: var(--cs-ink);
 }
 
-@media (max-width: 860px) {
+/* Phones: the four moments, the map tabs and the iceberg keep their wide layout down to 800px */
+@media (max-width: 799px) {
   .ml-story,
   .ml-mapfig-tabs,
   .ml-loop {
@@ -16361,18 +16364,21 @@ html[data-motion="reduced"] .wc-hl {
   .ml-loop li:nth-child(3)::before {
     display: none;
   }
+  .ml-berg li {
+    grid-template-columns: 150px 120px minmax(0, 1fr);
+  }
+  .ml-berg-slice {
+    margin: 0 14px;
+  }
+}
+/* Tablets: the two panel shots stack, so their notes aren't squeezed */
+@media (max-width: 1023px) {
   .ml-shots[data-n="2"] {
     grid-template-columns: minmax(0, 1fr);
   }
   .ml-shots[data-n="2"] .ml-shot[data-kind="panel"] {
     grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
     gap: 28px;
-  }
-  .ml-berg li {
-    grid-template-columns: 150px 120px minmax(0, 1fr);
-  }
-  .ml-berg-slice {
-    margin: 0 14px;
   }
 }
 @media (max-width: 640px) {
@@ -16446,7 +16452,7 @@ html[data-motion="reduced"] .wc-hl {
     font-size: 30px;
   }
 }
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .ml-story,
   .ml-mapfig-tabs,
   .ml-loop {
@@ -16485,7 +16491,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-hypo-k {
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   line-height: 2;
   text-transform: uppercase;
@@ -16592,7 +16598,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-shots[data-n="2"] .ml-shot-notes li {
   gap: 8px;
 }
-@media (max-width: 860px) {
+@media (max-width: 1023px) {
   .ml-shots[data-n="2"] .ml-shot[data-kind="panel"] {
     grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
     gap: 28px;
@@ -16651,8 +16657,11 @@ html[data-motion="reduced"] .wc-hl {
 .ml-scene-frame {
   position: sticky;
   top: 72px;
+  /* what travels between the steps stays inside the loop (on a narrow phone it would otherwise
+     push the page sideways) */
+  overflow: clip;
 }
-/* reduced motion: nothing is pinned, the finished loop is simply shown */
+/* reduced motion, or a screen too short to hold it: nothing is pinned, the finished loop is simply shown */
 .ml-scene[data-still] {
   height: auto;
 }
@@ -17102,11 +17111,13 @@ html[data-motion="reduced"] .wc-hl {
   }
   .ml-loop-words {
     min-height: 28px;
-    font-size: 9px;
+    font-size: 12px;
+    /* two lines here: they break after a dot (see the no-break spaces in the markup) */
+    text-wrap: balance;
   }
   .ml-loop-empty {
     height: 72px;
-    font-size: 11.5px;
+    font-size: 12px;
   }
   .ml-loop-update {
     grid-template-columns: minmax(0, 1fr);
@@ -17139,6 +17150,7 @@ html[data-motion="reduced"] .wc-hl {
    the edge they cross, so the four of them read as one circle */
 .ml-scene-frame {
   top: max(72px, calc(50vh - 300px));
+  top: max(72px, calc(50svh - 300px));
 }
 .ml-scene .ml-loop li:nth-child(2)::before,
 .ml-scene .ml-loop li:nth-child(4)::before {
@@ -17151,6 +17163,7 @@ html[data-motion="reduced"] .wc-hl {
 @media (max-width: 640px) {
   .ml-scene-frame {
     top: max(64px, calc(50vh - 230px));
+    top: max(64px, calc(50svh - 230px));
   }
   .ml-scene .ml-loop li:nth-child(2)::before,
   .ml-scene .ml-loop li:nth-child(4)::before {
@@ -17183,5 +17196,97 @@ html[data-motion="reduced"] .wc-hl {
   }
   .ml-scene .ml-loop li:nth-child(3)::before {
     top: -10px;
+  }
+}
+
+/* ───────── Touch: small links and text buttons reach further than they look ─────────
+   On a touch screen each of these is shorter than a fingertip (17–23px tall). An invisible box
+   around it takes the tap without moving anything, so it is at least 44px tall. */
+@media (pointer: coarse) {
+  .nh-foot-l a,
+  .pb-try button,
+  .pb-limits li a,
+  .ab-link {
+    position: relative;
+  }
+  .nh-foot-l a::after,
+  .pb-try button::after,
+  .pb-limits li a::after,
+  .ab-link::after {
+    content: "";
+    position: absolute;
+    inset: -14px -6px;
+  }
+  /* the two help links sit far enough apart that their boxes don't overlap */
+  .pb-limits ul {
+    gap: var(--space-xxl);
+  }
+}
+/* Pebbo's message field: the whole pill the visitor sees takes the tap, not just the line of text */
+.pba-field input {
+  align-self: stretch;
+}
+/* iPhone Safari zooms into a text field set under 16px when it's tapped, and stays zoomed after:
+   on touch screens the message fields are 16px (ChaeLLM, and Pebbo's, inside its scaled phone too) */
+@media (pointer: coarse) {
+  .chat-form input,
+  .pba-field input {
+    font-size: 16px;
+  }
+}
+/* Safari (with a mouse, or "always show scrollbars") hides a scrollbar only through its own
+   pseudo-element: these scroll with scrollbar-width: none, like the rows that already had this */
+.sidebar-scroll::-webkit-scrollbar,
+.inspector-scroll::-webkit-scrollbar,
+.chat-log::-webkit-scrollbar,
+.pba-log::-webkit-scrollbar {
+  display: none;
+}
+/* ═════════ CMU Mellon: the concept film in the first screen ═════════
+   16:9 and at most 640px wide, centred in the stage, square on a hairline like the other stages
+   (the film's own frames keep their corners). The prototype recording moved to the Solution. */
+.melon-film-box {
+  width: min(640px, 100%);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #000;
+}
+.melon-film {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the recording in the Solution: the panel upright, its chapters under it */
+.ml-clip {
+  margin-top: var(--space-xxl);
+}
+.melon-clip {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+.melon-clip .melon-demo {
+  height: min(560px, 80svh);
+}
+/* its chapter chips wrap on a phone instead of pushing the page sideways (as in the first screen) */
+.melon-clip .stage-controls,
+.melon-clip .seg--stage {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
+@media (max-width: 640px) {
+  .melon-clip .seg--stage .seg-opt {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 799px) {
+  .melon-clip .melon-demo {
+    height: auto;
   }
 }

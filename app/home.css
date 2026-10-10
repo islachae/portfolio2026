@@ -190,7 +190,9 @@ html[data-booting] .nh {
 @media (min-width: 800px) {
   .nh-hero {
     min-height: max(520px, calc(100vh - var(--peek)));
-    min-height: max(520px, calc(100svh - var(--peek)));
+    /* a tall portrait screen (a tablet held upright) would leave the introduction alone at the
+       bottom of a nearly empty screen: the first screen is never taller than 3/4 of its width */
+    min-height: max(520px, min(calc(100svh - var(--peek)), 75vw));
   }
 }
 /* The gradient runs on under the first cards and fades out there, so it has no bottom edge. */
@@ -575,6 +577,14 @@ a.nh-card:focus-visible .nh-card-media {
   }
 }
 
+/* a case study's first screen below 1024px: the prototype takes the stage's height, not the
+   window's width, so it never runs up over the title or down over its own buttons */
+.csx-stage .melon-demo {
+  width: auto;
+  height: 100%;
+  max-height: 620px;
+}
+
 /* ───────── what a click does, riding the pointer over a card (mouse only) ───────── */
 .nh-cursor {
   position: fixed;
@@ -751,7 +761,7 @@ html[data-motion="reduced"] .nh *::after {
 .nh-foot kbd {
   padding: 1px 5px;
   background: var(--accent-1);
-  color: #fff;
+  color: var(--bg);
   font: inherit;
 }
 .nh-foot-l {
@@ -985,8 +995,8 @@ html[data-motion="reduced"] .nh *::after {
   color: var(--text-muted);
   font-weight: 400;
 }
-/* under 900px the name is left out, so it never runs into the menu */
-@media (max-width: 900px) {
+/* phones leave the name out; from 800px it clears the menu by 120px or more */
+@media (max-width: 799px) {
   .cs-bar-title {
     display: none;
   }
@@ -1493,4 +1503,15 @@ html[data-motion="reduced"] .nh *::after {
 .nf-chip:focus-visible {
   outline: 2px solid var(--accent-1);
   outline-offset: 3px;
+}
+
+/* Mellon's first screen is a 16:9 film: below 1024px its stage is as tall as the film and its
+   buttons, not the window's 78% (that suited the upright prototype it replaced) */
+@media (max-width: 1023px) {
+  .csx-stage:has(.melon-film-box) {
+    height: auto;
+  }
+  .csx-stage:has(.melon-film-box) .stage-visual {
+    container-type: inline-size;
+  }
 }

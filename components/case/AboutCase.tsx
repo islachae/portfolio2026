@@ -40,7 +40,7 @@ function useDrift(ref: React.RefObject<HTMLElement | null>) {
     const root = ref.current?.closest(".cs") as HTMLElement | null;
     if (!ref.current || !root || reducedMotion()) return;
     const els = [...ref.current.querySelectorAll<HTMLElement>("[data-drift]")];
-    const wide = window.matchMedia("(min-width: 761px)");
+    const wide = window.matchMedia("(min-width: 800px)");
     let raf = 0;
     const update = () => {
       raf = 0;

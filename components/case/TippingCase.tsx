@@ -522,7 +522,7 @@ function Mechanism() {
           <span className="cs-pin" style={{ left: `${((col + 0.5) / m.steps.length) * 100}%` }} aria-hidden />
         </div>
 
-        <div className="cs-tp-view" ref={view}>
+        <div className="cs-tp-view" ref={view} data-scroll-label="Touchpoints">
           {m.touchpoints.map((tp) => (
             <div className="cs-tp" key={tp.n} data-on={tp.n === sel || undefined}>
               <h3 className="cs-tp-title">
@@ -862,7 +862,8 @@ function System() {
               className="cs-arc-label"
               data-on={sel === i || undefined}
               style={{
-                left: `${(ARC_LABELS[i].left / 428) * 100}%`,
+                // the right-hand labels hold their right edge, so a wider label on phones grows inward
+                ...(ARC_LABELS[i].align === "right" ? { right: `${(4 / 428) * 100}%` } : { left: `${(ARC_LABELS[i].left / 428) * 100}%` }),
                 top: `${(ARC_LABELS[i].top / 500) * 100}%`,
                 textAlign: ARC_LABELS[i].align,
               }}
