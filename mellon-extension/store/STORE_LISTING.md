@@ -33,9 +33,9 @@ Visibility: **Unlisted** (only people with the link can install it).
 > • A phishing warning flags emails that ask you to log in or pay from outside your school, or that imitate it.
 > • Mark updates done, hide the ones you don't need, fix a wrong deadline yourself, and switch between English and Korean.
 >
-> Privacy: Mellon has no server. It reads Gmail read-only, sends email text only to the Claude API (Anthropic) using your own API key, and keeps its notes in Chrome on your computer. The developer never sees your email.
+> Privacy: Mellon has no server. It reads Gmail read-only, sends email text only to the Claude API (Anthropic), and keeps its notes in Chrome on your computer. The developer never sees your email.
 >
-> You need: a Claude API key from console.anthropic.com, and a Google sign-in that the developer has enabled for you (Mellon is in a limited test).
+> You need: an invitation (Mellon is in a limited test). The person who invites you adds your Google account and gives you a Google client ID and a Claude API key, or you can use your own key from console.anthropic.com.
 
 **Icon:** `mellon-extension/icons/icon128.png`
 
@@ -86,4 +86,4 @@ Visibility: **Unlisted** (only people with the link can install it).
 
 ## Notes for the reviewer (optional field, "Test instructions")
 
-> Mellon needs Google sign-in (OAuth app in testing mode) and a Claude API key, so it cannot be fully used without being added as a test user. The extension only reads Gmail (gmail.readonly), writes calendar events only when the user clicks a button (calendar.events.owned), and sends email text only to api.anthropic.com with the user's own key. No server is involved. Privacy policy: https://chaewon.works/mellon/privacy/
+> Mellon needs Google sign-in (OAuth app in testing mode) and a Claude API key, so it cannot be fully used without being added as a test user. The extension only reads Gmail (gmail.readonly), writes calendar events only when the user clicks a button (calendar.events.owned), and sends email text only to api.anthropic.com with the Claude API key entered in Settings. No server is involved. Privacy policy: https://chaewon.works/mellon/privacy/

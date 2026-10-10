@@ -8,7 +8,7 @@ root = pathlib.Path('mellon-extension')
 manifest = json.loads((root / 'manifest.json').read_text())
 manifest.pop('key', None)
 skip_dirs = {'docs', 'tools', 'store'}
-skip_files = {'README.md', 'PRIVACY.md', '.gitignore', 'manifest.json'}
+skip_files = {'README.md', 'PRIVACY.md', 'FRIENDS.md', '.gitignore', 'manifest.json'}
 
 dist = pathlib.Path('dist'); dist.mkdir(exist_ok=True)
 out = dist / f"mellon-store-{manifest['version']}.zip"

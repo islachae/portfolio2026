@@ -4,7 +4,7 @@ _Last updated: October 10, 2026_
 
 Mellon is a Chrome extension that shows your recent email as a short, ranked list of updates in a side panel next to Gmail. This page explains what Mellon reads, where that data goes, and how to remove it.
 
-**The short version:** Mellon has no server. Your email is read in your own browser, sent only to the Claude API (Anthropic) to be summarized with your own API key, and the results are kept only in Chrome on your computer. The developer of Mellon never receives, sees or stores your email.
+**The short version:** Mellon has no server. Your email is read in your own browser, sent only to the Claude API (Anthropic) to be summarized, and the results are kept only in Chrome on your computer. The developer of Mellon never receives, sees or stores your email.
 
 ## What Mellon reads
 
@@ -14,7 +14,8 @@ Mellon is a Chrome extension that shows your recent email as a short, ranked lis
 
 ## Where your data goes
 
-- **Anthropic (Claude API).** To summarize an email, Mellon sends its sender, subject, date and text to the Claude API at `api.anthropic.com`. It uses the API key that you enter in Mellon's settings. The same applies to questions you ask in Ask Mellon and to Korean translations. Anthropic processes this data under its own terms for API customers. Requests go straight from your browser to Anthropic, not through any server run by the developer.
+- **Anthropic (Claude API).** To summarize an email, Mellon sends its sender, subject, date and text to the Claude API at `api.anthropic.com`. The same applies to questions you ask in Ask Mellon and to Korean translations. Requests go straight from your browser to Anthropic, not through any server run by the developer. Anthropic processes this data under its commercial terms for API customers.
+- **Whose API key.** Mellon uses the Claude API key entered in its settings. That can be your own key, or a key the person who invited you gave you. With a shared key, the cost of your requests is billed to that person's Anthropic account, and they can see how much was used. They do not receive your emails through Mellon.
 - **Google.** Mellon talks to Google's Gmail and Calendar APIs only to do what is described above.
 - **No one else.** Mellon has no analytics, no ads and no tracking. It does not sell, share or transfer your data to anyone else.
 
