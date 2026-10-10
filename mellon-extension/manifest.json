@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Mellon",
+  "version": "0.1.0",
+  "description": "Reads your recent email and sorts it into a priority list of Updates.",
+  "action": { "default_title": "Open Mellon" },
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "permissions": ["sidePanel", "storage"]
+}
