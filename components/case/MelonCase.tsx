@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { melonCase as C, type Shot } from "@/content/cases/melon";
 import { reducedMotion } from "../shell-context";
 import { Lines, Section, Takeaways, clamp, useStickyProgress } from "./kit";
+import { useScrollRoot } from "./scroll-root";
 
 /**
  * CMU Mellon. The page follows the presentation's argument: one email read two ways, the belief
@@ -494,7 +495,24 @@ function Loop() {
   // where things leave from and land, measured inside the frame
   const [pts, setPts] = useState<{ ask: [Pt, Pt]; guide: [Pt, Pt] } | null>(null);
 
-  useEffect(() => setStill(reducedMotion()), []);
+  const root = useScrollRoot();
+  // pinned only where the whole frame fits under the bar (a phone on its side, a window zoomed to
+  // 200%, a short laptop: there it would hide steps 03 and 04); otherwise the finished loop is shown
+  useEffect(() => {
+    if (reducedMotion()) return setStill(true);
+    const sc = scene.current;
+    const fr = frame.current;
+    if (!sc || !fr || !root) return;
+    const check = () => {
+      sc.removeAttribute("data-still"); // measured as it would be pinned
+      const fits = (parseFloat(getComputedStyle(fr).top) || 0) + fr.offsetHeight <= root.clientHeight;
+      if (!fits) sc.setAttribute("data-still", "");
+      setStill(!fits);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [root]);
   useEffect(() => {
     const fr = frame.current;
     if (!fr) return;

@@ -6221,6 +6221,9 @@ html[data-motion="reduced"] .cs *::before {
   gap: 56px;
   align-items: center;
   height: calc(100vh - 96px);
+  /* svh, here and in the other pinned scenes: what Safari shows with its toolbars out. A case study
+     scrolls in its own box, so the toolbars never fold away and 100vh would run under them */
+  height: calc(100svh - 96px);
 }
 
 /* Steps: a track that fills with your scroll */
@@ -6327,7 +6330,7 @@ html[data-motion="reduced"] .cs *::before {
   place-items: center;
 }
 .cs-ph {
-  --h: min(580px, calc(100vh - 170px));
+  --h: min(580px, calc(100svh - 170px));
   height: var(--h);
   aspect-ratio: 290 / 580;
   padding: calc(var(--h) * 0.014);
@@ -6589,6 +6592,7 @@ html[data-motion="reduced"] .cs *::before {
     align-content: start;
     gap: var(--space-md);
     height: calc(100vh - 76px);
+    height: calc(100svh - 76px);
     padding-top: var(--space-xs);
   }
   .cs-scene-steps {
@@ -6614,7 +6618,7 @@ html[data-motion="reduced"] .cs *::before {
     margin: 6px 0 0;
   }
   .cs-ph {
-    --h: min(440px, calc(100vh - 250px));
+    --h: min(440px, calc(100svh - 250px));
   }
 }
 
@@ -6856,6 +6860,7 @@ html[data-motion="reduced"] .cs-rv {
 .cs-tl-frame {
   position: sticky;
   top: max(80px, calc(50vh - 270px));
+  top: max(80px, calc(50svh - 270px));
   display: grid;
   grid-template-columns: 188px minmax(0, 1fr);
   column-gap: 32px;
@@ -7132,6 +7137,7 @@ html[data-motion="reduced"] .cs [data-flash] {
   }
   .cs-tl-frame {
     top: max(68px, calc(50vh - 260px));
+    top: max(68px, calc(50svh - 260px));
     grid-template-columns: minmax(0, 1fr);
     row-gap: 10px;
     padding: 18px 16px 20px;
@@ -8837,7 +8843,7 @@ html[data-motion="reduced"] .hi-fly {
   gap: 40px;
 }
 .pb-stage {
-  --h: min(520px, calc(100vh - 190px));
+  --h: min(520px, calc(100svh - 190px));
   position: relative;
   display: grid;
   grid-template-columns: calc(var(--h) * 0.27) calc(var(--h) * 0.1) calc(var(--h) * 0.46);
@@ -9931,7 +9937,7 @@ html[data-motion="reduced"] .pb-board-head {
   }
   .pb-stage {
     /* its three columns and padding are 0.91 of --h wide: on a narrow phone the width bounds it too */
-    --h: min(400px, calc(100vh - 300px), calc((100vw - 34px) / 0.91));
+    --h: min(400px, calc(100svh - 300px), calc((100vw - 34px) / 0.91));
     /* a wider middle, so the 12px “Squeeze logged” clears the phone; the device gives the room */
     grid-template-columns: calc(var(--h) * 0.22) calc(var(--h) * 0.15) calc(var(--h) * 0.46);
     justify-content: center;
@@ -16655,7 +16661,7 @@ html[data-motion="reduced"] .wc-hl {
      push the page sideways) */
   overflow: clip;
 }
-/* reduced motion: nothing is pinned, the finished loop is simply shown */
+/* reduced motion, or a screen too short to hold it: nothing is pinned, the finished loop is simply shown */
 .ml-scene[data-still] {
   height: auto;
 }
@@ -17144,6 +17150,7 @@ html[data-motion="reduced"] .wc-hl {
    the edge they cross, so the four of them read as one circle */
 .ml-scene-frame {
   top: max(72px, calc(50vh - 300px));
+  top: max(72px, calc(50svh - 300px));
 }
 .ml-scene .ml-loop li:nth-child(2)::before,
 .ml-scene .ml-loop li:nth-child(4)::before {
@@ -17156,6 +17163,7 @@ html[data-motion="reduced"] .wc-hl {
 @media (max-width: 640px) {
   .ml-scene-frame {
     top: max(64px, calc(50vh - 230px));
+    top: max(64px, calc(50svh - 230px));
   }
   .ml-scene .ml-loop li:nth-child(2)::before,
   .ml-scene .ml-loop li:nth-child(4)::before {
@@ -17217,4 +17225,12 @@ html[data-motion="reduced"] .wc-hl {
 /* Pebbo's message field: the whole pill the visitor sees takes the tap, not just the line of text */
 .pba-field input {
   align-self: stretch;
+}
+/* iPhone Safari zooms into a text field set under 16px when it's tapped, and stays zoomed after:
+   on touch screens the message fields are 16px (ChaeLLM, and Pebbo's, inside its scaled phone too) */
+@media (pointer: coarse) {
+  .chat-form input,
+  .pba-field input {
+    font-size: 16px;
+  }
 }
