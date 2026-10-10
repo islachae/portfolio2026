@@ -1,7 +1,7 @@
 import { getGoogleClientId, getGoogleToken, getSignedInEmail, rememberEmail } from './auth.js';
 import { getProfile, getMessageFull } from './gmail.js';
 import { getClaudeKey, CATEGORIES } from './claude.js';
-import { getDone, setDone } from './done.js';
+import { getDone, setDone, getHidden, setHidden } from './done.js';
 import { loadUpdates } from './updates.js';
 import { rankUpdates, senderName, receivedLabel, parseDeadline } from './rank.js';
 
@@ -15,7 +15,11 @@ const state = {
   filter: 'all', // 'all' | 'unread'
   loading: false,
   done: {}, // { messageId: timeMarkedDone }
+  hidden: {}, // { messageId: timeDiscarded }
   showDone: false,
+  selecting: false,
+  selected: new Set(),
+  cal: { open: false, month: null, day: null }, // month: first day of the shown month
 };
 
 const ICON = {
@@ -169,6 +173,7 @@ async function load() {
     state.items = items;
     state.failed = failed;
     state.done = await getDone();
+    state.hidden = await getHidden();
     // Let the caption finish typing before the list deals in, as in the design.
     await new Promise((r) => setTimeout(r, Math.max(0, 1900 - (Date.now() - started))));
     renderList({ arrive: true });
@@ -193,7 +198,8 @@ async function interests() {
 }
 
 const isDone = (it) => !!state.done[it.id];
-const activeItems = () => state.items.filter((it) => !isDone(it));
+const isHidden = (it) => !!state.hidden[it.id];
+const activeItems = () => state.items.filter((it) => !isDone(it) && !isHidden(it));
 
 function visibleItems() {
   const active = activeItems();
@@ -201,7 +207,7 @@ function visibleItems() {
 }
 
 function doneItems() {
-  return state.items.filter(isDone).sort((a, b) => state.done[b.id] - state.done[a.id]);
+  return state.items.filter((it) => isDone(it) && !isHidden(it)).sort((a, b) => state.done[b.id] - state.done[a.id]);
 }
 
 // Rows fold their real height when they leave, so neighbours close the gap.
@@ -233,7 +239,8 @@ function updateCard(it) {
     ? `<button class="ab" data-mail="${esc(it.threadId)}">${esc(it.action_label)}</button>`
     : `<span>${esc(senderName(it.from))}</span>`;
   return `
-    <div class="tk ${it.unread ? '' : 'rd'}" data-open="${esc(it.id)}" role="button" tabindex="0">
+    <div class="tk ${it.unread ? '' : 'rd'} ${state.selected.has(it.id) ? 'picked' : ''}" data-open="${esc(it.id)}" data-pick="${esc(it.id)}" role="button" tabindex="0">
+      <span class="slot" aria-hidden="true"><span class="ck ${state.selected.has(it.id) ? 'on' : ''}">${ICON.tick}</span></span>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
         <div class="pv">${esc(it.summary)}</div>
@@ -285,7 +292,9 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
     : '';
 
   app.innerHTML = `
-    <div class="titleRow"><h1>Updates</h1></div>
+    <div class="titleRow"><h1>Updates</h1>
+      ${activeItems().length ? `<button class="txt" id="selectToggle">${state.selecting ? 'Cancel' : 'Select'}</button>` : ''}
+    </div>
     <div class="fadeTop" id="fadeTop" aria-hidden="true"></div>
     <div class="lst" id="lst">
       <div class="views" role="tablist">
@@ -296,7 +305,18 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
       ${groups.length ? sections : empty}
       ${doneSection}
       ${state.items.length ? `<div class="foot">${state.items.length} emails · last 7 days${failedNote}</div>` : ''}
-    </div>`;
+    </div>
+    <div class="selWrap" id="selWrap"><div><div style="padding: 8px 0 12px;">
+      <div class="selBar">
+        <button class="selAll" id="selAll"><span class="ck" id="selAllCk">${ICON.tick}</span><span id="selText">Select all</span></button>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <button class="ab" id="discard">Discard</button>
+          <button class="ib" id="selDone" aria-label="Done selecting"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+      </div>
+    </div></div></div>`;
+  app.classList.toggle('sel', state.selecting);
+  updateSelBar();
 
   app.classList.toggle('arrive', arrive);
   if (arrive) {
@@ -312,11 +332,185 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
   placePill(false);
 
   document.getElementById('retry')?.addEventListener('click', () => load());
+  document.getElementById('selectToggle')?.addEventListener('click', () => setSelecting(!state.selecting));
+  document.getElementById('selDone').addEventListener('click', () => setSelecting(false));
+  document.getElementById('selAll').addEventListener('click', toggleSelectAll);
+  document.getElementById('discard').addEventListener('click', discardSelected);
   document.getElementById('doneToggle')?.addEventListener('click', () => {
     state.showDone = !state.showDone;
     renderList({ scrollTop: lst.scrollTop });
   });
 }
+
+// ---------- select and discard ----------
+
+// Only updates without a required action can be discarded, as in the design:
+// things to do stay until they are done.
+const selectableIds = () =>
+  [...app.querySelectorAll('[data-pick]')].map((el) => el.dataset.pick);
+
+function setSelecting(on) {
+  state.selecting = on;
+  state.selected.clear();
+  if (on) closeCalendar();
+  app.classList.toggle('sel', on);
+  app.querySelectorAll('.tk.picked').forEach((el) => el.classList.remove('picked'));
+  app.querySelectorAll('.slot .ck.on').forEach((el) => el.classList.remove('on'));
+  const btn = document.getElementById('selectToggle');
+  if (btn) btn.textContent = on ? 'Cancel' : 'Select';
+  updateSelBar();
+}
+
+function togglePick(id) {
+  state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id);
+  const card = app.querySelector(`[data-pick="${CSS.escape(id)}"]`);
+  card?.classList.toggle('picked', state.selected.has(id));
+  card?.querySelector('.slot .ck')?.classList.toggle('on', state.selected.has(id));
+  updateSelBar();
+}
+
+function toggleSelectAll() {
+  const ids = selectableIds();
+  const all = ids.length > 0 && ids.every((id) => state.selected.has(id));
+  ids.forEach((id) => {
+    if (all === state.selected.has(id)) togglePick(id);
+  });
+}
+
+function updateSelBar() {
+  const wrap = document.getElementById('selWrap');
+  if (!wrap) return;
+  wrap.classList.toggle('on', state.selecting);
+  const ids = selectableIds();
+  const n = state.selected.size;
+  document.getElementById('selText').textContent = n ? `${n} selected` : 'Select all';
+  document.getElementById('selAllCk').classList.toggle('on', ids.length > 0 && n === ids.length);
+  document.getElementById('discard').disabled = n === 0;
+}
+
+async function discardSelected() {
+  const ids = [...state.selected];
+  if (!ids.length) return;
+  ids.forEach((id) => app.querySelector(`[data-row="${CSS.escape(id)}"]`)?.classList.add('off'));
+  await new Promise((r) => setTimeout(r, 260));
+  state.hidden = await setHidden(ids, true);
+  state.selecting = false;
+  state.selected.clear();
+  renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
+  toast(`${ids.length} discarded`, async () => {
+    state.hidden = await setHidden(ids, false);
+    renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
+  });
+}
+
+// ---------- calendar ----------
+
+const calPop = document.getElementById('calPop');
+const calBtn = document.getElementById('calendar');
+
+// Updates that have a deadline, keyed by local day "YYYY-M-D".
+function deadlinesByDay() {
+  const map = {};
+  for (const it of activeItems()) {
+    const d = parseDeadline(it.deadline);
+    if (!d) continue;
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    (map[key] ||= []).push({ ...it, deadlineDate: d });
+  }
+  return map;
+}
+
+function renderCalendar() {
+  const { month, day } = state.cal;
+  const byDay = deadlinesByDay();
+  const today = new Date();
+  const y = month.getFullYear(), m = month.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < first; i++) cells.push('<span></span>');
+  for (let d = 1; d <= days; d++) {
+    const key = `${y}-${m}-${d}`;
+    const isToday = today.getFullYear() === y && today.getMonth() === m && today.getDate() === d;
+    const items = byDay[key] || [];
+    const hot = items.some((it) => it.urgent);
+    cells.push(
+      `<button class="cd ${isToday ? 'today' : ''} ${day === key ? 'picked' : ''}" data-day="${key}" aria-label="${month.toLocaleString('en-US', { month: 'long' })} ${d}${items.length ? `, ${items.length} due` : ''}">${d}${
+        items.length ? `<span class="cdot ${hot ? 'hot' : ''}" aria-hidden="true"></span>` : ''
+      }</button>`
+    );
+  }
+  const picked = day ? byDay[day] || [] : [];
+  const pickedDate = day ? new Date(...day.split('-').map(Number)) : null;
+  calPop.innerHTML = `
+    <div class="calHead">
+      <button class="ib" data-cal-step="-1" aria-label="Previous month"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+      <span>${month.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</span>
+      <button class="ib" data-cal-step="1" aria-label="Next month"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+    </div>
+    <div class="calGrid wk">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((w) => `<span>${w}</span>`).join('')}</div>
+    <div class="calGrid">${cells.join('')}</div>
+    <div class="calLine"></div>
+    <div class="calList">
+      <span class="calLabel">${pickedDate ? `Due ${pickedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}` : 'Tap a date to see what is due'}</span>
+      ${
+        pickedDate
+          ? picked.length
+            ? picked
+                .sort((a, b) => a.deadlineDate - b.deadlineDate)
+                .map(
+                  (it) => `<button class="calEv" data-cal-open="${esc(it.id)}">
+                    <span class="t">${esc(it.title)}</span>
+                    <span class="s ${it.urgent ? 'red' : ''}">${esc(senderName(it.from))} · ${esc(it.deadlineDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }))}</span>
+                  </button>`
+                )
+                .join('')
+            : '<span class="calNone">Nothing due on this day.</span>'
+          : ''
+      }
+    </div>`;
+}
+
+function openCalendar() {
+  if (state.selecting) setSelecting(false);
+  const now = new Date();
+  state.cal = { open: true, month: state.cal.month || new Date(now.getFullYear(), now.getMonth(), 1), day: state.cal.day };
+  renderCalendar();
+  calPop.classList.add('on');
+  calBtn.classList.add('open');
+}
+
+function closeCalendar() {
+  state.cal.open = false;
+  calPop.classList.remove('on');
+  calBtn.classList.remove('open');
+}
+
+calBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  state.cal.open ? closeCalendar() : openCalendar();
+});
+calPop.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const step = e.target.closest('[data-cal-step]');
+  if (step) {
+    const m = state.cal.month;
+    state.cal.month = new Date(m.getFullYear(), m.getMonth() + Number(step.dataset.calStep), 1);
+    return renderCalendar();
+  }
+  const dayBtn = e.target.closest('[data-day]');
+  if (dayBtn) {
+    state.cal.day = state.cal.day === dayBtn.dataset.day ? null : dayBtn.dataset.day;
+    return renderCalendar();
+  }
+  const ev = e.target.closest('[data-cal-open]');
+  if (ev) {
+    closeCalendar();
+    renderDetail(ev.dataset.calOpen);
+  }
+});
+document.addEventListener('click', () => state.cal.open && closeCalendar());
+document.addEventListener('keydown', (e) => e.key === 'Escape' && state.cal.open && closeCalendar());
 
 // ---------- done ----------
 
@@ -367,6 +561,11 @@ function placePill(animate = true) {
 
 // One click handler for the whole panel.
 app.addEventListener('click', (e) => {
+  if (state.selecting && !e.target.closest('#selWrap, .titleRow, .views, #doneToggle')) {
+    const pick = e.target.closest('[data-pick]');
+    if (pick) togglePick(pick.dataset.pick);
+    return;
+  }
   const doneBtn = e.target.closest('[data-done]');
   if (doneBtn) {
     e.stopPropagation();
@@ -395,7 +594,11 @@ app.addEventListener('click', (e) => {
 });
 app.addEventListener('keydown', (e) => {
   const card = e.target.closest?.('[data-open]');
-  if (card && e.target === card && !card.classList.contains('still') && (e.key === 'Enter' || e.key === ' ')) {
+  if (card && state.selecting && card.dataset.pick && e.target === card && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    return togglePick(card.dataset.pick);
+  }
+  if (card && !state.selecting && e.target === card && !card.classList.contains('still') && (e.key === 'Enter' || e.key === ' ')) {
     e.preventDefault();
     renderDetail(card.dataset.open);
   }
@@ -409,11 +612,12 @@ function fullDate(d) {
 
 async function renderDetail(id) {
   const listScroll = document.getElementById('lst')?.scrollTop || 0;
-  const groups = rankUpdates([...visibleItems(), ...doneItems()], await interests());
+  const groups = rankUpdates(state.items.filter((x) => !isHidden(x)), await interests());
   const all = groups.flatMap((g) => g.items.map((it) => ({ ...it, group: g.key })));
   const it = all.find((x) => x.id === id);
   if (!it) return;
   const done = isDone(it);
+  setSelecting(false);
   const others = visibleItems().filter((x) => x.id !== id).length;
 
   const cardHtml = done ? doneCard(it) : it.group === 'action' ? actionCard(it) : updateCard(it);
@@ -510,7 +714,8 @@ async function openInGmail(threadId) {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local' || state.loading) return;
   const lst = document.getElementById('lst');
-  if (changes.interests && lst) renderList({ scrollTop: lst.scrollTop });
+  if (changes.hidden && lst) state.hidden = changes.hidden.newValue || {};
+  if ((changes.interests || changes.hidden) && lst) renderList({ scrollTop: lst.scrollTop });
   else if ((changes.claudeApiKey || changes.googleClientId) && !state.items.length) load();
 });
 

@@ -17,6 +17,7 @@ async function load() {
   document.querySelectorAll('#interests input').forEach((box) => (box.checked = interests.includes(box.value)));
   $('account').textContent = all.googleEmail ? `Signed in as ${all.googleEmail}` : 'Not signed in';
   $('signout').style.display = all.googleEmail ? '' : 'none';
+  $('hiddenCount').textContent = Object.keys(all.hidden || {}).length;
   $('cacheCount').textContent = Object.keys(all).filter((k) => k.startsWith('analysis:')).length;
 }
 
@@ -46,4 +47,9 @@ $('signout').addEventListener('click', async () => {
 $('welcome').addEventListener('click', async () => {
   await chrome.storage.local.set({ onboarded: false });
   $('status').textContent = 'Open Mellon to see it';
+});
+
+$('unhide').addEventListener('click', async () => {
+  await chrome.storage.local.set({ hidden: {} });
+  load();
 });
