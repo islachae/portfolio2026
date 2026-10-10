@@ -1,6 +1,7 @@
 import { getGoogleClientId, getGoogleToken, getSignedInEmail, rememberEmail } from './auth.js';
 import { getProfile, getMessageFull } from './gmail.js';
-import { getClaudeKey } from './claude.js';
+import { getClaudeKey, CATEGORIES } from './claude.js';
+import { getDone, setDone } from './done.js';
 import { loadUpdates } from './updates.js';
 import { rankUpdates, senderName, receivedLabel, parseDeadline } from './rank.js';
 
@@ -13,6 +14,8 @@ const state = {
   failed: [],
   filter: 'all', // 'all' | 'unread'
   loading: false,
+  done: {}, // { messageId: timeMarkedDone }
+  showDone: false,
 };
 
 const ICON = {
@@ -22,6 +25,7 @@ const ICON = {
   tag: '<svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg>',
   chevron: '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>',
   out: '<svg viewBox="0 0 24 24"><path d="M8 16L17 7M9 7h8v8"></path></svg>',
+  tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
 };
 
 const FACE =
@@ -94,8 +98,49 @@ function showProgress(done, total) {
   if (el && total) el.textContent = `${done} / ${total}`;
 }
 
+// ---------- first run: pick interests ----------
+
+async function showOnboarding() {
+  const { interests: saved = [] } = await chrome.storage.local.get('interests');
+  const picked = new Set(saved);
+  app.innerHTML = `
+    <div class="onb">
+      <img src="icons/mellon.svg" width="56" height="56" alt="" />
+      <h2>Hi, I'm Mellon.</h2>
+      <p>I read your recent mail and turn it into a short list of updates. What do you care about most? I'll put those first.</p>
+      <div class="chips" role="group" aria-label="Interests">
+        ${CATEGORIES.map(
+          (c) => `<button class="chip ${picked.has(c) ? 'on' : ''}" aria-pressed="${picked.has(c)}" data-cat="${esc(c)}">${ICON.tick}<span>${esc(c)}</span></button>`
+        ).join('')}
+      </div>
+      <button class="ab pri big" id="onbGo">Continue</button>
+      <button class="txt" id="onbSkip">Skip for now</button>
+      <p class="cap">You can change this anytime in Settings.</p>
+    </div>`;
+  const go = document.getElementById('onbGo');
+  const label = () => (go.textContent = picked.size ? `Continue with ${picked.size}` : 'Continue');
+  label();
+  app.querySelectorAll('.chip').forEach((chip) =>
+    chip.addEventListener('click', () => {
+      const c = chip.dataset.cat;
+      picked.has(c) ? picked.delete(c) : picked.add(c);
+      chip.classList.toggle('on', picked.has(c));
+      chip.setAttribute('aria-pressed', picked.has(c));
+      label();
+    })
+  );
+  const finish = async (interests) => {
+    await chrome.storage.local.set({ interests, onboarded: true });
+    load();
+  };
+  go.addEventListener('click', () => finish(CATEGORIES.filter((c) => picked.has(c))));
+  document.getElementById('onbSkip').addEventListener('click', () => finish(saved));
+}
+
 async function load() {
   if (state.loading) return;
+  const { onboarded } = await chrome.storage.local.get('onboarded');
+  if (!onboarded) return showOnboarding();
   if (!(await getGoogleClientId()) || !(await getClaudeKey())) {
     return showCenter({
       title: 'Almost ready',
@@ -123,6 +168,7 @@ async function load() {
     const { items, failed } = await loadUpdates(state.token, ({ done, total }) => showProgress(done, total));
     state.items = items;
     state.failed = failed;
+    state.done = await getDone();
     // Let the caption finish typing before the list deals in, as in the design.
     await new Promise((r) => setTimeout(r, Math.max(0, 1900 - (Date.now() - started))));
     renderList({ arrive: true });
@@ -146,9 +192,20 @@ async function interests() {
   return interests;
 }
 
+const isDone = (it) => !!state.done[it.id];
+const activeItems = () => state.items.filter((it) => !isDone(it));
+
 function visibleItems() {
-  return state.filter === 'unread' ? state.items.filter((it) => it.unread) : state.items;
+  const active = activeItems();
+  return state.filter === 'unread' ? active.filter((it) => it.unread) : active;
 }
+
+function doneItems() {
+  return state.items.filter(isDone).sort((a, b) => state.done[b.id] - state.done[a.id]);
+}
+
+// Rows fold their real height when they leave, so neighbours close the gap.
+const row = (it, inner) => `<div class="rw" data-row="${esc(it.id)}"><div><div class="rwi">${inner}</div></div></div>`;
 
 // The ranking reason, broken only between its parts so a line never starts with "·".
 function reasonHtml(parts) {
@@ -160,14 +217,15 @@ function reasonHtml(parts) {
 
 function actionCard(it) {
   return `
-    <div class="rw"><div class="tk act" data-open="${esc(it.id)}" role="button" tabindex="0">
+    <div class="tk act" data-open="${esc(it.id)}" role="button" tabindex="0">
+      <button class="ck" data-done="${esc(it.id)}" aria-label="Mark as done" title="Mark as done">${ICON.tick}</button>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
         <div class="fr"><b>${esc(senderName(it.from))}</b></div>
         <div class="mt" style="margin-top: 7px;"><span class="dt ${it.urgent ? 'red' : ''}">${ICON.cal}<span>${reasonHtml(it.reason.split(' · '))}</span></span></div>
       </div>
       ${it.action_label ? `<div class="cta"><button class="ab ${it.urgent ? 'hot' : ''}" data-mail="${esc(it.threadId)}">${esc(it.action_label)}</button></div>` : ''}
-    </div></div>`;
+    </div>`;
 }
 
 function updateCard(it) {
@@ -175,25 +233,45 @@ function updateCard(it) {
     ? `<button class="ab" data-mail="${esc(it.threadId)}">${esc(it.action_label)}</button>`
     : `<span>${esc(senderName(it.from))}</span>`;
   return `
-    <div class="rw"><div class="tk ${it.unread ? '' : 'rd'}" data-open="${esc(it.id)}" role="button" tabindex="0">
+    <div class="tk ${it.unread ? '' : 'rd'}" data-open="${esc(it.id)}" role="button" tabindex="0">
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
         <div class="pv">${esc(it.summary)}</div>
         <div class="mt"><span class="dt ${it.urgent ? 'red' : ''}">${reasonHtml([receivedLabel(it.date), ...it.reason.split(' · ')])}</span>${right}</div>
       </div>
-    </div></div>`;
+    </div>`;
 }
 
+function doneCard(it) {
+  return `
+    <div class="tk rd isdone" data-open="${esc(it.id)}" role="button" tabindex="0">
+      <span class="ck on" aria-hidden="true">${ICON.tick}</span>
+      <div class="bd">
+        <div class="tt">${esc(it.title)}</div>
+        <div class="mt"><span class="dt">${reasonHtml(['Done ' + receivedLabel(state.done[it.id]), it.category])}</span><button class="ab" data-undone="${esc(it.id)}">Undo</button></div>
+      </div>
+    </div>`;
+}
+
+let detailKeyHandler = null;
+
 async function renderList({ arrive = false, scrollTop = 0 } = {}) {
+  if (detailKeyHandler) document.removeEventListener('keydown', detailKeyHandler);
+  detailKeyHandler = null;
   const groups = rankUpdates(visibleItems(), await interests());
-  const countAll = state.items.length;
-  const countUnread = state.items.filter((it) => it.unread).length;
+  const countAll = activeItems().length;
+  const countUnread = activeItems().filter((it) => it.unread).length;
+  const done = doneItems();
+  const doneSection = done.length
+    ? `<button class="sh shBtn ${state.showDone ? 'open' : ''}" id="doneToggle" aria-expanded="${state.showDone}">Done <small>${done.length}</small>${ICON.chevron}</button>` +
+      (state.showDone ? done.map((it) => row(it, doneCard(it))).join('') : '')
+    : '';
 
   const sections = groups
     .map(
       (g, i) =>
         `<div class="sh ${i === 0 ? 'first' : ''}">${esc(g.label)} <small>${g.items.length}</small></div>` +
-        g.items.map(g.key === 'action' ? actionCard : updateCard).join('')
+        g.items.map((it) => row(it, g.key === 'action' ? actionCard(it) : updateCard(it))).join('')
     )
     .join('');
 
@@ -216,7 +294,8 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
         <button class="tab ${state.filter === 'unread' ? 'on' : ''}" data-filter="unread" role="tab">Unread ${countUnread}</button>
       </div>
       ${groups.length ? sections : empty}
-      ${countAll ? `<div class="foot">${countAll} emails · last 7 days${failedNote}</div>` : ''}
+      ${doneSection}
+      ${state.items.length ? `<div class="foot">${state.items.length} emails · last 7 days${failedNote}</div>` : ''}
     </div>`;
 
   app.classList.toggle('arrive', arrive);
@@ -233,6 +312,47 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
   placePill(false);
 
   document.getElementById('retry')?.addEventListener('click', () => load());
+  document.getElementById('doneToggle')?.addEventListener('click', () => {
+    state.showDone = !state.showDone;
+    renderList({ scrollTop: lst.scrollTop });
+  });
+}
+
+// ---------- done ----------
+
+let toastTimer = null;
+function toast(text, onUndo) {
+  const el = document.getElementById('toast');
+  document.getElementById('toastText').textContent = text;
+  const undo = document.getElementById('toastUndo');
+  undo.onclick = () => {
+    el.classList.remove('on');
+    onUndo();
+  };
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('on'), 4500);
+}
+
+// The check confirms first, holds long enough to be read, then the card folds
+// away into Done and the rest of the list closes up.
+async function markDone(id) {
+  const rowEl = app.querySelector(`[data-row="${CSS.escape(id)}"]`);
+  if (rowEl) {
+    rowEl.querySelector('.tk')?.classList.add('done');
+    rowEl.querySelector('.ck')?.classList.add('on');
+    await new Promise((r) => setTimeout(r, 420));
+    rowEl.classList.add('off');
+    await new Promise((r) => setTimeout(r, 260));
+  }
+  state.done = await setDone(id, true);
+  renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
+  toast('Marked as done', () => markUndone(id));
+}
+
+async function markUndone(id) {
+  state.done = await setDone(id, false);
+  renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
 }
 
 function placePill(animate = true) {
@@ -247,6 +367,16 @@ function placePill(animate = true) {
 
 // One click handler for the whole panel.
 app.addEventListener('click', (e) => {
+  const doneBtn = e.target.closest('[data-done]');
+  if (doneBtn) {
+    e.stopPropagation();
+    return markDone(doneBtn.dataset.done);
+  }
+  const undoneBtn = e.target.closest('[data-undone]');
+  if (undoneBtn) {
+    e.stopPropagation();
+    return markUndone(undoneBtn.dataset.undone);
+  }
   const mail = e.target.closest('[data-mail]');
   if (mail) {
     e.stopPropagation();
@@ -261,11 +391,11 @@ app.addEventListener('click', (e) => {
     return;
   }
   const card = e.target.closest('[data-open]');
-  if (card && !card.classList.contains('still')) return renderDetail(card.dataset.open);
+  if (card && !card.classList.contains('still') && !e.target.closest('.detail')) return renderDetail(card.dataset.open);
 });
 app.addEventListener('keydown', (e) => {
   const card = e.target.closest?.('[data-open]');
-  if (card && (e.key === 'Enter' || e.key === ' ')) {
+  if (card && e.target === card && !card.classList.contains('still') && (e.key === 'Enter' || e.key === ' ')) {
     e.preventDefault();
     renderDetail(card.dataset.open);
   }
@@ -279,13 +409,15 @@ function fullDate(d) {
 
 async function renderDetail(id) {
   const listScroll = document.getElementById('lst')?.scrollTop || 0;
-  const groups = rankUpdates(visibleItems(), await interests());
+  const groups = rankUpdates([...visibleItems(), ...doneItems()], await interests());
   const all = groups.flatMap((g) => g.items.map((it) => ({ ...it, group: g.key })));
   const it = all.find((x) => x.id === id);
   if (!it) return;
-  const others = all.length - 1;
+  const done = isDone(it);
+  const others = visibleItems().filter((x) => x.id !== id).length;
 
-  const card = (it.group === 'action' ? actionCard(it) : updateCard(it)).replace('class="tk', 'class="tk still');
+  const cardHtml = done ? doneCard(it) : it.group === 'action' ? actionCard(it) : updateCard(it);
+  const card = cardHtml.replace('class="tk', 'class="tk still').replace(/<button class="ck"[^>]*>.*?<\/button>/, '');
   const deadline = parseDeadline(it.deadline);
   const facts = [
     deadline
@@ -314,7 +446,12 @@ async function renderDetail(id) {
         </div></div>
       </div>
       <span class="cap late" style="padding-left: 2px;">${esc(senderName(it.from))} · ${esc(fullDate(new Date(it.date)))}</span>
-      <button class="q late" id="showOrig">Show original email</button>
+      <div class="late" style="display: flex; gap: 6px; flex-wrap: wrap;">
+        ${done
+          ? `<button class="q" id="doneBtn">Move back to Updates</button>`
+          : `<button class="ab pri" id="doneBtn" style="height: 30px;"><span class="tickIc">${ICON.tick}</span>Mark as done</button>`}
+        <button class="q" id="showOrig">Show original email</button>
+      </div>
       <div id="orig"></div>
     </div>`;
 
@@ -322,16 +459,16 @@ async function renderDetail(id) {
   // The typing bubble opens up into the summary, as an incoming message does.
   setTimeout(() => detail.classList.add('ready'), 380);
 
-  const back = () => {
-    document.removeEventListener('keydown', onKey);
-    renderList({ scrollTop: listScroll });
-  };
+  const back = () => renderList({ scrollTop: listScroll });
   const onKey = (e) => e.key === 'Escape' && back();
+  detailKeyHandler = onKey;
   document.addEventListener('keydown', onKey);
   document.getElementById('back').addEventListener('click', back);
-  detail.addEventListener('click', (e) => {
-    const mail = e.target.closest('[data-mail]');
-    if (mail) openInGmail(mail.dataset.mail);
+  document.getElementById('doneBtn').addEventListener('click', async () => {
+    if (done) return markUndone(id);
+    state.done = await setDone(id, true);
+    renderList({ scrollTop: listScroll });
+    toast('Marked as done', () => markUndone(id));
   });
   document.getElementById('showOrig').addEventListener('click', () => showOriginal(it));
 }

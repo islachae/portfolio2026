@@ -42,3 +42,8 @@ $('signout').addEventListener('click', async () => {
   await signOut();
   load();
 });
+
+$('welcome').addEventListener('click', async () => {
+  await chrome.storage.local.set({ onboarded: false });
+  $('status').textContent = 'Open Mellon to see it';
+});
