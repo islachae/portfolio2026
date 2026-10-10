@@ -11,7 +11,8 @@ const SYSTEM = `You translate short English notes about a design student's email
 - Keep names of people, courses, buildings, rooms, programs, companies and links as they are.
 - Keep well-known English terms students use as-is (e.g. CPT, OPT, portfolio review, RSVP, Canvas).
 - action_label: a short Korean verb of one or two words, e.g. 제출, 결제, 등록, 참석 회신, 신청, 답장. Empty stays empty.
-- Use a friendly, concise tone (해요체), no honorific excess.`;
+- Use a friendly, concise tone (해요체), no honorific excess.
+- Keep exact dates exact (e.g. "Thu, Oct 8, 3:30–7:30 PM" → "10월 8일 (목) 오후 3:30~7:30"). Never turn a date into "오늘", "내일" or "이번 주".`;
 
 const SCHEMA = {
   type: 'object',

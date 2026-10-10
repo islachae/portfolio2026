@@ -65,7 +65,9 @@ const SCHEMA = {
 const SYSTEM = `You read emails sent to a design student at Carnegie Mellon University and extract what matters to them.
 Rules:
 - Judge importance by what the email actually asks of the student, never by the sender's own labels such as "IMPORTANT", "URGENT", "ACTION REQUIRED" or exclamation marks.
-- Resolve relative dates ("tonight", "this Friday") using the current date given in the message.
+- Dates: relative words in an email ("today", "tonight", "tomorrow", "this Friday", "next week") are relative to the day the email was SENT, not to today. Work them out from the "Sent" date given above the email.
+- Never write relative dates ("today", "tomorrow", "tonight", "this week") in the title, summary or key details: write the exact day, e.g. "Thu, Oct 8, 3:30–7:30 PM". The app shows relative words itself, always up to date.
+- If the event or deadline is already over by the "Today" date, still give its real date (the app will show it as past).
 - Write in plain, short English.
 Categories:
 - Career: jobs, internships, recruiting, portfolio reviews, career fairs.
@@ -84,20 +86,32 @@ export async function getClaudeKey() {
 
 const cacheKey = (id) => `analysis:${id}`;
 
-export async function getCachedAnalysis(id) {
+// Bumped when the reading rules change, so older saved results are read once more.
+// v2: relative dates are counted from the day an email was sent, and written as exact dates.
+export const ANALYSIS_VERSION = 2;
+
+export async function getCachedAnalysis(id, { anyVersion = false } = {}) {
   const key = cacheKey(id);
-  const stored = await chrome.storage.local.get(key);
-  return stored[key] || null;
+  const stored = (await chrome.storage.local.get(key))[key];
+  if (!stored) return null;
+  return anyVersion || stored.v >= ANALYSIS_VERSION ? stored : null;
+}
+
+// "Wed, Oct 7, 2026, 2:15 PM (America/New_York)": weekday spelled out so "tomorrow" is easy to resolve.
+function fmtDay(d) {
+  const day = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return `${day} (${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
 }
 
 function emailPrompt(email) {
   const now = new Date();
   let body = email.body || email.snippet;
   if (body.length > MAX_BODY_CHARS) body = body.slice(0, MAX_BODY_CHARS) + '\n[email cut off here: too long]';
-  return `Current date and time: ${now.toString()}
+  const sent = new Date(email.date);
+  return `Today: ${fmtDay(now)}
+Sent: ${fmtDay(sent)}  (relative dates in the email count from this day)
 
 From: ${email.from}
-Date received: ${new Date(email.date).toString()}
 Subject: ${email.subject}
 
 ${body}`;
@@ -192,7 +206,10 @@ export async function analyzeEmail(email) {
     from: email.from,
     date: email.date,
     analyzedAt: Date.now(),
+    v: ANALYSIS_VERSION,
   };
   await chrome.storage.local.set({ [cacheKey(email.id)]: analysis });
+  // An older Korean version of this email's notes no longer matches; it is translated again.
+  await chrome.storage.local.remove(`ko:${email.id}`);
   return { ...analysis, cached: false };
 }
