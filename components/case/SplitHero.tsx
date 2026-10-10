@@ -35,7 +35,7 @@ export function SplitHero({ id }: { id: CaseId }) {
   }, [root]);
 
   return (
-    <section className="csx" id="cs-overview" ref={box} data-live={live || undefined}>
+    <section className="csx" id="cs-overview" ref={box} data-live={live || undefined} aria-label="Overview">
       <header className="cs-hero csx-text">
         <p className="cs-eyebrow">{C.eyebrow}</p>
         <h1 className="cs-h1">{C.title}</h1>

@@ -448,7 +448,7 @@ function ShotFig({ shot, kind }: { shot: Shot; kind: "panel" | "wide" }) {
   return (
     <figure className="ml-shot" data-kind={kind}>
       {/* a wide screen keeps a readable size on a phone and scrolls sideways inside this box */}
-      <span className="ml-shot-scroll">
+      <span className="ml-shot-scroll" data-scroll-label={`${shot.alt} (scrolls sideways)`}>
         <span className="ml-shot-pic">
           <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} loading="lazy" decoding="async" />
           {shot.pins.map((p, i) => (

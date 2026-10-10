@@ -25,7 +25,9 @@
  * 2. The outline (#cw-skel): a link straight to a long read draws its frame until the page itself
  *    is ready. A case study (/#case/…): the bar and its split first screen (title and facts on
  *    the left, the prototype on the right). About (/#about/story): the bar, the table of
- *    contents, and the title and picture placeholders.
+ *    contents, and the title and picture placeholders. Home underneath isn't laid out at all
+ *    (data-homelater) until that page is up and the network is quiet (Site.tsx): otherwise its
+ *    pictures and card clips take the bandwidth the page needs (a second, on a slow phone).
  */
 
 import { PACE, SIGNATURE } from "./signature";
@@ -68,6 +70,7 @@ html[data-boot=on] .cwb-skip{animation:cwb-skip .4s ease-out 1s both}
 .cwb-mono{display:block;width:38px;height:38px}
 html[data-boot=out] .me-chip-mark,html[data-boot=out] .mobilebar-home svg{visibility:hidden}
 html[data-booting] #cw-skel{display:block}
+html[data-homelater] #main{display:none}
 #cw-skel{position:fixed;inset:0;z-index:30;overflow:hidden;background:var(--bg);color:var(--t);font:14px/1.4 system-ui,-apple-system,sans-serif}
 #cw-skel i{display:block;background:var(--s)}
 .cws-bar{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 24px;border-bottom:1px solid var(--l)}

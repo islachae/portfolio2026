@@ -130,7 +130,10 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
     const r = routeFromHash(window.location.hash);
     show(r);
     // (the outline of a link straight to a long read goes when the page is on screen: Site.tsx)
-    if (!r.caseStudy) delete document.documentElement.dataset.booting;
+    if (!r.caseStudy) {
+      delete document.documentElement.dataset.booting;
+      delete document.documentElement.dataset.homelater;
+    }
     // An old deck link: the address bar gets the page's own address
     try {
       const want = r.caseStudy ? longHash(r.caseStudy) : r.play ? playHash(r.play) : r.section ? `#${r.section}` : "";

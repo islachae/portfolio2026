@@ -285,7 +285,8 @@ export function PebboPhone({
                 </span>
                 <p className="pba-greet">{t.home.greet}</p>
                 {/* the full line sits invisibly underneath so the face doesn't jump as it types */}
-                <p className="pba-prompt" aria-label={prompt}>
+                <p className="pba-prompt">
+                  <span className="sr-only">{prompt}</span>
                   <span className="pba-prompt-ghost" aria-hidden>
                     {prompt}
                     <i />

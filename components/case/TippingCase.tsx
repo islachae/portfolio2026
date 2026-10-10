@@ -522,7 +522,7 @@ function Mechanism() {
           <span className="cs-pin" style={{ left: `${((col + 0.5) / m.steps.length) * 100}%` }} aria-hidden />
         </div>
 
-        <div className="cs-tp-view" ref={view}>
+        <div className="cs-tp-view" ref={view} data-scroll-label="Touchpoints">
           {m.touchpoints.map((tp) => (
             <div className="cs-tp" key={tp.n} data-on={tp.n === sel || undefined}>
               <h3 className="cs-tp-title">

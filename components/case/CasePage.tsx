@@ -104,6 +104,32 @@ export function CasePage({ id }: { id: LongId }) {
   const [tocFree, setTocFree] = useState(false);
   const [active, setActive] = useState(0);
 
+  // A row that scrolls sideways (mostly on phones: Trust Tip's touchpoints, Pebbo's summaries and map,
+  // Mellon's wide screenshots) takes keyboard focus while it scrolls, so the arrow keys can move it.
+  // Marked with data-scroll-label, which becomes its name; checked again whenever a size changes.
+  useEffect(() => {
+    const r = root.current;
+    if (!r) return;
+    const rows = [...r.querySelectorAll<HTMLElement>("[data-scroll-label]")];
+    const mark = () =>
+      rows.forEach((s) => {
+        if (s.scrollWidth > s.clientWidth + 1) {
+          s.tabIndex = 0;
+          s.setAttribute("role", "region");
+          s.setAttribute("aria-label", s.dataset.scrollLabel || "");
+        } else {
+          s.removeAttribute("tabindex");
+          s.removeAttribute("role");
+          s.removeAttribute("aria-label");
+        }
+      });
+    mark();
+    const ro = new ResizeObserver(mark);
+    ro.observe(r);
+    rows.forEach((s) => [s, ...s.children].forEach((c) => ro.observe(c)));
+    return () => ro.disconnect();
+  }, [id]);
+
   useEffect(() => {
     const r = root.current;
     if (!r) return;

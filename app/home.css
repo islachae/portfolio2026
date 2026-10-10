@@ -761,7 +761,7 @@ html[data-motion="reduced"] .nh *::after {
 .nh-foot kbd {
   padding: 1px 5px;
   background: var(--accent-1);
-  color: #fff;
+  color: var(--bg);
   font: inherit;
 }
 .nh-foot-l {

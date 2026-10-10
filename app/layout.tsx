@@ -111,6 +111,7 @@ const lean = (code: string) => code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\n
 const bootScript = `(function(){var d=document.documentElement,W=window,h=location.hash;
 try{var s=JSON.parse(localStorage.getItem("cw-settings")||"{}");if(s.theme==="light"||s.theme==="dark")d.dataset.theme=s.theme;if(s.motion==="reduced")d.dataset.motion="reduced";}catch(e){}
 if(/^#(case\\/|(tipping|pebbo|melon)$)/.test(h))d.dataset.booting="case";else if(/^#about(\\/story)?$/.test(h))d.dataset.booting="about";
+if(d.dataset.booting)d.dataset.homelater="";
 try{${cssScript}}catch(e){d.removeAttribute("data-cssw");var q=document.querySelectorAll("link[data-cw-css]");for(var j=0;j<q.length;j++)q[j].media="all"}
 try{${introScript}}catch(e){d.removeAttribute("data-boot")}
 })();`;

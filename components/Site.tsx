@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Home } from "./home/Home";
 import { ChatDrawer } from "./home/ChatDrawer";
@@ -58,6 +58,7 @@ export function Site() {
           // couldn't fetch it: back to Home instead of an outline that never fills in
           if (!live || !caseStudy) return;
           delete document.documentElement.dataset.booting;
+          delete document.documentElement.dataset.homelater;
           goHome();
         },
       );
@@ -125,6 +126,20 @@ export function Site() {
   useEffect(() => {
     if (caseOpen) delete document.documentElement.dataset.booting;
   }, [caseOpen]);
+  // …and Home, held back on such a link (lib/boot via app/layout.tsx), comes in behind it in a quiet
+  // moment, or straight away when the visitor heads home
+  const asked = useRef(false); // (the address is read after the first render: null until then)
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!("homelater" in root.dataset)) return;
+    if (!caseStudy) {
+      if (asked.current) delete root.dataset.homelater;
+      return;
+    }
+    asked.current = true;
+    if (!caseOpen) return;
+    return whenQuiet(() => delete root.dataset.homelater, { after: 3000 });
+  }, [caseOpen, caseStudy]);
 
   const at: NavPlace = caseStudy === "about" ? "about" : play ? "play" : "work";
   // ChaeLLM, search, the phone menu and the toast sit outside the pages, so they answer on all of them
