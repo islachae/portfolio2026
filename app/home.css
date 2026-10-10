@@ -190,7 +190,9 @@ html[data-booting] .nh {
 @media (min-width: 800px) {
   .nh-hero {
     min-height: max(520px, calc(100vh - var(--peek)));
-    min-height: max(520px, calc(100svh - var(--peek)));
+    /* a tall portrait screen (a tablet held upright) would leave the introduction alone at the
+       bottom of a nearly empty screen: the first screen is never taller than 3/4 of its width */
+    min-height: max(520px, min(calc(100svh - var(--peek)), 75vw));
   }
 }
 /* The gradient runs on under the first cards and fades out there, so it has no bottom edge. */
@@ -573,6 +575,14 @@ a.nh-card:focus-visible .nh-card-media {
   .nh-card-go {
     flex-basis: 100%;
   }
+}
+
+/* a case study's first screen below 1024px: the prototype takes the stage's height, not the
+   window's width, so it never runs up over the title or down over its own buttons */
+.csx-stage .melon-demo {
+  width: auto;
+  height: 100%;
+  max-height: 620px;
 }
 
 /* ───────── what a click does, riding the pointer over a card (mouse only) ───────── */

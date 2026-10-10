@@ -106,7 +106,8 @@ export function PebboPhone({
     if (!parent) return;
     const measure = () => {
       const pw = parent.clientWidth;
-      const pinned = fit === "stage" && window.matchMedia("(min-width: 800px)").matches;
+      // a stage with a height of its own: wide windows, and a case study's first screen at any width
+      const pinned = fit === "stage" && (window.matchMedia("(min-width: 800px)").matches || Boolean(parent.closest(".csx-stage")));
       const ph = pinned ? parent.clientHeight : window.innerHeight * (fit === "stage" ? 0.84 : 0.92);
       setScale(Math.max(0.5, Math.min(1, pw / PHONE_W, ph / PHONE_H)));
     };

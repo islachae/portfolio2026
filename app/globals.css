@@ -16651,6 +16651,9 @@ html[data-motion="reduced"] .wc-hl {
 .ml-scene-frame {
   position: sticky;
   top: 72px;
+  /* what travels between the steps stays inside the loop (on a narrow phone it would otherwise
+     push the page sideways) */
+  overflow: clip;
 }
 /* reduced motion: nothing is pinned, the finished loop is simply shown */
 .ml-scene[data-still] {
