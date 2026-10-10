@@ -7,6 +7,7 @@ import { rankUpdates, senderName, receivedLabel, parseDeadline, detailList } fro
 import { loadLang, t, getLang, locale, catLabel, applyStatic } from './i18n.js';
 import { ensureKorean, applyKorean, translateEmail } from './translate.js';
 import { newChat, ask } from './chat.js';
+import { calendarPlan, addToCalendar, removeFromCalendar, getAdded, downloadIcs } from './calendar.js';
 
 const app = document.getElementById('app');
 const refreshBtn = document.getElementById('refresh');
@@ -857,6 +858,7 @@ async function renderDetail(id) {
             <div class="cap" style="color: var(--green);">${esc(t('detail.summary'))}</div>
             <div class="prose">${esc(it.summary)}</div>
             <div style="display: flex; flex-direction: column; gap: 8px;">${facts}</div>
+            ${calendarPlan(it) ? '<div class="calRow" id="calRow"></div>' : ''}
             <button class="goMail" data-mail="${esc(it.threadId)}">${esc(t('detail.goMail'))}${ICON.out}</button>
           </div>
         </div></div>
@@ -892,6 +894,73 @@ async function renderDetail(id) {
   });
   document.getElementById('showOrig').addEventListener('click', () => showOriginal(it, false));
   document.getElementById('showKo')?.addEventListener('click', () => showOriginal(it, true));
+  renderCalRow(it);
+}
+
+// ---------- Put in my calendar ----------
+
+// "Thu, Oct 8 · 3:30 – 7:30 PM · CFA Great Hall": exactly what will be added, so a wrong
+// date can be caught before it goes in.
+function planText(plan) {
+  const loc = locale();
+  const day = (d) => d.toLocaleDateString(loc, { weekday: 'short', month: 'short', day: 'numeric' });
+  const time = (d) => d.toLocaleTimeString(loc, { hour: 'numeric', minute: '2-digit' });
+  let when;
+  if (plan.allDay) {
+    const last = new Date(plan.end.getTime() - 86400000);
+    when = last > plan.start ? `${day(plan.start)} – ${day(last)}` : day(plan.start);
+  } else {
+    when = `${day(plan.start)} · ${time(plan.start)} – ${time(plan.end)}`;
+  }
+  return [plan.kind === 'deadline' ? t('cal.deadlineNote') : '', when, plan.location].filter(Boolean).join(' · ');
+}
+
+async function renderCalRow(it, { busy = false, error = '' } = {}) {
+  const row = document.getElementById('calRow');
+  const plan = calendarPlan(it);
+  if (!row || !plan) return;
+  const added = await getAdded(it.id);
+  if (added) {
+    row.innerHTML = `
+      <div class="calPlan done">${ICON.calFact}<span>${esc(t('cal.added'))}</span></div>
+      <div class="calBtns">
+        <a class="q" href="${esc(added.link)}" target="_blank" rel="noopener">${esc(t('cal.open'))}${ICON.out}</a>
+        <button class="txt" id="calRemove">${esc(t('cal.remove'))}</button>
+      </div>`;
+    document.getElementById('calRemove').addEventListener('click', async () => {
+      try {
+        await removeFromCalendar(it.id);
+        renderCalRow(it);
+      } catch (err) {
+        renderCalRow(it, { error: calError(err) });
+      }
+    });
+    return;
+  }
+  row.innerHTML = `
+    <div class="calPlan">${ICON.calFact}<span>${esc(planText(plan))}</span></div>
+    <div class="calBtns">
+      <button class="ab pri" id="calAdd" ${busy ? 'disabled' : ''}>${esc(busy ? t('cal.adding') : t('cal.put'))}</button>
+      <button class="txt" id="calIcs">${esc(t('cal.ics'))}</button>
+    </div>
+    ${error ? `<div class="calErr">${esc(error)}</div>` : ''}`;
+  document.getElementById('calAdd').addEventListener('click', async () => {
+    renderCalRow(it, { busy: true });
+    try {
+      await addToCalendar(it, { mailUrl: await gmailUrl(it.threadId) });
+      renderCalRow(it);
+    } catch (err) {
+      renderCalRow(it, { error: calError(err) });
+    }
+  });
+  document.getElementById('calIcs').addEventListener('click', async () => downloadIcs(it, { mailUrl: await gmailUrl(it.threadId) }));
+}
+
+function calError(err) {
+  if (err.message === 'CALENDAR_DENIED' || /access_denied|user did not approve|canceled/i.test(err.message)) return t('cal.errDenied');
+  if (err.message === 'CALENDAR_API_OFF') return t('cal.errApiOff');
+  if (err.message === 'CALENDAR_SIGNED_OUT') return t('cal.errAgain');
+  return t('cal.errOther', { msg: err.message });
 }
 
 // The original text is fetched from Gmail on demand and only kept on screen, never stored.
@@ -934,9 +1003,13 @@ async function showOriginal(it, korean) {
 }
 
 // Opens the email in the Gmail tab next to the panel.
-async function openInGmail(threadId) {
+async function gmailUrl(threadId) {
   const email = await getSignedInEmail();
-  const url = `https://mail.google.com/mail/?authuser=${encodeURIComponent(email)}#all/${threadId}`;
+  return `https://mail.google.com/mail/?authuser=${encodeURIComponent(email)}#all/${threadId}`;
+}
+
+async function openInGmail(threadId) {
+  const url = await gmailUrl(threadId);
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab) chrome.tabs.update(tab.id, { url });
   else chrome.tabs.create({ url });

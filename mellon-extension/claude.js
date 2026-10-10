@@ -19,7 +19,7 @@ export const CATEGORIES = [
 const SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['title', 'summary', 'action_label', 'action_required', 'deadline', 'category', 'key_details'],
+  required: ['title', 'summary', 'action_label', 'action_required', 'deadline', 'category', 'key_details', 'event'],
   properties: {
     title: {
       type: 'string',
@@ -59,6 +59,21 @@ const SCHEMA = {
       },
       description: 'Up to 4 short facts worth knowing: when, where, how much, who to contact, links or forms mentioned.',
     },
+    event: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['has_event', 'title', 'start', 'end', 'all_day', 'location'],
+      description:
+        'The one thing in this email the student could attend (talk, workshop, office hours, fair, meeting, exhibition, class session), for adding to a calendar. Not a deadline.',
+      properties: {
+        has_event: { type: 'boolean', description: 'False if the email has no specific event with a date.' },
+        title: { type: 'string', description: 'Short calendar title, e.g. "Hit Pause: CFA Wellness Day". Empty if no event.' },
+        start: { type: 'string', description: 'Local start "YYYY-MM-DDTHH:MM", or "YYYY-MM-DD" for an all-day event. Empty if no event.' },
+        end: { type: 'string', description: 'Local end in the same format, or empty if the email gives none.' },
+        all_day: { type: 'boolean' },
+        location: { type: 'string', description: 'Room, building or online link, as written. Empty if none.' },
+      },
+    },
   },
 };
 
@@ -88,7 +103,8 @@ const cacheKey = (id) => `analysis:${id}`;
 
 // Bumped when the reading rules change, so older saved results are read once more.
 // v2: relative dates are counted from the day an email was sent, and written as exact dates.
-export const ANALYSIS_VERSION = 2;
+// v3: also pulls out the event (start, end, place) for "Put in my calendar".
+export const ANALYSIS_VERSION = 3;
 
 export async function getCachedAnalysis(id, { anyVersion = false } = {}) {
   const key = cacheKey(id);

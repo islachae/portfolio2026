@@ -23,6 +23,7 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 - Each card shows the title, sender, deadline and an action button. Deadlines within 24 hours are red. A line under each card explains its place, e.g. `Action: Submit · due tonight · ★ Career`.
 - Tap a card to see the summary, key details, and the original email.
 - Mark an update as done and it moves to **Done**. You can undo this.
+- **Put in my calendar**: when an email has an event (like a talk or office hours) or a deadline, the card shows what would be added, such as "Thu, Oct 15 · 3:30 – 7:30 PM · CFA Great Hall". One click adds it to your Google Calendar, and you can take it out again. Deadlines become a reminder on the due date. An **Apple Calendar (.ics)** file is also offered.
 - **Select** several updates and **Discard** them from Mellon (the Gmail messages are not touched). This works with Undo.
 - **Calendar**: shows a dot on each date with a deadline. Tap a date to see what is due.
 - **English or Korean (한국어)**: the language switch also translates Mellon's titles and summaries. You can read any original email translated into Korean.
@@ -34,6 +35,7 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 ## Privacy and cost
 
 - **Gmail access is read-only** (`gmail.readonly`). Mellon cannot send, delete, or change mail.
+- **Calendar access is asked for only when you first click "Put in my calendar"**, and only for calendars you own (`calendar.events.owned`). Mellon adds an event only when you click, and can remove only the events it added. It never reads your schedule.
 - **Your email stays on your computer.** The only place it goes is the Claude API, to be summarized. Results are saved in Chrome's local storage on your computer, and there is no Mellon server.
 - **Your Claude API key is entered in Mellon's Settings** and saved only in Chrome on your computer. It is never in the code or on GitHub.
 - **It uses Claude Haiku 5.5**, the lowest-cost model. Each email is sent once, and its result is saved and reused. Reading an email costs about 0.05 cents, so even 100 new emails a week is around 5 cents.
@@ -70,14 +72,19 @@ Mellon is in **testing mode** on Google Cloud. Only Google accounts listed as **
 **Option B: make your own Google Cloud project.** This takes about 10 minutes. Use the Google account whose mail you want to read.
 
 1. Go to [console.cloud.google.com](https://console.cloud.google.com). Open the project menu at the top → **New project** → name it `Mellon` → **Create**. Make sure the new project is selected.
-2. Search for **Gmail API** in the top search bar → **Enable**.
+2. Search for **Gmail API** in the top search bar → **Enable**. Then search for **Google Calendar API** → **Enable** (needed only for "Put in my calendar").
 3. Go to **APIs & Services → OAuth consent screen** (it may be called "Google Auth Platform") → **Get started**.
    - App name: `Mellon`
    - Support email: your email
    - Audience: **External**
    - Contact email: your email
    - Agree, then **Create**.
-4. **Data Access** → **Add or remove scopes** → find `.../auth/gmail.readonly` and check it. If it is not in the list, paste `https://www.googleapis.com/auth/gmail.readonly` under "Manually add scopes". Then **Update** → **Save**.
+4. **Data Access** → **Add or remove scopes** → find `.../auth/gmail.readonly` and `.../auth/calendar.events.owned` and check both. If they are not in the list, paste these under "Manually add scopes":
+   ```
+   https://www.googleapis.com/auth/gmail.readonly
+   https://www.googleapis.com/auth/calendar.events.owned
+   ```
+   Then **Update** → **Save**.
 5. **Audience**: leave Publishing status on **Testing**. Under **Test users** → **+ Add users**, add your email (and anyone else who will use your client ID) → **Save**.
 6. **Clients** → **+ Create client**:
    - Application type: **Web application**
@@ -122,6 +129,8 @@ Mellon is in **testing mode** on Google Cloud. Only Google accounts listed as **
 | Hide updates you don't need | **Select** → tap cards → **Discard** (to-dos can't be selected; mark them done instead) |
 | See deadlines by date | Calendar icon → tap a date |
 | Switch between English and 한국어 | Gear icon → Settings → **Language** (or on the welcome screen) |
+| Add an event or deadline to Google Calendar | Open a card → check the date line → **Put in my calendar** (first time: allow Calendar) |
+| Add it to Apple Calendar or Outlook | Open a card → **Apple Calendar (.ics)** → open the downloaded file |
 | Read an original email in Korean | Open a card → **번역해서 보기** (Korean mode) |
 | Change interests, keys, or sign out | Gear icon → Settings |
 | See the welcome screen again | Settings → **Show the welcome screen again** |
@@ -131,6 +140,8 @@ Mellon is in **testing mode** on Google Cloud. Only Google accounts listed as **
 - **`redirect_uri_mismatch`:** The redirect URI in Google Cloud doesn't match exactly. Copy it from Mellon's Settings page, including the last `/`.
 - **"Access blocked" / `access_denied`:** The account you signed in with is not a test user (step 2, A5 or B5).
 - **"Gmail API has not been used in project…":** Enable the Gmail API (step B2).
+- **"Turn on the Google Calendar API":** Enable the Google Calendar API (step B2), and add the calendar scope (step B4).
+- **Calendar says it needs permission:** In the Google window, tick the box for Google Calendar. If you use the owner's client ID (option A), the owner needs to add the calendar scope first.
 - **A university (Google Workspace) account is blocked by the admin:** Some schools block unverified apps from reading mail. This can't be fixed in the code. Try a personal Gmail account, or ask your IT office.
 - **"Claude API key is not valid":** Re-copy the key into Settings. Check that it hasn't been deleted in the Console.
 - **"Too many requests":** Wait a minute and press refresh.
@@ -152,6 +163,7 @@ Plain JavaScript, with no build step and no dependencies. Edit a file, then clic
 | `rank.js` | Ranking rules, due labels ("due tonight"), urgency (< 24 h) |
 | `done.js` | Which updates are done or discarded (kept 30 days) |
 | `i18n.js` | All interface text in English and Korean |
+| `calendar.js` | Put in my calendar: Google Calendar event (on click only), `.ics` file, remembers what was added |
 | `chat.js` | Ask Mellon: one-email chats, and all-mail chats with read-only `search_mail` / `read_email` tools |
 | `translate.js` | Korean versions of Mellon's notes (cached) and of original emails (in memory only) |
 | `sidepanel.*` | The panel: welcome, loading, list, card detail, Done, Undo |
