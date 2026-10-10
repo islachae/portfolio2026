@@ -127,7 +127,16 @@ export async function analyzeEmail(email) {
   const text = (data.content || []).find((b) => b.type === 'text')?.text;
   if (!text) throw new Error('Claude returned no answer.');
 
-  const analysis = { ...JSON.parse(text), analyzedAt: Date.now() };
+  // Saved locally with the basic email info, so cached emails need no further calls.
+  const analysis = {
+    ...JSON.parse(text),
+    id: email.id,
+    threadId: email.threadId,
+    subject: email.subject,
+    from: email.from,
+    date: email.date,
+    analyzedAt: Date.now(),
+  };
   await chrome.storage.local.set({ [cacheKey(email.id)]: analysis });
   return { ...analysis, cached: false };
 }

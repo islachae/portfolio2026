@@ -1,4 +1,10 @@
+import { CATEGORIES } from './claude.js';
+
 const $ = (id) => document.getElementById(id);
+
+$('interests').innerHTML = CATEGORIES.map(
+  (c) => `<label class="check"><input type="checkbox" value="${c}" /> ${c.replace('&', '&amp;')}</label>`
+).join('');
 
 $('redirect').textContent = chrome.identity.getRedirectURL();
 
@@ -6,6 +12,8 @@ async function load() {
   const all = await chrome.storage.local.get(null);
   $('clientId').value = all.googleClientId || '';
   $('claudeKey').value = all.claudeApiKey || '';
+  const interests = all.interests || [];
+  document.querySelectorAll('#interests input').forEach((box) => (box.checked = interests.includes(box.value)));
   $('cacheCount').textContent = Object.keys(all).filter((k) => k.startsWith('analysis:')).length;
 }
 
@@ -13,6 +21,7 @@ $('save').addEventListener('click', async () => {
   await chrome.storage.local.set({
     googleClientId: $('clientId').value.trim(),
     claudeApiKey: $('claudeKey').value.trim(),
+    interests: [...document.querySelectorAll('#interests input:checked')].map((box) => box.value),
   });
   await chrome.storage.session.remove('googleToken');
   $('status').textContent = 'Saved.';

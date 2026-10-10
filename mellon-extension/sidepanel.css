@@ -18,3 +18,11 @@ button:disabled { opacity: .5; cursor: default; }
 .analysis p { margin: 0 0 6px; }
 .analysis ul { margin: 0 0 6px; padding-left: 18px; }
 section { margin-bottom: 8px; }
+.cards { list-style: none; padding: 0; margin: 0 0 16px; }
+.card { background: #fff; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+.card-title { font-weight: 600; margin-bottom: 2px; }
+.reason { font-size: 12px; margin-top: 6px; color: #4b4f46; }
+.reason.urgent { color: #C2453A; font-weight: 600; }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+label.check { font-weight: 400; display: flex; gap: 6px; align-items: center; margin: 0; }
+label.check input { width: auto; }
