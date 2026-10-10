@@ -8,7 +8,7 @@
 <body>
   <main class="settings">
     <h1>Mellon settings</h1>
-    <p class="muted">Everything here is saved only in this Chrome on this computer.</p>
+    <p class="muted">Everything here is saved only in this Chrome on this computer. It is never uploaded anywhere.</p>
 
     <section>
       <h2>Google sign-in</h2>
@@ -18,8 +18,23 @@
       <code id="redirect"></code>
     </section>
 
-    <button id="save">Save</button>
-    <span id="status" class="muted"></span>
+    <section>
+      <h2>Claude API key</h2>
+      <label for="claudeKey">API key</label>
+      <input id="claudeKey" type="password" placeholder="sk-ant-..." spellcheck="false" autocomplete="off" />
+      <p class="muted">Create one at console.anthropic.com → API Keys. Mellon uses Claude Haiku 5.5, the lowest-cost model.</p>
+    </section>
+
+    <section>
+      <h2>Saved results</h2>
+      <p class="muted"><span id="cacheCount">0</span> emails already read by Claude (not sent again).</p>
+      <button id="clearCache" class="secondary">Forget saved results</button>
+    </section>
+
+    <p>
+      <button id="save">Save</button>
+      <span id="status" class="muted"></span>
+    </p>
   </main>
   <script type="module" src="options.js"></script>
 </body>

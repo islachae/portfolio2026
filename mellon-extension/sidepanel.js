@@ -1,5 +1,6 @@
 import { getGoogleClientId, getGoogleToken, getSignedInEmail, rememberEmail, signOut } from './auth.js';
-import { getProfile, listRecentIds, getMessageMeta } from './gmail.js';
+import { getProfile, listRecentIds, getMessageMeta, getMessageFull } from './gmail.js';
+import { analyzeEmail, getCachedAnalysis, getClaudeKey } from './claude.js';
 
 const app = document.getElementById('app');
 document.getElementById('settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
@@ -21,6 +22,41 @@ async function signIn() {
     render();
   } catch (err) {
     showMessage(`Sign-in failed: ${err.message}`, 'Try again', signIn);
+  }
+}
+
+function analysisHtml(a) {
+  return `
+    <div class="analysis">
+      <p><strong>${escapeHtml(a.title)}</strong></p>
+      <p>${escapeHtml(a.summary)}</p>
+      <p class="muted">
+        Action: ${a.action_label ? escapeHtml(a.action_label) : 'none'} (${a.action_required ? 'must do' : 'optional'})
+        · Due: ${a.deadline ? escapeHtml(a.deadline) : 'none'}
+        · Category: ${escapeHtml(a.category)}
+      </p>
+      ${a.key_details.length ? `<ul>${a.key_details.map((d) => `<li>${escapeHtml(d)}</li>`).join('')}</ul>` : ''}
+      <p class="muted">${a.cached ? 'Saved result (not sent to Claude again).' : 'Fresh result from Claude, now saved.'}</p>
+    </div>`;
+}
+
+async function summarize(token, id, box, button) {
+  if (!(await getClaudeKey())) {
+    box.innerHTML = '<p>Add your Claude API key in Settings first.</p>';
+    return;
+  }
+  button.disabled = true;
+  box.innerHTML = '<p class="muted">Asking Claude…</p>';
+  try {
+    let analysis = await getCachedAnalysis(id);
+    analysis = analysis
+      ? { ...analysis, cached: true }
+      : await analyzeEmail(await getMessageFull(token, id));
+    box.innerHTML = analysisHtml(analysis);
+  } catch (err) {
+    box.innerHTML = `<p>Could not summarize: ${escapeHtml(err.message)}</p>`;
+  } finally {
+    button.disabled = false;
   }
 }
 
@@ -48,8 +84,10 @@ async function render() {
       <ol class="subjects">
         ${mails
           .map(
-            (m) => `<li><strong>${escapeHtml(m.subject)}</strong><br>
-              <span class="muted">${escapeHtml(m.from)} · ${new Date(m.date).toLocaleString()}</span></li>`
+            (m) => `<li data-id="${escapeHtml(m.id)}"><strong>${escapeHtml(m.subject)}</strong><br>
+              <span class="muted">${escapeHtml(m.from)} · ${new Date(m.date).toLocaleString()}</span><br>
+              <button class="summarize secondary">Summarize</button>
+              <div class="result"></div></li>`
           )
           .join('')}
       </ol>
@@ -57,6 +95,10 @@ async function render() {
     document.getElementById('signout').addEventListener('click', async () => {
       await signOut();
       render();
+    });
+    app.querySelectorAll('li[data-id]').forEach((li) => {
+      const button = li.querySelector('.summarize');
+      button.addEventListener('click', () => summarize(token, li.dataset.id, li.querySelector('.result'), button));
     });
   } catch (err) {
     if (err.message === 'SIGNED_OUT') return render();

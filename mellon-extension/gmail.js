@@ -44,3 +44,45 @@ export async function getMessageMeta(token, id) {
     snippet: msg.snippet || '',
   };
 }
+
+function decodeBase64Url(data) {
+  const bin = atob(data.replace(/-/g, '+').replace(/_/g, '/'));
+  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+function htmlToText(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.querySelectorAll('script, style').forEach((el) => el.remove());
+  return (doc.body?.innerText || doc.body?.textContent || '').trim();
+}
+
+// Finds the first part of the given MIME type anywhere in the message tree.
+function findPart(part, mimeType) {
+  if (!part) return null;
+  if (part.mimeType === mimeType && part.body?.data) return part;
+  for (const child of part.parts || []) {
+    const found = findPart(child, mimeType);
+    if (found) return found;
+  }
+  return null;
+}
+
+// Full message with a plain-text body. Read-only.
+export async function getMessageFull(token, id) {
+  const msg = await gmailGet(token, `messages/${id}?format=full`);
+  const plain = findPart(msg.payload, 'text/plain');
+  const html = findPart(msg.payload, 'text/html');
+  let body = '';
+  if (plain) body = decodeBase64Url(plain.body.data);
+  else if (html) body = htmlToText(decodeBase64Url(html.body.data));
+  return {
+    id,
+    threadId: msg.threadId,
+    subject: header(msg, 'Subject') || '(no subject)',
+    from: header(msg, 'From'),
+    date: Number(msg.internalDate),
+    snippet: msg.snippet || '',
+    body: body.replace(/\n{3,}/g, '\n\n').trim(),
+  };
+}

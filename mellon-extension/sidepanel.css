@@ -12,3 +12,9 @@ button.link { background: none; padding: 0; text-decoration: underline; font-siz
 label { display: block; font-weight: 600; margin-bottom: 6px; }
 input { width: 100%; box-sizing: border-box; padding: 8px 10px; font: inherit; border: 1px solid #c9cbc2; border-radius: 6px; background: #fff; }
 code { display: block; background: #fff; padding: 8px 10px; border-radius: 6px; margin-bottom: 16px; user-select: all; word-break: break-all; }
+button.secondary { background: #fff; border: 1px solid #c9cbc2; padding: 4px 12px; font-size: 12px; margin-top: 6px; }
+button:disabled { opacity: .5; cursor: default; }
+.analysis { background: #fff; border-radius: 8px; padding: 10px 12px; margin-top: 8px; }
+.analysis p { margin: 0 0 6px; }
+.analysis ul { margin: 0 0 6px; padding-left: 18px; }
+section { margin-bottom: 8px; }
