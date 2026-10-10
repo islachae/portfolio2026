@@ -301,3 +301,12 @@ button.ck:hover svg { opacity: .35; stroke: var(--ink); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; transition-delay: 0ms !important; }
 }
+
+/* to-do cards: the action opens the email (↗); Done sits under it as a quiet text button */
+.tk.act .cta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.ab svg { width: 11px; height: 11px; margin-left: 4px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+.doneBtn { height: 24px; padding: 0 8px; margin-right: -4px; border: none; border-radius: 5px; background: none; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; color: var(--mute); white-space: nowrap; transition: background 130ms ease-out, color 130ms ease-out, transform 170ms var(--out); }
+.doneBtn svg { width: 12px; height: 12px; flex: none; }
+.doneBtn:hover { color: var(--ink); background: var(--wash); }
+.doneBtn:active { transform: scale(0.96); transition-duration: 45ms; }
+.doneBtn.on { background: var(--acc); color: var(--accink); }

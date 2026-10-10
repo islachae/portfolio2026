@@ -289,19 +289,22 @@ function reasonHtml(parts) {
 function actionCard(it) {
   return `
     <div class="tk act" data-open="${esc(it.id)}" role="button" tabindex="0">
-      <button class="ck" data-done="${esc(it.id)}" aria-label="${esc(t('card.markDone'))}" title="${esc(t('card.markDone'))}">${ICON.tick}</button>
+      <span class="slot" aria-hidden="true"><span class="ck">${ICON.tick}</span></span>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
         <div class="fr"><b>${esc(senderName(it.from))}</b></div>
         <div class="mt" style="margin-top: 7px;"><span class="dt ${it.urgent ? 'red' : ''}">${ICON.cal}<span>${reasonHtml(it.reason.split(' · '))}</span></span></div>
       </div>
-      ${it.action_label ? `<div class="cta"><button class="ab ${it.urgent ? 'hot' : ''}" data-mail="${esc(it.threadId)}">${esc(it.action_label)}</button></div>` : ''}
+      <div class="cta">
+        ${it.action_label ? `<button class="ab ${it.urgent ? 'hot' : ''}" data-mail="${esc(it.threadId)}">${esc(it.action_label)}${ICON.out}</button>` : ''}
+        <button class="doneBtn" data-done="${esc(it.id)}" aria-label="${esc(t('card.markDone'))}">${ICON.tick}<span>${esc(t('card.done'))}</span></button>
+      </div>
     </div>`;
 }
 
 function updateCard(it) {
   const right = it.action_label
-    ? `<button class="ab" data-mail="${esc(it.threadId)}">${esc(it.action_label)}</button>`
+    ? `<button class="ab" data-mail="${esc(it.threadId)}">${esc(it.action_label)}${ICON.out}</button>`
     : `<span>${esc(senderName(it.from))}</span>`;
   return `
     <div class="tk ${it.unread ? '' : 'rd'} ${state.selected.has(it.id) ? 'picked' : ''}" data-open="${esc(it.id)}" data-pick="${esc(it.id)}" role="button" tabindex="0">
@@ -602,7 +605,7 @@ async function markDone(id) {
   const rowEl = app.querySelector(`[data-row="${CSS.escape(id)}"]`);
   if (rowEl) {
     rowEl.querySelector('.tk')?.classList.add('done');
-    rowEl.querySelector('.ck')?.classList.add('on');
+    rowEl.querySelector('.doneBtn')?.classList.add('on');
     await new Promise((r) => setTimeout(r, 420));
     rowEl.classList.add('off');
     await new Promise((r) => setTimeout(r, 260));
@@ -827,7 +830,7 @@ async function renderDetail(id) {
   const others = visibleItems().filter((x) => x.id !== id).length;
 
   const cardHtml = done ? doneCard(it) : it.group === 'action' ? actionCard(it) : updateCard(it);
-  const card = cardHtml.replace('class="tk', 'class="tk still').replace(/<button class="ck"[^>]*>.*?<\/button>/, '');
+  const card = cardHtml.replace('class="tk', 'class="tk still').replace(/<button class="doneBtn"[^>]*>.*?<\/button>/, '');
   const deadline = parseDeadline(it.deadline);
   const facts = [
     deadline

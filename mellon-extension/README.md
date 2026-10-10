@@ -109,7 +109,7 @@ Mellon is in **testing mode** on Google Cloud. Only Google accounts listed as **
 | Open the email to act on it | Click the card's button (Submit, Pay…) or **Go to email ↗** |
 | Read the summary and key details | Click the card. Click the "N more updates" bar or press Esc to go back |
 | Read the original text inside the panel | Open a card → **Show original email** |
-| Mark something done | Click the circle on an Action card, or open any card → **Mark as done** |
+| Mark something done | Click **✓ Done** under the button on an Action card, or open any card → **Mark as done** |
 | Bring it back | Click **Undo** in the message at the bottom, or open **Done** → **Undo** |
 | See only unopened mail | **Unread** tab |
 | Scan again | The refresh icon, or the Mellon logo |

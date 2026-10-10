@@ -48,6 +48,7 @@ const STRINGS = {
     'foot.retry': 'Retry',
     // cards
     'card.markDone': 'Mark as done',
+    'card.done': 'Done',
     'card.undo': 'Undo',
     'card.doneAgo': 'Done {when}',
     'reason.action': 'Action: {label}',
@@ -183,6 +184,7 @@ const STRINGS = {
     'foot.failed': '{n}통을 읽지 못했어요',
     'foot.retry': '다시 시도',
     'card.markDone': '완료로 표시',
+    'card.done': '완료',
     'card.undo': '되돌리기',
     'card.doneAgo': '{when} 완료',
     'reason.action': '할 일: {label}',
