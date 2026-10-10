@@ -1,3 +1,14 @@
-body { margin: 0; background: #F3F4EF; color: #1E211B; font-family: system-ui, sans-serif; }
+body { margin: 0; background: #F3F4EF; color: #1E211B; font-family: system-ui, sans-serif; font-size: 14px; }
 main { padding: 20px; }
-h1 { margin: 0 0 8px; }
+h1 { margin: 0; font-size: 20px; }
+h2 { font-size: 15px; margin: 24px 0 8px; }
+.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.muted { color: #6b6f66; font-size: 12px; }
+button { font: inherit; background: #C5E57A; color: #1E211B; border: 0; border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+button.link { background: none; padding: 0; text-decoration: underline; font-size: inherit; color: inherit; }
+.subjects { padding-left: 20px; }
+.subjects li { margin-bottom: 12px; }
+.settings { max-width: 560px; }
+label { display: block; font-weight: 600; margin-bottom: 6px; }
+input { width: 100%; box-sizing: border-box; padding: 8px 10px; font: inherit; border: 1px solid #c9cbc2; border-radius: 6px; background: #fff; }
+code { display: block; background: #fff; padding: 8px 10px; border-radius: 6px; margin-bottom: 16px; user-select: all; word-break: break-all; }

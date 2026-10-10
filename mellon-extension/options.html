@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Mellon settings</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <main class="settings">
+    <h1>Mellon settings</h1>
+    <p class="muted">Everything here is saved only in this Chrome on this computer.</p>
+
+    <section>
+      <h2>Google sign-in</h2>
+      <label for="clientId">Google OAuth client ID</label>
+      <input id="clientId" type="text" placeholder="1234-abc.apps.googleusercontent.com" spellcheck="false" />
+      <p class="muted">Paste this into Google Cloud as the <b>Authorized redirect URI</b>:</p>
+      <code id="redirect"></code>
+    </section>
+
+    <button id="save">Save</button>
+    <span id="status" class="muted"></span>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>
