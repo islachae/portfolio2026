@@ -48,7 +48,7 @@ export function InspectorColumn({ open }: { open: boolean }) {
   return (
     <aside
       className="inspector"
-      aria-label="ChaeLLM"
+      aria-label="Chat with Chaewon’s AI"
       data-collapsed={!open || undefined}
       data-mode="chat"
       inert={!open ? true : undefined}
@@ -86,7 +86,7 @@ export function InspectorSheet() {
             className="sheet"
             role="dialog"
             aria-modal="true"
-            aria-label="ChaeLLM"
+            aria-label="Chat with Chaewon’s AI"
             data-chat
             initial={offscreen}
             animate={{ x: 0, y: 0 }}

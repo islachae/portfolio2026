@@ -10,9 +10,11 @@ import { profile } from "./site";
 export type ChatReply = { text: string; follow?: string[] };
 
 export const chaellm = {
-  name: "ChaeLLM",
+  // shown as “Chaewon” with an AI tag beside it, so nobody mistakes it for her typing (code still calls it ChaeLLM)
+  name: "Chaewon",
+  tag: "AI",
   about: "An AI version of Chaewon, still in training. Answers are placeholders for now.",
-  greeting: "안녕! I’m ChaeLLM.",
+  greeting: "안녕! I’m Chaewon’s AI.",
   intro: "Ask about my projects, how I design with AI, or the Michelin kitchen.",
   placeholder: "Ask about Chaewon…",
   starters: ["How do you design with AI?", "What are you working on right now?", "Why the bread?"],

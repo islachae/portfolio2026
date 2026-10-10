@@ -157,11 +157,12 @@ export function ChatPanel({ active, onClose }: { active: boolean; onClose: () =>
   };
 
   return (
-    <section className="chat" aria-label="ChaeLLM">
+    <section className="chat" aria-label="Chat with Chaewon’s AI">
       <header className="chat-head">
         <span className="chat-name">
           <PixelFace size={24} blink={answers} />
           {chaellm.name}
+          <span className="chat-tag">{chaellm.tag}</span>
         </span>
         <span className="chat-info" tabIndex={0} aria-label={chaellm.about}>
           <InfoIcon size={14} />
@@ -173,7 +174,7 @@ export function ChatPanel({ active, onClose }: { active: boolean; onClose: () =>
           <button className="icon-btn" onClick={reset} disabled={!messages.length} aria-label="Start a new chat" title="New chat">
             <ReplayIcon size={15} />
           </button>
-          <button className="icon-btn" onClick={onClose} aria-label="Close ChaeLLM" title="Close">
+          <button className="icon-btn" onClick={onClose} aria-label="Close the chat" title="Close">
             <CloseIcon />
           </button>
         </span>
@@ -228,7 +229,7 @@ export function ChatPanel({ active, onClose }: { active: boolean; onClose: () =>
                 <motion.li
                   key="typing"
                   className="msg msg--typing"
-                  aria-label="ChaeLLM is thinking"
+                  aria-label="Chaewon’s AI is thinking"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.1 } }}
@@ -256,7 +257,7 @@ export function ChatPanel({ active, onClose }: { active: boolean; onClose: () =>
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Escape" && onClose()}
           placeholder={chaellm.placeholder}
-          aria-label="Ask ChaeLLM"
+          aria-label="Ask Chaewon"
           autoComplete="off"
           enterKeyHint="send"
         />
@@ -285,17 +286,18 @@ export function ChatDock() {
       <button type="button" className="chat-dock-name pf-hover" onClick={openChat}>
         <PixelFace size={24} />
         {chaellm.name}
+        <span className="chat-tag">{chaellm.tag}</span>
       </button>
       <div className="chat-form chat-form--dock">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={chaellm.placeholder}
-          aria-label="Ask ChaeLLM"
+          aria-label="Ask Chaewon"
           autoComplete="off"
           enterKeyHint="send"
         />
-        <button type="submit" className="chat-send" disabled={!text.trim() || busy || streaming} aria-label="Ask ChaeLLM">
+        <button type="submit" className="chat-send" disabled={!text.trim() || busy || streaming} aria-label="Ask Chaewon">
           <ArrowDown size={14} className="flip-y" />
         </button>
       </div>

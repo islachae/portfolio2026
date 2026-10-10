@@ -36,7 +36,7 @@ export function ChatDrawer() {
             className="cd"
             role="dialog"
             aria-modal="true"
-            aria-label="ChaeLLM"
+            aria-label="Chat with Chaewon’s AI"
             initial={away}
             animate={{ x: 0, y: 0 }}
             exit={away}

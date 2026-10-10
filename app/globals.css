@@ -17290,3 +17290,14 @@ html[data-motion="reduced"] .wc-hl {
     height: auto;
   }
 }
+/* the chat's name, “Chaewon”, with a small AI tag beside it: the button says “Ask Chaewon”, and
+   this keeps it plain that the answers come from an AI version of her */
+.chat-tag {
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-code);
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: var(--label-tracking);
+}
