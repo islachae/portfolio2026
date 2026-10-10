@@ -148,7 +148,7 @@ Plain JavaScript, with no build step and no dependencies. Edit a file, then clic
 | `auth.js` | Google sign-in through `chrome.identity.launchWebAuthFlow`, read-only scope |
 | `gmail.js` | Read-only Gmail calls: list recent and unread mail, get one message |
 | `claude.js` | Sends one email to Claude Haiku 5.5 with a JSON schema; caches the result per message id |
-| `updates.js` | Gets up to 30 emails and sends new ones to Claude, 4 at a time |
+| `updates.js` | Gets recent emails (7 or 14 days, up to 30–100), sends new ones to Claude 6 at a time, and keeps older to-dos still due |
 | `rank.js` | Ranking rules, due labels ("due tonight"), urgency (< 24 h) |
 | `done.js` | Which updates are done or discarded (kept 30 days) |
 | `i18n.js` | All interface text in English and Korean |
