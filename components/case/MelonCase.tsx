@@ -7,6 +7,7 @@ import { melonCase as C, type Shot } from "@/content/cases/melon";
 import { reducedMotion } from "../shell-context";
 import { Lines, Section, Takeaways, clamp, useStickyProgress } from "./kit";
 import { useScrollRoot } from "./scroll-root";
+import { MelonPanelClip } from "../Stages";
 
 /**
  * CMU Mellon. The page follows the presentation's argument: one email read two ways, the belief
@@ -708,6 +709,11 @@ function Solution() {
           </div>
         </div>
       ))}
+
+      <div className="ml-clip">
+        <h3 className="cs-h3">{m.clipTitle}</h3>
+        <MelonPanelClip />
+      </div>
 
       <div className="ml-limits" id="ml-limits" tabIndex={-1}>
         <h3 className="cs-h3">{f.limitsTitle}</h3>

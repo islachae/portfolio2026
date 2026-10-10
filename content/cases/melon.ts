@@ -309,6 +309,8 @@ export const melonCase = {
       { k: "Events & community", s: "Events", n: "5", up: false, was: "", plus: "" },
     ],
     loopInvest: { src: img("loop-advisor"), alt: "Donna at her laptop, looking at a list where one row is rising", words: ["Effort", "Resources", "Time"] },
+    // the prototype recording that used to fill the first screen (the concept film is there now)
+    clipTitle: "The student panel, in use",
     loopBack: { tag: "New", title: "Funding sources guide", from: "From Donna", meta: "Posted today · 6 students asked", view: "View" },
     sideLabels: { student: "Student sees", donna: "Donna sees" },
     // The two problems, each answered on both sides. Pins are in percent of each picture.

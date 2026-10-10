@@ -1504,3 +1504,14 @@ html[data-motion="reduced"] .nh *::after {
   outline: 2px solid var(--accent-1);
   outline-offset: 3px;
 }
+
+/* Mellon's first screen is a 16:9 film: below 1024px its stage is as tall as the film and its
+   buttons, not the window's 78% (that suited the upright prototype it replaced) */
+@media (max-width: 1023px) {
+  .csx-stage:has(.melon-film-box) {
+    height: auto;
+  }
+  .csx-stage:has(.melon-film-box) .stage-visual {
+    container-type: inline-size;
+  }
+}

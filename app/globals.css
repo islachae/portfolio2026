@@ -17242,3 +17242,51 @@ html[data-motion="reduced"] .wc-hl {
 .pba-log::-webkit-scrollbar {
   display: none;
 }
+/* ═════════ CMU Mellon: the concept film in the first screen ═════════
+   16:9 and at most 640px wide, centred in the stage, square on a hairline like the other stages
+   (the film's own frames keep their corners). The prototype recording moved to the Solution. */
+.melon-film-box {
+  width: min(640px, 100%);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #000;
+}
+.melon-film {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the recording in the Solution: the panel upright, its chapters under it */
+.ml-clip {
+  margin-top: var(--space-xxl);
+}
+.melon-clip {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+.melon-clip .melon-demo {
+  height: min(560px, 80svh);
+}
+/* its chapter chips wrap on a phone instead of pushing the page sideways (as in the first screen) */
+.melon-clip .stage-controls,
+.melon-clip .seg--stage {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
+@media (max-width: 640px) {
+  .melon-clip .seg--stage .seg-opt {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 799px) {
+  .melon-clip .melon-demo {
+    height: auto;
+  }
+}
