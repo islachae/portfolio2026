@@ -44,8 +44,20 @@ const SCHEMA = {
     category: { type: 'string', enum: CATEGORIES },
     key_details: {
       type: 'array',
-      items: { type: 'string' },
-      description: 'Up to 4 short facts worth knowing: where, how much, who to contact, links mentioned.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['kind', 'text'],
+        properties: {
+          kind: {
+            type: 'string',
+            enum: ['when', 'where', 'who', 'money', 'link', 'note'],
+            description: 'when = date or time, where = place or online location, who = a person or office, money = amounts or fees, link = a form, document, website or portal, note = anything else',
+          },
+          text: { type: 'string' },
+        },
+      },
+      description: 'Up to 4 short facts worth knowing: when, where, how much, who to contact, links or forms mentioned.',
     },
   },
 };

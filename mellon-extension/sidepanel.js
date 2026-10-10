@@ -3,7 +3,7 @@ import { getProfile, getMessageFull } from './gmail.js';
 import { getClaudeKey, CATEGORIES } from './claude.js';
 import { getDone, setDone, getHidden, setHidden } from './done.js';
 import { loadUpdates } from './updates.js';
-import { rankUpdates, senderName, receivedLabel, parseDeadline } from './rank.js';
+import { rankUpdates, senderName, receivedLabel, parseDeadline, detailList } from './rank.js';
 import { loadLang, t, getLang, locale, catLabel, applyStatic } from './i18n.js';
 import { ensureKorean, applyKorean, translateEmail } from './translate.js';
 import { newChat, ask } from './chat.js';
@@ -43,6 +43,13 @@ const ICON = {
   cal: '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>',
   calFact: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>',
   doc: '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>',
+  // key details, one icon per kind (the design's when / where / who / doc, plus money)
+  when: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+  where: '<svg viewBox="0 0 24 24"><path d="M12 21s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>',
+  who: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path></svg>',
+  money: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="13" rx="2.5"></rect><path d="M2.5 10.5h19M6.5 15h3"></path></svg>',
+  link: '<svg viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"></path><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"></path></svg>',
+  note: '<span class="fdot" aria-hidden="true"></span>',
   tag: '<svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg>',
   chevron: '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>',
   out: '<svg viewBox="0 0 24 24"><path d="M8 16L17 7M9 7h8v8"></path></svg>',
@@ -826,7 +833,7 @@ async function renderDetail(id) {
     deadline
       ? `<div class="fact ${it.urgent ? 'red' : ''}">${ICON.calFact}<span>${esc(t('detail.due', { date: fullDate(deadline) }))}</span></div>`
       : '',
-    ...(it.key_details || []).map((d) => `<div class="fact">${ICON.doc}<span>${esc(d)}</span></div>`),
+    ...detailList(it).map((d) => `<div class="fact ${d.kind}">${ICON[d.kind]}<span>${esc(d.text)}</span></div>`),
     `<div class="fact">${ICON.tag}<span>${esc(it.reason)}</span></div>`,
   ].join('');
 

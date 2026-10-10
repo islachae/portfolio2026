@@ -112,3 +112,23 @@ export function receivedLabel(date, now = new Date()) {
   if (now - d < 6 * DAY) return d.toLocaleDateString(locale(), { weekday: getLang() === 'ko' ? 'long' : 'short' });
   return d.toLocaleDateString(locale(), { month: getLang() === 'ko' ? 'long' : 'short', day: 'numeric' });
 }
+
+// Key details as [{ kind, text }]. New analyses come with a kind from Claude; older saved
+// ones are plain text, so their kind is guessed from the words (English or Korean).
+export const DETAIL_KINDS = ['when', 'where', 'who', 'money', 'link', 'note'];
+
+export function guessKind(text) {
+  const s = String(text);
+  if (/\$\s?\d|\d+\s?(USD|dollars?|달러)|tuition|fee|\bpay|stipend|refund|등록금|비용|금액|수수료|장학금\s?\d/i.test(s)) return 'money';
+  if (/https?:|www\.|\.com|\.edu|\bform\b|sheet|\bdoc\b|document|pdf|portal|link|canvas|\bhub\b|e-?bill|폼|시트|문서|링크|포털|사이트/i.test(s)) return 'link';
+  if (/\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b|\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s?\d|\d{1,2}(:\d{2})?\s?(am|pm)\b|\bnoon\b|midnight|tonight|tomorrow|deadline|\d+월\s?\d+일|오전|오후|자정|정오|요일|마감/i.test(s)) return 'when';
+  if (/\broom\b|\bhall\b|center|centre|building|studio|\blab\b|library|floor|campus|zoom|online|in person|\bMM\s?\d|강의실|호관|센터|건물|스튜디오|도서관|층|온라인|줌|캠퍼스/i.test(s)) return 'where';
+  if (/speaker|contact|advisor|adviser|professor|prof\.|instructor|\bta\b|office of|coordinator|@|with [A-Z]|연사|담당|교수|조교|문의|연락|어드바이저|사무실/i.test(s)) return 'who';
+  return 'note';
+}
+
+export function detailList(item) {
+  return (item.key_details || []).map((d) =>
+    typeof d === 'string' ? { kind: guessKind(d), text: d } : { kind: DETAIL_KINDS.includes(d.kind) ? d.kind : 'note', text: d.text }
+  );
+}

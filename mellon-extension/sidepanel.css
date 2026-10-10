@@ -135,6 +135,9 @@ button { font-family: inherit; cursor: pointer; color: inherit; }
 .fact { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; line-height: 1.4; }
 .fact svg { width: 15px; height: 15px; flex: none; margin-top: 1px; fill: none; stroke: var(--mute); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .fact.red { color: var(--hot); }
+/* 'note' details carry no meaning worth an icon: just a small dot, set back */
+.fact .fdot { width: 15px; height: 15px; flex: none; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.fact .fdot::before { content: ''; width: 4px; height: 4px; border-radius: 99px; background: #9A9D91; }
 .fact.red svg { stroke: var(--hot); }
 .goMail { font-size: 12.5px; font-weight: 500; color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 11px 0 0; border-top: 1px solid var(--line); border-left: none; border-right: none; border-bottom: none; background: none; text-align: left; }
 .goMail svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

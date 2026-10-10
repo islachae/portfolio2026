@@ -3,6 +3,7 @@
 // saved as `ko:<messageId>` in chrome.storage.local so it is translated once.
 // Original emails can also be translated on request; those are kept in memory only.
 import { callClaude } from './claude.js';
+import { detailList, guessKind } from './rank.js';
 
 const BATCH = 10;
 
@@ -55,7 +56,7 @@ export async function ensureKorean(items, onProgress = () => {}) {
       title: it.title,
       summary: it.summary,
       action_label: it.action_label || '',
-      key_details: it.key_details || [],
+      key_details: detailList(it).map((d) => d.text),
     }));
     try {
       const { items: out } = await callClaude({
@@ -86,7 +87,10 @@ export async function ensureKorean(items, onProgress = () => {}) {
 // Puts the Korean text over the English, keeping everything else (category, deadline…).
 export function applyKorean(item, ko) {
   if (!ko) return item;
-  return { ...item, title: ko.title, summary: ko.summary, action_label: ko.action_label, key_details: ko.key_details };
+  // The translation keeps the order of the details, so each keeps its English kind.
+  const kinds = detailList(item).map((d) => d.kind);
+  const key_details = (ko.key_details || []).map((text, i) => ({ kind: kinds[i] || guessKind(text), text }));
+  return { ...item, title: ko.title, summary: ko.summary, action_label: ko.action_label, key_details };
 }
 
 const emailCache = new Map();
