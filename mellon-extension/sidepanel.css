@@ -340,3 +340,23 @@ button.ck:hover svg { opacity: .35; stroke: var(--ink); }
 .warnBox .ev { font-style: italic; }
 .warnBox .tip { color: #6E4A12; }
 .warnBox .txt { align-self: flex-start; height: 24px; padding: 0; font-size: 12px; text-decoration: underline; color: #6E4A12; }
+
+/* conversations and corrections */
+.thr { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; font-family: var(--fm); font-size: 10.5px; color: var(--mute); vertical-align: 1px; }
+.thr .bi { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.edb { margin-left: 6px; padding: 1px 5px; border-radius: 3px; background: var(--wash); font-family: var(--fm); font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); vertical-align: 1px; }
+.fixRow { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--mute); padding-left: 2px; }
+.fixRow .txt { height: 24px; font-size: 12px; padding: 0 6px; }
+.fixRow .txt:disabled { opacity: .6; }
+.editBox { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; animation: fadeIn 160ms ease both; }
+.erow { display: grid; grid-template-columns: 72px 1fr; align-items: center; gap: 8px; font-size: 12.5px; }
+.el { font-weight: 500; }
+.einputs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.editBox input, .editBox select { height: 30px; box-sizing: border-box; border: 1px solid var(--line2); border-radius: 5px; background: #fff; padding: 0 8px; font: inherit; font-size: 12.5px; color: var(--ink); }
+.editBox input[type=date] { width: 132px; }
+.editBox input[type=time] { width: 96px; }
+.editBox .seg { justify-self: start; }
+.editBox .txt { height: 26px; font-size: 12px; }
+.ebtns { display: flex; align-items: center; gap: 8px; }
+.ebtns .ab { height: 30px; }
+.toast button[hidden] { display: none; }

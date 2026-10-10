@@ -22,10 +22,11 @@ export async function getProfile(token) {
 // are not worth Claude's time (or the student's).
 const SKIP_TABS = '-category:promotions -category:social';
 
-export async function listRecentIds(token, { days = 7, max = 100 } = {}) {
+// [{ id, threadId }], newest first.
+export async function listRecentMessages(token, { days = 7, max = 100 } = {}) {
   const q = encodeURIComponent(`in:inbox newer_than:${days}d ${SKIP_TABS}`);
   const data = await gmailGet(token, `messages?q=${q}&maxResults=${max}`);
-  return (data.messages || []).map((m) => m.id);
+  return (data.messages || []).map((m) => ({ id: m.id, threadId: m.threadId }));
 }
 
 function header(msg, name) {
@@ -92,10 +93,10 @@ export async function getMessageFull(token, id) {
 }
 
 // Ids of unread inbox mail from the last `days` days (for the Unread tab).
-export async function listUnreadIds(token, { days = 7 } = {}) {
+export async function listUnreadMessages(token, { days = 7 } = {}) {
   const q = encodeURIComponent(`in:inbox is:unread newer_than:${days}d ${SKIP_TABS}`);
   const data = await gmailGet(token, `messages?q=${q}&maxResults=500`);
-  return (data.messages || []).map((m) => m.id);
+  return (data.messages || []).map((m) => ({ id: m.id, threadId: m.threadId }));
 }
 
 // Read-only Gmail search (any Gmail query, e.g. "scholarship newer_than:60d").

@@ -23,6 +23,8 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 - Each card shows the title, sender, deadline and an action button. Deadlines within 24 hours are red. A line under each card explains its place, e.g. `Action: Submit · due tonight · ★ Career`.
 - Tap a card to see the summary, key details, and the original email.
 - Mark an update as done and it moves to **Done**. You can undo this.
+- **Conversations as one card**: replies in the same thread show as one card ("💬 3"). Claude reads only the newest message, since replies quote what came before. A new reply brings a done or discarded conversation back.
+- **Fix it yourself**: on any card, **Not right? → Edit** lets you change whether it is a to-do, the deadline and the category. Your correction stays even after a rescan. **Read again** asks Claude to read that one email again (about 0.05 cents).
 - **Phishing warning**: emails that ask you to log in, pay, or share personal details from outside CMU, offer a too-good job, or imitate CMU's address go to a separate **⚠ Check first** group. Their action buttons are hidden, and the card explains what looks wrong and how to report it in Gmail. Claude judges each email, and Mellon also checks the sender's address itself (no AI). If a real email gets flagged, open it and click **I checked: this email is safe**.
 - **Put in my calendar**: when an email has an event (like a talk or office hours) or a deadline, the card shows what would be added, such as "Thu, Oct 15 · 3:30 – 7:30 PM · CFA Great Hall". One click adds it to your Google Calendar, and you can take it out again. Deadlines become a reminder on the due date. An **Apple Calendar (.ics)** file is also offered.
 - **Select** several updates and **Discard** them from Mellon (the Gmail messages are not touched). This works with Undo.
@@ -162,6 +164,7 @@ Plain JavaScript, with no build step and no dependencies. Edit a file, then clic
 | `claude.js` | Sends one email to Claude Haiku 5.5 with a JSON schema; caches the result per message id |
 | `updates.js` | Gets recent emails (7 or 14 days, up to 30–100), sends new ones to Claude 6 at a time, and keeps older to-dos still due |
 | `rank.js` | Ranking rules, due labels ("due tonight"), urgency (< 24 h) |
+| `edits.js` | Corrections made by hand (`edit:<id>`), and reading one email again |
 | `done.js` | Which updates are done or discarded (kept 30 days) |
 | `i18n.js` | All interface text in English and Korean |
 | `calendar.js` | Put in my calendar: Google Calendar event (on click only), `.ics` file, remembers what was added |

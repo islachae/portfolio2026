@@ -7,6 +7,7 @@ import { rankUpdates, senderName, receivedLabel, parseDeadline, detailList } fro
 import { loadLang, t, getLang, locale, catLabel, applyStatic } from './i18n.js';
 import { ensureKorean, applyKorean, translateEmail } from './translate.js';
 import { newChat, ask } from './chat.js';
+import { getEdits, saveEdit, clearEdit, applyEdit, rereadEmail } from './edits.js';
 import { calendarPlan, addToCalendar, removeFromCalendar, getAdded, downloadIcs } from './calendar.js';
 
 const app = document.getElementById('app');
@@ -56,6 +57,7 @@ const ICON = {
   chevron: '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>',
   out: '<svg viewBox="0 0 24 24"><path d="M8 16L17 7M9 7h8v8"></path></svg>',
   warn: '<svg viewBox="0 0 24 24" class="wi"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>',
+  bubble: '<svg viewBox="0 0 24 24" class="bi"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.5A8 8 0 1 1 21 12z"></path></svg>',
   tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
 };
 
@@ -226,6 +228,7 @@ async function load() {
     state.done = await getDone();
     state.hidden = await getHidden();
     state.safe = await getSafe();
+    state.edits = await getEdits();
     // Let the caption finish typing before the list deals in, as in the design.
     await new Promise((r) => setTimeout(r, Math.max(0, 1900 - (Date.now() - started))));
     renderList({ arrive: true });
@@ -244,8 +247,11 @@ async function load() {
 
 // ---------- language ----------
 
+// What is shown = Claude's reading, in Korean when chosen, with the student's corrections on top.
 function applyLanguage() {
-  state.items = getLang() === 'ko' ? state.raw.map((it) => applyKorean(it, state.ko[it.id])) : state.raw;
+  state.items = state.raw.map((it) =>
+    applyEdit(getLang() === 'ko' ? applyKorean(it, state.ko[it.id]) : it, state.edits?.[it.id])
+  );
 }
 
 // Language changed in Settings: translate what is missing, then redraw.
@@ -267,8 +273,13 @@ async function interests() {
   return interests;
 }
 
-const isDone = (it) => !!state.done[it.id];
-const isHidden = (it) => !!state.hidden[it.id];
+// A card stands for a whole conversation. A mark on any of its messages counts, unless a newer
+// message arrived after it (a new reply brings a done or discarded conversation back).
+const threadOf = (it) => it.threadIds || [it.id];
+const markAt = (marks, it) => Math.max(0, ...threadOf(it).map((id) => marks[id] || 0));
+const isDone = (it) => markAt(state.done, it) >= (it.date || 0) && markAt(state.done, it) > 0;
+const isHidden = (it) => markAt(state.hidden, it) >= (it.date || 0) && markAt(state.hidden, it) > 0;
+const safeMap = () => Object.fromEntries(state.items.filter((it) => markAt(state.safe || {}, it) > 0).map((it) => [it.id, 1]));
 const activeItems = () => state.items.filter((it) => !isDone(it) && !isHidden(it));
 
 function visibleItems() {
@@ -277,8 +288,16 @@ function visibleItems() {
 }
 
 function doneItems() {
-  return state.items.filter((it) => isDone(it) && !isHidden(it)).sort((a, b) => state.done[b.id] - state.done[a.id]);
+  return state.items.filter((it) => isDone(it) && !isHidden(it)).sort((a, b) => markAt(state.done, b) - markAt(state.done, a));
 }
+
+// "💬 3": this card stands for a conversation of 3 messages.
+const threadBadge = (it) =>
+  it.threadCount > 1
+    ? ` <span class="thr" title="${esc(t('card.thread', { n: it.threadCount }))}">${ICON.bubble}${it.threadCount}</span>`
+    : '';
+// Corrected by hand in Mellon.
+const editedBadge = (it) => (it.edited ? ` <span class="edb">${esc(t('card.edited'))}</span>` : '');
 
 // Rows fold their real height when they leave, so neighbours close the gap.
 const row = (it, inner) => `<div class="rw" data-row="${esc(it.id)}"><div><div class="rwi">${inner}</div></div></div>`;
@@ -297,7 +316,7 @@ function actionCard(it) {
       <span class="slot" aria-hidden="true"><span class="ck">${ICON.tick}</span></span>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
-        <div class="fr"><b>${esc(senderName(it.from))}</b></div>
+        <div class="fr"><b>${esc(senderName(it.from))}</b>${threadBadge(it)}${editedBadge(it)}</div>
         <div class="mt" style="margin-top: 7px;"><span class="dt ${it.urgent ? 'red' : ''}">${ICON.cal}<span>${reasonHtml(it.reason.split(' · '))}</span></span></div>
       </div>
       <div class="cta">
@@ -310,12 +329,12 @@ function actionCard(it) {
 function updateCard(it) {
   const right = it.action_label
     ? `<button class="ab" data-mail="${esc(it.threadId)}">${esc(it.action_label)}${ICON.out}</button>`
-    : `<span>${esc(senderName(it.from))}</span>`;
+    : `<span>${esc(senderName(it.from))}${threadBadge(it)}</span>`;
   return `
     <div class="tk ${it.unread ? '' : 'rd'} ${state.selected.has(it.id) ? 'picked' : ''}" data-open="${esc(it.id)}" data-pick="${esc(it.id)}" role="button" tabindex="0">
       <span class="slot" aria-hidden="true"><span class="ck ${state.selected.has(it.id) ? 'on' : ''}">${ICON.tick}</span></span>
       <div class="bd">
-        <div class="tt">${esc(it.title)}</div>
+        <div class="tt">${esc(it.title)}${it.action_label ? threadBadge(it) : ''}${editedBadge(it)}</div>
         <div class="pv">${esc(it.summary)}</div>
         <div class="mt"><span class="dt ${it.urgent ? 'red' : ''}">${reasonHtml([receivedLabel(it.date), ...it.reason.split(' · ')])}</span>${right}</div>
       </div>
@@ -329,7 +348,7 @@ function checkCard(it) {
       <span class="slot" aria-hidden="true"><span class="ck ${state.selected.has(it.id) ? 'on' : ''}">${ICON.tick}</span></span>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
-        <div class="fr">${esc(senderName(it.from))} · <span class="dom">${esc(it.suspect.domain || '')}</span></div>
+        <div class="fr">${esc(senderName(it.from))} · <span class="dom">${esc(it.suspect.domain || '')}</span>${threadBadge(it)}</div>
         <div class="warnLine">${ICON.warn}<span>${esc(t(`warn.${it.suspect.type}`))}</span></div>
       </div>
     </div>`;
@@ -352,7 +371,7 @@ function doneCard(it) {
       <span class="ck on" aria-hidden="true">${ICON.tick}</span>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
-        <div class="mt"><span class="dt">${reasonHtml([t('card.doneAgo', { when: receivedLabel(state.done[it.id]) }), catLabel(it.category)])}</span><button class="ab" data-undone="${esc(it.id)}">${esc(t('card.undo'))}</button></div>
+        <div class="mt"><span class="dt">${reasonHtml([t('card.doneAgo', { when: receivedLabel(markAt(state.done, it)) }), catLabel(it.category)])}</span><button class="ab" data-undone="${esc(it.id)}">${esc(t('card.undo'))}</button></div>
       </div>
     </div>`;
 }
@@ -363,7 +382,7 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
   setScreen('list');
   if (detailKeyHandler) document.removeEventListener('keydown', detailKeyHandler);
   detailKeyHandler = null;
-  const groups = rankUpdates(visibleItems(), await interests(), new Date(), { safe: state.safe || {} });
+  const groups = rankUpdates(visibleItems(), await interests(), new Date(), { safe: safeMap() });
   const countAll = activeItems().length;
   const countUnread = activeItems().filter((it) => it.unread).length;
   const done = doneItems();
@@ -621,6 +640,10 @@ function toast(text, onUndo) {
   const el = document.getElementById('toast');
   document.getElementById('toastText').textContent = text;
   const undo = document.getElementById('toastUndo');
+  undo.hidden = !onUndo;
+  // Sit just above the Ask Mellon box when it is showing.
+  const dockEl = document.getElementById('dock');
+  el.style.bottom = `${dockEl && dockEl.offsetHeight ? dockEl.offsetHeight + 8 : 14}px`;
   undo.onclick = () => {
     el.classList.remove('on');
     onUndo();
@@ -851,7 +874,7 @@ function fullDate(d) {
 
 async function renderDetail(id) {
   const listScroll = document.getElementById('lst')?.scrollTop || 0;
-  const groups = rankUpdates(state.items.filter((x) => !isHidden(x)), await interests(), new Date(), { safe: state.safe || {} });
+  const groups = rankUpdates(state.items.filter((x) => !isHidden(x)), await interests(), new Date(), { safe: safeMap() });
   const all = groups.flatMap((g) => g.items.map((it) => ({ ...it, group: g.key })));
   const it = all.find((x) => x.id === id);
   if (!it) return;
@@ -891,7 +914,9 @@ async function renderDetail(id) {
           </div>
         </div></div>
       </div>
-      <span class="cap late" style="padding-left: 2px;">${esc(senderName(it.from))} · ${esc(fullDate(new Date(it.date)))}</span>
+      <span class="cap late" style="padding-left: 2px;">${esc(senderName(it.from))} · ${esc(fullDate(new Date(it.date)))}${
+        it.threadCount > 1 ? ` · ${esc(t('detail.threadNote', { n: it.threadCount }))}` : ''
+      }</span>
       <div class="late" style="display: flex; gap: 6px; flex-wrap: wrap;">
         ${done
           ? `<button class="q" id="doneBtn">${esc(t('detail.moveBack'))}</button>`
@@ -900,6 +925,12 @@ async function renderDetail(id) {
         ${getLang() === 'ko' ? `<button class="q" id="showKo">${esc(t('detail.translate'))}</button>` : ''}
       </div>
       <div id="orig"></div>
+      <div class="late fixRow">
+        <span>${esc(t('fix.wrong'))}</span>
+        <button class="txt" id="editBtn">✎ ${esc(t('fix.edit'))}</button>
+        <button class="txt" id="rereadBtn">↻ ${esc(t('fix.reread'))}</button>
+      </div>
+      <div id="editBox"></div>
       <div class="msgs" id="msgs"></div>
     </div>`;
   setScreen('detail', id);
@@ -923,10 +954,97 @@ async function renderDetail(id) {
   document.getElementById('showOrig').addEventListener('click', () => showOriginal(it, false));
   document.getElementById('showKo')?.addEventListener('click', () => showOriginal(it, true));
   renderCalRow(it);
+  document.getElementById('editBtn').addEventListener('click', () => renderEditBox(it));
+  document.getElementById('rereadBtn').addEventListener('click', () => reread(id));
   document.getElementById('markSafe')?.addEventListener('click', async () => {
     state.safe = await setSafe(id, true);
     renderDetail(id);
   });
+}
+
+// ---------- fix by hand / read again ----------
+
+function renderEditBox(it) {
+  const box = document.getElementById('editBox');
+  if (box.innerHTML) {
+    box.innerHTML = '';
+    return;
+  }
+  const due = parseDeadline(it.deadline);
+  const pad = (n) => String(n).padStart(2, '0');
+  const dateVal = due ? `${due.getFullYear()}-${pad(due.getMonth() + 1)}-${pad(due.getDate())}` : '';
+  const timeVal = due && !(due.getHours() === 23 && due.getMinutes() === 59) ? `${pad(due.getHours())}:${pad(due.getMinutes())}` : '';
+  let todo = !!it.action_required;
+  box.innerHTML = `
+    <div class="editBox">
+      <div class="erow"><span class="el">${esc(t('edit.todo'))}</span>
+        <div class="seg" role="group">
+          <button data-todo="1" class="${todo ? 'on' : ''}">${esc(t('edit.yes'))}</button>
+          <button data-todo="0" class="${todo ? '' : 'on'}">${esc(t('edit.no'))}</button>
+        </div></div>
+      <div class="erow"><label class="el" for="edDate">${esc(t('edit.due'))}</label>
+        <div class="einputs"><input type="date" id="edDate" value="${dateVal}" /><input type="time" id="edTime" value="${timeVal}" aria-label="${esc(t('edit.time'))}" />
+        <button class="txt" id="edNoDue">${esc(t('edit.noDue'))}</button></div></div>
+      <div class="erow"><label class="el" for="edCat">${esc(t('edit.category'))}</label>
+        <select id="edCat">${CATEGORIES.map((c) => `<option value="${esc(c)}" ${c === it.category ? 'selected' : ''}>${esc(catLabel(c))}</option>`).join('')}</select></div>
+      <div class="ebtns">
+        <button class="ab pri" id="edSave">${esc(t('edit.save'))}</button>
+        <button class="txt" id="edCancel">${esc(t('edit.cancel'))}</button>
+        ${it.edited ? `<button class="txt" id="edReset">${esc(t('edit.reset'))}</button>` : ''}
+      </div>
+    </div>`;
+  box.querySelectorAll('[data-todo]').forEach((b) =>
+    b.addEventListener('click', () => {
+      todo = b.dataset.todo === '1';
+      box.querySelectorAll('[data-todo]').forEach((x) => x.classList.toggle('on', x === b));
+    })
+  );
+  document.getElementById('edNoDue').addEventListener('click', () => {
+    document.getElementById('edDate').value = '';
+    document.getElementById('edTime').value = '';
+  });
+  document.getElementById('edCancel').addEventListener('click', () => (box.innerHTML = ''));
+  document.getElementById('edSave').addEventListener('click', async () => {
+    const date = document.getElementById('edDate').value;
+    const time = document.getElementById('edTime').value;
+    state.edits = state.edits || {};
+    state.edits[it.id] = await saveEdit(it.id, {
+      action_required: todo,
+      deadline: date ? `${date}T${time || '23:59'}` : '',
+      category: document.getElementById('edCat').value,
+    });
+    applyLanguage();
+    renderDetail(it.id);
+    toast(t('edit.saved'));
+  });
+  document.getElementById('edReset')?.addEventListener('click', async () => {
+    await clearEdit(it.id);
+    delete state.edits[it.id];
+    applyLanguage();
+    renderDetail(it.id);
+  });
+}
+
+async function reread(id) {
+  const btn = document.getElementById('rereadBtn');
+  btn.disabled = true;
+  btn.textContent = `↻ ${t('fix.rereading')}`;
+  try {
+    const token = state.token || (await getGoogleToken());
+    const fresh = await rereadEmail(token, id);
+    const i = state.raw.findIndex((x) => x.id === id);
+    const old = state.raw[i];
+    state.raw[i] = { ...fresh, id, unread: old.unread, threadIds: old.threadIds, threadCount: old.threadCount };
+    if (state.edits) delete state.edits[id];
+    if (getLang() === 'ko') Object.assign(state.ko, await ensureKorean([state.raw[i]]));
+    applyLanguage();
+    renderDetail(id);
+    toast(t('fix.rereadDone'));
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = `↻ ${t('fix.reread')}`;
+    toast(t('chat.error', { msg: err.message }));
+  }
 }
 
 // ---------- Put in my calendar ----------
@@ -951,7 +1069,16 @@ async function renderCalRow(it, { busy = false, error = '' } = {}) {
   const row = document.getElementById('calRow');
   const plan = calendarPlan(it);
   if (!row || !plan) return;
-  const added = await getAdded(it.id);
+  // The event may have been added from an earlier message of the same conversation.
+  let addedId = it.id;
+  let added = null;
+  for (const id of threadOf(it)) {
+    added = await getAdded(id);
+    if (added) {
+      addedId = id;
+      break;
+    }
+  }
   if (added) {
     row.innerHTML = `
       <div class="calPlan done">${ICON.calFact}<span>${esc(t('cal.added'))}</span></div>
@@ -961,7 +1088,7 @@ async function renderCalRow(it, { busy = false, error = '' } = {}) {
       </div>`;
     document.getElementById('calRemove').addEventListener('click', async () => {
       try {
-        await removeFromCalendar(it.id);
+        await removeFromCalendar(addedId);
         renderCalRow(it);
       } catch (err) {
         renderCalRow(it, { error: calError(err) });

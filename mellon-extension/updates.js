@@ -1,5 +1,5 @@
 // Builds the Updates list: recent inbox mail -> Claude analysis (cached) -> items.
-import { listRecentIds, listUnreadIds, getMessageMeta, getMessageFull } from './gmail.js';
+import { listRecentMessages, listUnreadMessages, getMessageMeta, getMessageFull } from './gmail.js';
 import { analyzeEmail, getCachedAnalysis } from './claude.js';
 import { parseDeadline } from './rank.js';
 
@@ -20,24 +20,32 @@ export async function getScanSettings() {
 
 // To-dos read on an earlier day whose deadline has not passed yet. They stay on the list even
 // after their email is older than the scan range. Saved results only: no Gmail or Claude call.
-async function stillDueFromBefore(skipIds) {
+async function stillDueFromBefore(skipIds, skipThreads) {
   const all = await chrome.storage.local.get(null);
   const now = new Date();
   return Object.entries(all)
     .filter(([key, a]) => key.startsWith('analysis:') && a && a.date && a.action_required)
     .map(([key, a]) => ({ ...a, id: key.slice('analysis:'.length) }))
-    .filter((a) => !skipIds.has(a.id) && parseDeadline(a.deadline) > now)
+    .filter((a) => !skipIds.has(a.id) && !skipThreads.has(a.threadId) && parseDeadline(a.deadline) > now)
     .map((a) => ({ ...a, unread: false, carried: true }));
 }
 
 // onProgress({ done, total, sent }) is called as each email finishes.
 export async function loadUpdates(token, onProgress = () => {}) {
   const { days, max } = await getScanSettings();
-  const [ids, unreadIds] = await Promise.all([
-    listRecentIds(token, { days, max }),
-    listUnreadIds(token, { days }),
+  const [messages, unreadMessages] = await Promise.all([
+    listRecentMessages(token, { days, max }),
+    listUnreadMessages(token, { days }),
   ]);
-  const unread = new Set(unreadIds);
+  // A conversation (thread) becomes one card: only its newest message is read by Claude,
+  // since replies usually quote what came before. The others are remembered with it.
+  const threads = new Map(); // threadId -> [message ids, newest first]
+  for (const m of messages) {
+    if (!threads.has(m.threadId)) threads.set(m.threadId, []);
+    threads.get(m.threadId).push(m.id);
+  }
+  const ids = [...threads.values()].map((list) => list[0]);
+  const unreadThreads = new Set(unreadMessages.map((m) => m.threadId));
   const items = [];
   const failed = [];
   let done = 0;
@@ -54,7 +62,8 @@ export async function loadUpdates(token, onProgress = () => {}) {
         item = await analyzeEmail(await getMessageFull(token, id));
         sent++;
       }
-      items.push({ ...item, id, unread: unread.has(id) });
+      const thread = threads.get(item.threadId) || [id];
+      items.push({ ...item, id, unread: unreadThreads.has(item.threadId), threadIds: thread, threadCount: thread.length });
     } catch (err) {
       if (err.message === 'SIGNED_OUT' || err.message === 'NO_CLAUDE_KEY') throw err;
       failed.push({ id, error: err.message });
@@ -70,6 +79,6 @@ export async function loadUpdates(token, onProgress = () => {}) {
       while (queue.length) await handle(queue.shift());
     })
   );
-  const carried = await stillDueFromBefore(new Set(ids));
-  return { items: [...items, ...carried], failed, sent, scanned: ids.length, days };
+  const carried = await stillDueFromBefore(new Set(messages.map((m) => m.id)), new Set(threads.keys()));
+  return { items: [...items, ...carried], failed, sent, scanned: messages.length, days };
 }
