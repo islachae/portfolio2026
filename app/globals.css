@@ -6039,7 +6039,9 @@ html[data-motion="reduced"] .cs *::before {
     display: none;
   }
   .cs-arc-label {
-    font-size: 10.5px;
+    /* wide enough that 12px still sets in two lines */
+    width: 28%;
+    font-size: 12px;
   }
   .cs-foot-row {
     flex-direction: column;
@@ -8834,7 +8836,7 @@ html[data-motion="reduced"] .hi-fly {
 .pb-bridge-n {
   color: #8a5a3a;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -9006,7 +9008,7 @@ html[data-motion="reduced"] .hi-fly {
 .pb-stage-link-k {
   color: #6b6b72;
   font-family: var(--font-code);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-align: center;
   text-transform: uppercase;
@@ -9513,7 +9515,7 @@ html[data-motion="reduced"] .hi-fly {
   align-self: center;
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   line-height: 1.35;
   text-transform: uppercase;
@@ -9946,7 +9948,7 @@ html[data-motion="reduced"] .pb-board-head {
     width: 44%;
   }
   .pb-part-label {
-    font-size: 11.5px;
+    font-size: 12px;
     white-space: normal;
     width: 76px;
     line-height: 1.25;
@@ -10568,7 +10570,7 @@ html[data-motion="reduced"] .top-link::after {
 }
 .ml-glance dt {
   color: var(--cs-ink);
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
 }
 .ml-glance dd {
@@ -10713,7 +10715,7 @@ html[data-motion="reduced"] .top-link::after {
   background: #c8203b;
   color: #fff;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   vertical-align: 1px;
 }
@@ -10741,7 +10743,7 @@ html[data-motion="reduced"] .top-link::after {
 .ml-read-note {
   margin-top: 12px;
   color: var(--text-muted);
-  font-size: 11.5px;
+  font-size: 12px;
   text-transform: uppercase;
 }
 
@@ -11730,7 +11732,7 @@ html[data-motion="reduced"] .top-link::after {
   margin-left: 3px;
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0;
   vertical-align: super;
   line-height: 0;
@@ -11752,7 +11754,7 @@ html[data-motion="reduced"] .top-link::after {
 .pb-scale-notes li span {
   margin-right: 8px;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
 }
 .pb-scale-notes .cs-src {
   margin-top: 6px;
@@ -13158,7 +13160,7 @@ html[data-motion="reduced"] .tp-nudge i {
 .ab-card-n {
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
 }
 .ab-card-h {
@@ -13201,7 +13203,7 @@ html[data-motion="reduced"] .tp-nudge i {
   grid-column: 1;
   color: var(--accent-1);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -13356,7 +13358,7 @@ html[data-motion="reduced"] .tp-nudge i {
     margin-top: 72px;
   }
   .ab-pol figcaption {
-    font-size: 11.5px;
+    font-size: 12px;
   }
   .ab-lists {
     grid-template-columns: minmax(0, 1fr);
@@ -13809,7 +13811,7 @@ html[data-motion="reduced"] .cue-head {
 .ml-find-melon b {
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -13887,7 +13889,7 @@ html[data-motion="reduced"] .cue-head {
 .ml-chart figcaption span {
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -13961,7 +13963,7 @@ html[data-motion="reduced"] .cue-head {
   margin-right: 6px;
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -14279,7 +14281,7 @@ html[data-motion="reduced"] .cue-head {
   margin-top: 4px !important;
   color: var(--wc-muted);
   font-family: var(--wc-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
 }
@@ -15655,7 +15657,7 @@ html[data-motion="reduced"] .wc-hl {
   gap: 8px;
   color: #62655a;
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -15829,7 +15831,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-berg-v em {
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 400;
   letter-spacing: var(--label-tracking);
@@ -15936,7 +15938,7 @@ html[data-motion="reduced"] .wc-hl {
   border-bottom: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -16106,7 +16108,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-loop-words {
   color: #62655a;
   font-family: var(--font-code);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-align: center;
   text-transform: uppercase;
@@ -16129,7 +16131,7 @@ html[data-motion="reduced"] .wc-hl {
   background: var(--cs-tint-2);
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -16211,7 +16213,7 @@ html[data-motion="reduced"] .wc-hl {
   box-shadow: 0 0 0 2px #fff;
   color: #fff;
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 500;
   line-height: 1;
@@ -16299,7 +16301,7 @@ html[data-motion="reduced"] .wc-hl {
   padding-top: 8px;
   color: var(--text-muted);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
 }
@@ -16485,7 +16487,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-hypo-k {
   color: var(--cs-ink);
   font-family: var(--font-code);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: var(--label-tracking);
   line-height: 2;
   text-transform: uppercase;
@@ -17105,11 +17107,13 @@ html[data-motion="reduced"] .wc-hl {
   }
   .ml-loop-words {
     min-height: 28px;
-    font-size: 9px;
+    font-size: 12px;
+    /* two lines here: they break after a dot (see the no-break spaces in the markup) */
+    text-wrap: balance;
   }
   .ml-loop-empty {
     height: 72px;
-    font-size: 11.5px;
+    font-size: 12px;
   }
   .ml-loop-update {
     grid-template-columns: minmax(0, 1fr);

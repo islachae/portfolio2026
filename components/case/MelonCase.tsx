@@ -611,7 +611,7 @@ function Loop() {
                           {m.loopPost}
                         </span>
                       ) : (
-                        <span className="ml-loop-words">{step >= 3 ? m.loopPosted : m.loopInvest.words.join(" · ")}</span>
+                        <span className="ml-loop-words">{step >= 3 ? m.loopPosted : m.loopInvest.words.join("\u00a0· ")}</span>
                       )}
                     </>
                   )}
