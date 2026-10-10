@@ -43,4 +43,4 @@ Mellon's use and transfer of information received from Google APIs adheres to th
 
 ## Contact
 
-Questions about this policy: [CONTACT_EMAIL]
+Questions about this policy: [shleychae@gmail.com](mailto:shleychae@gmail.com)
