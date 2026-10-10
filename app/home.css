@@ -995,8 +995,8 @@ html[data-motion="reduced"] .nh *::after {
   color: var(--text-muted);
   font-weight: 400;
 }
-/* under 900px the name is left out, so it never runs into the menu */
-@media (max-width: 900px) {
+/* phones leave the name out; from 800px it clears the menu by 120px or more */
+@media (max-width: 799px) {
   .cs-bar-title {
     display: none;
   }

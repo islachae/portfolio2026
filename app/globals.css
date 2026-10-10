@@ -64,7 +64,6 @@
   --font-ui: var(--font-sans), "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, -apple-system, sans-serif;
   --font-display: var(--font-satoshi), "Apple SD Gothic Neo", "Pretendard", system-ui, -apple-system, sans-serif;
   --font-code: var(--font-mono), Consolas, "Courier New", monospace;
-  --display-size: 44px;
   /* heading1: Satoshi Medium 48 / 55.2 / -2px */
   --h1-size: 48px;
   --h1-leading: 1.15;
@@ -87,11 +86,6 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   color-scheme: light;
-}
-@media (min-width: 1280px) {
-  :root {
-    --display-size: 56px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -3585,8 +3579,7 @@ button.handoff-row:hover .handoff-sym {
 /* Short screens */
 @media (max-height: 780px) and (min-width: 800px) {
   :root {
-    --display-size: 44px;
-    --h1-size: 44px;
+      --h1-size: 44px;
   }
   .cover-top {
     padding-block: var(--space-xl);
@@ -5865,8 +5858,8 @@ html[data-motion="reduced"] .cs *::before {
   }
 }
 
-/* Tablet */
-@media (max-width: 860px) {
+/* Phones (the side-by-side layouts fit from 800px) */
+@media (max-width: 799px) {
   .cs {
     --cs-gap: 112px;
   }
@@ -6586,7 +6579,7 @@ html[data-motion="reduced"] .cs *::before {
 }
 
 /* Phones: the current step sits above a smaller phone */
-@media (max-width: 700px) {
+@media (max-width: 799px) {
   .cs-scene {
     height: 360vh;
   }
@@ -9921,8 +9914,8 @@ html[data-motion="reduced"] .pb-board-head {
   opacity: 1 !important;
 }
 
-/* Tablet */
-@media (max-width: 860px) {
+/* Phones (the side-by-side layouts fit from 800px) */
+@media (max-width: 799px) {
   .pb-reason {
     grid-template-columns: 1fr;
   }
@@ -9932,7 +9925,7 @@ html[data-motion="reduced"] .pb-board-head {
   }
 }
 /* Phones */
-@media (max-width: 700px) {
+@media (max-width: 799px) {
   .pb-scene-frame {
     gap: var(--space-md);
   }
@@ -11252,7 +11245,8 @@ html[data-motion="reduced"] .top-link::after {
   text-transform: uppercase;
 }
 
-@media (max-width: 860px) {
+/* Tablets: five concepts in a row only from 1024px */
+@media (max-width: 1023px) {
   .ml-methods {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -12575,7 +12569,7 @@ html[data-motion="reduced"] .pb-scale mark {
   white-space: nowrap;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 799px) {
   .pba-wrap {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -13317,7 +13311,7 @@ html[data-motion="reduced"] .tp-nudge i {
   font-size: 14.5px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 799px) {
   .ab-intro {
     padding-top: 48px;
   }
@@ -13641,8 +13635,7 @@ html[data-motion="reduced"] .cue-head {
   cursor: default;
 }
 
-/* Phone bar: About me and Résumé take room, so the name stays on one line (and steps aside on tiny
-   screens). “About me” is longer than “About” was: the name drops to 12px, the box to 8px padding,
+/* Phone bar: About me and Résumé take room, so the name stays on one line. “About me” is longer than “About” was: the name drops to 12px, the box to 8px padding,
    and the bar's right edge to 6px, so a 390px phone keeps an 8px gap between name and box. */
 @media (max-width: 799px) {
   .mobilebar {
@@ -13657,11 +13650,6 @@ html[data-motion="reduced"] .cue-head {
   }
   .mobilebar-about {
     padding: 0 8px;
-  }
-}
-@media (max-width: 380px) {
-  .mobilebar-home span {
-    display: none;
   }
 }
 
@@ -16348,7 +16336,8 @@ html[data-motion="reduced"] .wc-hl {
   color: var(--cs-ink);
 }
 
-@media (max-width: 860px) {
+/* Phones: the four moments, the map tabs and the iceberg keep their wide layout down to 800px */
+@media (max-width: 799px) {
   .ml-story,
   .ml-mapfig-tabs,
   .ml-loop {
@@ -16363,18 +16352,21 @@ html[data-motion="reduced"] .wc-hl {
   .ml-loop li:nth-child(3)::before {
     display: none;
   }
+  .ml-berg li {
+    grid-template-columns: 150px 120px minmax(0, 1fr);
+  }
+  .ml-berg-slice {
+    margin: 0 14px;
+  }
+}
+/* Tablets: the two panel shots stack, so their notes aren't squeezed */
+@media (max-width: 1023px) {
   .ml-shots[data-n="2"] {
     grid-template-columns: minmax(0, 1fr);
   }
   .ml-shots[data-n="2"] .ml-shot[data-kind="panel"] {
     grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
     gap: 28px;
-  }
-  .ml-berg li {
-    grid-template-columns: 150px 120px minmax(0, 1fr);
-  }
-  .ml-berg-slice {
-    margin: 0 14px;
   }
 }
 @media (max-width: 640px) {
@@ -16448,7 +16440,7 @@ html[data-motion="reduced"] .wc-hl {
     font-size: 30px;
   }
 }
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .ml-story,
   .ml-mapfig-tabs,
   .ml-loop {
@@ -16594,7 +16586,7 @@ html[data-motion="reduced"] .wc-hl {
 .ml-shots[data-n="2"] .ml-shot-notes li {
   gap: 8px;
 }
-@media (max-width: 860px) {
+@media (max-width: 1023px) {
   .ml-shots[data-n="2"] .ml-shot[data-kind="panel"] {
     grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
     gap: 28px;

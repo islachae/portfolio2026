@@ -225,7 +225,7 @@ function CardClip({ clip }: { clip: NonNullable<Page["clip"]> }) {
     const v = ref.current;
     if (!v || reducedMotion()) return;
     // phones get the small file: nothing has been fetched yet (preload is "none")
-    if (clip.sm && window.matchMedia("(max-width: 760px)").matches) {
+    if (clip.sm && window.matchMedia("(max-width: 799px)").matches) {
       const [mp4, webm] = v.querySelectorAll("source");
       mp4.src = clip.sm.mp4;
       webm.src = clip.sm.webm;
