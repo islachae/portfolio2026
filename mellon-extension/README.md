@@ -8,7 +8,9 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 
 ## What it does
 
-- Reads your inbox from the **last 7 days, up to 30 emails** (read-only).
+- Reads your inbox from the **last 7 days, up to 100 emails** (read-only). You can change this to 14 days or 30/50 emails in Settings.
+  - Gmail's **Promotions** and **Social** tabs are skipped.
+  - To-dos whose deadline is still ahead **stay on the list** after their email gets older than the range, using the saved result (no new Claude call).
 - For each email, Claude writes:
   - a short title and a one-line summary
   - the action, if any (Submit, Pay, Register, RSVP…), and whether it is required
@@ -34,7 +36,7 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 - **Gmail access is read-only** (`gmail.readonly`). Mellon cannot send, delete, or change mail.
 - **Your email stays on your computer.** The only place it goes is the Claude API, to be summarized. Results are saved in Chrome's local storage on your computer, and there is no Mellon server.
 - **Your Claude API key is entered in Mellon's Settings** and saved only in Chrome on your computer. It is never in the code or on GitHub.
-- **It uses Claude Haiku 5.5**, the lowest-cost model. Each email is sent once, and its result is saved and reused. A full refresh of 30 new emails usually costs a few cents.
+- **It uses Claude Haiku 5.5**, the lowest-cost model. Each email is sent once, and its result is saved and reused. Reading an email costs about 0.05 cents, so even 100 new emails a week is around 5 cents.
 - The Google sign-in token is kept in memory only, so it is gone when Chrome closes.
 - **Chat:** a question about one email sends that email and your question to Claude. A question from the list sends Mellon's short notes on recent mail. If Claude decides it needs more, it can search Gmail or open a specific email (read-only) and include that in its answer. Conversations are kept in memory only, and they are gone when the panel closes.
 - **Cost of chat:** with Claude Haiku 5.5, a question is usually well under 1 cent (about $0.0005–$0.005). Settings → **Claude usage** shows an estimate of everything Mellon has spent.

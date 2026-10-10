@@ -26,3 +26,6 @@ label.check input { accent-color: #1E211B; width: 16px; height: 16px; }
 .seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: 6px; background: #E7E9DE; }
 .seg button { height: 30px; padding: 0 14px; border: none; border-radius: 5px; background: none; color: var(--mute); }
 .seg button.on { background: var(--acc); color: var(--accink); }
+.scanRow { display: grid; grid-template-columns: 96px auto; justify-content: start; align-items: center; gap: 12px; margin-bottom: 10px; }
+.scanLabel { font-weight: 500; white-space: nowrap; }
+.scanRow .seg button { white-space: nowrap; padding: 0 12px; min-width: 44px; }

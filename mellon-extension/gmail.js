@@ -18,8 +18,12 @@ export async function getProfile(token) {
 }
 
 // Ids of inbox mail from the last `days` days, newest first.
-export async function listRecentIds(token, { days = 7, max = 30 } = {}) {
-  const q = encodeURIComponent(`in:inbox newer_than:${days}d`);
+// Gmail's Promotions and Social tabs are left out: shop deals and social notifications
+// are not worth Claude's time (or the student's).
+const SKIP_TABS = '-category:promotions -category:social';
+
+export async function listRecentIds(token, { days = 7, max = 100 } = {}) {
+  const q = encodeURIComponent(`in:inbox newer_than:${days}d ${SKIP_TABS}`);
   const data = await gmailGet(token, `messages?q=${q}&maxResults=${max}`);
   return (data.messages || []).map((m) => m.id);
 }
@@ -89,8 +93,8 @@ export async function getMessageFull(token, id) {
 
 // Ids of unread inbox mail from the last `days` days (for the Unread tab).
 export async function listUnreadIds(token, { days = 7 } = {}) {
-  const q = encodeURIComponent(`in:inbox is:unread newer_than:${days}d`);
-  const data = await gmailGet(token, `messages?q=${q}&maxResults=100`);
+  const q = encodeURIComponent(`in:inbox is:unread newer_than:${days}d ${SKIP_TABS}`);
+  const data = await gmailGet(token, `messages?q=${q}&maxResults=500`);
   return (data.messages || []).map((m) => m.id);
 }
 

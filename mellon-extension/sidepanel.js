@@ -209,7 +209,8 @@ async function load() {
   showLoading();
   const started = Date.now();
   try {
-    const { items, failed } = await loadUpdates(state.token, ({ done, total }) => showProgress(done, total));
+    const { items, failed, scanned, days } = await loadUpdates(state.token, ({ done, total }) => showProgress(done, total));
+    state.scan = { scanned, days, carried: items.filter((it) => it.carried).length };
     state.raw = items;
     state.failed = failed;
     if (getLang() === 'ko') {
@@ -373,7 +374,9 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
       </div>
       ${groups.length ? sections : empty}
       ${doneSection}
-      ${state.items.length ? `<div class="foot">${esc(t('foot.count', { n: state.items.length }))}${failedNote}</div>` : ''}
+      ${state.items.length ? `<div class="foot">${esc(t('foot.count', { n: state.scan?.scanned ?? state.items.length, d: state.scan?.days ?? 7 }))}${
+        state.scan?.carried ? `<br>${esc(t('foot.carried', { n: state.scan.carried }))}` : ''
+      }${failedNote}</div>` : ''}
     </div>
     <div class="selWrap" id="selWrap"><div><div style="padding: 8px 0 12px;">
       <div class="selBar">
@@ -948,6 +951,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes.hidden && lst) state.hidden = changes.hidden.newValue || {};
   if ((changes.interests || changes.hidden) && lst) renderList({ scrollTop: lst.scrollTop });
   else if ((changes.claudeApiKey || changes.googleClientId) && !state.items.length) load();
+  else if ((changes.scanDays || changes.scanMax) && state.items.length) load();
 });
 
 loadLang().then(() => {
