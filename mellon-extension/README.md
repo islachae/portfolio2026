@@ -21,7 +21,10 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 - Each card shows the title, sender, deadline and an action button. Deadlines within 24 hours are red. A line under each card explains its place, e.g. `Action: Submit · due tonight · ★ Career`.
 - Tap a card to see the summary, key details, and the original email.
 - Mark an update as done and it moves to **Done**. You can undo this.
-- On first run, you pick the categories you care about.
+- **Select** several updates and **Discard** them from Mellon (the Gmail messages are not touched). This works with Undo.
+- **Calendar**: shows a dot on each date with a deadline. Tap a date to see what is due.
+- **English or Korean (한국어)**: the language switch also translates Mellon's titles and summaries. You can read any original email translated into Korean.
+- On first run, you pick a language and the categories you care about.
 
 ## Privacy and cost
 
@@ -30,6 +33,7 @@ Mellon is a Chrome extension that opens as a side panel next to Gmail. It reads 
 - **Your Claude API key is entered in Mellon's Settings** and saved only in Chrome on your computer. It is never in the code or on GitHub.
 - **It uses Claude Haiku 5.5**, the lowest-cost model. Each email is sent once, and its result is saved and reused. A full refresh of 30 new emails usually costs a few cents.
 - The Google sign-in token is kept in memory only, so it is gone when Chrome closes.
+- In Korean, only Mellon's short notes (title, summary, action, key details) are sent to Claude for translation, once per email. A translated original email is shown on screen only and never saved.
 
 ## What you need
 
@@ -104,6 +108,10 @@ Mellon is in **testing mode** on Google Cloud. Only Google accounts listed as **
 | Bring it back | Click **Undo** in the message at the bottom, or open **Done** → **Undo** |
 | See only unopened mail | **Unread** tab |
 | Scan again | The refresh icon, or the Mellon logo |
+| Hide updates you don't need | **Select** → tap cards → **Discard** (to-dos can't be selected; mark them done instead) |
+| See deadlines by date | Calendar icon → tap a date |
+| Switch between English and 한국어 | Gear icon → Settings → **Language** (or on the welcome screen) |
+| Read an original email in Korean | Open a card → **번역해서 보기** (Korean mode) |
 | Change interests, keys, or sign out | Gear icon → Settings |
 | See the welcome screen again | Settings → **Show the welcome screen again** |
 
@@ -131,9 +139,11 @@ Plain JavaScript, with no build step and no dependencies. Edit a file, then clic
 | `claude.js` | Sends one email to Claude Haiku 5.5 with a JSON schema; caches the result per message id |
 | `updates.js` | Gets up to 30 emails and sends new ones to Claude, 4 at a time |
 | `rank.js` | Ranking rules, due labels ("due tonight"), urgency (< 24 h) |
-| `done.js` | Which updates are done (kept 30 days) |
+| `done.js` | Which updates are done or discarded (kept 30 days) |
+| `i18n.js` | All interface text in English and Korean |
+| `translate.js` | Korean versions of Mellon's notes (cached) and of original emails (in memory only) |
 | `sidepanel.*` | The panel: welcome, loading, list, card detail, Done, Undo |
 | `options.*` | The Settings page |
 | `fonts/`, `icons/` | Poppins and DM Mono (SIL Open Font License), and the Mellon icon |
 
-**What is stored in `chrome.storage.local`:** `googleClientId`, `claudeApiKey`, `googleEmail`, `interests`, `onboarded`, `done`, and one `analysis:<messageId>` per email (title, summary, action, deadline, category, key details, sender, subject, date). Settings → **Forget saved results** clears the email results.
+**What is stored in `chrome.storage.local`:** `googleClientId`, `claudeApiKey`, `googleEmail`, `interests`, `onboarded`, `lang`, `done`, `hidden`, `usage` (token totals), one `ko:<messageId>` per translated email, and one `analysis:<messageId>` per email (title, summary, action, deadline, category, key details, sender, subject, date). Settings → **Forget saved results** clears the email results and their translations.

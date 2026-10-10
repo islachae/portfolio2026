@@ -8,49 +8,58 @@
 </head>
 <body>
   <main>
-    <div class="brand"><img src="icons/mellon.svg" alt="" /><h1>Settings</h1></div>
-    <p class="muted">Everything here is saved only in this Chrome on this computer. It is never uploaded anywhere.</p>
+    <div class="brand"><img src="icons/mellon.svg" alt="" /><h1 data-i18n="opt.title">Settings</h1></div>
+    <p class="muted" data-i18n="opt.local"></p>
 
     <section>
-      <h2>Your interests</h2>
-      <p class="muted" style="margin-top: 0;">Updates in these categories are shown first and marked with ★.</p>
-      <div id="interests" class="checks"></div>
-      <div class="row" style="margin-top: 14px;"><button id="welcome">Show the welcome screen again</button></div>
+      <h2 data-i18n="opt.language"></h2>
+      <div class="seg" role="group">
+        <button data-lang="en">English</button>
+        <button data-lang="ko">한국어</button>
+      </div>
+      <p class="muted" data-i18n="opt.languageNote"></p>
     </section>
 
     <section>
-      <h2>Google sign-in</h2>
-      <label for="clientId">Google OAuth client ID</label>
+      <h2 data-i18n="opt.interests"></h2>
+      <p class="muted" style="margin-top: 0;" data-i18n="opt.interestsNote"></p>
+      <div id="interests" class="checks"></div>
+      <div class="row" style="margin-top: 14px;"><button id="welcome" data-i18n="opt.welcome"></button></div>
+    </section>
+
+    <section>
+      <h2 data-i18n="opt.google"></h2>
+      <label for="clientId" data-i18n="opt.clientId"></label>
       <input id="clientId" type="text" placeholder="1234-abc.apps.googleusercontent.com" spellcheck="false" />
-      <p class="muted">Paste this into Google Cloud as the <b>Authorized redirect URI</b>:</p>
+      <p class="muted" data-i18n-html="opt.redirect"></p>
       <code id="redirect"></code>
       <div class="row" style="margin-top: 12px;">
         <span class="muted" id="account"></span>
-        <button id="signout">Sign out</button>
+        <button id="signout" data-i18n="opt.signOut"></button>
       </div>
     </section>
 
     <section>
-      <h2>Claude API key</h2>
-      <label for="claudeKey">API key</label>
+      <h2 data-i18n="opt.claude"></h2>
+      <label for="claudeKey" data-i18n="opt.apiKey"></label>
       <input id="claudeKey" type="password" placeholder="sk-ant-..." spellcheck="false" autocomplete="off" />
-      <p class="muted">Create one at console.anthropic.com → API Keys. Mellon uses Claude Haiku 5.5, the lowest-cost model.</p>
+      <p class="muted" data-i18n="opt.apiKeyNote"></p>
     </section>
 
     <section>
-      <h2>Saved results</h2>
+      <h2 data-i18n="opt.saved"></h2>
       <div class="row">
-        <span class="muted"><span id="cacheCount">0</span> emails already read by Claude (not sent again).</span>
-        <button id="clearCache">Forget saved results</button>
+        <span class="muted" id="cacheCount"></span>
+        <button id="clearCache" data-i18n="opt.clearCache"></button>
       </div>
       <div class="row" style="margin-top: 12px;">
-        <span class="muted"><span id="hiddenCount">0</span> updates discarded with Select.</span>
-        <button id="unhide">Show them again</button>
+        <span class="muted" id="hiddenCount"></span>
+        <button id="unhide" data-i18n="opt.unhide"></button>
       </div>
     </section>
 
     <div class="saveRow">
-      <button id="save" class="pri">Save</button>
+      <button id="save" class="pri" data-i18n="opt.save"></button>
       <span id="status"></span>
     </div>
   </main>

@@ -1,0 +1,275 @@
+// Every piece of interface text, in English and Korean.
+// The language is saved as `lang` ('en' | 'ko') in chrome.storage.local.
+
+const STRINGS = {
+  en: {
+    // header
+    'hd.logo': 'Mellon, scan the inbox again',
+    'hd.calendar': 'Calendar',
+    'hd.refresh': 'Scan the inbox again',
+    'hd.settings': 'Settings',
+    // setup and sign-in
+    'setup.title': 'Almost ready',
+    'setup.text': 'Add your Google client ID and Claude API key in Settings.',
+    'setup.button': 'Open settings',
+    'signin.title': 'Sign in to Gmail',
+    'signin.text': 'Mellon reads your recent mail (read-only) and sorts it into Updates.',
+    'signin.button': 'Sign in with Google',
+    'signin.failed': 'Sign-in did not finish',
+    'error.load': 'Could not load updates',
+    'error.retry': 'Try again',
+    // loading
+    'load.scan': 'Scanning your inbox...',
+    'load.translating': 'Translating {done} / {total}',
+    // first run
+    'onb.title': "Hi, I'm Mellon.",
+    'onb.text': "I read your recent mail and turn it into a short list of updates. What do you care about most? I'll put those first.",
+    'onb.continue': 'Continue',
+    'onb.continueN': 'Continue with {n}',
+    'onb.skip': 'Skip for now',
+    'onb.later': 'You can change this anytime in Settings.',
+    'onb.language': 'Language',
+    // list
+    'list.title': 'Updates',
+    'list.select': 'Select',
+    'list.cancel': 'Cancel',
+    'list.all': 'All',
+    'list.unread': 'Unread',
+    'group.action': 'Action needed',
+    'group.today': 'Today',
+    'group.earlier': 'Earlier this week',
+    'group.done': 'Done',
+    'empty.title': 'All clear',
+    'empty.text': "You're up to date.",
+    'empty.unreadTitle': 'No unread updates',
+    'empty.unreadText': 'Everything from the last 7 days has been opened.',
+    'foot.count': '{n} emails · last 7 days',
+    'foot.failed': '{n} could not be read',
+    'foot.retry': 'Retry',
+    // cards
+    'card.markDone': 'Mark as done',
+    'card.undo': 'Undo',
+    'card.doneAgo': 'Done {when}',
+    'reason.action': 'Action: {label}',
+    // select
+    'sel.all': 'Select all',
+    'sel.count': '{n} selected',
+    'sel.discard': 'Discard',
+    'sel.close': 'Done selecting',
+    // toasts
+    'toast.done': 'Marked as done',
+    'toast.discarded': '{n} discarded',
+    'toast.undo': 'Undo',
+    // calendar
+    'cal.prev': 'Previous month',
+    'cal.next': 'Next month',
+    'cal.hint': 'Tap a date to see what is due',
+    'cal.dueOn': 'Due {date}',
+    'cal.none': 'Nothing due on this day.',
+    'cal.countDue': '{n} due',
+    // detail
+    'detail.more': '{n} more updates',
+    'detail.moreOne': '1 more update',
+    'detail.all': 'All updates',
+    'detail.back': 'Back to all updates',
+    'detail.summary': 'Summary by Mellon',
+    'detail.due': 'Due {date}',
+    'detail.goMail': 'Go to email',
+    'detail.markDone': 'Mark as done',
+    'detail.moveBack': 'Move back to Updates',
+    'detail.showOrig': 'Show original email',
+    'detail.hideOrig': 'Hide original email',
+    'detail.translate': 'Show in Korean',
+    'detail.loading': 'Loading…',
+    'detail.translating': 'Translating…',
+    'detail.loadFailed': 'Could not load the email: {msg}',
+    'detail.translatedNote': 'Translated by Mellon',
+    // due and time words
+    'due.overdue': 'overdue',
+    'due.tonight': 'due tonight',
+    'due.today': 'due today{time}',
+    'due.tomorrow': 'due tomorrow{time}',
+    'due.day': 'due {day}',
+    'ago.now': 'just now',
+    'ago.min': '{n}m ago',
+    'ago.hour': '{n}h ago',
+    // settings page
+    'opt.title': 'Settings',
+    'opt.local': 'Everything here is saved only in this Chrome on this computer. It is never uploaded anywhere.',
+    'opt.language': 'Language',
+    'opt.languageNote': 'Korean also translates Mellon’s titles and summaries (a small Claude request, once per email).',
+    'opt.interests': 'Your interests',
+    'opt.interestsNote': 'Updates in these categories are shown first and marked with ★.',
+    'opt.welcome': 'Show the welcome screen again',
+    'opt.welcomeDone': 'Open Mellon to see it',
+    'opt.google': 'Google sign-in',
+    'opt.clientId': 'Google OAuth client ID',
+    'opt.redirect': 'Paste this into Google Cloud as the <b>Authorized redirect URI</b>:',
+    'opt.signedIn': 'Signed in as {email}',
+    'opt.notSignedIn': 'Not signed in',
+    'opt.signOut': 'Sign out',
+    'opt.claude': 'Claude API key',
+    'opt.apiKey': 'API key',
+    'opt.apiKeyNote': 'Create one at console.anthropic.com → API Keys. Mellon uses Claude Haiku 5.5, the lowest-cost model.',
+    'opt.saved': 'Saved results',
+    'opt.cacheCount': '{n} emails already read by Claude (not sent again).',
+    'opt.clearCache': 'Forget saved results',
+    'opt.hiddenCount': '{n} updates discarded with Select.',
+    'opt.unhide': 'Show them again',
+    'opt.save': 'Save',
+    'opt.savedMsg': 'Saved',
+  },
+  ko: {
+    'hd.logo': 'Mellon, 받은편지함 다시 살펴보기',
+    'hd.calendar': '캘린더',
+    'hd.refresh': '받은편지함 다시 살펴보기',
+    'hd.settings': '설정',
+    'setup.title': '거의 다 됐어요',
+    'setup.text': '설정에서 Google client ID와 Claude API 키를 입력해 주세요.',
+    'setup.button': '설정 열기',
+    'signin.title': 'Gmail에 로그인',
+    'signin.text': 'Mellon이 최근 메일을 읽고(읽기 전용) 할 일 순서로 정리해 드려요.',
+    'signin.button': 'Google로 로그인',
+    'signin.failed': '로그인이 끝나지 않았어요',
+    'error.load': '업데이트를 불러오지 못했어요',
+    'error.retry': '다시 시도',
+    'load.scan': '받은편지함을 살펴보는 중...',
+    'load.translating': '번역하는 중 {done} / {total}',
+    'onb.title': '안녕하세요, Mellon이에요.',
+    'onb.text': '최근 메일을 읽고 짧은 업데이트 목록으로 정리해 드려요. 어떤 소식이 가장 중요한가요? 그걸 먼저 보여 드릴게요.',
+    'onb.continue': '계속',
+    'onb.continueN': '{n}개 선택하고 계속',
+    'onb.skip': '나중에 할게요',
+    'onb.later': '설정에서 언제든 바꿀 수 있어요.',
+    'onb.language': '언어',
+    'list.title': '업데이트',
+    'list.select': '선택',
+    'list.cancel': '취소',
+    'list.all': '전체',
+    'list.unread': '안 읽음',
+    'group.action': '해야 할 일',
+    'group.today': '오늘',
+    'group.earlier': '이번 주',
+    'group.done': '완료',
+    'empty.title': '모두 확인했어요',
+    'empty.text': '새로 할 일이 없어요.',
+    'empty.unreadTitle': '안 읽은 업데이트가 없어요',
+    'empty.unreadText': '최근 7일 메일을 모두 열어 봤어요.',
+    'foot.count': '메일 {n}통 · 최근 7일',
+    'foot.failed': '{n}통을 읽지 못했어요',
+    'foot.retry': '다시 시도',
+    'card.markDone': '완료로 표시',
+    'card.undo': '되돌리기',
+    'card.doneAgo': '{when} 완료',
+    'reason.action': '할 일: {label}',
+    'sel.all': '전체 선택',
+    'sel.count': '{n}개 선택됨',
+    'sel.discard': '숨기기',
+    'sel.close': '선택 끝내기',
+    'toast.done': '완료로 표시했어요',
+    'toast.discarded': '{n}개를 숨겼어요',
+    'toast.undo': '되돌리기',
+    'cal.prev': '이전 달',
+    'cal.next': '다음 달',
+    'cal.hint': '날짜를 누르면 그날 마감인 일이 보여요',
+    'cal.dueOn': '{date} 마감',
+    'cal.none': '이날 마감인 일은 없어요.',
+    'cal.countDue': '마감 {n}개',
+    'detail.more': '업데이트 {n}개 더 보기',
+    'detail.moreOne': '업데이트 1개 더 보기',
+    'detail.all': '전체 업데이트',
+    'detail.back': '전체 업데이트로 돌아가기',
+    'detail.summary': 'Mellon 요약',
+    'detail.due': '{date} 마감',
+    'detail.goMail': '메일로 가기',
+    'detail.markDone': '완료로 표시',
+    'detail.moveBack': '업데이트로 되돌리기',
+    'detail.showOrig': '원문 보기',
+    'detail.hideOrig': '원문 닫기',
+    'detail.translate': '번역해서 보기',
+    'detail.loading': '불러오는 중…',
+    'detail.translating': '번역하는 중…',
+    'detail.loadFailed': '메일을 불러오지 못했어요: {msg}',
+    'detail.translatedNote': 'Mellon이 번역함',
+    'due.overdue': '마감 지남',
+    'due.tonight': '오늘 밤 마감',
+    'due.today': '오늘{time} 마감',
+    'due.tomorrow': '내일{time} 마감',
+    'due.day': '{day} 마감',
+    'ago.now': '방금',
+    'ago.min': '{n}분 전',
+    'ago.hour': '{n}시간 전',
+    'opt.title': '설정',
+    'opt.local': '여기 있는 내용은 모두 이 컴퓨터의 크롬에만 저장돼요. 어디에도 올라가지 않아요.',
+    'opt.language': '언어',
+    'opt.languageNote': '한국어를 고르면 Mellon의 제목과 요약도 번역해요 (메일마다 한 번, 아주 작은 Claude 요청).',
+    'opt.interests': '관심 분야',
+    'opt.interestsNote': '이 분야의 업데이트를 먼저 보여 주고 ★로 표시해요.',
+    'opt.welcome': '처음 화면 다시 보기',
+    'opt.welcomeDone': 'Mellon을 열면 보여요',
+    'opt.google': 'Google 로그인',
+    'opt.clientId': 'Google OAuth client ID',
+    'opt.redirect': 'Google Cloud의 <b>Authorized redirect URI</b>에 아래 주소를 붙여 넣으세요:',
+    'opt.signedIn': '{email}(으)로 로그인됨',
+    'opt.notSignedIn': '로그인 안 됨',
+    'opt.signOut': '로그아웃',
+    'opt.claude': 'Claude API 키',
+    'opt.apiKey': 'API 키',
+    'opt.apiKeyNote': 'console.anthropic.com → API Keys에서 만들 수 있어요. Mellon은 가장 저렴한 Claude Haiku 5.5를 써요.',
+    'opt.saved': '저장된 결과',
+    'opt.cacheCount': 'Claude가 이미 읽은 메일 {n}통 (다시 보내지 않아요).',
+    'opt.clearCache': '저장된 결과 지우기',
+    'opt.hiddenCount': '선택해서 숨긴 업데이트 {n}개.',
+    'opt.unhide': '다시 보이기',
+    'opt.save': '저장',
+    'opt.savedMsg': '저장했어요',
+  },
+};
+
+const CATEGORY_KO = {
+  Career: '커리어',
+  Funding: '장학·재정',
+  Courses: '수업',
+  'Events & community': '행사·커뮤니티',
+  'International students': '유학생',
+  'Studio & facilities': '스튜디오·시설',
+  Advising: '지도·상담',
+  Admin: '행정',
+};
+
+let lang = 'en';
+
+export async function loadLang() {
+  try {
+    const { lang: saved } = await chrome.storage.local.get('lang');
+    lang = saved === 'ko' ? 'ko' : 'en';
+  } catch {
+    lang = 'en';
+  }
+  document.documentElement.lang = lang;
+  return lang;
+}
+
+export function setLangForTest(value) {
+  lang = value;
+}
+
+export const getLang = () => lang;
+export const locale = () => (lang === 'ko' ? 'ko-KR' : 'en-US');
+
+export function t(key, vars = {}) {
+  const text = STRINGS[lang][key] ?? STRINGS.en[key] ?? key;
+  return text.replace(/\{(\w+)\}/g, (_, name) => (vars[name] ?? ''));
+}
+
+// Categories stay in English inside Mellon (they are what interests match on);
+// only their label changes.
+export const catLabel = (c) => (lang === 'ko' ? CATEGORY_KO[c] || c : c);
+
+// Fills elements marked with data-i18n (text), data-i18n-label (aria-label) and data-i18n-title.
+export function applyStatic(root = document) {
+  root.querySelectorAll('[data-i18n]').forEach((el) => (el.textContent = t(el.dataset.i18n)));
+  root.querySelectorAll('[data-i18n-html]').forEach((el) => (el.innerHTML = t(el.dataset.i18nHtml)));
+  root.querySelectorAll('[data-i18n-label]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nLabel)));
+  root.querySelectorAll('[data-i18n-title]').forEach((el) => el.setAttribute('title', t(el.dataset.i18nTitle)));
+}

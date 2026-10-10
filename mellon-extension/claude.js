@@ -92,12 +92,14 @@ ${body}`;
 }
 
 // Returns { ...analysis, cached: true|false }.
-export async function analyzeEmail(email) {
-  const cached = await getCachedAnalysis(email.id);
-  if (cached) return { ...cached, cached: true };
-
+// One request to the Claude API, straight from this browser (the key never leaves this computer
+// except to api.anthropic.com). With a schema, the answer comes back as parsed JSON.
+export async function callClaude({ system, content, schema, maxTokens = 4000 }) {
   const apiKey = await getClaudeKey();
   if (!apiKey) throw new Error('NO_CLAUDE_KEY');
+
+  const output_config = { effort: 'low' };
+  if (schema) output_config.format = { type: 'json_schema', schema };
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -105,15 +107,15 @@ export async function analyzeEmail(email) {
       'content-type': 'application/json',
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
-      // Required for calls made directly from a browser. The key stays on this computer.
+      // Required for calls made directly from a browser.
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 4000,
-      system: SYSTEM,
-      output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
-      messages: [{ role: 'user', content: emailPrompt(email) }],
+      max_tokens: maxTokens,
+      system,
+      output_config,
+      messages: [{ role: 'user', content }],
     }),
   });
 
@@ -122,14 +124,40 @@ export async function analyzeEmail(email) {
   if (!res.ok) throw new Error(`Claude error ${res.status}: ${await res.text()}`);
 
   const data = await res.json();
-  if (data.stop_reason === 'refusal') throw new Error('Claude declined to read this email.');
-  if (data.stop_reason === 'max_tokens') throw new Error('Claude ran out of room for this email.');
+  await addUsage(data.usage);
+  if (data.stop_reason === 'refusal') throw new Error('Claude declined this request.');
+  if (data.stop_reason === 'max_tokens') throw new Error('Claude ran out of room for this answer.');
   const text = (data.content || []).find((b) => b.type === 'text')?.text;
   if (!text) throw new Error('Claude returned no answer.');
+  return schema ? JSON.parse(text) : text;
+}
+
+// Running token count, so Settings can show roughly what Mellon has cost.
+// Updates run one after another so parallel requests don't overwrite each other.
+let usageQueue = Promise.resolve();
+function addUsage(usage) {
+  if (!usage) return usageQueue;
+  usageQueue = usageQueue.then(() => saveUsage(usage)).catch(() => {});
+  return usageQueue;
+}
+
+async function saveUsage(usage) {
+  const { usage: total = { input: 0, output: 0, requests: 0, since: Date.now() } } = await chrome.storage.local.get('usage');
+  total.input += (usage.input_tokens || 0) + (usage.cache_creation_input_tokens || 0) + (usage.cache_read_input_tokens || 0);
+  total.output += usage.output_tokens || 0;
+  total.requests += 1;
+  await chrome.storage.local.set({ usage: total });
+}
+
+export async function analyzeEmail(email) {
+  const cached = await getCachedAnalysis(email.id);
+  if (cached) return { ...cached, cached: true };
+
+  const result = await callClaude({ system: SYSTEM, content: emailPrompt(email), schema: SCHEMA });
 
   // Saved locally with the basic email info, so cached emails need no further calls.
   const analysis = {
-    ...JSON.parse(text),
+    ...result,
     id: email.id,
     threadId: email.threadId,
     subject: email.subject,

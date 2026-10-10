@@ -9,25 +9,25 @@
 <body>
   <div class="root">
     <header class="hd">
-      <button class="logoBtn" id="logo" aria-label="Mellon, scan the inbox again">
+      <button class="logoBtn" id="logo" data-i18n-label="hd.logo" aria-label="Mellon, scan the inbox again">
         <img src="icons/mellon.svg" alt="" />
         <span>Mellon</span>
       </button>
       <div style="display: flex; align-items: center;">
-        <button class="ib" id="calendar" aria-label="Calendar" title="Calendar">
+        <button class="ib" id="calendar" data-i18n-label="hd.calendar" data-i18n-title="hd.calendar" aria-label="Calendar" title="Calendar">
           <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
         </button>
-        <button class="ib" id="refresh" aria-label="Scan the inbox again" title="Refresh">
+        <button class="ib" id="refresh" data-i18n-label="hd.refresh" data-i18n-title="hd.refresh" aria-label="Scan the inbox again" title="Refresh">
           <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"></path><path d="M4 3v5h5"></path><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"></path><path d="M20 21v-5h-5"></path></svg>
         </button>
-        <button class="ib" id="settings" aria-label="Settings" title="Settings">
+        <button class="ib" id="settings" data-i18n-label="hd.settings" data-i18n-title="hd.settings" aria-label="Settings" title="Settings">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
         </button>
       </div>
     </header>
     <main class="scr" id="app"></main>
     <div class="pop" id="calPop" role="dialog" aria-label="Calendar"></div>
-    <div class="toast" id="toast" role="status"><span id="toastText"></span><button id="toastUndo">Undo</button></div>
+    <div class="toast" id="toast" role="status"><span id="toastText"></span><button id="toastUndo" data-i18n="toast.undo">Undo</button></div>
   </div>
   <script type="module" src="sidepanel.js"></script>
 </body>

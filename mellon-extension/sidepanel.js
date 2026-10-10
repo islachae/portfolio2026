@@ -4,13 +4,17 @@ import { getClaudeKey, CATEGORIES } from './claude.js';
 import { getDone, setDone, getHidden, setHidden } from './done.js';
 import { loadUpdates } from './updates.js';
 import { rankUpdates, senderName, receivedLabel, parseDeadline } from './rank.js';
+import { loadLang, t, getLang, locale, catLabel, applyStatic } from './i18n.js';
+import { ensureKorean, applyKorean, translateEmail } from './translate.js';
 
 const app = document.getElementById('app');
 const refreshBtn = document.getElementById('refresh');
 
 const state = {
   token: null,
-  items: [],
+  raw: [], // updates as Claude analyzed them (English)
+  ko: {}, // { messageId: Korean title/summary/action/details }
+  items: [], // what is shown: raw, with Korean text on top when the language is Korean
   failed: [],
   filter: 'all', // 'all' | 'unread'
   loading: false,
@@ -69,17 +73,16 @@ async function signIn() {
     await rememberEmail(profile.emailAddress);
     load();
   } catch (err) {
-    showCenter({ title: 'Sign-in did not finish', text: err.message, button: 'Try again', onClick: signIn });
+    showCenter({ title: t('signin.failed'), text: err.message, button: t('error.retry'), onClick: signIn });
   }
 }
 
 // ---------- loading ----------
 
-const SCAN_TEXT = 'Scanning your inbox...';
-
 function showLoading() {
+  const SCAN_TEXT = t('load.scan');
   app.innerHTML = `
-    <div class="ld" role="status" aria-label="Scanning your inbox">
+    <div class="ld" role="status" aria-label="${esc(SCAN_TEXT)}">
       <img src="icons/mellon.svg" alt="" />
       <div class="ld-cap" aria-hidden="true"><span class="ld-ghost">${SCAN_TEXT}</span><span class="ld-typed"><span id="typed"></span><span class="ld-caret"></span></span></div>
       <div class="ld-count" id="ldCount"></div>
@@ -104,25 +107,38 @@ function showProgress(done, total) {
 
 // ---------- first run: pick interests ----------
 
+let onbPicked = null; // kept while the language is switched on this screen
+
 async function showOnboarding() {
   const { interests: saved = [] } = await chrome.storage.local.get('interests');
-  const picked = new Set(saved);
+  const picked = onbPicked || new Set(saved);
+  onbPicked = picked;
   app.innerHTML = `
     <div class="onb">
-      <img src="icons/mellon.svg" width="56" height="56" alt="" />
-      <h2>Hi, I'm Mellon.</h2>
-      <p>I read your recent mail and turn it into a short list of updates. What do you care about most? I'll put those first.</p>
-      <div class="chips" role="group" aria-label="Interests">
+      <div class="onbTop">
+        <img src="icons/mellon.svg" width="56" height="56" alt="" />
+        <div class="seg" role="group" aria-label="${esc(t('onb.language'))}">
+          <button data-lang="en" class="${getLang() === 'en' ? 'on' : ''}" aria-pressed="${getLang() === 'en'}">English</button>
+          <button data-lang="ko" class="${getLang() === 'ko' ? 'on' : ''}" aria-pressed="${getLang() === 'ko'}">한국어</button>
+        </div>
+      </div>
+      <h2>${esc(t('onb.title'))}</h2>
+      <p>${esc(t('onb.text'))}</p>
+      <div class="chips" role="group">
         ${CATEGORIES.map(
-          (c) => `<button class="chip ${picked.has(c) ? 'on' : ''}" aria-pressed="${picked.has(c)}" data-cat="${esc(c)}">${ICON.tick}<span>${esc(c)}</span></button>`
+          (c) => `<button class="chip ${picked.has(c) ? 'on' : ''}" aria-pressed="${picked.has(c)}" data-cat="${esc(c)}">${ICON.tick}<span>${esc(catLabel(c))}</span></button>`
         ).join('')}
       </div>
-      <button class="ab pri big" id="onbGo">Continue</button>
-      <button class="txt" id="onbSkip">Skip for now</button>
-      <p class="cap">You can change this anytime in Settings.</p>
+      <button class="ab pri big" id="onbGo"></button>
+      <button class="txt" id="onbSkip">${esc(t('onb.skip'))}</button>
+      <p class="cap">${esc(t('onb.later'))}</p>
     </div>`;
+  app.querySelectorAll('[data-lang]').forEach((btn) =>
+    // Saving the language redraws this screen through the storage listener below.
+    btn.addEventListener('click', () => chrome.storage.local.set({ lang: btn.dataset.lang }))
+  );
   const go = document.getElementById('onbGo');
-  const label = () => (go.textContent = picked.size ? `Continue with ${picked.size}` : 'Continue');
+  const label = () => (go.textContent = picked.size ? t('onb.continueN', { n: picked.size }) : t('onb.continue'));
   label();
   app.querySelectorAll('.chip').forEach((chip) =>
     chip.addEventListener('click', () => {
@@ -134,6 +150,7 @@ async function showOnboarding() {
     })
   );
   const finish = async (interests) => {
+    onbPicked = null;
     await chrome.storage.local.set({ interests, onboarded: true });
     load();
   };
@@ -147,9 +164,9 @@ async function load() {
   if (!onboarded) return showOnboarding();
   if (!(await getGoogleClientId()) || !(await getClaudeKey())) {
     return showCenter({
-      title: 'Almost ready',
-      text: 'Add your Google client ID and Claude API key in Settings.',
-      button: 'Open settings',
+      title: t('setup.title'),
+      text: t('setup.text'),
+      button: t('setup.button'),
       onClick: openSettings,
     });
   }
@@ -157,9 +174,9 @@ async function load() {
     state.token = await getGoogleToken();
   } catch {
     return showCenter({
-      title: 'Sign in to Gmail',
-      text: 'Mellon reads your recent mail (read-only) and sorts it into Updates.',
-      button: 'Sign in with Google',
+      title: t('signin.title'),
+      text: t('signin.text'),
+      button: t('signin.button'),
       onClick: signIn,
     });
   }
@@ -170,8 +187,15 @@ async function load() {
   const started = Date.now();
   try {
     const { items, failed } = await loadUpdates(state.token, ({ done, total }) => showProgress(done, total));
-    state.items = items;
+    state.raw = items;
     state.failed = failed;
+    if (getLang() === 'ko') {
+      state.ko = await ensureKorean(items, ({ done, total }) => {
+        const el = document.getElementById('ldCount');
+        if (el) el.textContent = t('load.translating', { done, total });
+      });
+    }
+    applyLanguage();
     state.done = await getDone();
     state.hidden = await getHidden();
     // Let the caption finish typing before the list deals in, as in the design.
@@ -183,11 +207,29 @@ async function load() {
       refreshBtn.classList.remove('spin');
       return load();
     }
-    showCenter({ title: 'Could not load updates', text: err.message, button: 'Try again', onClick: load });
+    showCenter({ title: t('error.load'), text: err.message, button: t('error.retry'), onClick: load });
   } finally {
     state.loading = false;
     refreshBtn.classList.remove('spin');
   }
+}
+
+// ---------- language ----------
+
+function applyLanguage() {
+  state.items = getLang() === 'ko' ? state.raw.map((it) => applyKorean(it, state.ko[it.id])) : state.raw;
+}
+
+// Language changed in Settings: translate what is missing, then redraw.
+async function switchLanguage() {
+  await loadLang();
+  applyStatic();
+  if (document.querySelector('.onb')) return showOnboarding();
+  if (!state.raw.length) return load();
+  if (getLang() === 'ko') state.ko = await ensureKorean(state.raw);
+  applyLanguage();
+  if (state.cal.open) renderCalendar();
+  renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
 }
 
 // ---------- list ----------
@@ -224,7 +266,7 @@ function reasonHtml(parts) {
 function actionCard(it) {
   return `
     <div class="tk act" data-open="${esc(it.id)}" role="button" tabindex="0">
-      <button class="ck" data-done="${esc(it.id)}" aria-label="Mark as done" title="Mark as done">${ICON.tick}</button>
+      <button class="ck" data-done="${esc(it.id)}" aria-label="${esc(t('card.markDone'))}" title="${esc(t('card.markDone'))}">${ICON.tick}</button>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
         <div class="fr"><b>${esc(senderName(it.from))}</b></div>
@@ -255,7 +297,7 @@ function doneCard(it) {
       <span class="ck on" aria-hidden="true">${ICON.tick}</span>
       <div class="bd">
         <div class="tt">${esc(it.title)}</div>
-        <div class="mt"><span class="dt">${reasonHtml(['Done ' + receivedLabel(state.done[it.id]), it.category])}</span><button class="ab" data-undone="${esc(it.id)}">Undo</button></div>
+        <div class="mt"><span class="dt">${reasonHtml([t('card.doneAgo', { when: receivedLabel(state.done[it.id]) }), catLabel(it.category)])}</span><button class="ab" data-undone="${esc(it.id)}">${esc(t('card.undo'))}</button></div>
       </div>
     </div>`;
 }
@@ -270,7 +312,7 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
   const countUnread = activeItems().filter((it) => it.unread).length;
   const done = doneItems();
   const doneSection = done.length
-    ? `<button class="sh shBtn ${state.showDone ? 'open' : ''}" id="doneToggle" aria-expanded="${state.showDone}">Done <small>${done.length}</small>${ICON.chevron}</button>` +
+    ? `<button class="sh shBtn ${state.showDone ? 'open' : ''}" id="doneToggle" aria-expanded="${state.showDone}">${esc(t('group.done'))} <small>${done.length}</small>${ICON.chevron}</button>` +
       (state.showDone ? done.map((it) => row(it, doneCard(it))).join('') : '')
     : '';
 
@@ -284,34 +326,34 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
 
   const empty =
     state.filter === 'unread'
-      ? `<div class="center"><div><h2>No unread updates</h2><p>Everything from the last 7 days has been opened.</p></div></div>`
-      : `<div class="center">${WINK_SVG}<div><h2>All clear</h2><p>You're up to date.</p></div></div>`;
+      ? `<div class="center"><div><h2>${esc(t('empty.unreadTitle'))}</h2><p>${esc(t('empty.unreadText'))}</p></div></div>`
+      : `<div class="center">${WINK_SVG}<div><h2>${esc(t('empty.title'))}</h2><p>${esc(t('empty.text'))}</p></div></div>`;
 
   const failedNote = state.failed.length
-    ? `<br>${state.failed.length} could not be read · <button class="ab" id="retry" style="height: 22px; padding: 0 8px; font-size: 10.5px;">Retry</button>`
+    ? `<br>${esc(t('foot.failed', { n: state.failed.length }))} · <button class="ab" id="retry" style="height: 22px; padding: 0 8px; font-size: 10.5px;">${esc(t('foot.retry'))}</button>`
     : '';
 
   app.innerHTML = `
-    <div class="titleRow"><h1>Updates</h1>
-      ${activeItems().length ? `<button class="txt" id="selectToggle">${state.selecting ? 'Cancel' : 'Select'}</button>` : ''}
+    <div class="titleRow"><h1>${esc(t('list.title'))}</h1>
+      ${activeItems().length ? `<button class="txt" id="selectToggle">${esc(state.selecting ? t('list.cancel') : t('list.select'))}</button>` : ''}
     </div>
     <div class="fadeTop" id="fadeTop" aria-hidden="true"></div>
     <div class="lst" id="lst">
       <div class="views" role="tablist">
         <span class="pill" id="pill" aria-hidden="true"></span>
-        <button class="tab ${state.filter === 'all' ? 'on' : ''}" data-filter="all" role="tab">All ${countAll}</button>
-        <button class="tab ${state.filter === 'unread' ? 'on' : ''}" data-filter="unread" role="tab">Unread ${countUnread}</button>
+        <button class="tab ${state.filter === 'all' ? 'on' : ''}" data-filter="all" role="tab">${esc(t('list.all'))} ${countAll}</button>
+        <button class="tab ${state.filter === 'unread' ? 'on' : ''}" data-filter="unread" role="tab">${esc(t('list.unread'))} ${countUnread}</button>
       </div>
       ${groups.length ? sections : empty}
       ${doneSection}
-      ${state.items.length ? `<div class="foot">${state.items.length} emails · last 7 days${failedNote}</div>` : ''}
+      ${state.items.length ? `<div class="foot">${esc(t('foot.count', { n: state.items.length }))}${failedNote}</div>` : ''}
     </div>
     <div class="selWrap" id="selWrap"><div><div style="padding: 8px 0 12px;">
       <div class="selBar">
-        <button class="selAll" id="selAll"><span class="ck" id="selAllCk">${ICON.tick}</span><span id="selText">Select all</span></button>
+        <button class="selAll" id="selAll"><span class="ck" id="selAllCk">${ICON.tick}</span><span id="selText">${esc(t('sel.all'))}</span></button>
         <div style="display: flex; align-items: center; gap: 4px;">
-          <button class="ab" id="discard">Discard</button>
-          <button class="ib" id="selDone" aria-label="Done selecting"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+          <button class="ab" id="discard">${esc(t('sel.discard'))}</button>
+          <button class="ib" id="selDone" aria-label="${esc(t('sel.close'))}"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
         </div>
       </div>
     </div></div></div>`;
@@ -357,7 +399,7 @@ function setSelecting(on) {
   app.querySelectorAll('.tk.picked').forEach((el) => el.classList.remove('picked'));
   app.querySelectorAll('.slot .ck.on').forEach((el) => el.classList.remove('on'));
   const btn = document.getElementById('selectToggle');
-  if (btn) btn.textContent = on ? 'Cancel' : 'Select';
+  if (btn) btn.textContent = on ? t('list.cancel') : t('list.select');
   updateSelBar();
 }
 
@@ -383,7 +425,7 @@ function updateSelBar() {
   wrap.classList.toggle('on', state.selecting);
   const ids = selectableIds();
   const n = state.selected.size;
-  document.getElementById('selText').textContent = n ? `${n} selected` : 'Select all';
+  document.getElementById('selText').textContent = n ? t('sel.count', { n }) : t('sel.all');
   document.getElementById('selAllCk').classList.toggle('on', ids.length > 0 && n === ids.length);
   document.getElementById('discard').disabled = n === 0;
 }
@@ -397,7 +439,7 @@ async function discardSelected() {
   state.selecting = false;
   state.selected.clear();
   renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
-  toast(`${ids.length} discarded`, async () => {
+  toast(t('toast.discarded', { n: ids.length }), async () => {
     state.hidden = await setHidden(ids, false);
     renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
   });
@@ -435,7 +477,7 @@ function renderCalendar() {
     const items = byDay[key] || [];
     const hot = items.some((it) => it.urgent);
     cells.push(
-      `<button class="cd ${isToday ? 'today' : ''} ${day === key ? 'picked' : ''}" data-day="${key}" aria-label="${month.toLocaleString('en-US', { month: 'long' })} ${d}${items.length ? `, ${items.length} due` : ''}">${d}${
+      `<button class="cd ${isToday ? 'today' : ''} ${day === key ? 'picked' : ''}" data-day="${key}" aria-label="${new Date(y, m, d).toLocaleDateString(locale(), { month: 'long', day: 'numeric' })}${items.length ? `, ${t('cal.countDue', { n: items.length })}` : ''}">${d}${
         items.length ? `<span class="cdot ${hot ? 'hot' : ''}" aria-hidden="true"></span>` : ''
       }</button>`
     );
@@ -444,15 +486,15 @@ function renderCalendar() {
   const pickedDate = day ? new Date(...day.split('-').map(Number)) : null;
   calPop.innerHTML = `
     <div class="calHead">
-      <button class="ib" data-cal-step="-1" aria-label="Previous month"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-      <span>${month.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</span>
-      <button class="ib" data-cal-step="1" aria-label="Next month"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+      <button class="ib" data-cal-step="-1" aria-label="${esc(t('cal.prev'))}"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+      <span>${month.toLocaleString(locale(), { month: 'long', year: 'numeric' })}</span>
+      <button class="ib" data-cal-step="1" aria-label="${esc(t('cal.next'))}"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
     </div>
-    <div class="calGrid wk">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((w) => `<span>${w}</span>`).join('')}</div>
+    <div class="calGrid wk">${(getLang() === 'ko' ? ['일', '월', '화', '수', '목', '금', '토'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']).map((w) => `<span>${w}</span>`).join('')}</div>
     <div class="calGrid">${cells.join('')}</div>
     <div class="calLine"></div>
     <div class="calList">
-      <span class="calLabel">${pickedDate ? `Due ${pickedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}` : 'Tap a date to see what is due'}</span>
+      <span class="calLabel">${esc(pickedDate ? t('cal.dueOn', { date: pickedDate.toLocaleDateString(locale(), { weekday: 'short', month: 'short', day: 'numeric' }) }) : t('cal.hint'))}</span>
       ${
         pickedDate
           ? picked.length
@@ -461,11 +503,11 @@ function renderCalendar() {
                 .map(
                   (it) => `<button class="calEv" data-cal-open="${esc(it.id)}">
                     <span class="t">${esc(it.title)}</span>
-                    <span class="s ${it.urgent ? 'red' : ''}">${esc(senderName(it.from))} · ${esc(it.deadlineDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }))}</span>
+                    <span class="s ${it.urgent ? 'red' : ''}">${esc(senderName(it.from))} · ${esc(it.deadlineDate.toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' }))}</span>
                   </button>`
                 )
                 .join('')
-            : '<span class="calNone">Nothing due on this day.</span>'
+            : `<span class="calNone">${esc(t('cal.none'))}</span>`
           : ''
       }
     </div>`;
@@ -541,7 +583,7 @@ async function markDone(id) {
   }
   state.done = await setDone(id, true);
   renderList({ scrollTop: document.getElementById('lst')?.scrollTop || 0 });
-  toast('Marked as done', () => markUndone(id));
+  toast(t('toast.done'), () => markUndone(id));
 }
 
 async function markUndone(id) {
@@ -607,7 +649,7 @@ app.addEventListener('keydown', (e) => {
 // ---------- detail ----------
 
 function fullDate(d) {
-  return d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return d.toLocaleString(locale(), { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 async function renderDetail(id) {
@@ -617,6 +659,7 @@ async function renderDetail(id) {
   const it = all.find((x) => x.id === id);
   if (!it) return;
   const done = isDone(it);
+  origShown = null;
   setSelecting(false);
   const others = visibleItems().filter((x) => x.id !== id).length;
 
@@ -625,7 +668,7 @@ async function renderDetail(id) {
   const deadline = parseDeadline(it.deadline);
   const facts = [
     deadline
-      ? `<div class="fact ${it.urgent ? 'red' : ''}">${ICON.calFact}<span>Due ${esc(fullDate(deadline))}</span></div>`
+      ? `<div class="fact ${it.urgent ? 'red' : ''}">${ICON.calFact}<span>${esc(t('detail.due', { date: fullDate(deadline) }))}</span></div>`
       : '',
     ...(it.key_details || []).map((d) => `<div class="fact">${ICON.doc}<span>${esc(d)}</span></div>`),
     `<div class="fact">${ICON.tag}<span>${esc(it.reason)}</span></div>`,
@@ -633,28 +676,29 @@ async function renderDetail(id) {
 
   app.innerHTML = `
     <div class="detail" id="detail">
-      <button class="stk" id="back" aria-label="Back to all updates">
+      <button class="stk" id="back" aria-label="${esc(t('detail.back'))}">
         <span class="e2"></span><span class="e1"></span>
-        <span class="face"><span>${others > 0 ? `${others} more update${others === 1 ? '' : 's'}` : 'All updates'}</span>${ICON.chevron}</span>
+        <span class="face"><span>${esc(others > 1 ? t('detail.more', { n: others }) : others === 1 ? t('detail.moreOne') : t('detail.all'))}</span>${ICON.chevron}</span>
       </button>
       ${card}
       <div class="sbox">
         <div class="dotRow" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="sgrid"><div>
           <div class="sin">
-            <div class="cap" style="color: var(--green);">Summary by Mellon</div>
+            <div class="cap" style="color: var(--green);">${esc(t('detail.summary'))}</div>
             <div class="prose">${esc(it.summary)}</div>
             <div style="display: flex; flex-direction: column; gap: 8px;">${facts}</div>
-            <button class="goMail" data-mail="${esc(it.threadId)}">Go to email${ICON.out}</button>
+            <button class="goMail" data-mail="${esc(it.threadId)}">${esc(t('detail.goMail'))}${ICON.out}</button>
           </div>
         </div></div>
       </div>
       <span class="cap late" style="padding-left: 2px;">${esc(senderName(it.from))} · ${esc(fullDate(new Date(it.date)))}</span>
       <div class="late" style="display: flex; gap: 6px; flex-wrap: wrap;">
         ${done
-          ? `<button class="q" id="doneBtn">Move back to Updates</button>`
-          : `<button class="ab pri" id="doneBtn" style="height: 30px;"><span class="tickIc">${ICON.tick}</span>Mark as done</button>`}
-        <button class="q" id="showOrig">Show original email</button>
+          ? `<button class="q" id="doneBtn">${esc(t('detail.moveBack'))}</button>`
+          : `<button class="ab pri" id="doneBtn" style="height: 30px;"><span class="tickIc">${ICON.tick}</span>${esc(t('detail.markDone'))}</button>`}
+        <button class="q" id="showOrig">${esc(t('detail.showOrig'))}</button>
+        ${getLang() === 'ko' ? `<button class="q" id="showKo">${esc(t('detail.translate'))}</button>` : ''}
       </div>
       <div id="orig"></div>
     </div>`;
@@ -672,32 +716,48 @@ async function renderDetail(id) {
     if (done) return markUndone(id);
     state.done = await setDone(id, true);
     renderList({ scrollTop: listScroll });
-    toast('Marked as done', () => markUndone(id));
+    toast(t('toast.done'), () => markUndone(id));
   });
-  document.getElementById('showOrig').addEventListener('click', () => showOriginal(it));
+  document.getElementById('showOrig').addEventListener('click', () => showOriginal(it, false));
+  document.getElementById('showKo')?.addEventListener('click', () => showOriginal(it, true));
 }
 
 // The original text is fetched from Gmail on demand and only kept on screen, never stored.
-async function showOriginal(it) {
+// With `korean`, Claude translates it first (kept in memory only).
+let origShown = null; // null | 'orig' | 'ko'
+async function showOriginal(it, korean) {
   const box = document.getElementById('orig');
-  const btn = document.getElementById('showOrig');
-  if (box.innerHTML) {
+  const origBtn = document.getElementById('showOrig');
+  const koBtn = document.getElementById('showKo');
+  const mode = korean ? 'ko' : 'orig';
+  const reset = () => {
+    origBtn.textContent = t('detail.showOrig');
+    if (koBtn) koBtn.textContent = t('detail.translate');
+  };
+  if (box.innerHTML && origShown === mode) {
     box.innerHTML = '';
-    btn.textContent = 'Show original email';
-    return;
+    origShown = null;
+    return reset();
   }
-  btn.textContent = 'Loading…';
+  reset();
+  const btn = korean ? koBtn : origBtn;
+  btn.textContent = korean ? t('detail.translating') : t('detail.loading');
   try {
     const mail = await getMessageFull(state.token || (await getGoogleToken()), it.id);
+    const body = mail.body || mail.snippet;
+    const shown = korean ? await translateEmail(it.id, `Subject: ${mail.subject}\n\n${body}`) : body;
     box.innerHTML = `
       <div class="orig">
-        <div class="meta"><b>${esc(mail.subject)}</b><br>${esc(mail.from)}<br>${esc(fullDate(new Date(mail.date)))}</div>
-        <div class="body">${esc(mail.body || mail.snippet)}</div>
+        <div class="meta"><b>${esc(mail.subject)}</b><br>${esc(mail.from)}<br>${esc(fullDate(new Date(mail.date)))}
+          ${korean ? `<br><span class="cap" style="color: var(--green);">${esc(t('detail.translatedNote'))}</span>` : ''}</div>
+        <div class="body">${esc(shown)}</div>
       </div>`;
-    btn.textContent = 'Hide original email';
+    origShown = mode;
+    reset();
+    btn.textContent = t('detail.hideOrig');
   } catch (err) {
-    btn.textContent = 'Show original email';
-    box.innerHTML = `<div class="orig"><div class="meta">Could not load the email: ${esc(err.message)}</div></div>`;
+    reset();
+    box.innerHTML = `<div class="orig"><div class="meta">${esc(t('detail.loadFailed', { msg: err.message }))}</div></div>`;
   }
 }
 
@@ -712,11 +772,16 @@ async function openInGmail(threadId) {
 
 // Settings saved in the other tab: re-sort for new interests, or start once keys are added.
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local' || state.loading) return;
+  if (area !== 'local') return;
+  if (changes.lang && !state.loading) return switchLanguage();
+  if (state.loading) return;
   const lst = document.getElementById('lst');
   if (changes.hidden && lst) state.hidden = changes.hidden.newValue || {};
   if ((changes.interests || changes.hidden) && lst) renderList({ scrollTop: lst.scrollTop });
   else if ((changes.claudeApiKey || changes.googleClientId) && !state.items.length) load();
 });
 
-load();
+loadLang().then(() => {
+  applyStatic();
+  load();
+});
