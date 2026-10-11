@@ -43,3 +43,6 @@ next-env.d.ts
 # test artifacts & temp
 /artifacts
 resume-placeholder.txt
+
+# Chrome Web Store upload, built by mellon-extension/tools/make-store-zip.py
+/dist

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Mellon settings</title>
+  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <div class="brand"><img src="icons/mellon.svg" alt="" /><h1 data-i18n="opt.title">Settings</h1></div>
+    <p class="muted" data-i18n="opt.local"></p>
+
+    <section>
+      <h2 data-i18n="opt.language"></h2>
+      <div class="seg" role="group">
+        <button data-lang="en">English</button>
+        <button data-lang="ko">한국어</button>
+      </div>
+      <p class="muted" data-i18n="opt.languageNote"></p>
+    </section>
+
+    <section>
+      <h2 data-i18n="opt.scan"></h2>
+      <div class="scanRow"><span class="scanLabel" data-i18n="opt.scanDays"></span><div class="seg" role="group" id="scanDays"></div></div>
+      <div class="scanRow"><span class="scanLabel" data-i18n="opt.scanMax"></span><div class="seg" role="group" id="scanMax"></div></div>
+      <p class="muted" data-i18n="opt.scanNote"></p>
+    </section>
+
+    <section>
+      <h2 data-i18n="opt.interests"></h2>
+      <p class="muted" style="margin-top: 0;" data-i18n="opt.interestsNote"></p>
+      <div id="interests" class="checks"></div>
+      <div class="row" style="margin-top: 14px;"><button id="welcome" data-i18n="opt.welcome"></button></div>
+    </section>
+
+    <section>
+      <h2 data-i18n="opt.google"></h2>
+      <label for="clientId" data-i18n="opt.clientId"></label>
+      <input id="clientId" type="text" placeholder="1234-abc.apps.googleusercontent.com" spellcheck="false" />
+      <p class="muted" data-i18n-html="opt.redirect"></p>
+      <code id="redirect"></code>
+      <div class="row" style="margin-top: 12px;">
+        <span class="muted" id="account"></span>
+        <button id="signout" data-i18n="opt.signOut"></button>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-i18n="opt.claude"></h2>
+      <label for="claudeKey" data-i18n="opt.apiKey"></label>
+      <input id="claudeKey" type="password" placeholder="sk-ant-..." spellcheck="false" autocomplete="off" />
+      <p class="muted" data-i18n="opt.apiKeyNote"></p>
+    </section>
+
+    <section>
+      <h2 data-i18n="opt.saved"></h2>
+      <div class="row">
+        <span class="muted" id="cacheCount"></span>
+        <button id="clearCache" data-i18n="opt.clearCache"></button>
+      </div>
+      <div class="row" style="margin-top: 12px;">
+        <span class="muted" id="hiddenCount"></span>
+        <button id="unhide" data-i18n="opt.unhide"></button>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-i18n="opt.usage"></h2>
+      <div class="row">
+        <span class="muted" id="usageLine"></span>
+        <button id="usageReset" data-i18n="opt.usageReset"></button>
+      </div>
+      <p class="muted" data-i18n="opt.usageNote"></p>
+    </section>
+
+    <div class="saveRow">
+      <button id="save" class="pri" data-i18n="opt.save"></button>
+      <span id="status"></span>
+    </div>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>
