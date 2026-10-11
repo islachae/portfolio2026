@@ -410,10 +410,12 @@ export function PebboStage() {
 /* ───────────────────── MELN · the inbox that knows you ───────────────────── */
 
 /* The team's concept film (2:13, its words burned into the picture): the first screen plays it
-   without sound, chapters jump through it, and "Sound on" brings the voice and music in. */
+   without sound, from "Student" (the problem is what the case study opens with anyway), and comes
+   back round to "Student" at the end; chapters jump through it, and "Sound on" brings the voice
+   and music in. */
 const MELON_FILM_CHAPTERS = [
   { t: 0, label: "The problem" },
-  { t: 24, label: "Student" },
+  { t: 23.5, label: "Student" },
   { t: 71, label: "Advisor" },
   { t: 110, label: "The loop" },
 ];
@@ -427,25 +429,44 @@ const MELON_CHAPTERS = [
   { t: 34.6, label: "Bulk clear" },
 ];
 
-/** A recording with chapter pills and a pause button; `on` says when it may play. */
-function useRecording(chapters: { t: number }[], on: boolean) {
+/** A recording with chapter pills and a pause button; `on` says when it may play. `from` is the
+    chapter it starts at (and comes back to when it ends), when that isn't the first. */
+function useRecording(chapters: { t: number }[], on: boolean, from = 0) {
   const video = useRef<HTMLVideoElement>(null);
-  const [chapter, setChapter] = useState(0);
+  const [chapter, setChapter] = useState(from);
+  const begun = useRef(false);
   const [playing, setPlaying] = useState(false);
   // Set by a pause the visitor chose, so leaving and coming back doesn't restart it
   const held = useRef(false);
 
+  // The first play starts at its starting chapter (once the file knows its length, so the jump takes)
+  const play = (v: HTMLVideoElement) => {
+    if (begun.current || from === 0) {
+      begun.current = true;
+      v.play().catch(() => {});
+      return;
+    }
+    begun.current = true;
+    const go = () => {
+      v.currentTime = chapters[from].t;
+      v.play().catch(() => {});
+    };
+    if (v.readyState >= 1) go();
+    else v.addEventListener("loadedmetadata", go, { once: true });
+  };
   // Plays only while it's on screen, and never on its own with reduced motion
   useEffect(() => {
     const v = video.current;
     if (!v) return;
-    if (on && !held.current && !reducedMotion()) v.play().catch(() => {});
+    if (on && !held.current && !reducedMotion()) play(v);
     if (!on) v.pause();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [on]);
 
   const seek = (i: number) => {
     const v = video.current;
     if (!v) return;
+    begun.current = true;
     v.currentTime = chapters[i].t;
     setChapter(i);
     held.current = false;
@@ -456,7 +477,7 @@ function useRecording(chapters: { t: number }[], on: boolean) {
     if (!v) return;
     if (v.paused) {
       held.current = false;
-      v.play().catch(() => {});
+      play(v);
     } else {
       held.current = true;
       v.pause();
@@ -470,7 +491,14 @@ function useRecording(chapters: { t: number }[], on: boolean) {
     });
     setChapter((c) => (c === i ? c : i));
   };
-  const events = { onTimeUpdate: onTime, onPlay: () => setPlaying(true), onPause: () => setPlaying(false) };
+  // a recording that starts part-way comes back round to that point, not to the very beginning
+  const onEnded = () => {
+    const v = video.current;
+    if (!v || !from) return;
+    v.currentTime = chapters[from].t;
+    v.play().catch(() => {});
+  };
+  const events = { onTimeUpdate: onTime, onPlay: () => setPlaying(true), onPause: () => setPlaying(false), onEnded };
   return { video, chapter, playing, seek, toggle, events, held };
 }
 
@@ -489,17 +517,14 @@ function PlayIcon({ playing }: { playing: boolean }) {
 
 export function MelonStage() {
   const active = useActive("melon");
-  const r = useRecording(MELON_FILM_CHAPTERS, active);
+  const r = useRecording(MELON_FILM_CHAPTERS, active, 1);
   const [sound, setSound] = useState(false);
   const toggleSound = () => {
     const v = r.video.current;
     if (!v) return;
     v.muted = !v.muted;
     setSound(!v.muted);
-    if (!v.muted && v.paused) {
-      r.held.current = false;
-      v.play().catch(() => {});
-    }
+    if (!v.muted && v.paused) r.toggle();
   };
 
   return (
@@ -511,7 +536,6 @@ export function MelonStage() {
             className="melon-film"
             poster="/work/melon/mellon-concept.webp"
             muted
-            loop
             playsInline
             preload="metadata"
             aria-label="The team's concept film for Mellon, 2 minutes 13, with captions: a week of school email getting lost, then Mellon in Gmail for the student, the advisor seeing what students ask, and the guide that comes back to them"
