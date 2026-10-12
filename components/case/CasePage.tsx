@@ -74,6 +74,7 @@ const REVEAL = [
   ".ml-pull",
   ".ml-rules",
   ".ml-limits",
+  ".ml-decide > li",
   ".ml-concepts",
   ".ml-demo",
   ".ml-explore-item",

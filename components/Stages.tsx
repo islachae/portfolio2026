@@ -608,7 +608,7 @@ export function MelonPanelClip() {
         <button className="stage-btn" onClick={r.toggle} aria-label={r.playing ? "Pause the recording" : "Play the recording"}>
           <PlayIcon playing={r.playing} />
         </button>
-        <span className="stage-caption">Working prototype.</span>
+        <span className="stage-caption">Working prototype, built with Claude Code.</span>
       </StageControls>
     </div>
   );
