@@ -17,11 +17,12 @@ export const melonCase = {
   title: "Making school email a two-way conversation",
   subtitle: "Students couldn’t tell which School of Design emails were meant for them. Their advisor couldn’t tell whether anything landed.",
   meta: [
-    { label: "Role", value: "Team lead · framing & interface design" },
+    { label: "Role", value: "Team lead · framing, interface design & prototype" },
     { label: "Timeline", value: "Fall 2026" },
     { label: "Type", value: "Team of 3 · MDes studio" },
+    { label: "Status", value: "In testing with 5 target users" },
   ],
-  readingTime: "6 min",
+  readingTime: "4 min",
   hero: {
     src: "/work/melon/mellon-panel.webp",
     alt: "The Mellon side panel: an Updates list with what needs action first, and an Ask Mellon box",
@@ -32,10 +33,10 @@ export const melonCase = {
     { id: "cs-overview", label: "Overview" },
     { id: "ml-gap", label: "Problem" },
     { id: "ml-research", label: "Research" },
-    { id: "ml-frame", label: "Framing" },
-    { id: "ml-directions", label: "Concepts" },
     { id: "ml-melon", label: "Solution" },
-    { id: "ml-react", label: "Reactions" },
+    { id: "ml-decide", label: "Decisions" },
+    { id: "ml-directions", label: "Concepts" },
+    { id: "ml-test", label: "Testing" },
     { id: "cs-takeaways", label: "Reflection" },
   ],
   overview:
@@ -51,7 +52,7 @@ export const melonCase = {
     },
     {
       k: "My part",
-      v: "Led the team, framed the problem we designed for, and designed the screens on both sides: the student panel and the advisor dashboard.",
+      v: "Led the team, framed the problem we designed for, designed the screens on both sides (the student panel and the advisor dashboard), and built the working prototype with Claude Code.",
     },
   ],
   team: "With Jamie and Pragya, in the MDes Communication Design Studio at Carnegie Mellon.",
@@ -104,7 +105,7 @@ export const melonCase = {
     },
   },
 
-  // ── Research: one event followed through the system, the belief underneath, and the survey.
+  // ── Research: one event followed through the system, the two beliefs that broke, and the survey.
   research: {
     label: "Research",
     title: ["We followed one event", "through the whole system."],
@@ -128,25 +129,17 @@ export const melonCase = {
       { src: img("map-3"), h: "Messages repeat across channels", v: "The same details arrive by email, Slack, a shared calendar, the admissions packet and word of mouth." },
       { src: img("map-4"), h: "Receiving information does not always lead to action", v: "Nothing on the map flows back to Donna, unless a student writes to her directly." },
     ],
-    rootTitle: "The root is a belief: sent means informed.",
-    rootLabels: { seen: "Visible", hidden: "Hidden", assume: "We assume that" },
-    root: [
-      { k: "Event", v: ["Information is missed, actions are delayed, and questions surface later."] },
-      { k: "Pattern", v: ["Students keep returning to information after it is sent.", "Emails mix different levels of importance."] },
-      { k: "Structure", v: ["Email serves as both communication and storage.", "Follow-up depends on remembering to return, act or ask.", "Feedback arrives through separate, individual questions."] },
-      { k: "Mental model", v: ["Students can recognize urgency and importance.", "If information is sent, students are informed."] },
-    ],
-    brokeTitle: "Both beliefs broke in interviews",
+    brokeTitle: "Two beliefs broke in interviews",
     brokeLabels: { a: "We assumed", q: "We heard", area: "The problem" },
     broke: [
       { a: "Students can recognize urgency and importance.", q: "Honestly, it doesn’t feel that important to me. But from Donna’s perspective, I guess it’s important.", who: "Graduate student", area: "Different ideas of importance" },
       { a: "If information is sent, students are informed.", q: "I’m never really sure if they understand my email responses.", who: "Donna", area: "Limited feedback" },
     ],
-    pull: { q: "There are many days I come here and I feel like I’m just in an email factory.", src: "Donna" },
   },
 
   // ── The student survey (Google Form, Sept 19–21, 2026; 12 responses). Counts are of the students
   //    who answered each question; most questions were “choose everything that applies”.
+  //    (The full charts, once folded under “All answers”, are in the git history before Oct 12, 2026.)
   survey: {
     label: "Survey · 12 students",
     title: "The answers are out there. Students want certainty, with Donna behind it.",
@@ -158,87 +151,33 @@ export const melonCase = {
       { n: 6, of: 7, unit: "want an AI to say when it’s unsure", h: "Trust an AI that admits doubt", melon: "Unsure? It hands over to Donna" },
     ],
     melonLabel: "In Mellon",
-    open: {
-      k: "Still open",
-      v: "Funding: a top reason to ask Donna (4 of 9), and the topic fewest would trust an AI with (1 of 6).",
-    },
-    allLabel: "All answers",
-    charts: [
-      {
-        k: "Why they wrote to Donna",
-        n: 9,
-        rows: [
-          { k: "Wanted her confirmation", v: 5, key: true },
-          { k: "Easier to ask her directly", v: 5 },
-          { k: "Found it, but it was unclear", v: 4 },
-          { k: "Unsure it applied to me", v: 3 },
-          { k: "Didn’t know who else to ask", v: 3 },
-          { k: "Couldn’t find it", v: 3 },
-        ],
-      },
-      {
-        k: "Why they held a question back",
-        n: 8,
-        rows: [
-          { k: "Thought I should find it myself", v: 5, key: true },
-          { k: "Didn’t want to bother her", v: 4 },
-          { k: "Didn’t feel important enough", v: 4 },
-          { k: "Forgot or didn’t follow up", v: 3 },
-          { k: "Unsure she was the right person", v: 3 },
-        ],
-      },
-      {
-        k: "What they did instead",
-        n: 8,
-        rows: [
-          { k: "Asked another student", v: 6, key: true },
-          { k: "Searched the School of Design site", v: 5 },
-          { k: "Searched their email", v: 4 },
-          { k: "Asked a professor or staff", v: 1 },
-          { k: "Checked Slack", v: 1 },
-          { k: "Nothing", v: 1 },
-        ],
-      },
-      {
-        k: "What would make an AI’s answer trustworthy",
-        n: 7,
-        rows: [
-          { k: "Says clearly when it’s unsure", v: 6, key: true },
-          { k: "Shows when it was last updated", v: 5 },
-          { k: "Lets me ask Donna directly", v: 5, key: true },
-          { k: "Shows the original source", v: 4 },
-          { k: "Only uses official School of Design info", v: 3 },
-        ],
-      },
-    ],
     foot: "12 responses, September 2026. Not a representative sample; counts are of the students who answered each question.",
   },
 
-  frame: {
-    label: "Framing",
-    hmw: [
-      { t: "How might we make School of Design communication " },
-      { t: "easier for students to recognize and follow up on", hi: true },
-      { t: ", while making " },
-      { t: "their needs more visible to the graduate academic advisor", hi: true },
-      { t: "?" },
+  // ── Three decisions: the update card, the answer, and where the assistant stops. The first two
+  //    show the explorations they were chosen from (the card and chat boards from the team's files).
+  decide: {
+    label: "Decisions",
+    title: ["Three decisions", "behind the panel."],
+    items: [
+      {
+        k: "Decision 1",
+        h: "One update, one action.",
+        v: "We drew 19 ways to show a single update. The final card keeps only the title, the sender or date, and at most one action. Students read an email for one thing, a due date or an action, so everything else on the card competed with it.",
+        fig: { src: img("card-explorations"), alt: "Nineteen variations of an update card: minimal, with tags, with priority, with snippets, with dates and actions", w: 1800, h: 1200 },
+      },
+      {
+        k: "Decision 2",
+        h: "Summary first, source one tap away.",
+        v: "We tried 5 ways to answer a question. The final answer is a short summary with a link to the original email, then next steps as buttons. Students go back to where they first saw something, and Donna wants her paper trail, so no answer stands without its source.",
+        fig: { src: img("chat-options"), alt: "Five chat layouts for Ask Mellon: minimal chat, card with quick actions, rich info with links, conversational follow-up and compact", w: 1800, h: 1200 },
+      },
+      {
+        k: "Decision 3",
+        h: "The assistant quotes Donna. It does not imitate her.",
+        v: "Donna had tried AI tools and stopped because they didn’t sound like her. So we asked her what a “Mini Donna” could answer without her, and her answers became three lanes.",
+      },
     ],
-    hypoTitle: "Our design hypothesis",
-    hypoLabels: { area: "Problem", ifs: "If", then: "Then", because: "Because" },
-    hypo: [
-      { area: "Different ideas of importance", ifs: "we nudge students toward information they care about, need to know, or need to act on", then: "students can act and follow up more easily," },
-      { area: "Limited feedback", ifs: "and make it easy to ask questions in context,", then: "while the advisor can see where clarification is needed." },
-    ],
-    because: "This can reduce the time and effort for both students and the advisor, and ultimately improve trust in correspondence.",
-    rulesTitle: "Four constraints, four decisions",
-    rules: [
-      { h: "Updates sorted by what matters to each student", why: "Each student has different priorities and needs." },
-      { h: "A side panel on top of email, not another channel", why: "Each channel has its own character and purpose." },
-      { h: "Quick, low-effort feedback. Donna answers only new questions", why: "Advisor and students have limited time and attention." },
-      { h: "Reusable answers for repeated questions", why: "The system runs on manual coordination: Donna filters, organises and distributes information across channels." },
-    ],
-    limitsTitle: "Where Mellon stops",
-    limitsText: "We asked Donna what a “Mini Donna” could answer without her. Her answers became three lanes.",
     lanes: [
       {
         tone: "ok",
@@ -259,7 +198,7 @@ export const melonCase = {
         ex: ["I’m having a hard week. Who can I talk to?"],
       },
     ],
-    limitsFoot: "Example questions are illustrative. At first, Donna keeps strong control over what it says.",
+    lanesFoot: "Example questions are illustrative. At first, Donna keeps strong control over what it says.",
   },
 
   directions: {
@@ -272,8 +211,6 @@ export const melonCase = {
       { src: img("concept-4"), name: "Slack event hub", v: "Every event email mirrored into a Slack channel.", keep: false, why: "Set aside: Donna steps back from Slack after orientation." },
       { src: img("concept-5"), name: "SoD event hub", v: "One website for every School of Design event.", keep: false, why: "Set aside: every site change goes through a yearly web review, more work for Donna." },
     ],
-    sketch: { src: img("first-sketch"), alt: "First sketch: a side panel beside the Mail inbox with tabs for primary info and calendar, cards for calendar events, priority info and to-dos, an AI summary that links to the exact email, and chat with quick action buttons", w: 1700, h: 925 },
-    sketchCap: "First sketch: a panel beside the inbox. Each update leads to an AI summary, then to the exact email; chat ends in an action.",
   },
 
   melon: {
@@ -399,38 +336,20 @@ export const melonCase = {
         },
       },
     ],
-    partsTitle: "In the recording",
-    chapters: [
-      { t: 0, k: "Sorted by what needs doing", v: "Action needed first, then today, then earlier this week." },
-      { t: 3.8, k: "Summary first, source one tap away", v: "Students go back to where they first saw something, and Donna keeps her paper trail, so every summary links to the original email." },
-      { t: 16.8, k: "Ask next to the email", v: "A question typed beside the update it is about." },
-      { t: 34.6, k: "Clear in bulk", v: "Select what’s done and discard it together." },
-    ],
-    exploreTitle: "How the panel got here",
-    explore: [
-      { src: img("card-explorations"), alt: "Nineteen variations of an update card: minimal, with tags, with priority, with snippets, with dates and actions", w: 1800, h: 1200, k: "19 ways to show one update", v: "The final card keeps the title, the sender or date, and at most one action." },
-      { src: img("chat-options"), alt: "Five chat layouts for Ask Mellon: minimal chat, card with quick actions, rich info with links, conversational follow-up and compact", w: 1800, h: 1200, k: "5 ways to answer", v: "The final answer is a short summary with a link to the email, then the next steps as buttons." },
-    ],
   },
 
-  // ── First reactions (the presentation’s last research slide) and where it could go.
-  react: {
-    label: "First reactions",
-    title: ["What would they", "use it for?"],
-    text: "We asked students and Donna what they would use Mellon for.",
+  // ── Testing: the prototype is published to Google Workspace and in use by five target users.
+  //    Until there is a result, the section carries the first reactions to the concept.
+  test: {
+    label: "Testing",
+    title: ["In testing", "with 5 target users."],
+    text: "We published Mellon to Google Workspace for testing with 5 target users. Before testing, we asked students and Donna what they would use it for.",
     students: {
       k: "Students",
       src: "Google Forms survey",
       a: ["Internship and job assistance", "Kind of questions that I can get the answer from the handbook.", "Administrative process", "School events, resources, professor info"],
     },
     donna: { k: "Graduate advisor", src: "Written interview with Donna", q: "Possibly everything" },
-    note: "These are first reactions to the concept. We have not measured use.",
-    nextTitle: "Where it could go",
-    next: [
-      { k: "Today", v: "School of Design" },
-      { k: "Next", v: "CMU-wide programs" },
-      { k: "Long term", v: "A platform for schools anywhere" },
-    ],
     close: ["With Mellon,", "sent can mean informed."],
   },
 
@@ -438,18 +357,8 @@ export const melonCase = {
     label: "Reflection",
     items: [
       {
-        title: "Follow one event, not the whole system",
-        text: "The campus map was too big to design for. Tracing one orientation from first email to first week showed exactly where information piled up and where nothing came back.",
-        evidence: { id: "ml-map", label: "Evidence: the orientation map" },
-      },
-      {
-        title: "Importance is a conversation, not a label",
-        text: "“Important” meant pending to the sender and consequence to the reader. The fix wasn’t a better label; it was letting each side see the other’s reading.",
-        evidence: { id: "ml-gap", label: "Evidence: one email, two readers" },
-      },
-      {
         title: "Let the assistant quote the person, not imitate her",
-        text: "Donna tried AI and stopped because it didn’t sound like her. Mellon answers from her own words, links back to them, and hands over anything sensitive.",
+        text: "The fix for trust wasn’t a better AI voice. It was answering in Donna’s own words, linking back to them, and handing anything sensitive to her.",
         evidence: { id: "ml-limits", label: "Evidence: where the assistant stops" },
       },
     ],

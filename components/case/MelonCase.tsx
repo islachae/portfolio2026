@@ -10,10 +10,10 @@ import { useScrollRoot } from "./scroll-root";
 import { MelonPanelClip } from "../Stages";
 
 /**
- * CMU Mellon. The page follows the presentation's argument: one email read two ways, the belief
- * underneath (sent means informed), where it broke, the framing, then the two screens that let
- * each side see the other, and what people said they would use it for. Three small interactions:
- * the same email read two ways, the map's four findings, and the recording (the first screen).
+ * CMU Mellon, kept short (about 1,000 words): one email read two ways, what research found, the
+ * two screens that let each side see the other, the three decisions behind them, the concepts set
+ * aside, and where testing stands. Small interactions: the same email read two ways, the map's
+ * four findings, the loop, and the recording.
  */
 export function MelonCase() {
   return (
@@ -21,10 +21,10 @@ export function MelonCase() {
       <Hero />
       <Gap />
       <Research />
-      <Frame />
-      <Directions />
       <Solution />
-      <Reactions />
+      <Decide />
+      <Directions />
+      <Testing />
       <Takeaways t={C.takeaways} />
     </article>
   );
@@ -242,30 +242,6 @@ function Research() {
 
       <MapFindings />
 
-      {/* The iceberg: what shows, and the belief at the bottom that holds it up */}
-      <div className="ml-root">
-        <h3 className="cs-h3 ml-h3">{r.rootTitle}</h3>
-        <ol className="ml-berg">
-          {r.root.map((l, i) => (
-            <li key={l.k} data-i={i} data-root={i === r.root.length - 1 || undefined}>
-              <span className="ml-berg-slice" aria-hidden>
-                <i />
-              </span>
-              <span className="ml-berg-k">
-                {l.k}
-                {i < 2 && <small>{i === 0 ? r.rootLabels.seen : r.rootLabels.hidden}</small>}
-              </span>
-              <span className="ml-berg-v">
-                {i === r.root.length - 1 ? <em>{r.rootLabels.assume}</em> : null}
-                {l.v.map((t) => (
-                  <span key={t}>{t}</span>
-                ))}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
-
       <h3 className="cs-h3 ml-h3">{r.brokeTitle}</h3>
       <ol className="ml-broke">
         {r.broke.map((b) => (
@@ -286,12 +262,7 @@ function Research() {
           </li>
         ))}
       </ol>
-      <figure className="ml-pull">
-        <blockquote>“{r.pull.q}”</blockquote>
-        <figcaption>{r.pull.src}</figcaption>
-      </figure>
-
-      {/* The survey in three numbers; every answer stays one click away under “All answers” */}
+      {/* The survey in three numbers */}
       <div className="ml-survey" id="ml-survey">
         <p className="label ml-survey-k">{v.label}</p>
         <h3 className="cs-h3 ml-survey-h">{v.title}</h3>
@@ -317,98 +288,8 @@ function Research() {
             </li>
           ))}
         </ol>
-        <p className="ml-open">
-          <b>{v.open.k}</b> {v.open.v}
-        </p>
-        <details className="ml-all">
-          <summary>
-            {v.allLabel}
-            <span>4 charts</span>
-          </summary>
-          <div className="ml-charts">
-            {v.charts.map((c) => (
-              <figure className="ml-chart" key={c.k}>
-                <figcaption>
-                  <b>{c.k}</b>
-                  <span>{c.n} answered</span>
-                </figcaption>
-                <ol>
-                  {c.rows.map((row) => (
-                    <li
-                      key={row.k}
-                      data-key={("key" in row && row.key) || undefined}
-                      style={{ ["--w" as string]: `${(row.v / c.n) * 100}%` }}
-                      aria-label={`${row.k}: ${row.v} of ${c.n}`}
-                    >
-                      <span className="ml-bar-k" aria-hidden>
-                        {row.k}
-                      </span>
-                      <span className="ml-bar-track" aria-hidden>
-                        <i className="ml-bar" />
-                        <span className="ml-bar-v">
-                          {row.v} <small>of {c.n}</small>
-                          <em> · {Math.round((row.v / c.n) * 100)}%</em>
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </figure>
-            ))}
-          </div>
-        </details>
         <p className="ml-survey-foot">{v.foot}</p>
       </div>
-    </Section>
-  );
-}
-
-/* ───────────── Framing: the question, the hypothesis, and what each constraint decided ───────────── */
-
-function Frame() {
-  const f = C.frame;
-  return (
-    <Section label={f.label} id="ml-frame">
-      <h2 className="cs-h2 ml-hmw">
-        {f.hmw.map((p, i) => (p.hi ? <em key={i}>{p.t}</em> : <Fragment key={i}>{p.t}</Fragment>))}
-      </h2>
-
-      <h3 className="cs-h3 ml-h3">{f.hypoTitle}</h3>
-      <div className="ml-hypo">
-        <div className="ml-hypo-head" aria-hidden>
-          <span>{f.hypoLabels.area}</span>
-          <span>{f.hypoLabels.ifs}</span>
-          <span>{f.hypoLabels.then}</span>
-        </div>
-        {f.hypo.map((h) => (
-          <div className="ml-hypo-row" key={h.area}>
-            <b>{h.area}</b>
-            <p data-k={f.hypoLabels.ifs}>
-              <span className="sr-only">{f.hypoLabels.ifs}: </span>
-              {h.ifs}
-            </p>
-            <p data-k={f.hypoLabels.then}>
-              <span className="sr-only">{f.hypoLabels.then}: </span>
-              {h.then}
-            </p>
-          </div>
-        ))}
-        <p className="ml-hypo-because">
-          <span className="ml-hypo-k">{f.hypoLabels.because}</span>
-          <span>{f.because}</span>
-        </p>
-      </div>
-
-      <h3 className="cs-h3 ml-h3">{f.rulesTitle}</h3>
-      <ol className="ml-rules">
-        {f.rules.map((r, i) => (
-          <li key={r.h}>
-            <span className="ml-rule-n">0{i + 1}</span>
-            <span className="ml-rule-why">{r.why}</span>
-            <b>{r.h}</b>
-          </li>
-        ))}
-      </ol>
     </Section>
   );
 }
@@ -432,10 +313,6 @@ function Directions() {
           </li>
         ))}
       </ul>
-      <figure className="ml-fig ml-fig--sketch">
-        <img src={d.sketch.src} alt={d.sketch.alt} width={d.sketch.w} height={d.sketch.h} loading="lazy" />
-        <figcaption>{d.sketchCap}</figcaption>
-      </figure>
     </Section>
   );
 }
@@ -671,7 +548,6 @@ function Loop() {
 
 function Solution() {
   const m = C.melon;
-  const f = C.frame;
   return (
     <Section label={m.label} id="ml-melon">
       <h2 className="cs-h2">
@@ -714,67 +590,68 @@ function Solution() {
         <h3 className="cs-h3">{m.clipTitle}</h3>
         <MelonPanelClip />
       </div>
-
-      <div className="ml-limits" id="ml-limits" tabIndex={-1}>
-        <h3 className="cs-h3">{f.limitsTitle}</h3>
-        <p className="cs-body">{f.limitsText}</p>
-        <div className="ml-lanes">
-          {f.lanes.map((l) => (
-            <div className="ml-lane" data-tone={l.tone} key={l.k}>
-              <p className="ml-lane-k">
-                <span className="ml-lane-mark" aria-hidden>
-                  {LANE_MARK[l.tone]}
-                </span>
-                {l.k}
-              </p>
-              <p className="ml-lane-v">{l.v}</p>
-              <ul className="ml-lane-ex" aria-label="Example questions">
-                {l.ex.map((q) => (
-                  <li key={q}>{q}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <p className="ml-limits-foot">{f.limitsFoot}</p>
-      </div>
-
-      {/* what each part of the recording shows (the recording itself is the page's first screen) */}
-      <h3 className="cs-h3 ml-h3">{m.partsTitle}</h3>
-      <ol className="ml-demo ml-parts">
-        {m.chapters.map((c, i) => (
-          <li key={c.k}>
-            <span className="ml-ch-n">0{i + 1}</span>
-            <span className="ml-ch-k">{c.k}</span>
-            <p className="ml-ch-v">{c.v}</p>
-          </li>
-        ))}
-      </ol>
-
-      <h3 className="cs-h3 ml-h3">{m.exploreTitle}</h3>
-      <div className="ml-explore">
-        {m.explore.map((e) => (
-          <figure className="ml-explore-item" key={e.k}>
-            <span className="ml-explore-shot">
-              <img src={e.src} alt={e.alt} width={e.w} height={e.h} loading="lazy" />
-            </span>
-            <figcaption>
-              <b>{e.k}</b>
-              <span>{e.v}</span>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
     </Section>
   );
 }
 
-/* ───────────── First reactions, and where it could go ───────────── */
+/* ───────────── Decisions: the card, the answer, and where the assistant stops ───────────── */
 
-function Reactions() {
-  const r = C.react;
+function Decide() {
+  const d = C.decide;
   return (
-    <Section label={r.label} id="ml-react">
+    <Section label={d.label} id="ml-decide">
+      <h2 className="cs-h2">
+        <Lines lines={d.title} />
+      </h2>
+      <ol className="ml-decide">
+        {d.items.map((it, i) => (
+          <li key={it.k}>
+            <p className="label ml-decide-k">{it.k}</p>
+            <h3 className="cs-h3 ml-decide-h">{it.h}</h3>
+            <p className="cs-body cs-measure">{it.v}</p>
+            {"fig" in it && it.fig ? (
+              <figure className="ml-decide-fig">
+                <span className="ml-explore-shot">
+                  <img src={it.fig.src} alt={it.fig.alt} width={it.fig.w} height={it.fig.h} loading="lazy" decoding="async" />
+                </span>
+              </figure>
+            ) : null}
+            {i === d.items.length - 1 && (
+              <div className="ml-limits" id="ml-limits" tabIndex={-1}>
+                <div className="ml-lanes">
+                  {d.lanes.map((l) => (
+                    <div className="ml-lane" data-tone={l.tone} key={l.k}>
+                      <p className="ml-lane-k">
+                        <span className="ml-lane-mark" aria-hidden>
+                          {LANE_MARK[l.tone]}
+                        </span>
+                        {l.k}
+                      </p>
+                      <p className="ml-lane-v">{l.v}</p>
+                      <ul className="ml-lane-ex" aria-label="Example questions">
+                        {l.ex.map((q) => (
+                          <li key={q}>{q}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+                <p className="ml-limits-foot">{d.lanesFoot}</p>
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
+    </Section>
+  );
+}
+
+/* ───────────── Testing: where the prototype stands, and the first reactions ───────────── */
+
+function Testing() {
+  const r = C.test;
+  return (
+    <Section label={r.label} id="ml-test">
       <h2 className="cs-h2">
         <Lines lines={r.title} />
       </h2>
@@ -795,17 +672,6 @@ function Reactions() {
           <span className="ml-react-src">{r.donna.src}</span>
         </figure>
       </div>
-      <p className="ml-react-note">{r.note}</p>
-
-      <h3 className="cs-h3 ml-h3">{r.nextTitle}</h3>
-      <ol className="ml-next">
-        {r.next.map((n) => (
-          <li key={n.k}>
-            <span className="label">{n.k}</span>
-            <b>{n.v}</b>
-          </li>
-        ))}
-      </ol>
       <p className="ml-close">
         <Lines lines={r.close} />
       </p>

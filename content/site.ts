@@ -220,6 +220,8 @@ export const pages: Page[] = [
     id: "melon",
     meta: "Communication • Team project 2026",
     year: "2026",
+    // the card says where it stands: the prototype is published to Google Workspace and in testing
+    card: "In testing 2026",
     group: "work",
     thumb: "/work/melon/meet-mellon.webp",
     tone: "#f8d9d5",
@@ -231,7 +233,7 @@ export const pages: Page[] = [
     tagline: "School email, made two-way.",
     summary: [
       "School of Design graduate students get most program information by email from one advisor, and each of them decides alone what matters. Almost nothing tells her what landed.",
-      "On a team of three, I led the project, framed the problem and designed the screens. Mellon is a Gmail side panel that sorts school email by what needs doing and answers questions from what the advisor already sent, with a dashboard that shows her what students are asking.",
+      "On a team of three, I led the project, framed the problem, designed the screens and built the working prototype with Claude Code. Mellon is a Gmail side panel that sorts school email by what needs doing and answers questions from what the advisor already sent, with a dashboard that shows her what students are asking.",
     ],
     handoff: {
       automated: ["Sorting and summarizing the inbox", "Answering from what was already sent"],
@@ -239,14 +241,14 @@ export const pages: Page[] = [
     },
     challenge: "Students couldn’t tell which school emails were meant for them, and their advisor couldn’t tell what landed.",
     didLabel: "My part",
-    did: "Led a team of 3, framed the problem and designed the screens for Mellon: a Gmail side panel for students and a dashboard for their advisor.",
+    did: "Led a team of 3, framed the problem, designed the screens and built the working prototype with Claude Code for Mellon: a Gmail side panel for students and a dashboard for their advisor.",
     facts: [
-      { label: "Role", value: "Team lead · framing & interface design" },
+      { label: "Role", value: "Team lead · framing, interface design & prototype" },
       { label: "Timeline", value: "Fall 2026" },
       { label: "Type", value: "Team of 3 · MDes studio" },
+      { label: "Status", value: "In testing with 5 target users" },
     ],
-    // TODO(Chaewon): the real tool stack. Only Figma is filled in for now.
-    tools: ["Figma"],
+    tools: ["Figma", "Claude Code"],
     keywords: ["communication", "email", "inbox", "notifications", "personalization", "education", "school", "cmu", "advisor", "student", "productivity"],
   },
   {
