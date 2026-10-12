@@ -88,7 +88,7 @@ hero (the intro types itself in over the finished drink: “Some words just don�
 
 ## Jellycat of the Day (For fun)
 
-`/#play/jellycat`, the second play page, right after Untranslatable (ticker **GRAB**). A lilac claw machine with six fluffy plush flopped inside: Fluffy Sun, Fluffy Cursor (a pixel pointing hand), Scottie (a black terrier in a tartan bandana), Baseball (stitched seams, a blue cap, pinstripes; no team logo), NYC Taxi and Clawd (the Claude Code mascot). Move the claw with ◀ ▶ (hold), the arrow keys or a drag across the machine; **Grab** (or Space/Enter) drops it. The plush you catch is carried to the chute, pops out in front of the machine and gets a card: “Oct 12 · Jellycat of the day”, its name and a fortune. **Play again** sends it back. A fan project, said so under the buttons.
+`/#play/jellycat`, the second play page, right after Untranslatable (ticker **GRAB**). A lilac claw machine with eight fluffy plush flopped inside: Fluffy Sun, Fluffy Cursor (a pixel pointing hand), Scottie (a black terrier in a tartan bandana), Strawberry Parfait, Baseball (stitched seams, a blue cap, pinstripes; no team logo), Matcha Latte, NYC Taxi and Clawd (the Claude Code mascot). Move the claw with ◀ ▶ (hold), the arrow keys or a drag across the machine; **Grab** (or Space/Enter) drops it. The plush you catch is carried to the chute, pops out in front of the machine and gets a card: “Oct 12 · Jellycat of the day”, its name and a fortune. **Play again** sends it back. A fan project, said so under the buttons.
 
 - **What's in the machine:** [`content/jellycats.ts`](content/jellycats.ts): name, where it sits (`x`, left to right; the chute is at the far left; `z` nudges it forward or back), how it flops (`slump`: tipped back and to one side; it sits up straight when it comes out), `scale`, `showYaw` (its turn on show, for the taxi), and three fortune `lines`. How high the claw stops is worked out from the flopped shape. The fortune is picked from the date and the name, so the same plush says the same thing all day. The first plush caught each day is remembered per browser (localStorage `jc-pick:<date>`) and shown under the buttons.
 - **Catching:** dead centre over a plush catches it almost every time (92%); further off it starts to slip back onto the floor with a squash; more than half a unit off, the claw comes up empty. The two misses say so in a small toast.
@@ -188,7 +188,7 @@ A “Quick question” card sits in the right panel on Home, right under “How 
 | `components/toys.tsx` | Rolling digits, slide-to-confirm, hold-to-confirm |
 | `components/cocktail/*` | Word Cocktail: `WordCocktail.tsx` (phases, type, hold ring, share), `Receipt.tsx`, `bar.ts` + `kit.ts` (the 3D), `lucky.ts` + `sleeper.ts` + `spring.ts` (Yuánfèn's garnish, the shared sleepy face, the spring), `timeline.ts` (timing + clock), `CocktailScene.tsx` (the canvas) |
 | `content/cocktails.ts` | Word Cocktail's words and recipes |
-| `components/jellycat/*` | Jellycat of the Day: `JellycatOfTheDay.tsx` (buttons, card, keyboard), `game.ts` (the machine and the game), `plush.ts` (the six plush), `fur.ts` (shell fur and the shapes) |
+| `components/jellycat/*` | Jellycat of the Day: `JellycatOfTheDay.tsx` (buttons, card, keyboard), `game.ts` (the machine and the game), `plush.ts` (the eight plush), `fur.ts` (shell fur and the shapes) |
 | `content/jellycats.ts` | Jellycat of the Day's plush, fortunes and copy |
 | `app/globals.css` | Tokens (light + dark), all styles |
 

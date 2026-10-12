@@ -313,14 +313,14 @@ export const pages: Page[] = [
     kind: "3D · Game · Toy",
     tagline: "A claw machine that picks your plush, and your fortune, for the day.",
     summary: [
-      "A lilac claw machine with six fluffy plush flopped inside: a sun, a pixel cursor, a Scottie, a baseball, a New York taxi and Clawd. Move the claw, grab one, and the one you catch comes out with a fortune for the day.",
+      "A lilac claw machine with eight fluffy plush flopped inside: a sun, a pixel cursor, a Scottie, a strawberry parfait, a baseball, a matcha latte, a New York taxi and Clawd. Move the claw, grab one, and the one you catch comes out with a fortune for the day.",
       "Every plush is code, no model files: 20 layers of shell fur, seams that pull the pile short, corduroy boots. A fan project, not affiliated with Jellycat.",
     ],
     facts: [
       { label: "Built with", value: "Next.js, three.js" },
-      { label: "In the machine", value: "Sun, Cursor, Scottie, Baseball, NYC Taxi, Clawd" },
+      { label: "In the machine", value: "Sun, Cursor, Scottie, Parfait, Baseball, Matcha, NYC Taxi, Clawd" },
     ],
-    keywords: ["jellycat", "plush", "claw machine", "claw", "game", "fortune", "fur", "shell fur", "clawd", "scottie", "baseball", "taxi", "nyc", "3d", "three.js", "toy", "fun", "grab"],
+    keywords: ["jellycat", "plush", "claw machine", "claw", "game", "fortune", "fur", "shell fur", "clawd", "scottie", "baseball", "taxi", "nyc", "parfait", "strawberry", "matcha", "latte", "3d", "three.js", "toy", "fun", "grab"],
   },
   {
     id: "wish",

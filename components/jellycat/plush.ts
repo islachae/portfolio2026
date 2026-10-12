@@ -466,5 +466,170 @@ function taxi() {
   return root;
 }
 
-export const makePlush: Record<JellycatId, () => THREE.Group> = { sun, cursor, scottie, baseball, taxi, clawd };
+/**
+ * A band of a round cup between two heights, radius `rf(y)`. `top`/`bot` let an edge wave
+ * (the same function on both sides of a boundary makes two bands meet without a gap).
+ */
+function band(y0: number, y1: number, rf: (y: number) => number, bot: (th: number) => number = () => 0, top: (th: number) => number = () => 0, seam = none as (p: THREE.Vector3) => number) {
+  return surface(
+    (u, v, p) => {
+      const th = -u * Math.PI * 2, a = y0 + bot(th), b = y1 + top(th), y = a + (b - a) * v, r = rf(y);
+      p.set(r * Math.sin(th), y, r * Math.cos(th)); // th runs clockwise so the normals face out
+    },
+    56,
+    Math.max(4, Math.round((y1 - y0) * 24)),
+    seam,
+  );
+}
+/** A flat round lid (or base) of radius r at height y, facing up (+1) or down (−1). */
+function disc(r: number, y: number, face: 1 | -1) {
+  return surface(
+    (u, v, p) => {
+      const th = u * Math.PI * 2 * face, rr = r * v;
+      p.set(rr * Math.sin(th), y + 0.02 * face * (1 - v * v), rr * Math.cos(th));
+    },
+    40,
+    6,
+    none,
+  );
+}
+/** A soft ring (a torus) lying flat at height y. */
+function ring(R: number, r: number, y: number) {
+  return surface(
+    (u, v, p) => {
+      const th = -u * Math.PI * 2, ph = v * Math.PI * 2, rr = R + r * Math.cos(ph);
+      p.set(rr * Math.sin(th), y + r * Math.sin(ph), rr * Math.cos(th));
+    },
+    56,
+    14,
+    none,
+  );
+}
+/** Turn a piece about y, then move it. */
+const place = (g: THREE.BufferGeometry, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0) => {
+  if (rz) g.rotateZ(rz);
+  if (rx) g.rotateX(rx);
+  if (ry) g.rotateY(ry);
+  g.translate(x, y, z);
+  return g;
+};
+
+/** A flat teardrop facing +z, pointed at the top: a strawberry slice. */
+function drop(rx: number, ry: number, rz: number, z = 0) {
+  const g = surface(
+    (u, v, p) => {
+      const th = u * Math.PI * 2, ph = v * Math.PI, sn = Math.sin(ph), yn = Math.cos(ph);
+      const w = 1 - 0.85 * Math.pow(Math.max(0, yn), 1.2);
+      p.set(rx * w * sn * Math.sin(th), ry * yn, rz * sn * Math.cos(th));
+    },
+    28,
+    18,
+    none,
+  );
+  g.translate(0, 0, z);
+  return g;
+}
+
+/** A strawberry parfait cup: red, cream, granola, cream, a ring of strawberry slices, then a scoop, a berry and a wafer. */
+function parfait() {
+  const rf = (y: number) => 0.36 + ((y - 0.15) / 1.4) * 0.22;
+  const w1 = (th: number) => 0.035 * Math.sin(th * 7);
+  const w2 = (th: number) => 0.03 * Math.sin(th * 6 + 1);
+  const root = new THREE.Group();
+  const EX = 0.13, EY = 0.7, MW = 0.08, MY = 0.6, MK = 0.045 / (MW * MW);
+  const zf = (x: number, y: number) => Math.sqrt(Math.max(0, rf(y) * rf(y) - x * x));
+  // bottom red, with a base
+  furPart(root, merge([band(0.15, 0.5, rf, undefined, w1), disc(rf(0.15), 0.15, -1)]), furMaterial({ color: 0xc8283a, len: 0.04, density: 120 }));
+  // cream (the face band), a thin cream line, the rim, and the lid inside the rim
+  furPart(
+    root,
+    merge([band(0.5, 0.86, rf, w1, w2), band(1.06, 1.16, rf, w2, w2), ring(rf(1.55), 0.085, 1.55), disc(rf(1.55), 1.5, 1)]),
+    furMaterial({ color: 0xf4ead3, len: 0.05, density: 96, eye: [EX, EY, zf(EX, EY)], mouth: [MW, MY, MK] }),
+  );
+  face(root, zf, EX, EY, MW, MY, MK);
+  // granola: a band with lumpy clusters on it
+  const gran = [band(0.86, 1.06, (y) => rf(y) - 0.01, w2, w2)];
+  for (let i = 0; i < 26; i++) {
+    const th = (i / 26) * Math.PI * 2, y = 0.96 + 0.04 * Math.sin(i * 2.3), r = rf(y) + 0.02, s = 0.06 + 0.025 * ((i * 7) % 3) / 2;
+    gran.push(ball(s * 1.2, s, s, r * Math.sin(th), y, r * Math.cos(th)));
+  }
+  furPart(root, merge(gran), furMaterial({ color: 0xc88c3e, len: 0.03, density: 130 }));
+  // pink band with strawberry slices standing round it
+  furPart(root, band(1.16, 1.5, rf, w2), furMaterial({ color: 0xf0a8b3, len: 0.04, density: 120 }));
+  const slicesRed: THREE.BufferGeometry[] = [], slicesIn: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < 6; i++) {
+    const th = ((i + 0.5) / 6) * Math.PI * 2, r = rf(1.3) + 0.02;
+    slicesRed.push(place(drop(0.19, 0.23, 0.04), r * Math.sin(th), 1.3, r * Math.cos(th), th));
+    slicesIn.push(place(drop(0.135, 0.17, 0.03, 0.028), r * Math.sin(th), 1.285, r * Math.cos(th), th));
+  }
+  furPart(root, merge(slicesRed), furMaterial({ color: 0xd8262f, len: 0.025, density: 140 }));
+  furPart(root, merge(slicesIn), furMaterial({ color: 0xfbe0da, len: 0.02, density: 150 }));
+  // on top: a shaggy scoop, a strawberry with leaves, a wafer stick
+  furPart(root, ball(0.36, 0.3, 0.36, 0.1, 1.7, -0.02), furMaterial({ color: 0xf6eedb, len: 0.075, density: 64 }));
+  const berry = new THREE.Group();
+  berry.position.set(-0.24, 1.8, 0.12);
+  berry.rotation.z = 0.35;
+  furPart(berry, ball(0.24, 0.26, 0.23, 0, 0, 0), furMaterial({ color: 0xd42a2e, len: 0.035, density: 120 }));
+  const seedMat = new THREE.MeshStandardMaterial({ color: col(0xe0b04f), roughness: 0.7 });
+  const seeds: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < 34; i++) {
+    const th = i * 2.399, yy = 0.85 - (i / 34) * 1.6, rr = Math.sqrt(Math.max(0, 1 - yy * yy));
+    const g = new THREE.SphereGeometry(0.014, 6, 4);
+    g.scale(1, 1.6, 1);
+    g.translate(0.255 * rr * Math.sin(th), 0.27 * yy, 0.245 * rr * Math.cos(th));
+    seeds.push(g);
+  }
+  berry.add(new THREE.Mesh(mergeGeometries(seeds), seedMat));
+  for (const g of seeds) g.dispose();
+  const leaves: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < 6; i++) leaves.push(place(ball(0.04, 0.02, 0.13, 0, 0, 0.1), 0, 0.27, 0, (i / 6) * Math.PI * 2, 0.3));
+  furPart(berry, merge(leaves), furMaterial({ color: 0x4f8f32, len: 0.02, density: 150 }));
+  root.add(berry);
+  const wafer = new THREE.Group();
+  wafer.position.set(0.32, 1.45, -0.18);
+  wafer.rotation.set(-0.12, 0, -0.2);
+  furPart(wafer, merge([band(0, 0.95, () => 0.07), disc(0.07, 0.95, 1)]), furMaterial({ color: 0xc8955c, len: 0.025, density: 150 }));
+  const stripe = new THREE.MeshStandardMaterial({ color: col(0x7b4a2a), roughness: 0.9 });
+  for (const y of [0.42, 0.62, 0.82]) {
+    const t = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.012, 6, 24), stripe);
+    t.position.y = y;
+    t.rotation.set(Math.PI / 2 + 0.35, 0, 0);
+    wafer.add(t);
+  }
+  root.add(wafer);
+  cordLegs(root, { cx: 0, hipY: 0.32, hipZ: 0.28, footZ: 0.62, spread: 0.2, boot: 1.12, hex: 0x9a6640 });
+  return root;
+}
+
+/** A matcha latte to go: a green cup, a pale green rim and a big swirl of whipped cream. */
+function matcha() {
+  const rf = (y: number) => 0.45 + ((y - 0.12) / 1.0) * 0.17;
+  const root = new THREE.Group();
+  const EX = 0.17, EY = 0.62, MW = 0.09, MY = 0.5, MK = 0.05 / (MW * MW);
+  const zf = (x: number, y: number) => Math.sqrt(Math.max(0, rf(y) * rf(y) - x * x));
+  // two soft seams down the cup, like the panels in the photo
+  const seam = (p: THREE.Vector3) => {
+    const th = Math.atan2(p.x, p.z);
+    return Math.max(1 - sstep(0, 0.06, Math.abs(Math.sin(th - 1.25))), 1 - sstep(0, 0.06, Math.abs(Math.sin(th + 1.25))));
+  };
+  furPart(root, merge([band(0.12, 1.12, rf, undefined, undefined, seam), disc(rf(0.12), 0.12, -1)]), furMaterial({ color: 0x6b9a2e, len: 0.045, density: 112, eye: [EX, EY, zf(EX, EY)], mouth: [MW, MY, MK] }));
+  face(root, zf, EX, EY, MW, MY, MK);
+  furPart(root, band(1.1, 1.3, (y) => rf(y) + 0.02), furMaterial({ color: 0xc8da9c, len: 0.04, density: 120 }));
+  // whipped cream: a dome with a twist that rises to a soft peak
+  const cream = surface(
+    (u, v, p) => {
+      const th = -u * Math.PI * 2, ph = v * Math.PI * 0.5, sw = 1 + 0.07 * Math.sin(3 * th + ph * 7) * Math.sin(ph * 2.2);
+      const R = 0.7 * Math.cos(ph * 0.92) * sw;
+      p.set(R * Math.sin(th) + 0.06 * Math.sin(ph) ** 3, 1.26 + 0.62 * Math.sin(ph) * (1 + 0.05 * Math.sin(th * 2)), R * Math.cos(th));
+    },
+    64,
+    28,
+    none,
+  );
+  furPart(root, merge([cream, disc(0.7, 1.26, -1)]), furMaterial({ color: 0xf3ebd8, len: 0.085, density: 58 }));
+  cordLegs(root, { cx: 0, hipY: 0.3, hipZ: 0.32, footZ: 0.72, spread: 0.23, boot: 1.15, hex: 0xc29455 });
+  return root;
+}
+
+export const makePlush: Record<JellycatId, () => THREE.Group> = { sun, cursor, scottie, parfait, baseball, matcha, taxi, clawd };
 

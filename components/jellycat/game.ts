@@ -22,7 +22,7 @@ type State = "idle" | "down" | "close" | "up" | "carry" | "release" | "reveal" |
 type Prize = { j: Jellycat; group: THREE.Group; pose: THREE.Group; slump: THREE.Vector3; top: number; home: THREE.Vector3; s: number; vy: number; squashT: number };
 
 const S = 0.64; // default size in the machine
-const MW = 10.4, HW = MW / 2; // machine width: six plush side by side
+const MW = 12.4, HW = MW / 2; // machine width: eight plush side by side
 /** On a narrow stage the camera shows this much either side of the claw and follows it. */
 const FOLLOW = 4.3;
 const DECK = 2.46, RAILZ = 0.2, HOME_Y = 5.0;
@@ -222,8 +222,7 @@ export class ClawGame {
   /** Straight on and close: the lit header at the top, the controls at the bottom; the base can fall out of frame. */
   private machineView(out: { p: THREE.Vector3; t: THREE.Vector3 }) {
     const tan = Math.tan((this.camera.fov * Math.PI) / 360);
-    const fit = (half: number) => half / (tan * this.camera.aspect);
-    const d = Math.max(3.4 / tan, Math.min(fit(HW + 0.2), fit(FOLLOW)));
+    const d = this.machineD();
     // a tall stage (phones) keeps the header near the top instead of floating mid-air
     const y = Math.min(4.8, 8.0 - 0.94 * d * tan);
     const x = this.camX;
@@ -231,11 +230,21 @@ export class ClawGame {
     out.p.set(x, y + d * 0.045, d);
     return out;
   }
+  /**
+   * How far back the machine view sits: far enough for the header-to-ledge height, and for the
+   * whole width when that's only a little further (wide stages); a narrow stage shows FOLLOW either side instead.
+   */
+  private machineD() {
+    const tan = Math.tan((this.camera.fov * Math.PI) / 360);
+    const base = 3.4 / tan, fit = (half: number) => half / (tan * this.camera.aspect);
+    const full = fit(HW + 1.1); // the front corners are nearer the camera, so they need the extra room
+    return full <= base * 1.4 ? Math.max(base, full) : Math.max(base, fit(FOLLOW));
+  }
   /** Where the camera sits left to right: centred when the whole machine fits, otherwise over the claw. */
   private camXFor() {
     const tan = Math.tan((this.camera.fov * Math.PI) / 360);
-    const d = Math.max(3.4 / tan, Math.min((HW + 0.2) / (tan * this.camera.aspect), FOLLOW / (tan * this.camera.aspect)));
-    const room = Math.max(0, HW + 0.2 - d * tan * this.camera.aspect);
+    const d = this.machineD();
+    const room = Math.max(0, HW + 1.1 - d * tan * this.camera.aspect);
     return Math.min(room, Math.max(-room, this.clawX));
   }
   private revealView(out: { p: THREE.Vector3; t: THREE.Vector3 }) {

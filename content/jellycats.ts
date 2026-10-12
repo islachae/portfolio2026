@@ -3,7 +3,7 @@
  * The 3D for each plush is in components/jellycat/plush.ts, picked by `id`.
  */
 
-export type JellycatId = "sun" | "cursor" | "scottie" | "baseball" | "taxi" | "clawd";
+export type JellycatId = "sun" | "cursor" | "scottie" | "parfait" | "baseball" | "matcha" | "taxi" | "clawd";
 
 export type Jellycat = {
   id: JellycatId;
@@ -28,7 +28,7 @@ export const jellycats: Jellycat[] = [
   {
     id: "sun",
     name: "Fluffy Sun",
-    x: -2.67,
+    x: -3.67,
     yaw: 0.15,
     slump: [-0.42, 0.18],
     z: -0.12,
@@ -41,7 +41,7 @@ export const jellycats: Jellycat[] = [
   {
     id: "cursor",
     name: "Fluffy Cursor",
-    x: -1.12,
+    x: -2.17,
     yaw: -0.1,
     slump: [-0.12, 0.55],
     lines: [
@@ -53,7 +53,7 @@ export const jellycats: Jellycat[] = [
   {
     id: "scottie",
     name: "Scottie",
-    x: -0.28,
+    x: -1.22,
     yaw: -0.2,
     slump: [-0.22, 0.3],
     scale: 0.7,
@@ -64,11 +64,24 @@ export const jellycats: Jellycat[] = [
     ],
   },
   {
+    id: "parfait",
+    name: "Strawberry Parfait",
+    x: -0.3,
+    yaw: 0.1,
+    slump: [-0.28, 0.26],
+    scale: 0.6,
+    lines: [
+      "Today is better in layers. Take it one at a time.",
+      "Save the best bite for last. It’s on its way.",
+      "A sweet surprise is waiting at the top of your day.",
+    ],
+  },
+  {
     id: "baseball",
     name: "Baseball",
-    x: 0.9,
+    x: 0.71,
     yaw: 0.12,
-    slump: [-0.36, 0.3],
+    slump: [-0.36, -0.12],
     z: 0.12,
     scale: 0.62,
     lines: [
@@ -78,9 +91,23 @@ export const jellycats: Jellycat[] = [
     ],
   },
   {
+    id: "matcha",
+    name: "Matcha Latte",
+    x: 1.8,
+    yaw: -0.15,
+    slump: [-0.2, -0.26],
+    z: -0.1,
+    scale: 0.62,
+    lines: [
+      "Slow sips today. You have more time than you think.",
+      "A calm start leads to a clear finish.",
+      "Whip up something new. It will turn out lovely.",
+    ],
+  },
+  {
     id: "taxi",
     name: "NYC Taxi",
-    x: 2.33,
+    x: 3.23,
     yaw: -0.75,
     slump: [0, 0.2],
     scale: 0.66,
@@ -94,7 +121,7 @@ export const jellycats: Jellycat[] = [
   {
     id: "clawd",
     name: "Clawd",
-    x: 3.95,
+    x: 4.98,
     yaw: -0.25,
     slump: [-0.5, -0.12],
     z: -0.15,
@@ -120,5 +147,5 @@ export const jellycatCopy = {
   firstPick: "Today’s first pick: ",
   fan: "Fan project · not affiliated with Jellycat",
   noGL: "This browser can’t draw 3D, so the machine is resting today.",
-  canvas: "A claw machine holding Fluffy Sun, Fluffy Cursor, Scottie, Baseball, NYC Taxi and Clawd. Move the claw with the arrow keys and press Space to grab.",
+  canvas: "A claw machine holding Fluffy Sun, Fluffy Cursor, Scottie, Strawberry Parfait, Baseball, Matcha Latte, NYC Taxi and Clawd. Move the claw with the arrow keys and press Space to grab.",
 };
