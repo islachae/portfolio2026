@@ -6,7 +6,7 @@ import { pages, profile, type Page } from "@/content/site";
 import { isCaseId, longHash } from "@/content/cases/ids";
 import { isPlayId, playHash } from "@/content/routes";
 import { reducedMotion, useShell } from "../shell-context";
-import { Hello, formatNY, useNow } from "../HomePage";
+import { formatNY, useNow } from "../HomePage";
 import { ShaderHero } from "../ShaderHero";
 import { loadCase } from "../case/load";
 import { loadPlay } from "./play-load";
@@ -14,13 +14,19 @@ import { NameChip, PhoneBar, SiteAsk, SiteNav } from "./Nav";
 
 /**
  * Home: who she is, then the work.
- * The first screen is the introduction (the sentence, with her photo in it, and four facts), as
+ * The first screen is the introduction (her photo over a three-line greeting, and four facts), as
  * tall as the window minus a strip at the bottom where the tops of the first two cards show:
  * the work is one scroll away, and it says so. Below: four projects as large cards (each opens
  * its case study), four play pieces the same way (two to a row), and a way to say hi.
  */
 /** The card that opened the page now on screen: focus goes back to it when that page closes. */
 let opener: HTMLElement | null = null;
+
+/**
+ * The header's “Ask Chaewon” button (and the face in the phone bar). Out for now; the chat itself
+ * stays, and opens from ⌘K and the phone menu. `true` brings the buttons back.
+ */
+const SHOW_ASK = false;
 
 export function Home({ hidden }: { hidden: boolean }) {
   // Back from a case study or a play page: the card it was opened from has the focus again
@@ -48,16 +54,16 @@ export function Home({ hidden }: { hidden: boolean }) {
 
   return (
     <main className="nh" id="main" data-hidden={hidden || undefined} aria-hidden={hidden || undefined} inert={hidden ? true : undefined}>
-      <PhoneBar />
+      <PhoneBar name={false} ask={SHOW_ASK} />
       <section className="nh-hero" ref={hero} aria-label="Introduction">
         <ShaderHero active={seen && !hidden} />
         <div className="nh-top">
-          <NameChip />
+          <NameChip mark />
           <SiteNav at="work" />
-          <SiteAsk />
+          {SHOW_ASK && <SiteAsk />}
         </div>
         <div className="nh-intro">
-          <Hello me now={false} />
+          <Greeting />
           <Facts />
         </div>
       </section>
@@ -90,6 +96,28 @@ export function Home({ hidden }: { hidden: boolean }) {
       <Foot />
       <CursorTag off={hidden} />
     </main>
+  );
+}
+
+/**
+ * Her photo, then the greeting in three lines (content/site.ts, profile.greeting): the left half of
+ * the introduction, lined up with the first card under it. Each line is a block of its own, so
+ * wide screens break exactly there and never inside a line; phones may wrap a long one.
+ */
+function Greeting() {
+  const lines = profile.greeting;
+  return (
+    <div className="nh-hello-block">
+      <img className="nh-me" src={profile.photo} alt={profile.name} width={120} height={120} draggable={false} />
+      <h1 className="nh-hello">
+        {lines.map((line, i) => (
+          <span key={line} className="nh-hello-line">
+            {line}
+            {i < lines.length - 1 ? " " : ""}
+          </span>
+        ))}
+      </h1>
+    </div>
   );
 }
 

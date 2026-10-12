@@ -59,15 +59,18 @@ export function SiteAsk() {
   return <ChatToggle ask onClick={() => (chat.open ? chat.closeChat() : chat.openChat())} />;
 }
 
-/** Top left on Home: who this is. The name goes to the top of Home; display settings sit beside it. */
-export function NameChip() {
+/**
+ * Top left on Home: who this is. The name goes to the top of Home; display settings sit beside it.
+ * `mark`: the monogram alone, with no box and no words (the name and role stay in its label).
+ */
+export function NameChip({ mark = false }: { mark?: boolean } = {}) {
   const { goHome } = useShell();
   return (
-    <div className="me-chip">
+    <div className={mark ? "me-chip me-chip--mark" : "me-chip"}>
       <a className="me-chip-main" href="/" onClick={inApp(() => goHome("top"))} aria-label={`${profile.name}, ${profile.role}. Home`}>
         <Monogram size={30} className="me-chip-mark" tile />
-        <span className="me-chip-name">{profile.name}</span>
-        <span className="me-chip-role">{profile.role}</span>
+        {!mark && <span className="me-chip-name">{profile.name}</span>}
+        {!mark && <span className="me-chip-role">{profile.role}</span>}
       </a>
       <span className="me-chip-more">
         <DisplaySettings />
@@ -76,17 +79,21 @@ export function NameChip() {
   );
 }
 
-/** Phones: her name, ChaeLLM's face and the menu button. */
-export function PhoneBar() {
+/**
+ * Phones: her name, ChaeLLM's face and the menu button.
+ * `name={false}` leaves the monogram alone; `ask={false}` leaves the face out (the menu still has
+ * “Ask Chaewon”).
+ */
+export function PhoneBar({ name = true, ask = true }: { name?: boolean; ask?: boolean } = {}) {
   const { goHome, setNavOpen } = useShell();
   const { openChat } = useChat();
   return (
     <header className="mobilebar pb">
-      <a className="mobilebar-home" href="/" onClick={inApp(() => goHome("top"))}>
+      <a className="mobilebar-home" href="/" onClick={inApp(() => goHome("top"))} aria-label={name ? undefined : `${profile.name}. Home`}>
         <Monogram size={24} tile />
-        <span>{profile.name}</span>
+        {name && <span>{profile.name}</span>}
       </a>
-      <ChatToggle compact onClick={openChat} />
+      {ask && <ChatToggle compact onClick={openChat} />}
       <button className="icon-btn" onClick={() => setNavOpen(true)} aria-label="Open menu" aria-haspopup="dialog">
         <MenuIcon />
       </button>

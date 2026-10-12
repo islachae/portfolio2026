@@ -69,6 +69,15 @@ const inconsolata = localFont({
   preload: false,
 });
 
+// Redaction (MCKL, SIL OFL: app/fonts/Redaction-OFL.txt): Home's greeting. The plain Redaction
+// cut, not the worn ones (Redaction 10, 20, …). Above the fold, so it is preloaded.
+const redaction = localFont({
+  src: [{ path: "./fonts/Redaction-Regular.woff2", style: "normal", weight: "400" }],
+  variable: "--font-redaction",
+  display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
+});
+
 const mono = localFont({
   src: "./fonts/GeistMono.woff2",
   variable: "--font-mono",
@@ -130,7 +139,7 @@ try{${introScript}}catch(e){d.removeAttribute("data-boot")}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable} ${inconsolata.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable} ${inconsolata.variable} ${redaction.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: lean(bootScript) }} />
         {/* Inline, so the loader and the outline can paint before the stylesheet arrives */}
