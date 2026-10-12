@@ -19,7 +19,7 @@ export const melonCase = {
   meta: [
     { label: "Role", value: "Team lead · framing & interface design" },
     { label: "Timeline", value: "Fall 2026" },
-    { label: "Type", value: "Team of 3 · MDes studio" },
+    { label: "Team", value: "Jamie Chung, Chaewon Lim, Pragya Srivastava" },
   ],
   readingTime: "6 min",
   hero: {

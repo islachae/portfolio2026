@@ -1209,11 +1209,6 @@ html[data-motion="reduced"] .nh *::after {
 }
 
 /* ───────── small things ───────── */
-/* the note under “fintech and wellness” hangs from those words, like the others from their emoji */
-.phrase--after {
-  position: relative;
-  display: inline-block;
-}
 /* a note's title can break where the content says so ("\n") */
 .peek-title {
   white-space: pre-line;

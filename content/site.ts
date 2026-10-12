@@ -102,12 +102,6 @@ export const profile = {
         peek: "Let AI take the repetitive work. Make the moments that need judgment feel more like yours. That's how trust gets earned.",
       },
     ],
-    after: "Especially drawn to fintech and wellness.",
-    /** The words in `after` that get the emphasis. */
-    afterEm: "fintech and wellness",
-    /** The note under those words, like the ones under the three phrases. */
-    afterPeekTitle: "Why these two",
-    afterPeek: "Money and health are where a screen has to earn trust. Trust Tip and Pebbo are my two tries at it.",
   },
   facts: [
     { label: "Now", value: "MDes, Carnegie Mellon" },
@@ -141,6 +135,38 @@ export const pages: Page[] = [
     // "Now" (CMU) is already in the cover bar; the panel keeps Before and Next
     facts: profile.facts.filter((f) => f.label !== "Now"),
     keywords: ["home", "start"],
+  },
+  {
+    id: "melon",
+    meta: "Communication • Team project 2026",
+    year: "2026",
+    group: "work",
+    thumb: "/work/melon/meet-mellon.webp",
+    tone: "#f8d9d5",
+    clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm", sm: { mp4: "/work/melon/meet-mellon-sm.mp4", webm: "/work/melon/meet-mellon-sm.webm" } },
+    headline: "Gmail side panel for school email",
+    title: "CMU Mellon",
+    ticker: "MELN",
+    kind: "Communication · Team project",
+    tagline: "School email, made two-way.",
+    summary: [
+      "School of Design graduate students get most program information by email from one advisor, and each of them decides alone what matters. Almost nothing tells her what landed.",
+      "On a team of three, I led the project, framed the problem and designed the screens. Mellon is a Gmail side panel that sorts school email by what needs doing and answers questions from what the advisor already sent, with a dashboard that shows her what students are asking.",
+    ],
+    handoff: {
+      automated: ["Sorting and summarizing the inbox", "Answering from what was already sent"],
+      yours: ["What matters to you", "Anything personal goes to a person"],
+    },
+    challenge: "Students couldn’t tell which school emails were meant for them, and their advisor couldn’t tell what landed.",
+    didLabel: "My part",
+    did: "Led a team of 3, framed the problem and designed the screens for Mellon: a Gmail side panel for students and a dashboard for their advisor.",
+    facts: [
+      { label: "Role", value: "Team lead · framing & interface design" },
+      { label: "Timeline", value: "Fall 2026" },
+      { label: "Team", value: "Jamie Chung, Chaewon Lim, Pragya Srivastava" },
+    ],
+    tools: ["Figma", "Claude Code"],
+    keywords: ["communication", "email", "inbox", "notifications", "personalization", "education", "school", "cmu", "advisor", "student", "productivity"],
   },
   {
     id: "tipping",
@@ -215,39 +241,6 @@ export const pages: Page[] = [
     // TODO(Chaewon): the real tool stack (and the 3D tool). Only Figma is filled in for now.
     tools: ["Figma"],
     keywords: ["ai", "companion", "chatbot", "health", "wellbeing", "privacy", "trust", "tangible", "hardware", "research", "interviews"],
-  },
-  {
-    id: "melon",
-    meta: "Communication • Team project 2026",
-    year: "2026",
-    group: "work",
-    thumb: "/work/melon/meet-mellon.webp",
-    tone: "#f8d9d5",
-    clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm", sm: { mp4: "/work/melon/meet-mellon-sm.mp4", webm: "/work/melon/meet-mellon-sm.webm" } },
-    headline: "Gmail side panel for school email",
-    title: "CMU Mellon",
-    ticker: "MELN",
-    kind: "Communication · Team project",
-    tagline: "School email, made two-way.",
-    summary: [
-      "School of Design graduate students get most program information by email from one advisor, and each of them decides alone what matters. Almost nothing tells her what landed.",
-      "On a team of three, I led the project, framed the problem and designed the screens. Mellon is a Gmail side panel that sorts school email by what needs doing and answers questions from what the advisor already sent, with a dashboard that shows her what students are asking.",
-    ],
-    handoff: {
-      automated: ["Sorting and summarizing the inbox", "Answering from what was already sent"],
-      yours: ["What matters to you", "Anything personal goes to a person"],
-    },
-    challenge: "Students couldn’t tell which school emails were meant for them, and their advisor couldn’t tell what landed.",
-    didLabel: "My part",
-    did: "Led a team of 3, framed the problem and designed the screens for Mellon: a Gmail side panel for students and a dashboard for their advisor.",
-    facts: [
-      { label: "Role", value: "Team lead · framing & interface design" },
-      { label: "Timeline", value: "Fall 2026" },
-      { label: "Type", value: "Team of 3 · MDes studio" },
-    ],
-    // TODO(Chaewon): the real tool stack. Only Figma is filled in for now.
-    tools: ["Figma"],
-    keywords: ["communication", "email", "inbox", "notifications", "personalization", "education", "school", "cmu", "advisor", "student", "productivity"],
   },
   {
     id: "zipflow",

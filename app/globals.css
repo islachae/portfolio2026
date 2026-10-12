@@ -3895,11 +3895,6 @@ html[data-motion="reduced"] .pixel-face * {
   }
 }
 
-.bio-after {
-  display: block;
-  margin-top: var(--space-xxs);
-}
-
 /* ───────────── Visitor poll: “Quick question” card with icon tiles ───────────── */
 .poll {
   --poll-tile: #fff;
@@ -4282,11 +4277,6 @@ html[data-motion="reduced"] .poll {
   transform: none;
 }
 
-/* “fintech and wellness”: the one thing in the sentence set apart */
-.bio-em {
-  color: var(--accent-1);
-  font-style: normal;
-}
 /* Phones: the hero is centered, so the bar is too (school, then “NYC • time ●”) */
 @media (max-width: 799px) {
   .cover-bar {
@@ -6651,12 +6641,8 @@ html[data-motion="reduced"] .cs *::before {
 .hello-sub .bio {
   color: inherit;
 }
-.hello-sub .phrase-text,
-.bio-em {
+.hello-sub .phrase-text {
   color: var(--text);
-}
-.bio-after {
-  margin-top: 0;
 }
 .flip-ko {
   font-weight: 700;

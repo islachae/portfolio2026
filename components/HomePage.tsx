@@ -81,7 +81,7 @@ export function HomeHero() {
       </div>
       {/* One way on: scroll (the ticker rail and ⌘K are there for jumping). The line keeps drawing
           down every 3s until the visitor scrolls, then rests. */}
-      <button className="cover-next" onClick={() => goTo("tipping")} aria-label="Scroll to the work" data-rest={moved || undefined}>
+      <button className="cover-next" onClick={() => goTo("melon")} aria-label="Scroll to the work" data-rest={moved || undefined}>
         <span className="cover-next-k">Scroll</span>
         {/* One drawing, so the shaft and the head can't drift apart by a half pixel */}
         <svg className="cover-next-a" width="20" height="52" viewBox="0 0 20 52" fill="none" aria-hidden>
@@ -330,76 +330,12 @@ function Bio() {
           {i < bio.parts.length - 1 ? " " : ""}
           {part.breakAfter && <br className="bio-br" />}
         </span>
-      ))}{" "}
-      <br className="bio-br" />
-      <BioAfter />
+      ))}
     </span>
   );
 }
 
 const lastLine = (text: string) => text.slice(text.lastIndexOf("\n") + 1);
-
-/** “Especially drawn to fintech and wellness.”: those words open a note too, like the phrases above. */
-function BioAfter() {
-  const { after, afterEm, afterPeekTitle, afterPeek } = profile.bio;
-  const [open, setOpen] = useState(false);
-  const closeTimer = useRef<number | undefined>(undefined);
-  const openedAt = useRef(0); // (see Bio)
-  const show = () => {
-    window.clearTimeout(closeTimer.current);
-    if (!open) openedAt.current = performance.now();
-    setOpen(true);
-  };
-  useOutsideClose(open, () => setOpen(false));
-  const hide = () => {
-    window.clearTimeout(closeTimer.current);
-    closeTimer.current = window.setTimeout(() => setOpen(false), 90);
-  };
-  const i = after.indexOf(afterEm);
-  if (i < 0) return <span className="bio-after">{after}</span>;
-  return (
-    <span className="bio-after">
-      {after.slice(0, i)}
-      <span
-        role="button"
-        tabIndex={0}
-        className="phrase phrase--after"
-        aria-expanded={open}
-        aria-describedby={open ? "peek-after" : undefined}
-        onPointerEnter={(e) => e.pointerType === "mouse" && show()}
-        onPointerLeave={(e) => e.pointerType === "mouse" && hide()}
-        onFocus={show}
-        onBlur={hide}
-        onClick={() => (open && performance.now() - openedAt.current > 400 ? setOpen(false) : show())}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setOpen(!open);
-          }
-        }}
-      >
-        <em className="bio-em phrase-text">{afterEm}</em>
-        <AnimatePresence>
-          {open && (
-            <motion.span
-              id="peek-after"
-              role="tooltip"
-              className="peek"
-              initial={{ opacity: 0, y: 4, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 2, transition: { duration: 0.1 } }}
-              transition={{ duration: 0.18, ease }}
-            >
-              <span className="peek-title">{afterPeekTitle}</span>
-              <span className="peek-text">{afterPeek}</span>
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </span>
-      {after.slice(i + afterEm.length)}
-    </span>
-  );
-}
 
 function Meta() {
   const now = useNow();
