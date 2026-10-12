@@ -18,10 +18,13 @@ export type GameEvents = {
 };
 
 type State = "idle" | "down" | "close" | "up" | "carry" | "release" | "reveal" | "shown" | "back" | "home";
-type Prize = { j: Jellycat; group: THREE.Group; home: THREE.Vector3; s: number; vy: number; squashT: number };
+/** `group` is where it sits (position, turn, size); `pose` inside it is how it flops. */
+type Prize = { j: Jellycat; group: THREE.Group; pose: THREE.Group; slump: THREE.Vector3; top: number; home: THREE.Vector3; s: number; vy: number; squashT: number };
 
 const S = 0.64; // default size in the machine
-const MW = 7.8, HW = MW / 2; // machine width: four plush side by side
+const MW = 10.4, HW = MW / 2; // machine width: six plush side by side
+/** On a narrow stage the camera shows this much either side of the claw and follows it. */
+const FOLLOW = 4.3;
 const DECK = 2.46, RAILZ = 0.2, HOME_Y = 5.0;
 const CHUTE = -(HW - 1.0), DOORX = -(HW - 1.4), KX = -0.45;
 const X_MIN = CHUTE, X_MAX = HW - 0.45;
@@ -47,6 +50,7 @@ export class ClawGame {
   private fingers: { turn: THREE.Group; open: THREE.Group }[] = [];
 
   private clawX = CHUTE;
+  private camX = 0;
   private hubY = HOME_Y;
   private openA = 0.1;
   private dir = 0;
@@ -181,15 +185,23 @@ export class ClawGame {
     }
 
     for (const j of jellycats) {
-      const group = new THREE.Group();
-      group.add(makePlush[j.id]());
+      const group = new THREE.Group(), pose = new THREE.Group();
+      pose.add(makePlush[j.id]());
+      group.add(pose);
+      // flopped over, then lifted so its lowest point rests on the floor; the claw stops above its highest
+      const [rx, rz] = j.slump ?? [0, 0];
+      pose.rotation.set(rx, 0, rz);
+      group.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(pose);
+      const lift = -box.min.y;
+      pose.position.y = lift;
       const s = j.scale ?? S;
-      const home = new THREE.Vector3(j.x, DECK, RAILZ);
+      const home = new THREE.Vector3(j.x, DECK, RAILZ + (j.z ?? 0));
       group.position.copy(home);
       group.rotation.y = j.yaw;
       group.scale.setScalar(s);
       sc.add(group);
-      this.prizes.push({ j, group, home, s, vy: 0, squashT: 0 });
+      this.prizes.push({ j, group, pose, slump: new THREE.Vector3(rx, lift, rz), top: box.max.y + lift, home, s, vy: 0, squashT: 0 });
     }
   }
 
@@ -210,12 +222,21 @@ export class ClawGame {
   /** Straight on and close: the lit header at the top, the controls at the bottom; the base can fall out of frame. */
   private machineView(out: { p: THREE.Vector3; t: THREE.Vector3 }) {
     const tan = Math.tan((this.camera.fov * Math.PI) / 360);
-    const d = Math.max(3.4 / tan, (HW + 0.2) / (tan * this.camera.aspect));
+    const fit = (half: number) => half / (tan * this.camera.aspect);
+    const d = Math.max(3.4 / tan, Math.min(fit(HW + 0.2), fit(FOLLOW)));
     // a tall stage (phones) keeps the header near the top instead of floating mid-air
     const y = Math.min(4.8, 8.0 - 0.94 * d * tan);
-    out.t.set(0, y, 0);
-    out.p.set(0, y + d * 0.045, d);
+    const x = this.camX;
+    out.t.set(x, y, 0);
+    out.p.set(x, y + d * 0.045, d);
     return out;
+  }
+  /** Where the camera sits left to right: centred when the whole machine fits, otherwise over the claw. */
+  private camXFor() {
+    const tan = Math.tan((this.camera.fov * Math.PI) / 360);
+    const d = Math.max(3.4 / tan, Math.min((HW + 0.2) / (tan * this.camera.aspect), FOLLOW / (tan * this.camera.aspect)));
+    const room = Math.max(0, HW + 0.2 - d * tan * this.camera.aspect);
+    return Math.min(room, Math.max(-room, this.clawX));
   }
   private revealView(out: { p: THREE.Vector3; t: THREE.Vector3 }) {
     const tan = Math.tan((this.camera.fov * Math.PI) / 360);
@@ -240,6 +261,7 @@ export class ClawGame {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.camX = this.camXFor();
     const c = this.cam;
     if (c.view === "machine") this.machineView(c.to);
     else this.revealView(c.to);
@@ -283,7 +305,7 @@ export class ClawGame {
     const chance = this.target ? Math.min(0.92, Math.max(0, 1.08 - best / 0.42)) : 0;
     this.willSlip = Math.random() > chance;
     this.from.hub = this.hubY;
-    this.from.to = this.target ? DECK + this.target.j.top * this.target.s + 0.06 : DECK + 0.95;
+    this.from.to = this.target ? DECK + this.target.top * this.target.s + 0.06 : DECK + 0.95;
     this.state = "down";
     this.t = 0;
     this.events.onBusy(true);
@@ -420,7 +442,8 @@ export class ClawGame {
         h.group.visible = true;
         h.group.position.set(lerp(DOORX, REVEAL.x, k), lerp(0.4, REVEAL.y, k) + Math.sin(Math.PI * k) * 1.2, lerp(2.5, REVEAL.z, k));
         h.group.scale.setScalar(lerp(h.s * 0.8, h.s / S, k));
-        h.group.rotation.set(0, lerp(h.j.yaw, 0, k), 0);
+        h.group.rotation.set(0, lerp(h.j.yaw, h.j.showYaw ?? 0, k), 0);
+        this.flop(h, 1 - k); // sits up straight to be looked at
         this.clawX = lerp(this.clawX, CHUTE, 0.1);
         this.openA = lerp(this.openA, 0.1, 0.1);
         if (t >= 0.9) this.to("shown");
@@ -429,7 +452,7 @@ export class ClawGame {
       case "shown": {
         const h = this.held!;
         if (!this.reduced()) {
-          h.group.rotation.y = Math.sin(t * 0.8) * 0.35;
+          h.group.rotation.y = (h.j.showYaw ?? 0) + Math.sin(t * 0.8) * 0.35;
           const hop = (t % 3.2) / 0.5;
           h.group.position.y = hop < 1 ? Math.sin(Math.PI * hop) * 0.18 : 0;
         }
@@ -440,7 +463,8 @@ export class ClawGame {
         const k = ease(t / 0.9);
         h.group.position.set(lerp(REVEAL.x, h.home.x, k), lerp(0, h.home.y, k) + Math.sin(Math.PI * k) * 1.5, lerp(REVEAL.z, h.home.z, k));
         h.group.scale.setScalar(lerp(h.s / S, h.s, k));
-        h.group.rotation.set(0, lerp(0, h.j.yaw, k), 0);
+        h.group.rotation.set(0, lerp(h.group.rotation.y, h.j.yaw, k), 0);
+        this.flop(h, k);
         if (t >= 0.9) {
           h.group.position.copy(h.home);
           this.held = null;
@@ -498,6 +522,15 @@ export class ClawGame {
     this.knob.position.x = KX + (this.state === "idle" ? this.dir * 0.08 : 0);
 
     const c = this.cam;
+    // on a narrow stage the machine view pans after the claw
+    this.camX = lerp(this.camX, this.camXFor(), 1 - Math.exp(-(this.reduced() ? 30 : 5) * dt));
+    if (c.view === "machine") {
+      this.machineView(c.to);
+      if (c.k >= 1) {
+        c.now.p.copy(c.to.p);
+        c.now.t.copy(c.to.t);
+      }
+    }
     if (c.k < 1) {
       c.k = Math.min(1, c.k + dt / 1.1);
       const e = ease(c.k);
@@ -506,6 +539,11 @@ export class ClawGame {
     }
   }
 
+  /** 1: flopped the way it lies in the machine, 0: sitting up. */
+  private flop(p: Prize, k: number) {
+    p.pose.rotation.set(p.slump.x * k, 0, p.slump.z * k);
+    p.pose.position.y = p.slump.y * k;
+  }
   private to(s: State) {
     this.state = s;
     this.t = 0;

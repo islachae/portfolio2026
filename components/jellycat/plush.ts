@@ -3,8 +3,9 @@
  * Units: the sun's body is 2 across. They're scaled down in the machine (content/jellycats.ts).
  */
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { JellycatId } from "@/content/jellycats";
-import { col, cordLegs, face, furMaterial, furPart, merge, rbox, sstep, surface } from "./fur";
+import { clamp, col, cordLegs, face, furMaterial, furPart, merge, rbox, sstep, surface } from "./fur";
 
 const zSeam = (p: THREE.Vector3) => 1 - sstep(0, 0.055, Math.abs(p.z));
 const none = () => 0;
@@ -217,5 +218,253 @@ function clawd() {
   return root;
 }
 
-export const makePlush: Record<JellycatId, () => THREE.Group> = { sun, cursor, scottie, clawd };
+/** Thin vertical pinstripes for the baseball's jersey and trousers. */
+function pinstripe() {
+  const c2 = document.createElement("canvas");
+  c2.width = 64;
+  c2.height = 8;
+  const x = c2.getContext("2d")!;
+  x.fillStyle = "#f6f4ef";
+  x.fillRect(0, 0, 64, 8);
+  x.fillStyle = "#2b3567";
+  x.fillRect(30, 0, 4, 8);
+  const tx = new THREE.CanvasTexture(c2);
+  tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
+  tx.colorSpace = THREE.SRGBColorSpace;
+  tx.anisotropy = 4;
+  return tx;
+}
+
+/** An ellipsoid of fabric (not fur), centred at (x, y, z). */
+function ellipsoid(mat: THREE.Material, r: [number, number, number], at: [number, number, number], rot: [number, number, number] = [0, 0, 0]) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), mat);
+  m.scale.set(...r);
+  m.position.set(...at);
+  m.rotation.set(...rot);
+  m.castShadow = m.receiveShadow = true;
+  return m;
+}
+
+/** A soft ball of fur geometry (parametric, so it can be merged with other pieces). */
+const ball = (rx: number, ry: number, rz: number, x: number, y: number, z: number) => {
+  const g = surface(
+    (u, v, p) => {
+      const th = u * Math.PI * 2, ph = v * Math.PI, sn = Math.sin(ph);
+      p.set(rx * sn * Math.sin(th), ry * Math.cos(ph), rz * sn * Math.cos(th));
+    },
+    28,
+    18,
+    none,
+  );
+  g.translate(x, y, z);
+  return g;
+};
+
+/** A baseball head with red stitched seams, a blue cap tipped to one side, and a little pinstripe body. */
+function baseball() {
+  const R = 0.8, HY = 1.4;
+  // the seam: the classic ball curve, turned so the two arcs run down the left and right of the face
+  const A = 0.8, B = 0.2, K = 2 * Math.sqrt(A * B), TURN = -Math.PI / 4;
+  const seamAt = (t: number, out: THREE.Vector3) => {
+    const x = A * Math.cos(t) + B * Math.cos(3 * t), y = A * Math.sin(t) - B * Math.sin(3 * t), z = K * Math.sin(2 * t);
+    return out.set(x * Math.cos(TURN) - y * Math.sin(TURN), x * Math.sin(TURN) + y * Math.cos(TURN), z);
+  };
+  const seamPts: THREE.Vector3[] = [];
+  for (let i = 0; i < 240; i++) seamPts.push(seamAt((i / 240) * Math.PI * 2, new THREE.Vector3()).multiplyScalar(R));
+  const nearSeam = (p: THREE.Vector3) => {
+    let d = 9;
+    for (const q of seamPts) d = Math.min(d, p.distanceToSquared(q));
+    return 1 - sstep(0.03, 0.11, Math.sqrt(d));
+  };
+  const head = surface(
+    (u, v, p) => {
+      const th = u * Math.PI * 2, ph = v * Math.PI, sn = Math.sin(ph);
+      p.set(R * sn * Math.sin(th), R * Math.cos(ph), R * sn * Math.cos(th));
+    },
+    72,
+    48,
+    nearSeam,
+  );
+  // the hands are the same cream felt as the ball, so they share its mesh (head-local coordinates)
+  const cream = merge([head, ball(0.13, 0.13, 0.13, -0.56, 0.4 - HY, 0.12), ball(0.13, 0.13, 0.13, 0.56, 0.4 - HY, 0.12)]);
+  const zf = (x: number, y: number) => Math.sqrt(Math.max(0, R * R - x * x - y * y));
+  const EX = 0.2, EY = -0.06, MW = 0.095, MY = -0.24, MK = 0.05 / (MW * MW);
+  const root = new THREE.Group(), body = new THREE.Group();
+  body.position.y = HY;
+  root.add(body);
+  furPart(body, cream, furMaterial({ color: 0xf3ecdc, len: 0.045, density: 112, eye: [EX, EY, zf(EX, EY)], mouth: [MW, MY, MK] }));
+  face(body, zf, EX, EY, MW, MY, MK);
+
+  // red chevron stitches along the seam
+  const parts: THREE.BufferGeometry[] = [];
+  const P = new THREE.Vector3(), T = new THREE.Vector3(), N = new THREE.Vector3(), S = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3();
+  const M = new THREE.Matrix4(), X = new THREE.Vector3(), Y = new THREE.Vector3(), Z = new THREE.Vector3();
+  const STITCHES = 78;
+  for (let i = 0; i < STITCHES; i++) {
+    const t = (i / STITCHES) * Math.PI * 2;
+    seamAt(t, P).normalize();
+    seamAt(t + 0.001, T).normalize().sub(P).normalize();
+    N.copy(P);
+    S.crossVectors(T, N).normalize();
+    P.multiplyScalar(R + 0.012);
+    for (const side of [-1, 1]) {
+      a.copy(P).addScaledVector(T, 0.03); // the point of the V
+      b.copy(P).addScaledVector(T, -0.03).addScaledVector(S, side * 0.075);
+      const len = a.distanceTo(b);
+      X.subVectors(b, a).normalize();
+      Z.copy(N);
+      Y.crossVectors(Z, X).normalize();
+      Z.crossVectors(X, Y);
+      const g = new THREE.BoxGeometry(len, 0.024, 0.018);
+      g.applyMatrix4(M.makeBasis(X, Y, Z).setPosition(a.clone().add(b).multiplyScalar(0.5)));
+      parts.push(g);
+    }
+  }
+  const stitches = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshStandardMaterial({ color: col(0xd8342e), roughness: 0.75 }));
+  for (const g of parts) g.dispose();
+  body.add(stitches);
+
+  // the cap: a soft dome and a brim, tipped back and to the left
+  const dome = surface(
+    (u, v, p) => {
+      const th = u * Math.PI * 2, ph = v * Math.PI * 0.5;
+      p.set(0.5 * Math.sin(ph) * Math.sin(th), 0.36 * Math.cos(ph) - 0.02, 0.5 * Math.sin(ph) * Math.cos(th));
+    },
+    40,
+    16,
+    (p) => (p.y < 0.03 ? 0.6 : 0),
+  );
+  const brim = ball(0.42, 0.045, 0.36, 0, 0.0, 0.42);
+  const button = ball(0.06, 0.04, 0.06, 0, 0.35, 0);
+  const capDir = new THREE.Vector3(-0.36, 1, 0.16).normalize();
+  const cap = new THREE.Group();
+  cap.position.copy(capDir).multiplyScalar(R * 0.9);
+  cap.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), capDir);
+  cap.scale.setScalar(1.18);
+  const capTurn = new THREE.Group();
+  capTurn.rotation.y = 0.35;
+  cap.add(capTurn);
+  furPart(capTurn, merge([dome, brim, button]), furMaterial({ color: 0x2c55c6, len: 0.028, density: 150 }));
+  body.add(cap);
+
+  // a pinstripe body sitting on the floor, navy cuffs and feet
+  const stripes = pinstripe();
+  const jersey = new THREE.MeshStandardMaterial({ map: stripes, roughness: 0.92 });
+  stripes.repeat.set(12, 1);
+  const pantsTex = stripes.clone();
+  pantsTex.repeat.set(6, 1);
+  const pants = new THREE.MeshStandardMaterial({ map: pantsTex, roughness: 0.92 });
+  root.add(ellipsoid(jersey, [0.42, 0.36, 0.34], [0, 0.46, -0.02]));
+  const navy = new THREE.MeshStandardMaterial({ color: col(0x23305e), roughness: 0.85 });
+  for (const sx of [-1, 1]) {
+    root.add(ellipsoid(jersey, [0.13, 0.19, 0.13], [sx * 0.37, 0.52, 0.06], [0, 0, sx * 0.85]));
+    const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.035, 8, 20), navy);
+    cuff.position.set(sx * 0.48, 0.43, 0.1);
+    cuff.rotation.set(0, Math.PI / 2, sx * 0.7);
+    root.add(cuff);
+    root.add(ellipsoid(pants, [0.14, 0.13, 0.22], [sx * 0.19, 0.17, 0.24]));
+  }
+  furPart(root, merge([ball(0.15, 0.15, 0.17, -0.22, 0.14, 0.48), ball(0.15, 0.15, 0.17, 0.22, 0.14, 0.48)]), furMaterial({ color: 0x1f2a52, len: 0.035, density: 130 }));
+  return root;
+}
+
+/** Black letters on a clear canvas, for the roof sign and the doors. */
+function label(text: string, w: number, h: number) {
+  const c2 = document.createElement("canvas");
+  c2.width = 256;
+  c2.height = Math.round((256 * h) / w);
+  const x = c2.getContext("2d")!;
+  x.fillStyle = "#16161a";
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = `700 ${Math.round(c2.height * 0.78)}px "Helvetica Neue", Arial, sans-serif`;
+  x.fillText(text, 128, c2.height * 0.54, 240);
+  const tx = new THREE.CanvasTexture(c2);
+  tx.colorSpace = THREE.SRGBColorSpace;
+  tx.anisotropy = 4;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tx, transparent: true, alphaTest: 0.4, roughness: 0.9, depthWrite: false }));
+}
+
+/** A yellow New York cab: a boxy body, slate windows, a roof sign, fat wheels and a smile on the grille. */
+function taxi() {
+  const at = (g: THREE.BufferGeometry, x: number, y: number, z: number, rx = 0) => {
+    if (rx) g.rotateX(rx);
+    g.translate(x, y, z);
+    return g;
+  };
+  const lower = at(rbox(1.0, 0.44, 2.5, 0.13), 0, 0.49, 0);
+  // the cabin leans in at the top, front and back, like a windscreen
+  const cab = rbox(0.88, 0.38, 1.3, 0.1);
+  const cp = cab.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < cp.count; i++) {
+    const k = clamp((cp.getY(i) + 0.2) / 0.4, 0, 1);
+    cp.setXYZ(i, cp.getX(i) * (1 - 0.08 * k), cp.getY(i), cp.getZ(i) * (1 - 0.26 * k));
+  }
+  at(cab, 0, 0.88, -0.14);
+  const mirrors = [ball(0.05, 0.045, 0.06, -0.5, 0.77, 0.5), ball(0.05, 0.045, 0.06, 0.5, 0.77, 0.5)];
+  const EX = 0.14, EY = 0.59, MW = 0.08, MY = 0.49, MK = 0.045 / (MW * MW), FZ = 1.25;
+  const root = new THREE.Group();
+  furPart(root, merge([lower, cab, ...mirrors]), furMaterial({ color: 0xf1b232, len: 0.036, density: 118, eye: [EX, EY, FZ], mouth: [MW, MY, MK] }));
+  face(root, () => FZ, EX, EY, MW, MY, MK);
+
+  // slate windows: windscreen, back window, two a side
+  const SLANT = 0.4;
+  const glass = [at(rbox(0.7, 0.26, 0.04, 0.015), 0, 0.89, 0.44, -SLANT), at(rbox(0.7, 0.26, 0.04, 0.015), 0, 0.89, -0.72, SLANT)];
+  for (const sx of [-1, 1]) for (const z of [0.15, -0.37]) glass.push(at(rbox(0.04, 0.24, 0.42, 0.015), sx * 0.42, 0.9, z));
+  furPart(root, merge(glass), furMaterial({ color: 0x56637b, len: 0.02, density: 150 }));
+
+  // cream felt: the roof sign and the headlights
+  const creamParts = [at(rbox(0.52, 0.19, 0.22, 0.06), 0, 1.16, -0.14)];
+  for (const sx of [-1, 1]) creamParts.push(at(rbox(0.24, 0.14, 0.05, 0.03), sx * 0.34, 0.59, 1.25));
+  furPart(root, merge(creamParts), furMaterial({ color: 0xf2eadb, len: 0.03, density: 130 }));
+  for (const side of [1, -1]) {
+    const sign = label("TAXI", 0.42, 0.12);
+    sign.position.set(0, 1.16, -0.14 + side * 0.15);
+    sign.rotation.y = side > 0 ? 0 : Math.PI;
+    root.add(sign);
+    const door = label("NYC", 0.26, 0.11);
+    door.position.set(side * 0.545, 0.55, 0.32);
+    door.rotation.y = (side * Math.PI) / 2;
+    root.add(door);
+  }
+
+  // grey bumpers, red tail lights
+  furPart(root, merge([at(rbox(1.04, 0.15, 0.14, 0.06), 0, 0.33, 1.25), at(rbox(1.04, 0.15, 0.14, 0.06), 0, 0.33, -1.25)]), furMaterial({ color: 0x8b8b90, len: 0.03, density: 130 }));
+  furPart(root, merge([at(rbox(0.2, 0.12, 0.05, 0.03), -0.36, 0.59, -1.25), at(rbox(0.2, 0.12, 0.05, 0.03), 0.36, 0.59, -1.25)]), furMaterial({ color: 0xc23b38, len: 0.025, density: 140 }));
+
+  // fat wheels with silver hubs, and door handles
+  const tire = (x: number, z: number) => {
+    const g = surface(
+      (u, v, p) => {
+        const th = u * Math.PI * 2, ph = v * Math.PI * 2, rr = 0.15 + 0.1 * Math.cos(ph);
+        p.set(0.1 * Math.sin(ph), rr * Math.sin(th), rr * Math.cos(th));
+      },
+      28,
+      16,
+      none,
+    );
+    return at(g, x, 0.25, z);
+  };
+  const tires: THREE.BufferGeometry[] = [];
+  const hubMat = new THREE.MeshStandardMaterial({ color: col(0xbfc0c4), roughness: 0.45, metalness: 0.1 });
+  const handleMat = new THREE.MeshStandardMaterial({ color: col(0x1c1c20), roughness: 0.8 });
+  for (const sx of [-1, 1]) {
+    for (const z of [0.8, -0.8]) {
+      tires.push(tire(sx * 0.47, z));
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.03, 24), hubMat);
+      hub.rotation.z = Math.PI / 2;
+      hub.position.set(sx * 0.575, 0.25, z);
+      root.add(hub);
+    }
+    for (const z of [0.15, -0.37]) {
+      const h = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.03, 0.1), handleMat);
+      h.position.set(sx * 0.52, 0.67, z);
+      root.add(h);
+    }
+  }
+  furPart(root, merge(tires), furMaterial({ color: 0x2a2a2e, len: 0.035, density: 120 }));
+  return root;
+}
+
+export const makePlush: Record<JellycatId, () => THREE.Group> = { sun, cursor, scottie, baseball, taxi, clawd };
 
