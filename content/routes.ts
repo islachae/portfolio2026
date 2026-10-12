@@ -1,5 +1,5 @@
 /** The play pages: each opens as its own page (/#play/<id>), from its card on Home. */
-export const PLAY_IDS = ["cocktail", "wish", "bakery", "lab"] as const;
+export const PLAY_IDS = ["cocktail", "jellycat", "wish", "bakery", "lab"] as const;
 export type PlayId = (typeof PLAY_IDS)[number];
 export const isPlayId = (s: string): s is PlayId => (PLAY_IDS as readonly string[]).includes(s);
 export const playHash = (id: PlayId) => `#play/${id}`;

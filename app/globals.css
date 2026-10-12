@@ -17287,3 +17287,244 @@ html[data-motion="reduced"] .wc-hl {
   line-height: 18px;
   letter-spacing: var(--label-tracking);
 }
+
+/* ═════════ Jellycat of the Day (components/jellycat): a claw machine ═════════
+   A soft lilac page so the machine's own lilac and the plush carry the colour. The 3D is one
+   transparent canvas filling .jc-stage; the hint sits above it, the buttons under it, and the
+   prize card rises over the bottom of the stage. The type is Inconsolata, on this page only. */
+.page--jellycat {
+  --jc-bg: #f1eff5;
+  --jc-ink: #463b58;
+  --jc-muted: #7a6f8c;
+  --jc-line: rgba(70, 59, 88, 0.18);
+  --jc-panel: rgba(255, 255, 255, 0.66);
+  --jc-panel-hover: rgba(255, 255, 255, 0.92);
+  --jc-accent: #9b85c6;
+  --jc-accent-ink: #ffffff;
+  --jc-card: #fdfcff;
+  --jc-card-shadow: rgba(50, 40, 80, 0.16);
+  --jc-shadow: #4b3d66;
+  --jc-shadow-a: 0.2;
+  --jc-type: var(--font-inconsolata), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  background: var(--jc-bg);
+}
+:root[data-theme="dark"] .page--jellycat {
+  --jc-bg: #1c1923;
+  --jc-ink: #ece6f6;
+  --jc-muted: #b3a8c6;
+  --jc-line: rgba(236, 230, 246, 0.2);
+  --jc-panel: rgba(14, 10, 20, 0.45);
+  --jc-panel-hover: rgba(14, 10, 20, 0.72);
+  --jc-accent: #b7a3df;
+  --jc-accent-ink: #1e1530;
+  --jc-card: #262033;
+  --jc-card-shadow: rgba(0, 0, 0, 0.4);
+  --jc-shadow: #05030a;
+  --jc-shadow-a: 0.5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .page--jellycat {
+    --jc-bg: #1c1923;
+    --jc-ink: #ece6f6;
+    --jc-muted: #b3a8c6;
+    --jc-line: rgba(236, 230, 246, 0.2);
+    --jc-panel: rgba(14, 10, 20, 0.45);
+    --jc-panel-hover: rgba(14, 10, 20, 0.72);
+    --jc-accent: #b7a3df;
+    --jc-accent-ink: #1e1530;
+    --jc-card: #262033;
+    --jc-card-shadow: rgba(0, 0, 0, 0.4);
+    --jc-shadow: #05030a;
+    --jc-shadow-a: 0.5;
+  }
+}
+.page--jellycat .jc {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+  margin-top: var(--space-lg);
+  color: var(--jc-ink);
+  font-family: var(--jc-type);
+}
+.jc-hint {
+  margin: 0;
+  color: var(--jc-muted);
+  font-size: 14px;
+  text-align: center;
+  text-wrap: balance;
+}
+.jc-stage {
+  position: relative;
+  min-height: 0;
+}
+.jc-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: ew-resize;
+  touch-action: none;
+}
+.jc-canvas:focus-visible {
+  outline: 2px solid var(--jc-accent);
+  outline-offset: -2px;
+}
+.jc-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.jc-toast {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  margin: 0;
+  padding: 0.45em 1.1em;
+  border: 1px solid var(--jc-line);
+  border-radius: 999px;
+  background: var(--jc-card);
+  box-shadow: 0 6px 20px var(--jc-card-shadow);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.jc-card {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  box-sizing: border-box;
+  width: min(360px, calc(100% - 32px));
+  padding: 18px 20px 16px;
+  border: 1px solid var(--jc-line);
+  border-radius: 0;
+  background: var(--jc-card);
+  box-shadow: 0 14px 40px var(--jc-card-shadow);
+  text-align: center;
+  transform: translateX(-50%);
+  animation: jc-rise 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes jc-rise {
+  from {
+    transform: translate(-50%, 28px);
+  }
+}
+.jc-card-k {
+  margin: 0;
+  color: var(--jc-muted);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.jc-card-name {
+  margin: 2px 0 6px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.jc-card-line {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+.jc-dock {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.jc-btn {
+  min-height: 44px;
+  padding: 0 1.2em;
+  border: 1px solid var(--jc-line);
+  border-radius: 999px;
+  background: var(--jc-panel);
+  color: var(--jc-ink);
+  font: 600 17px/1 var(--jc-type);
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.12s;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.jc-btn:hover {
+  background: var(--jc-panel-hover);
+}
+.jc-btn:active {
+  transform: scale(0.94);
+}
+.jc-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+.jc-btn:focus-visible {
+  outline: 2px solid var(--jc-ink);
+  outline-offset: 2px;
+}
+.jc-btn--go {
+  padding: 0 1.8em;
+  border-color: transparent;
+  background: var(--jc-accent);
+  color: var(--jc-accent-ink);
+}
+.jc-btn--go:hover {
+  background: var(--jc-accent);
+  filter: brightness(1.05);
+}
+.jc-arrow {
+  min-width: 3.4em;
+}
+.jc-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 16px;
+  margin: 0;
+  color: var(--jc-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jc-card {
+    animation: none;
+  }
+  .jc-btn {
+    transition: none;
+  }
+  .jc-btn:active {
+    transform: none;
+  }
+}
+:root[data-motion="reduced"] .jc-card {
+  animation: none;
+}
+/* phones: the machine keeps its own shape under the header, with the buttons right below it */
+@media (max-width: 799px) {
+  .page.page--jellycat {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+  .page--jellycat .jc {
+    flex: none;
+    grid-template-rows: auto auto auto auto;
+  }
+  /* the machine is wider than tall: a fixed shape keeps it from floating in empty space,
+     with room under it for the prize card */
+  .jc-stage {
+    aspect-ratio: 1 / 1.3;
+    max-height: 72svh;
+  }
+  .jc-card {
+    padding: 14px 16px 14px;
+  }
+  .jc-card-name {
+    font-size: 26px;
+  }
+}

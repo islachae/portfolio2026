@@ -9,6 +9,7 @@ import { ArrowRight, PanelIcon } from "./icons";
 import { ShaderHero } from "./ShaderHero";
 import { StageDoor } from "./StageDoor";
 import { WordCocktail } from "./cocktail/WordCocktail";
+import { JellycatOfTheDay } from "./jellycat/JellycatOfTheDay";
 import { IndexRail, ProfileChip, TopLinks } from "./IndexRail";
 import { ChatToggle } from "./ChaeLLM";
 import { AboutBrief, ProjectBrief } from "./ProjectBrief";
@@ -167,6 +168,9 @@ export function Deck({
                   {p.id === "cocktail" ? (
                     // the bar is this page's stage: one centred counter under the heading
                     <WordCocktail active={current === "cocktail"} near={near(p.id)} />
+                  ) : p.id === "jellycat" ? (
+                    // the claw machine is this page's stage
+                    <JellycatOfTheDay active={current === "jellycat"} near={near(p.id)} />
                   ) : (
                     <StageDoor id={isCaseId(p.id) ? p.id : null} soon={p.status === "soon"}>
                       {stage}

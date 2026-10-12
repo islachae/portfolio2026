@@ -57,6 +57,18 @@ const hand = localFont({
   preload: false,
 });
 
+// Inconsolata (SIL OFL): the claw machine's type in Jellycat of the Day only, so it isn't preloaded.
+const inconsolata = localFont({
+  src: [
+    { path: "./fonts/Inconsolata-Regular.woff2", weight: "400" },
+    { path: "./fonts/Inconsolata-SemiBold.woff2", weight: "600" },
+    { path: "./fonts/Inconsolata-Bold.woff2", weight: "700" },
+  ],
+  variable: "--font-inconsolata",
+  display: "swap",
+  preload: false,
+});
+
 const mono = localFont({
   src: "./fonts/GeistMono.woff2",
   variable: "--font-mono",
@@ -118,7 +130,7 @@ try{${introScript}}catch(e){d.removeAttribute("data-boot")}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable} ${inconsolata.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: lean(bootScript) }} />
         {/* Inline, so the loader and the outline can paint before the stylesheet arrives */}

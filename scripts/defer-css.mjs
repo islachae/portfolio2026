@@ -94,7 +94,7 @@ const playChunk = [
 if (playChunk.length) {
   const prefix = (page2.match(/src="([^"]*)_next\/static\/chunks\//) || [, "/"])[1];
   const hrefs = JSON.stringify(playChunk.map((f) => `${prefix}_next/static/chunks/${f}`));
-  const pre = `<script>(function(h){if(!/^#(play\\/.|(cocktail|wish|bakery|lab)$)/.test(h))return;${hrefs}.forEach(function(u){var l=document.createElement("link");l.rel="preload";l.as="script";l.href=u;document.head.appendChild(l)})})(location.hash)</script>`;
+  const pre = `<script>(function(h){if(!/^#(play\\/.|(cocktail|jellycat|wish|bakery|lab)$)/.test(h))return;${hrefs}.forEach(function(u){var l=document.createElement("link");l.rel="preload";l.as="script";l.href=u;document.head.appendChild(l)})})(location.hash)</script>`;
   writeFileSync(index, page2.replace("</head>", `${pre}</head>`));
 }
 console.log(`preload play pages on a deep link: ${playChunk.join(", ") || "none found"}`);

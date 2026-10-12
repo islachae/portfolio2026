@@ -7,11 +7,12 @@ import { useShell } from "../shell-context";
 import { ChatToggle, useChat } from "../ChaeLLM";
 import { ChevronLeft, MenuIcon } from "../icons";
 import { WordCocktail } from "../cocktail/WordCocktail";
+import { JellycatOfTheDay } from "../jellycat/JellycatOfTheDay";
 import { BakeryStage, LabStage, WishStage } from "../Stages";
 import { SiteAsk, SiteNav } from "./Nav";
 import { holdTitle } from "@/lib/title";
 
-const stages: Record<Exclude<PlayId, "cocktail">, () => React.ReactElement> = {
+const stages: Record<Exclude<PlayId, "cocktail" | "jellycat">, () => React.ReactElement> = {
   wish: WishStage,
   bakery: BakeryStage,
   lab: LabStage,
@@ -26,7 +27,7 @@ export function PlayPage({ id }: { id: PlayId }) {
   const { openChat } = useChat();
   const p = pageById[id];
   const root = useRef<HTMLDivElement>(null);
-  const Stage = id === "cocktail" ? null : stages[id];
+  const Stage = id === "cocktail" || id === "jellycat" ? null : stages[id];
 
   useEffect(() => {
     root.current?.focus({ preventScroll: true });
@@ -64,6 +65,8 @@ export function PlayPage({ id }: { id: PlayId }) {
           <div className="stage">
             <Stage />
           </div>
+        ) : id === "jellycat" ? (
+          <JellycatOfTheDay active near />
         ) : (
           <WordCocktail active near />
         )}

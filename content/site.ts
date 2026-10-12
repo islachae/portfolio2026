@@ -3,7 +3,7 @@
  * Lines marked TODO need your input before launch.
  */
 
-export type PageId = "home" | "tipping" | "zipflow" | "pebbo" | "melon" | "wish" | "cocktail" | "bakery" | "lab" | "about" | "hi";
+export type PageId = "home" | "tipping" | "zipflow" | "pebbo" | "melon" | "wish" | "cocktail" | "jellycat" | "bakery" | "lab" | "about" | "hi";
 
 export type Page = {
   id: PageId;
@@ -299,6 +299,28 @@ export const pages: Page[] = [
       { label: "On the menu", value: "Nunchi, Amae, Yuánfèn (more mixing)" },
     ],
     keywords: ["word cocktail", "word bar", "cocktail", "nunchi", "눈치", "amae", "甘え", "yuanfen", "缘分", "korean", "language", "untranslatable", "words", "motion", "3d", "three.js", "toy", "fun", "shake", "receipt"],
+  },
+  {
+    id: "jellycat",
+    meta: "3D • Game • 2026",
+    group: "fun",
+    thumb: "/fun/jellycat-card.webp",
+    tone: "#ece6f4",
+    // a grab: the claw drops on a plush, carries it to the chute, and it comes out with its fortune
+    clip: { mp4: "/fun/jellycat-card.mp4", webm: "/fun/jellycat-card.webm", loop: true, sm: { mp4: "/fun/jellycat-card-sm.mp4", webm: "/fun/jellycat-card-sm.webm" } },
+    title: "Jellycat of the Day",
+    ticker: "GRAB",
+    kind: "3D · Game · Toy",
+    tagline: "A claw machine that picks your plush, and your fortune, for the day.",
+    summary: [
+      "A lilac claw machine with four fluffy plush inside: a sun, a pixel cursor, a Scottie and Clawd. Move the claw, grab one, and the one you catch comes out with a fortune for the day.",
+      "Every plush is code, no model files: 20 layers of shell fur, seams that pull the pile short, corduroy boots. A fan project, not affiliated with Jellycat.",
+    ],
+    facts: [
+      { label: "Built with", value: "Next.js, three.js" },
+      { label: "In the machine", value: "Sun, Cursor, Scottie, Clawd" },
+    ],
+    keywords: ["jellycat", "plush", "claw machine", "claw", "game", "fortune", "fur", "shell fur", "clawd", "scottie", "3d", "three.js", "toy", "fun", "grab"],
   },
   {
     id: "wish",

@@ -287,6 +287,20 @@ export function PageIcon({ id, size = 20, className }: { id: PageId } & P) {
           </g>
         </svg>
       );
+    case "jellycat":
+      return (
+        <svg {...common}>
+          <rect width="20" height="20" rx={r} fill="#E4DAF2" />
+          {/* a lilac claw machine: lit header, the claw over a plush, the ledge */}
+          <rect x="4" y="3.6" width="12" height="2.4" rx="0.8" fill="#B39ED1" />
+          <rect x="5" y="6" width="10" height="7" fill="#F7DDE1" />
+          <path d="M8.4 6v2.6" stroke="#8D8F96" strokeWidth=".7" />
+          <path className="pi-claw" d="M7.2 10.2c0-1 .5-1.6 1.2-1.6s1.2.6 1.2 1.6" stroke="#6F6A7A" strokeWidth=".8" fill="none" strokeLinecap="round" />
+          <rect x="10.6" y="10.4" width="3.2" height="2.3" rx=".5" fill="#DA7758" />
+          <rect x="4" y="13" width="12" height="3.4" rx="0.8" fill="#C9B6E0" />
+          <circle cx="7.4" cy="13.2" r=".9" fill="#fff" />
+        </svg>
+      );
     case "bakery":
       return (
         <svg {...common}>

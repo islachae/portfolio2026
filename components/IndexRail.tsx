@@ -22,6 +22,7 @@ const PREVIEW: Partial<Record<PageId, string>> = {
   pebbo: "/work/pebbo.webp",
   wish: "/fun/wish-scene.webp",
   cocktail: "/fun/word-cocktail.webp",
+  jellycat: "/fun/jellycat.webp",
   bakery: "/fun/bake-raspberry.webp",
   about: "/about/portrait.webp",
   hi: "/about/end-note.webp",
