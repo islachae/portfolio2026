@@ -19,10 +19,11 @@ export type GameEvents = {
 
 type State = "idle" | "down" | "close" | "up" | "carry" | "release" | "reveal" | "shown" | "back" | "home";
 /** `group` is where it sits (position, turn, size); `pose` inside it is how it flops. */
-type Prize = { j: Jellycat; group: THREE.Group; pose: THREE.Group; slump: THREE.Vector3; top: number; home: THREE.Vector3; s: number; vy: number; squashT: number };
+/** `c` is where its middle is, from where it sits (flopping over moves it off its own x). */
+type Prize = { j: Jellycat; group: THREE.Group; pose: THREE.Group; slump: THREE.Vector3; top: number; c: THREE.Vector3; home: THREE.Vector3; s: number; vy: number; squashT: number };
 
 const S = 0.64; // default size in the machine
-const MW = 12.4, HW = MW / 2; // machine width: eight plush side by side
+const MW = 9.6, HW = MW / 2; // machine width: eight plush in a pile
 /** On a narrow stage the camera shows this much either side of the claw and follows it. */
 const FOLLOW = 4.3;
 const DECK = 2.46, RAILZ = 0.2, HOME_Y = 5.0;
@@ -44,22 +45,25 @@ export class ClawGame {
   private floorMat = new THREE.ShadowMaterial({ opacity: 0.2 });
   private prizes: Prize[] = [];
   private car!: THREE.Mesh;
+  private rail!: THREE.Mesh;
   private cable!: THREE.Mesh;
   private hub!: THREE.Mesh;
   private knob!: THREE.Mesh;
   private fingers: { turn: THREE.Group; open: THREE.Group }[] = [];
 
   private clawX = CHUTE;
+  private clawZ = RAILZ;
   private camX = 0;
   private hubY = HOME_Y;
   private openA = 0.1;
   private dir = 0;
   private state: State = "idle";
   private t = 0;
-  private from = { hub: 0, to: 0, x: 0 };
+  private from = { hub: 0, to: 0, x: 0, z: RAILZ };
   private held: Prize | null = null;
   private target: Prize | null = null;
   private holdOffset = 0;
+  private grip = new THREE.Vector3();
   private willSlip = false;
   private slipped: Prize | null = null;
   private landed: Prize | null = null;
@@ -153,7 +157,9 @@ export class ClawGame {
     this.knob.position.set(KX, 2.9, 2.4);
     solid(new THREE.CylinderGeometry(0.22, 0.22, 0.1, 24), 0xfaf8fc, 0.4).position.set(KX + 1.2, 2.51, 2.4);
     solid(new THREE.PlaneGeometry(0.42, 0.42), 0x1d1a22, 0.6, false).position.set(HW - 1.0, 1.0, 2.153);
-    solid(new THREE.BoxGeometry(MW - 0.8, 0.1, 0.1), 0xd9d5df, 0.5, false).position.set(0, 6.5, RAILZ);
+    // the rail is a gantry: it slides forward and back so the claw can reach into the pile
+    this.rail = solid(new THREE.BoxGeometry(MW - 0.8, 0.1, 0.1), 0xd9d5df, 0.5, false);
+    this.rail.position.set(0, 6.5, RAILZ);
 
     // the claw: carriage on the rail, a cable, a hub, three curved fingers that open and close
     this.car = solid(new THREE.BoxGeometry(0.6, 0.3, 0.5), 0xe9e7ee, 0.4, false);
@@ -196,12 +202,14 @@ export class ClawGame {
       const lift = -box.min.y;
       pose.position.y = lift;
       const s = j.scale ?? S;
-      const home = new THREE.Vector3(j.x, DECK, RAILZ + (j.z ?? 0));
+      const home = new THREE.Vector3(j.x, DECK + (j.y ?? 0), RAILZ + (j.z ?? 0));
       group.position.copy(home);
       group.rotation.y = j.yaw;
       group.scale.setScalar(s);
       sc.add(group);
-      this.prizes.push({ j, group, pose, slump: new THREE.Vector3(rx, lift, rz), top: box.max.y + lift, home, s, vy: 0, squashT: 0 });
+      group.updateMatrixWorld(true);
+      const c = new THREE.Box3().setFromObject(group).getCenter(new THREE.Vector3()).sub(home);
+      this.prizes.push({ j, group, pose, slump: new THREE.Vector3(rx, lift, rz), top: box.max.y + lift, c, home, s, vy: 0, squashT: 0 });
     }
   }
 
@@ -300,21 +308,24 @@ export class ClawGame {
 
   drop() {
     if (this.state !== "idle") return;
-    let best = 9;
+    // the claw comes down on whichever plush under it sits highest in the pile
+    let best = 9, high = -9;
     this.target = null;
     for (const p of this.prizes) {
-      const dx = Math.abs(p.group.position.x - this.clawX);
-      if (dx < best && p.group.position.y >= DECK - 0.01) {
+      const dx = Math.abs(p.group.position.x + p.c.x - this.clawX);
+      const top = p.group.position.y + p.top * p.s;
+      if (dx < 0.5 && top > high && p !== this.slipped) {
+        high = top;
         best = dx;
         this.target = p;
       }
     }
-    if (best > 0.5) this.target = null;
     // dead centre catches almost always; off to the side it starts to slip
     const chance = this.target ? Math.min(0.92, Math.max(0, 1.08 - best / 0.42)) : 0;
     this.willSlip = Math.random() > chance;
     this.from.hub = this.hubY;
-    this.from.to = this.target ? DECK + this.target.top * this.target.s + 0.06 : DECK + 0.95;
+    this.from.to = this.target ? this.target.group.position.y + this.target.top * this.target.s + 0.06 : DECK + 0.95;
+    this.from.z = this.clawZ;
     this.state = "down";
     this.t = 0;
     this.events.onBusy(true);
@@ -384,6 +395,7 @@ export class ClawGame {
         break;
       case "down":
         this.hubY = lerp(this.from.hub, this.from.to, ease(t / 1.15));
+        this.clawZ = lerp(this.from.z, this.target ? this.target.home.z + this.target.c.z : RAILZ, ease(t / 0.8));
         this.openA = lerp(0.1, 0.6, Math.min(1, t / 0.5));
         if (t >= 1.15) this.to("close");
         break;
@@ -393,6 +405,7 @@ export class ClawGame {
           if (this.target) {
             this.held = this.target;
             this.holdOffset = this.hubY - this.held.group.position.y;
+            this.grip.set(this.held.group.position.x - this.clawX, 0, this.held.group.position.z - this.clawZ);
           }
           this.from.hub = this.hubY;
           this.to("up");
@@ -414,6 +427,7 @@ export class ClawGame {
         if (t >= 1.2) {
           if (this.held) {
             this.from.x = this.clawX;
+            this.from.z = this.clawZ;
             this.to("carry");
           } else this.miss(this.target ? "slip" : "empty");
         }
@@ -423,7 +437,9 @@ export class ClawGame {
         const h = this.held!;
         const dur = Math.max(0.5, Math.abs(this.from.x - CHUTE) / 1.5);
         this.clawX = lerp(this.from.x, CHUTE, ease(t / dur));
-        h.group.position.x = this.clawX;
+        this.clawZ = lerp(this.from.z, RAILZ, ease(t / dur));
+        h.group.position.x = this.clawX + this.grip.x;
+        h.group.position.z = this.clawZ + this.grip.z;
         h.group.rotation.z = Math.sin(t * 5) * 0.06;
         if (t >= dur) {
           h.vy = 0;
@@ -485,6 +501,7 @@ export class ClawGame {
       case "home": {
         const dh = Math.max(0.4, Math.abs(this.from.x - CHUTE) / 1.8);
         this.clawX = lerp(this.from.x, CHUTE, ease(t / dh));
+        this.clawZ = lerp(this.from.z, RAILZ, ease(t / dh));
         this.openA = lerp(this.openA, 0.1, 0.1);
         if (t >= dh) {
           this.to("idle");
@@ -500,8 +517,8 @@ export class ClawGame {
       sl.vy -= 14 * dt;
       sl.group.position.y += sl.vy * dt;
       sl.group.rotation.z *= 0.9;
-      if (sl.group.position.y <= DECK) {
-        sl.group.position.y = DECK;
+      if (sl.group.position.y <= sl.home.y) {
+        sl.group.position.y = sl.home.y;
         sl.squashT = 0;
         this.landed = sl;
         this.slipped = null;
@@ -520,12 +537,13 @@ export class ClawGame {
     }
 
     // the claw rig follows clawX / hubY / openA
-    this.car.position.x = this.clawX;
-    this.hub.position.set(this.clawX, this.hubY, RAILZ);
-    this.cable.position.set(this.clawX, (6.3 + this.hubY) / 2, RAILZ);
+    this.car.position.set(this.clawX, 6.4, this.clawZ);
+    this.rail.position.z = this.clawZ;
+    this.hub.position.set(this.clawX, this.hubY, this.clawZ);
+    this.cable.position.set(this.clawX, (6.3 + this.hubY) / 2, this.clawZ);
     this.cable.scale.y = 6.3 - this.hubY;
     for (const f of this.fingers) {
-      f.turn.position.set(this.clawX, this.hubY - 0.05, RAILZ);
+      f.turn.position.set(this.clawX, this.hubY - 0.05, this.clawZ);
       f.open.rotation.z = this.openA;
     }
     this.knob.position.x = KX + (this.state === "idle" ? this.dir * 0.08 : 0);
@@ -560,6 +578,7 @@ export class ClawGame {
   private miss(kind: "slip" | "empty") {
     this.events.onMiss(kind);
     this.from.x = this.clawX;
+    this.from.z = this.clawZ;
     this.to("home");
   }
 

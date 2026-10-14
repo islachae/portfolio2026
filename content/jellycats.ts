@@ -14,8 +14,10 @@ export type Jellycat = {
   yaw: number;
   /** how it flops in the machine: tipped back (x) and over to one side (z), in radians */
   slump?: [number, number];
-  /** a little forward (+) or back (−) from the claw's line */
+  /** forward (+) or back (−) from the claw's line; the claw reaches in to it */
   z?: number;
+  /** how high it rests in the pile, on top of the others (0, on the floor, when left out) */
+  y?: number;
   /** size in the machine (0.64 when left out) */
   scale?: number;
   /** its turn when it's out on show (0, facing you, when left out) */
@@ -28,10 +30,10 @@ export const jellycats: Jellycat[] = [
   {
     id: "sun",
     name: "Fluffy Sun",
-    x: -3.67,
-    yaw: 0.15,
+    x: -1.95,
+    z: -0.8,
     slump: [-0.42, 0.18],
-    z: -0.12,
+    yaw: 0.15,
     lines: [
       "A window seat brings you luck today.",
       "Little things will make you laugh out loud today.",
@@ -41,9 +43,10 @@ export const jellycats: Jellycat[] = [
   {
     id: "cursor",
     name: "Fluffy Cursor",
-    x: -2.17,
-    yaw: -0.1,
+    x: -2.65,
+    z: 0.55,
     slump: [-0.12, 0.55],
+    yaw: -0.1,
     lines: [
       "Today is the day to click the thing you keep putting off.",
       "Try one new thing, like opening a fresh tab.",
@@ -53,9 +56,10 @@ export const jellycats: Jellycat[] = [
   {
     id: "scottie",
     name: "Scottie",
-    x: -1.22,
-    yaw: -0.2,
+    x: -0.5,
+    z: 0.6,
     slump: [-0.22, 0.3],
+    yaw: -0.2,
     scale: 0.7,
     lines: [
       "A brisk walk will sort out whatever is on your mind.",
@@ -66,9 +70,11 @@ export const jellycats: Jellycat[] = [
   {
     id: "parfait",
     name: "Strawberry Parfait",
-    x: -0.3,
+    x: 2.05,
+    z: -0.25,
+    y: 0.52,
+    slump: [0.25, 1.15],
     yaw: 0.1,
-    slump: [-0.28, 0.26],
     scale: 0.6,
     lines: [
       "Today is better in layers. Take it one at a time.",
@@ -79,10 +85,11 @@ export const jellycats: Jellycat[] = [
   {
     id: "baseball",
     name: "Baseball",
-    x: 0.71,
+    x: -1.28,
+    z: -0.1,
+    y: 0.55,
+    slump: [-0.62, 0.32],
     yaw: 0.12,
-    slump: [-0.36, -0.12],
-    z: 0.12,
     scale: 0.62,
     lines: [
       "Swing at the first good pitch that comes your way today.",
@@ -93,10 +100,10 @@ export const jellycats: Jellycat[] = [
   {
     id: "matcha",
     name: "Matcha Latte",
-    x: 1.8,
-    yaw: -0.15,
+    x: 0.35,
+    z: -0.8,
     slump: [-0.2, -0.26],
-    z: -0.1,
+    yaw: -0.15,
     scale: 0.62,
     lines: [
       "Slow sips today. You have more time than you think.",
@@ -107,9 +114,10 @@ export const jellycats: Jellycat[] = [
   {
     id: "taxi",
     name: "NYC Taxi",
-    x: 3.23,
+    x: 1.0,
+    z: 0.6,
+    slump: [0, 0.12],
     yaw: -0.75,
-    slump: [0, 0.2],
     scale: 0.66,
     showYaw: -0.95,
     lines: [
@@ -121,10 +129,10 @@ export const jellycats: Jellycat[] = [
   {
     id: "clawd",
     name: "Clawd",
-    x: 4.98,
-    yaw: -0.25,
+    x: 2.9,
+    z: -0.85,
     slump: [-0.5, -0.12],
-    z: -0.15,
+    yaw: -0.25,
     scale: 0.74,
     lines: [
       "Break the big task into small steps and it all gets done.",
