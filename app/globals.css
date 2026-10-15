@@ -17838,6 +17838,12 @@ li[data-pending] .ml-method-n .ml-todo,
 .ml-pilot {
   margin-top: 28px;
 }
+.ml-openqs--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.ml-loopvid {
+  background: #fff;
+}
 .cs-sec--takeaways > .cs-h2 {
   margin-bottom: 8px;
 }

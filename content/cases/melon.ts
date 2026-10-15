@@ -139,64 +139,11 @@ export const melonCase = {
   // who answered each question; most questions were “choose everything that applies”.
   survey: {
     label: "Three things the survey added",
-    /** Each: a count (drawn one square per student who answered), a headline, an optional line
-     *  under it, and where it shows up in Mellon. */
     findings: [
-      { n: 5, of: 9, unit: "wanted Donna’s confirmation", h: "Students want a clear source, and that source is Donna.", v: "5 of 9 ask Donna to double-check even after they’ve found the answer themselves.", melon: "Answers link to her own email" },
-      { n: 6, of: 8, unit: "asked another student instead", h: "Most questions go to classmates, so Donna never hears them.", v: "Email feels formal, greeting and all, so a small question doesn’t seem worth sending.", melon: "Donna sees what students ask" },
-      { n: 6, of: 7, unit: "want an AI to say when it’s unsure", h: "Admitting doubt builds trust.", v: "6 of 7 would trust an AI more if it says when it isn’t sure.", melon: "Unsure? It hands over to Donna" },
-    ] as { n: number; of: number; unit: string; h: string; v?: string; melon: string }[],
-    melonLabel: "In Mellon",
-    allLabel: "All answers",
-    charts: [
-      {
-        k: "Why they wrote to Donna",
-        n: 9,
-        rows: [
-          { k: "Wanted her confirmation", v: 5, key: true },
-          { k: "Easier to ask her directly", v: 5 },
-          { k: "Found it, but it was unclear", v: 4 },
-          { k: "Unsure it applied to me", v: 3 },
-          { k: "Didn’t know who else to ask", v: 3 },
-          { k: "Couldn’t find it", v: 3 },
-        ],
-      },
-      {
-        k: "Why they held a question back",
-        n: 8,
-        rows: [
-          { k: "Thought I should find it myself", v: 5, key: true },
-          { k: "Didn’t want to bother her", v: 4 },
-          { k: "Didn’t feel important enough", v: 4 },
-          { k: "Forgot or didn’t follow up", v: 3 },
-          { k: "Unsure she was the right person", v: 3 },
-        ],
-      },
-      {
-        k: "What they did instead",
-        n: 8,
-        rows: [
-          { k: "Asked another student", v: 6, key: true },
-          { k: "Searched the School of Design site", v: 5 },
-          { k: "Searched their email", v: 4 },
-          { k: "Asked a professor or staff", v: 1 },
-          { k: "Checked Slack", v: 1 },
-          { k: "Nothing", v: 1 },
-        ],
-      },
-      {
-        k: "What would make an AI’s answer trustworthy",
-        n: 7,
-        rows: [
-          { k: "Says clearly when it’s unsure", v: 6, key: true },
-          { k: "Shows when it was last updated", v: 5 },
-          { k: "Lets me ask Donna directly", v: 5, key: true },
-          { k: "Shows the original source", v: 4 },
-          { k: "Only uses official School of Design info", v: 3 },
-        ],
-      },
+      { h: "Students want a clear source, and that source is Donna.", v: "5 of 9 ask Donna to double-check even after they’ve found the answer themselves." },
+      { h: "Most questions go to classmates, so Donna never hears them.", v: "6 of 8 ask a classmate instead of Donna. Email feels formal, greeting and all, so a small question doesn’t seem worth sending." },
+      { h: "Admitting doubt builds trust.", v: "6 of 7 would trust an AI more if it says when it isn’t sure." },
     ],
-    foot: "12 responses, September 2026. Not a representative sample; counts are of the students who answered each question.",
   },
 
   // ── 04 Exploration
@@ -204,11 +151,11 @@ export const melonCase = {
     label: "Exploration",
     title: ["We explored five ways to get answers back to students,", "and kept two."],
     concepts: [
-      { src: img("concept-1"), name: "Mini Donna", v: "An assistant that answers student questions from what Donna has sent.", keep: true, why: "Kept. Answers only from what Donna already sent." },
-      { src: img("concept-2"), name: "Smart email labels", v: "Sorts event emails into labels like Action needed, Important or For later.", keep: true, why: "Kept. Labels each email by what to do with it: act, read, or save." },
-      { src: img("concept-3"), name: "Email comment layer", v: "A comment thread on each email, visible to everyone.", keep: false, why: "Set aside. Questions like funding and health can’t sit in a public thread." },
-      { src: img("concept-4"), name: "Slack event hub", v: "Every event email mirrored into a Slack channel.", keep: false, why: "Set aside. Donna leaves Slack after orientation." },
-      { src: img("concept-5"), name: "SoD event website", v: "One website for every School of Design event.", keep: false, why: "Set aside. Every update goes through the web admin and a yearly review." },
+      { src: img("concept-1"), name: "Mini Donna", keep: true, why: "Kept. Answers only from what Donna already sent." },
+      { src: img("concept-2"), name: "Smart email labels", keep: true, why: "Kept. Labels each email by what to do with it: act, read, or save." },
+      { src: img("concept-3"), name: "Email comment layer", keep: false, why: "Set aside. Questions like funding and health can’t sit in a public thread." },
+      { src: img("concept-4"), name: "Slack event hub", keep: false, why: "Set aside. Donna leaves Slack after orientation." },
+      { src: img("concept-5"), name: "SoD event website", keep: false, why: "Set aside. Every update goes through the web admin and a yearly review." },
     ],
     sketch: { src: img("first-sketch"), alt: "First sketch: a side panel beside the Mail inbox with tabs for primary info and calendar, cards for calendar events, priority info and to-dos, an AI summary that links to the exact email, and chat with quick action buttons", w: 1700, h: 925 },
     sketchCap: "Our first sketch: a panel beside the inbox, with every update in one place. Each one opens into a summary, and the summary links back to the email it came from.",
@@ -247,42 +194,17 @@ export const melonCase = {
   melon: {
     label: "Solution",
     title: ["Mellon sorts updates by what needs doing, answers from Donna’s own emails,", "and shows her what students are still asking."],
-    // The loop the two screens make together (the presentation's four steps).
-    loopTitle: "How a question becomes support",
-    loop: [
-      { k: "A student asks", v: "In the panel, in their own words." },
-      { k: "Interest shows up", v: "Questions gather by topic on Donna’s dashboard, with what is rising." },
-      { k: "The advisor invests", v: "Her effort, resources and time go where the questions are." },
-      { k: "Support comes back", v: "Her answer returns to students as a new update." },
-    ],
-    // The loop is pinned while the page scrolls, and the scroll carries one question round it.
-    loopHint: "Scroll to send one question round the loop.",
-    loopWatch: [
-      "A student asks a question.",
-      "It travels to Donna’s dashboard.",
-      "Funding questions are rising, so she acts.",
-      "Her guide travels back.",
-      "It reaches every student who asked. Then the loop starts again.",
-    ],
-    loopPost: "Post a funding guide",
-    loopPosted: "Guide posted",
-    loopEmpty: "Nothing new yet",
-    loopAsk: "where can i find sources for funding?",
-    loopRows: [
-      { k: "Career", s: "Career", n: "12", up: true, was: "", plus: "" },
-      { k: "Funding & financial", s: "Funding", n: "6", up: true, was: "5", plus: "+1" },
-      { k: "Events & community", s: "Events", n: "5", up: false, was: "", plus: "" },
-    ],
-    loopInvest: { src: img("loop-advisor"), alt: "Donna at her laptop, looking at a list where one row is rising", words: ["Effort", "Resources", "Time"] },
-    loopBack: { tag: "New", title: "Funding sources guide", from: "From Donna", meta: "Posted today · 6 students asked", view: "View" },
+    /** The two sides in one loop: a student asks, interest shows up, the advisor invests, support comes back. */
+    loop: {
+      mp4: "/work/melon-case/loop.mp4",
+      poster: img("loop"),
+      w: 1920,
+      h: 1080,
+      alt: "The loop between the two screens: a student asks in the panel, the question shows up on Donna’s dashboard as rising interest, she invests where students are asking, and her answer comes back to students as a new update",
+    },
     /** The student side is the working extension, recorded; the advisor side is a design prototype. */
     student: { label: "Student side · working build" },
-    chapters: [
-      { k: "Action needed comes first", v: "Then today, then earlier this week." },
-      { k: "Summary first, source one tap away", v: "Every summary links to the original email, so students can go back to where they first saw it." },
-      { k: "Ask next to the email", v: "A question typed beside the update it is about." },
-      { k: "Clear in bulk", v: "Select what’s done and discard it together." },
-    ],
+    chapters: ["Action needed comes first", "Summary first, source one tap away", "Ask next to the email", "Clear in bulk"],
     advisor: {
       label: "Advisor side · design prototype",
       shot: {

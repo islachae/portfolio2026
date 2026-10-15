@@ -6,14 +6,14 @@ import { AnimatePresence, motion } from "motion/react";
 import { melonCase as C, type Shot } from "@/content/cases/melon";
 import { reducedMotion } from "../shell-context";
 import { ToolChips } from "../ProjectBrief";
-import { Lines, Section, Takeaways, clamp, useStickyProgress } from "./kit";
+import { Lines, Section, Takeaways } from "./kit";
 import { useScrollRoot } from "./scroll-root";
 import { MelonPanelClip } from "../Stages";
 
 /**
  * CMU Mellon, in nine sections with one headline each, so the headlines alone tell the story:
  * the brief, one email read two ways, what the research showed, five concepts, three decisions,
- * the solution (the loop, the working student panel, the advisor's dashboard), what building it
+ * the solution (the loop film, the working student panel, the advisor's dashboard), what building it
  * for real changed, the test, and what carries over.
  * Anything not known yet is written {{like this}} in the content and drawn as a placeholder (Todo).
  */
@@ -277,70 +277,17 @@ function Research() {
         ))}
       </ol>
 
-      {/* The survey in three findings; every answer stays one click away under “All answers” */}
+      {/* The survey in three findings */}
       <div className="ml-survey" id="ml-survey">
         <h3 className="cs-h3 ml-survey-h">{v.label}</h3>
-        <ol className="ml-finds">
+        <ul className="ml-openqs ml-openqs--3">
           {v.findings.map((f) => (
             <li key={f.h}>
-              <div className="ml-find-ev" role="img" aria-label={`${f.n} of ${f.of} ${f.unit}`}>
-                <span className="ml-find-n" aria-hidden>
-                  {f.n}
-                  <small>/{f.of}</small>
-                </span>
-                <span className="ml-units" aria-hidden>
-                  {Array.from({ length: f.of }, (_, k) => (
-                    <i key={k} data-on={k < f.n || undefined} />
-                  ))}
-                </span>
-              </div>
-              <h4 className="ml-find-h">{f.h}</h4>
-              {f.v ? <p className="ml-find-v">{f.v}</p> : null}
-              <p className="ml-find-melon">
-                <b>{v.melonLabel}</b>
-                <span>{f.melon}</span>
-              </p>
+              <b>{f.h}</b>
+              <span>{f.v}</span>
             </li>
           ))}
-        </ol>
-        <details className="ml-all">
-          <summary>
-            {v.allLabel}
-            <span>4 charts</span>
-          </summary>
-          <div className="ml-charts">
-            {v.charts.map((c) => (
-              <figure className="ml-chart" key={c.k}>
-                <figcaption>
-                  <b>{c.k}</b>
-                  <span>{c.n} answered</span>
-                </figcaption>
-                <ol>
-                  {c.rows.map((row) => (
-                    <li
-                      key={row.k}
-                      data-key={("key" in row && row.key) || undefined}
-                      style={{ ["--w" as string]: `${(row.v / c.n) * 100}%` }}
-                      aria-label={`${row.k}: ${row.v} of ${c.n}`}
-                    >
-                      <span className="ml-bar-k" aria-hidden>
-                        {row.k}
-                      </span>
-                      <span className="ml-bar-track" aria-hidden>
-                        <i className="ml-bar" />
-                        <span className="ml-bar-v">
-                          {row.v} <small>of {c.n}</small>
-                          <em> · {Math.round((row.v / c.n) * 100)}%</em>
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </figure>
-            ))}
-          </div>
-        </details>
-        <p className="ml-survey-foot">{v.foot}</p>
+        </ul>
       </div>
     </Section>
   );
@@ -362,7 +309,6 @@ function Directions() {
               <img src={c.src} alt="" loading="lazy" />
             </span>
             <b>{c.name}</b>
-            <span className="ml-concept-v">{c.v}</span>
             <span className="ml-concept-why">{c.why}</span>
           </li>
         ))}
@@ -440,199 +386,6 @@ function ShotFig({ shot, kind }: { shot: Shot; kind: "panel" | "wide" }) {
   );
 }
 
-/**
- * The loop, pinned. While the page scrolls past, the frame stays put and the scroll carries one
- * question round it: it waits in the student's panel, is sent, lands on Donna's dashboard where
- * the count goes up, she posts a guide, and the guide lands back in the panel. Everything is read
- * off one number (how far through the scene the scroll is), so it runs backwards as well.
- * With reduced motion nothing is pinned and the finished loop is simply shown.
- */
-type Pt = { x: number; y: number };
-
-function Loop() {
-  const m = C.melon;
-  const scene = useRef<HTMLDivElement>(null);
-  const frame = useRef<HTMLDivElement>(null);
-  const pics = useRef<(HTMLElement | null)[]>([]);
-  const row = useRef<HTMLElement | null>(null);
-  const raw = useStickyProgress(scene, frame);
-  const [still, setStill] = useState(false);
-  // where things leave from and land, measured inside the frame
-  const [pts, setPts] = useState<{ ask: [Pt, Pt]; guide: [Pt, Pt] } | null>(null);
-
-  const root = useScrollRoot();
-  // pinned only where the whole frame fits under the bar (a phone on its side, a window zoomed to
-  // 200%, a short laptop: there it would hide steps 03 and 04); otherwise the finished loop is shown
-  useEffect(() => {
-    if (reducedMotion()) return setStill(true);
-    const sc = scene.current;
-    const fr = frame.current;
-    if (!sc || !fr || !root) return;
-    const check = () => {
-      sc.removeAttribute("data-still"); // measured as it would be pinned
-      const fits = (parseFloat(getComputedStyle(fr).top) || 0) + fr.offsetHeight <= root.clientHeight;
-      if (!fits) sc.setAttribute("data-still", "");
-      setStill(!fits);
-    };
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, [root]);
-  useEffect(() => {
-    const fr = frame.current;
-    if (!fr) return;
-    const measure = () => {
-      const b = fr.getBoundingClientRect();
-      const mid = (el: HTMLElement): Pt => {
-        const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2 - b.left, y: r.top + r.height / 2 - b.top };
-      };
-      const [p0, , p2, p3] = pics.current;
-      if (!p0 || !p2 || !p3 || !row.current) return;
-      const r2 = p2.getBoundingClientRect();
-      // the guide leaves from the button at the foot of Donna's picture
-      setPts({ ask: [mid(p0), mid(row.current)], guide: [{ x: r2.left + r2.width / 2 - b.left, y: r2.bottom - b.top - 30 }, mid(p3)] });
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(fr);
-    return () => ro.disconnect();
-  }, []);
-
-  const p = still ? 1 : raw;
-  // 0 waiting · 1 sent, travelling · 2 counted, Donna's turn · 3 posted, travelling · 4 back
-  const step = p < 0.14 ? 0 : p < 0.34 ? 1 : p < 0.54 ? 2 : p < 0.76 ? 3 : 4;
-  const moved = step >= 2;
-  /** A copy on its way: quick to leave, slow to arrive, on a slight arc, shrinking as it lands. */
-  const carry = (t: number, [a, z]: [Pt, Pt]): React.CSSProperties => {
-    const e = 1 - (1 - t) * (1 - t);
-    const x = a.x + (z.x - a.x) * e;
-    const y = a.y + (z.y - a.y) * e - Math.sin(Math.PI * e) * 24;
-    return { opacity: t <= 0 || t >= 1 ? 0 : t > 0.85 ? (1 - t) / 0.15 : 1, transform: `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${1 - 0.45 * e})` };
-  };
-
-  return (
-    <>
-      <h3 className="cs-h3 ml-h3">{m.loopTitle}</h3>
-      {!still && (
-        <p className="cs-scene-hint">
-          <span className="cs-scene-mouse" aria-hidden>
-            <span />
-          </span>
-          {m.loopHint}
-        </p>
-      )}
-      <div className="ml-scene" ref={scene} data-still={still || undefined}>
-        <div className="ml-scene-frame" ref={frame}>
-          <div className="ml-loop-bar">
-            <p className="ml-loop-say">
-              <i className="ml-loop-dot" aria-hidden />
-              {m.loopWatch[step]}
-            </p>
-            <span className="ml-loop-meter" aria-hidden>
-              {m.loop.map((s, i) => (
-                <i key={s.k} data-on={step > i || undefined} />
-              ))}
-            </span>
-          </div>
-          <ol className="ml-loop" data-s={step}>
-            {m.loop.map((s, i) => (
-              <li key={s.k} data-on={(step < 4 && step === i) || undefined} data-wait={i > step || undefined}>
-                <span className="ml-loop-n">0{i + 1}</span>
-                <b>{s.k}</b>
-                <span className="ml-loop-v">{s.v}</span>
-                <span
-                  className="ml-loop-pic"
-                  ref={(el) => {
-                    pics.current[i] = el;
-                  }}
-                >
-                  {i === 0 &&
-                    (step === 0 ? (
-                      <span className="ml-loop-box" aria-hidden>
-                        <span className="ml-loop-typed">{m.loopAsk}</span>
-                        <span className="ml-loop-send" data-press={p >= 0.1 || undefined}>
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" />
-                          </svg>
-                        </span>
-                      </span>
-                    ) : (
-                      <span className="ml-loop-ask">{m.loopAsk}</span>
-                    ))}
-                  {i === 1 && (
-                    <span className="ml-loop-rows" role="img" aria-label={m.loopRows.map((r) => `${r.k}: ${moved || !r.was ? r.n : r.was}`).join(", ")}>
-                      {m.loopRows.map((r) => {
-                        const up = Boolean(r.was) && moved;
-                        return (
-                          <span
-                            key={r.k}
-                            ref={(el) => {
-                              if (r.was) row.current = el;
-                            }}
-                            data-plus={up ? "" : undefined}
-                            data-tick={(up && !still) || undefined}
-                            aria-hidden
-                          >
-                            <i>
-                              <span className="ml-loop-full">{r.k}</span>
-                              <span className="ml-loop-short">{r.s}</span>
-                            </i>
-                            {up && r.plus && <u>{r.plus}</u>}
-                            <b>{r.was && !up ? r.was : r.n}</b>
-                            <em>{r.was ? (up ? "▲" : "–") : r.up ? "▲" : "–"}</em>
-                          </span>
-                        );
-                      })}
-                    </span>
-                  )}
-                  {i === 2 && (
-                    <>
-                      <img src={m.loopInvest.src} alt={m.loopInvest.alt} width={800} height={423} loading="lazy" />
-                      {step === 2 ? (
-                        <span className="ml-loop-post" data-press={p >= 0.5 || undefined} aria-hidden>
-                          {m.loopPost}
-                        </span>
-                      ) : (
-                        <span className="ml-loop-words">{step >= 3 ? m.loopPosted : m.loopInvest.words.join(" · ")}</span>
-                      )}
-                    </>
-                  )}
-                  {i === 3 &&
-                    (step === 4 ? (
-                      <span className="ml-loop-update">
-                        <u>{m.loopBack.tag}</u>
-                        <b>{m.loopBack.title}</b>
-                        <span>{m.loopBack.from}</span>
-                        <small>{m.loopBack.meta}</small>
-                        <em aria-hidden>{m.loopBack.view}</em>
-                      </span>
-                    ) : (
-                      <span className="ml-loop-empty">{m.loopEmpty}</span>
-                    ))}
-                </span>
-              </li>
-            ))}
-          </ol>
-          {pts && !still && (
-            <>
-              <span className="ml-loop-tok" data-kind="ask" style={carry(clamp((p - 0.14) / 0.2), pts.ask)} aria-hidden>
-                <span>{m.loopAsk}</span>
-              </span>
-              <span className="ml-loop-tok" data-kind="guide" style={carry(clamp((p - 0.54) / 0.22), pts.guide)} aria-hidden>
-                <span>
-                  <u>{m.loopBack.tag}</u>
-                  {m.loopBack.title}
-                </span>
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-    </>
-  );
-}
-
 function Solution() {
   const m = C.melon;
   return (
@@ -641,7 +394,9 @@ function Solution() {
         <Lines lines={m.title} />
       </h2>
 
-      <Loop />
+      <figure className="ml-mapvid ml-loopvid" style={{ aspectRatio: `${m.loop.w} / ${m.loop.h}` }}>
+        <LoopVideo mp4={m.loop.mp4} poster={m.loop.poster} label={m.loop.alt} w={m.loop.w} h={m.loop.h} />
+      </figure>
 
       {/* the student side: the working extension, recorded, with what each part shows */}
       <div className="ml-clip ml-half">
@@ -649,10 +404,9 @@ function Solution() {
         <MelonPanelClip />
         <ol className="ml-callouts">
           {m.chapters.map((c, i) => (
-            <li key={c.k}>
+            <li key={c}>
               <span className="ml-ch-n">0{i + 1}</span>
-              <b>{c.k}</b>
-              <span>{c.v}</span>
+              <b>{c}</b>
             </li>
           ))}
         </ol>
