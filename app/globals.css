@@ -17528,3 +17528,355 @@ html[data-motion="reduced"] .wc-hl {
     font-size: 26px;
   }
 }
+
+/* ═════════ CMU Mellon, nine sections (Oct 2026) ═════════
+   The case study follows one headline per section: brief, problem, research, exploration,
+   decisions, solution, build, validation, reflection. What is new here: the impact strip under the
+   first screen, the two readings under the email, the map as a silent loop, the three decisions
+   (picture first), the student / advisor halves, design × build, the test, and the placeholders. */
+
+/* the first screen is the working extension now (4:3), not the 16:9 film */
+.melon-hero-box {
+  aspect-ratio: 1600 / 1190;
+  background: #fff;
+}
+
+/* placeholders: anything not known yet ({{ }} in content/cases/melon.ts). Dashed and muted, so it
+   can't pass for a real number or a real quote. */
+.ml-todo {
+  padding: 0 4px;
+  border: 1px dashed var(--line-2);
+  color: var(--text-muted);
+  font-style: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+li[data-pending] .ml-method-n .ml-todo,
+.ml-impact-n .ml-todo {
+  border-color: var(--ink-4);
+}
+
+/* impact: three cells between hairlines, right under the first screen */
+.ml-impact {
+  margin: 0 0 8px;
+}
+.ml-impact-k {
+  margin: 0 0 10px;
+}
+.ml-impact-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--border);
+  list-style: none;
+}
+.ml-impact-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px 20px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ml-impact-list li[data-pending] {
+  background: repeating-linear-gradient(135deg, var(--bg) 0 8px, var(--surface) 8px 16px);
+}
+.ml-impact-n {
+  color: var(--cs-ink);
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.ml-impact-n[data-wide] {
+  font-size: 22px;
+  line-height: 1.25;
+}
+.ml-impact-q {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+/* under the email: the two readings, then what comes back (nothing) */
+.ml-reads {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  margin: 28px 0 0;
+}
+.ml-reads > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.ml-reads > div[data-last] {
+  border-top-color: var(--cs-accent);
+}
+.ml-reads dd {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+/* the map, as a silent loop */
+.ml-mapvid {
+  margin: 32px 0 0;
+  border: 1px solid var(--border);
+  background: #fff;
+  overflow: hidden;
+  scroll-margin-top: 88px;
+}
+.ml-mapvid video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ml-nums {
+  margin-top: 16px;
+}
+.ml-nums li {
+  font-size: 14.5px;
+}
+.ml-find-v {
+  margin: -4px 0 0;
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+/* decisions: the picture first, then the call (number on the left, words on the right) */
+.ml-decs {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  margin: 36px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-dec {
+  scroll-margin-top: 88px;
+}
+.ml-dec-fig {
+  margin: 0;
+  border: 1px solid var(--border);
+  background: #f3f3ef;
+}
+.ml-dec-fig img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ml-dec-text {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 20px;
+}
+.ml-dec-n {
+  align-self: start;
+  margin: 4px 0 0;
+  color: var(--cs-ink);
+}
+.ml-dec-h {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+.ml-dec-text .cs-body {
+  max-width: 640px;
+}
+
+/* solution: the student half (working build) and the advisor half (design prototype) */
+.ml-half {
+  margin-top: 64px;
+}
+.ml-half-k {
+  margin: 0 0 4px;
+}
+.ml-callouts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-callouts li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ml-callouts b {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* design × build: Figma beside the real inbox, the same height */
+.ml-build-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 32px 0 0;
+}
+.ml-build-pair figure {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+.ml-build-pic {
+  display: flex;
+  justify-content: center;
+  height: min(620px, 80svh);
+  padding: 24px;
+  border: 1px solid var(--border);
+  background: #f3f3ef;
+}
+.ml-build-pic img {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.ml-build-broke {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-build-broke li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.ml-stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-top: 32px;
+}
+.ml-stack p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* validation */
+.ml-valid-setup {
+  margin-top: 8px;
+}
+.ml-photo-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 7;
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px dashed var(--line-2);
+  background: repeating-linear-gradient(135deg, var(--bg) 0 8px, var(--surface) 8px 16px);
+  text-align: center;
+  font-size: 14px;
+}
+.ml-pull figcaption {
+  margin-top: 10px;
+}
+.ml-openqs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-openqs li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.ml-openqs b {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+}
+.ml-pilot {
+  margin-top: 28px;
+}
+.cs-sec--takeaways > .cs-h2 {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1023px) {
+  /* three tool chips (Mellon's) wrap instead of running off a phone */
+  .cs-meta .tools {
+    flex-wrap: wrap;
+  }
+  .ml-callouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .ml-impact-list,
+  .ml-reads,
+  .ml-build-broke,
+  .ml-openqs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ml-reads {
+    gap: 20px;
+  }
+  .ml-dec-text {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .ml-build-pair {
+    gap: 12px;
+  }
+  .ml-build-pic {
+    height: min(420px, 70svh);
+    padding: 12px;
+  }
+  .ml-callouts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .ml-photo-slot {
+    aspect-ratio: 4 / 3;
+  }
+}

@@ -161,11 +161,11 @@ export const pages: Page[] = [
     didLabel: "My part",
     did: "Led a team of 3, framed the problem and designed the screens for Mellon: a Gmail side panel for students and a dashboard for their advisor.",
     facts: [
-      { label: "Role", value: "Team lead · framing & interface design" },
-      { label: "Timeline", value: "Fall 2026" },
+      { label: "Role", value: "Design lead · built the student panel" },
+      { label: "Timeline", value: "Sept–Oct 2026 · 7 weeks" },
       { label: "Team", value: "Jamie Chung, Chaewon Lim, Pragya Srivastava" },
     ],
-    tools: ["Figma", "Claude Code"],
+    tools: ["Figma", "Claude Code", "Chrome extension"],
     keywords: ["communication", "email", "inbox", "notifications", "personalization", "education", "school", "cmu", "advisor", "student", "productivity"],
   },
   {

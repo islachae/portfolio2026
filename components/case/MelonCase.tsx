@@ -5,50 +5,119 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { melonCase as C, type Shot } from "@/content/cases/melon";
 import { reducedMotion } from "../shell-context";
+import { ToolChips } from "../ProjectBrief";
 import { Lines, Section, Takeaways, clamp, useStickyProgress } from "./kit";
 import { useScrollRoot } from "./scroll-root";
 import { MelonPanelClip } from "../Stages";
 
 /**
- * CMU Mellon. The page follows the presentation's argument: one email read two ways, the belief
- * underneath (sent means informed), where it broke, the framing, then the two screens that let
- * each side see the other, and what people said they would use it for. Three small interactions:
- * the same email read two ways, the map's four findings, and the recording (the first screen).
+ * CMU Mellon, in nine sections with one headline each, so the headlines alone tell the story:
+ * the brief, one email read two ways, what the research showed, five concepts, three decisions,
+ * the solution (the loop, the working student panel, the advisor's dashboard), what building it
+ * for real changed, the test, and what carries over.
+ * Anything not known yet is written {{like this}} in the content and drawn as a placeholder (Todo).
  */
 export function MelonCase() {
   return (
     <article className="cs-article ml">
-      <Hero />
+      <Impact />
+      <Brief />
       <Gap />
       <Research />
-      <Frame />
       <Directions />
+      <Decisions />
       <Solution />
-      <Reactions />
+      <Build />
+      <Validation />
       <Takeaways t={C.takeaways} />
     </article>
   );
 }
 
-function Hero() {
+/* ───────────── Placeholders ───────────── */
+
+/** Text with {{placeholders}}: those parts are drawn dashed and muted, so they can't pass for real. */
+function Todo({ s }: { s: string }) {
+  const parts = s.split(/(\{\{[^}]+\}\})/g).filter(Boolean);
   return (
     <>
-      {/* The first screen (title, facts and the prototype) is SplitHero, drawn by CasePage */}
-      <p className="cs-lede">{C.overview}</p>
-      <dl className="ml-glance">
-        {C.glance.map((g) => (
-          <div key={g.k} data-mine={g.k === "My part" || undefined}>
-            <dt>{g.k}</dt>
-            <dd>{g.v}</dd>
-          </div>
-        ))}
-      </dl>
-      <p className="ml-team">{C.team}</p>
+      {parts.map((p, i) =>
+        p.startsWith("{{") ? (
+          <span key={i} className="ml-todo">
+            {p.slice(2, -2)}
+          </span>
+        ) : (
+          <Fragment key={i}>{p}</Fragment>
+        ),
+      )}
     </>
   );
 }
+const isTodo = (s: string) => /^\{\{[^}]+\}\}$/.test(s.trim());
 
-/* ───────────── The gap: one email, two readers ───────────── */
+/** A looping, silent video that plays only while it is on screen (and never with reduced motion). */
+function LoopVideo({ mp4, poster, label, w, h }: { mp4: string; poster: string; label: string; w: number; h: number }) {
+  const v = useRef<HTMLVideoElement>(null);
+  const root = useScrollRoot();
+  useEffect(() => {
+    const el = v.current;
+    if (!el || !root || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting && !reducedMotion()) el.play().catch(() => {});
+        else el.pause();
+      },
+      { root, threshold: 0.3 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [root]);
+  return <video ref={v} src={mp4} poster={poster} muted loop playsInline preload="metadata" width={w} height={h} aria-label={label} />;
+}
+
+/* ───────────── Right under the first screen: impact ───────────── */
+
+function Impact() {
+  const im = C.impact;
+  return (
+    <section className="ml-impact" aria-label={im.label}>
+      <p className="label ml-impact-k">{im.label}</p>
+      <ul className="ml-impact-list">
+        {im.items.map((it, i) => (
+          <li key={i} data-pending={(it.n && isTodo(it.n)) || (it.q && isTodo(it.q)) || undefined}>
+            {it.n ? (
+              <b className="ml-impact-n" data-wide={it.wide || undefined}>
+                <Todo s={it.n} />
+              </b>
+            ) : null}
+            {it.q ? (
+              <q className="ml-impact-q">
+                <Todo s={it.q} />
+              </q>
+            ) : null}
+            <span className="ml-impact-v">
+              <Todo s={it.v} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/* ───────────── 01 The brief ───────────── */
+
+function Brief() {
+  const b = C.brief;
+  return (
+    <Section label={b.label} id="ml-brief">
+      <h2 className="cs-h2">{b.title}</h2>
+      <p className="cs-body cs-measure">{b.text}</p>
+    </Section>
+  );
+}
+
+/* ───────────── 02 The problem: one email, two readers ───────────── */
 
 /** **bold** and [link] inside an email line */
 function EmailText({ t }: { t: string }) {
@@ -89,23 +158,6 @@ function Gap() {
       <h2 className="cs-h2">
         <Lines lines={g.title} />
       </h2>
-      {/* the first Monday of the semester, in four moments: the two sides never meet */}
-      <ol className="ml-story">
-        {g.story.map((m, i) => (
-          <li key={m.k} data-who={m.who === "Donna" ? "donna" : "student"}>
-            <span className="ml-story-k">
-              <i>0{i + 1}</i>
-              {m.k}
-            </span>
-            <blockquote className="ml-story-q">“{m.q}”</blockquote>
-            <img className="ml-story-face" src={m.face} alt="" width={96} height={96} loading="lazy" />
-          </li>
-        ))}
-      </ol>
-      <p className="ml-story-note">{g.storyNote}</p>
-
-      <h3 className="cs-h3 ml-h3">{g.readTitle}</h3>
-      <p className="cs-body cs-measure">{g.text}</p>
 
       <div className="ml-read" data-mode={mode}>
         <div className="ml-read-tabs" role="tablist" aria-label="Read the email as">
@@ -165,60 +217,21 @@ function Gap() {
         </div>
         <p className="ml-read-note">{g.note}</p>
       </div>
+
+      {/* the two readings, then what flows back to Donna: nothing */}
+      <dl className="ml-reads">
+        {g.reads.map((r, i) => (
+          <div key={r.k} data-last={i === g.reads.length - 1 || undefined}>
+            <dt className="label">{r.k}</dt>
+            <dd>{r.v}</dd>
+          </div>
+        ))}
+      </dl>
     </Section>
   );
 }
 
-/* ───────────── Research: one event through the system, the belief under it, the survey ───────────── */
-
-/** The map, with one finding lit at a time (the presentation's four slides of the same map). */
-function MapFindings() {
-  const r = C.research;
-  const [sel, setSel] = useState(0);
-  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const onKey = (e: React.KeyboardEvent, i: number) => {
-    const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
-    if (!d) return;
-    e.preventDefault();
-    const next = (i + d + r.findings.length) % r.findings.length;
-    setSel(next);
-    tabs.current[next]?.focus();
-  };
-  return (
-    <div className="ml-map" id="ml-map" tabIndex={-1}>
-      <h3 className="cs-h3 ml-h3">{r.mapTitle}</h3>
-      <figure className="ml-mapfig">
-        <div className="ml-mapfig-pic" id="ml-mapfig-pic" role="tabpanel" aria-labelledby={`ml-find-${sel}`} style={{ aspectRatio: `${r.map.w} / ${r.map.h}` }}>
-          {r.findings.map((f, i) => (
-            <img key={f.src} src={f.src} alt={i === sel ? `${r.map.alt}. Highlighted: ${f.h.toLowerCase()}.` : ""} aria-hidden={i !== sel || undefined} data-on={i === sel || undefined} width={r.map.w} height={r.map.h} loading="lazy" decoding="async" />
-          ))}
-        </div>
-        <div className="ml-mapfig-tabs" role="tablist" aria-label="What the map showed">
-          {r.findings.map((f, i) => (
-            <button
-              key={f.h}
-              ref={(el) => {
-                tabs.current[i] = el;
-              }}
-              role="tab"
-              id={`ml-find-${i}`}
-              aria-selected={i === sel}
-              aria-controls="ml-mapfig-pic"
-              tabIndex={i === sel ? 0 : -1}
-              className="ml-mapfig-tab"
-              onClick={() => setSel(i)}
-              onKeyDown={(e) => onKey(e, i)}
-            >
-              <span className="ml-mapfig-n">0{i + 1}</span>
-              <b>{f.h}</b>
-              <span className="ml-mapfig-v">{f.v}</span>
-            </button>
-          ))}
-        </div>
-      </figure>
-    </div>
-  );
-}
+/* ───────────── 03 Research: the map, three numbers, two broken beliefs, the survey ───────────── */
 
 function Research() {
   const r = C.research;
@@ -229,42 +242,19 @@ function Research() {
         <Lines lines={r.title} />
       </h2>
       <p className="cs-body cs-measure">{r.text}</p>
-      <ul className="ml-methods ml-methods--3">
-        {r.methods.map((m) => (
-          <li key={m.k}>
+
+      <figure className="ml-mapvid" id="ml-map" tabIndex={-1} style={{ aspectRatio: `${r.map.w} / ${r.map.h}` }}>
+        <LoopVideo mp4={r.map.mp4} poster={r.map.poster} label={r.map.alt} w={r.map.w} h={r.map.h} />
+      </figure>
+      <ul className="ml-methods ml-methods--3 ml-nums">
+        {r.numbers.map((m) => (
+          <li key={m.v}>
             <span className="ml-method-n">{m.n}</span>
-            <b>{m.k}</b>
             <span>{m.v}</span>
           </li>
         ))}
       </ul>
-      <p className="ml-methods-note">{r.methodsNote}</p>
-
-      <MapFindings />
-
-      {/* The iceberg: what shows, and the belief at the bottom that holds it up */}
-      <div className="ml-root">
-        <h3 className="cs-h3 ml-h3">{r.rootTitle}</h3>
-        <ol className="ml-berg">
-          {r.root.map((l, i) => (
-            <li key={l.k} data-i={i} data-root={i === r.root.length - 1 || undefined}>
-              <span className="ml-berg-slice" aria-hidden>
-                <i />
-              </span>
-              <span className="ml-berg-k">
-                {l.k}
-                {i < 2 && <small>{i === 0 ? r.rootLabels.seen : r.rootLabels.hidden}</small>}
-              </span>
-              <span className="ml-berg-v">
-                {i === r.root.length - 1 ? <em>{r.rootLabels.assume}</em> : null}
-                {l.v.map((t) => (
-                  <span key={t}>{t}</span>
-                ))}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
+      <p className="ml-methods-note">{r.numbersNote}</p>
 
       <h3 className="cs-h3 ml-h3">{r.brokeTitle}</h3>
       <ol className="ml-broke">
@@ -286,15 +276,10 @@ function Research() {
           </li>
         ))}
       </ol>
-      <figure className="ml-pull">
-        <blockquote>“{r.pull.q}”</blockquote>
-        <figcaption>{r.pull.src}</figcaption>
-      </figure>
 
-      {/* The survey in three numbers; every answer stays one click away under “All answers” */}
+      {/* The survey in three findings; every answer stays one click away under “All answers” */}
       <div className="ml-survey" id="ml-survey">
-        <p className="label ml-survey-k">{v.label}</p>
-        <h3 className="cs-h3 ml-survey-h">{v.title}</h3>
+        <h3 className="cs-h3 ml-survey-h">{v.label}</h3>
         <ol className="ml-finds">
           {v.findings.map((f) => (
             <li key={f.h}>
@@ -310,6 +295,7 @@ function Research() {
                 </span>
               </div>
               <h4 className="ml-find-h">{f.h}</h4>
+              {f.v ? <p className="ml-find-v">{f.v}</p> : null}
               <p className="ml-find-melon">
                 <b>{v.melonLabel}</b>
                 <span>{f.melon}</span>
@@ -317,9 +303,6 @@ function Research() {
             </li>
           ))}
         </ol>
-        <p className="ml-open">
-          <b>{v.open.k}</b> {v.open.v}
-        </p>
         <details className="ml-all">
           <summary>
             {v.allLabel}
@@ -363,55 +346,7 @@ function Research() {
   );
 }
 
-/* ───────────── Framing: the question, the hypothesis, and what each constraint decided ───────────── */
-
-function Frame() {
-  const f = C.frame;
-  return (
-    <Section label={f.label} id="ml-frame">
-      <h2 className="cs-h2 ml-hmw">
-        {f.hmw.map((p, i) => (p.hi ? <em key={i}>{p.t}</em> : <Fragment key={i}>{p.t}</Fragment>))}
-      </h2>
-
-      <h3 className="cs-h3 ml-h3">{f.hypoTitle}</h3>
-      <div className="ml-hypo">
-        <div className="ml-hypo-head" aria-hidden>
-          <span>{f.hypoLabels.area}</span>
-          <span>{f.hypoLabels.ifs}</span>
-          <span>{f.hypoLabels.then}</span>
-        </div>
-        {f.hypo.map((h) => (
-          <div className="ml-hypo-row" key={h.area}>
-            <b>{h.area}</b>
-            <p data-k={f.hypoLabels.ifs}>
-              <span className="sr-only">{f.hypoLabels.ifs}: </span>
-              {h.ifs}
-            </p>
-            <p data-k={f.hypoLabels.then}>
-              <span className="sr-only">{f.hypoLabels.then}: </span>
-              {h.then}
-            </p>
-          </div>
-        ))}
-        <p className="ml-hypo-because">
-          <span className="ml-hypo-k">{f.hypoLabels.because}</span>
-          <span>{f.because}</span>
-        </p>
-      </div>
-
-      <h3 className="cs-h3 ml-h3">{f.rulesTitle}</h3>
-      <ol className="ml-rules">
-        {f.rules.map((r, i) => (
-          <li key={r.h}>
-            <span className="ml-rule-n">0{i + 1}</span>
-            <span className="ml-rule-why">{r.why}</span>
-            <b>{r.h}</b>
-          </li>
-        ))}
-      </ol>
-    </Section>
-  );
-}
+/* ───────────── 04 Exploration ───────────── */
 
 function Directions() {
   const d = C.directions;
@@ -440,9 +375,38 @@ function Directions() {
   );
 }
 
-/* ───────────── Solution: the loop, then each problem answered on both sides ───────────── */
+/* ───────────── 05 Decisions: the picture first, then the call ───────────── */
 
-const LANE_MARK: Record<string, string> = { ok: "✓", unsure: "?", stop: "→" };
+function Decisions() {
+  const d = C.decisions;
+  return (
+    <Section label={d.label} id="ml-decisions">
+      <h2 className="cs-h2">
+        <Lines lines={d.title} />
+      </h2>
+      <ol className="ml-decs">
+        {d.items.map((it) => (
+          <li className="ml-dec" id={it.id} key={it.id} tabIndex={-1}>
+            <figure className="ml-dec-fig">
+              <img src={it.img.src} alt={it.img.alt} width={it.img.w} height={it.img.h} loading="lazy" decoding="async" />
+            </figure>
+            <div className="ml-dec-text">
+              <p className="label ml-dec-n">{it.n}</p>
+              <div>
+                <h3 className="ml-dec-h">{it.h}</h3>
+                <p className="cs-body">
+                  <Todo s={it.v} />
+                </p>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Section>
+  );
+}
+
+/* ───────────── 06 Solution: the loop, then the student side and the advisor side ───────────── */
 
 /** A screenshot with numbered marks on it and, beside or under it, what each mark points at. */
 function ShotFig({ shot, kind }: { shot: Shot; kind: "panel" | "wide" }) {
@@ -630,7 +594,7 @@ function Loop() {
                           {m.loopPost}
                         </span>
                       ) : (
-                        <span className="ml-loop-words">{step >= 3 ? m.loopPosted : m.loopInvest.words.join("\u00a0· ")}</span>
+                        <span className="ml-loop-words">{step >= 3 ? m.loopPosted : m.loopInvest.words.join(" · ")}</span>
                       )}
                     </>
                   )}
@@ -671,143 +635,121 @@ function Loop() {
 
 function Solution() {
   const m = C.melon;
-  const f = C.frame;
   return (
     <Section label={m.label} id="ml-melon">
       <h2 className="cs-h2">
         <Lines lines={m.title} />
       </h2>
-      <p className="cs-body cs-measure">{m.text}</p>
 
       <Loop />
 
-      {m.sides.map((side) => (
-        <div className="ml-side" id={side.id} key={side.id} tabIndex={-1}>
-          <p className="ml-side-area">{side.area}</p>
-          <h3 className="ml-side-h">{side.title}</h3>
-          <div className="ml-side-half" data-who="student">
-            <p className="ml-side-who">
-              <span className="label">{m.sideLabels.student}</span>
-              <b>{side.student.h}</b>
-            </p>
-            <div className="ml-shots" data-n={side.student.shots.length}>
-              {side.student.shots.map((s) => (
-                <ShotFig key={s.src} shot={s} kind="panel" />
-              ))}
-            </div>
-          </div>
-          <div className="ml-side-half" data-who="donna">
-            <p className="ml-side-who">
-              <span className="label">{m.sideLabels.donna}</span>
-              <b>{side.donna.h}</b>
-            </p>
-            <div className="ml-shots ml-shots--wide">
-              {side.donna.shots.map((s) => (
-                <ShotFig key={s.src} shot={s} kind="wide" />
-              ))}
-            </div>
-          </div>
-        </div>
-      ))}
-
-      <div className="ml-clip">
-        <h3 className="cs-h3">{m.clipTitle}</h3>
+      {/* the student side: the working extension, recorded, with what each part shows */}
+      <div className="ml-clip ml-half">
+        <p className="label ml-half-k">{m.student.label}</p>
         <MelonPanelClip />
-      </div>
-
-      <div className="ml-limits" id="ml-limits" tabIndex={-1}>
-        <h3 className="cs-h3">{f.limitsTitle}</h3>
-        <p className="cs-body">{f.limitsText}</p>
-        <div className="ml-lanes">
-          {f.lanes.map((l) => (
-            <div className="ml-lane" data-tone={l.tone} key={l.k}>
-              <p className="ml-lane-k">
-                <span className="ml-lane-mark" aria-hidden>
-                  {LANE_MARK[l.tone]}
-                </span>
-                {l.k}
-              </p>
-              <p className="ml-lane-v">{l.v}</p>
-              <ul className="ml-lane-ex" aria-label="Example questions">
-                {l.ex.map((q) => (
-                  <li key={q}>{q}</li>
-                ))}
-              </ul>
-            </div>
+        <ol className="ml-callouts">
+          {m.chapters.map((c, i) => (
+            <li key={c.k}>
+              <span className="ml-ch-n">0{i + 1}</span>
+              <b>{c.k}</b>
+              <span>{c.v}</span>
+            </li>
           ))}
-        </div>
-        <p className="ml-limits-foot">{f.limitsFoot}</p>
+        </ol>
       </div>
 
-      {/* what each part of the recording shows (the recording itself is the page's first screen) */}
-      <h3 className="cs-h3 ml-h3">{m.partsTitle}</h3>
-      <ol className="ml-demo ml-parts">
-        {m.chapters.map((c, i) => (
-          <li key={c.k}>
-            <span className="ml-ch-n">0{i + 1}</span>
-            <span className="ml-ch-k">{c.k}</span>
-            <p className="ml-ch-v">{c.v}</p>
-          </li>
-        ))}
-      </ol>
-
-      <h3 className="cs-h3 ml-h3">{m.exploreTitle}</h3>
-      <div className="ml-explore">
-        {m.explore.map((e) => (
-          <figure className="ml-explore-item" key={e.k}>
-            <span className="ml-explore-shot">
-              <img src={e.src} alt={e.alt} width={e.w} height={e.h} loading="lazy" />
-            </span>
-            <figcaption>
-              <b>{e.k}</b>
-              <span>{e.v}</span>
-            </figcaption>
-          </figure>
-        ))}
+      {/* the advisor side: a design prototype, marked */}
+      <div className="ml-half">
+        <p className="label ml-half-k">{m.advisor.label}</p>
+        <div className="ml-shots ml-shots--wide">
+          <ShotFig shot={m.advisor.shot} kind="wide" />
+        </div>
       </div>
     </Section>
   );
 }
 
-/* ───────────── First reactions, and where it could go ───────────── */
+/* ───────────── 07 Design × Build ───────────── */
 
-function Reactions() {
-  const r = C.react;
+function Build() {
+  const b = C.build;
   return (
-    <Section label={r.label} id="ml-react">
-      <h2 className="cs-h2">
-        <Lines lines={r.title} />
-      </h2>
-      <p className="cs-body cs-measure">{r.text}</p>
-      <div className="ml-react">
-        <figure className="ml-react-col">
-          <figcaption className="label">{r.students.k}</figcaption>
-          <ul>
-            {r.students.a.map((a) => (
-              <li key={a}>“{a}”</li>
-            ))}
-          </ul>
-          <span className="ml-react-src">{r.students.src}</span>
-        </figure>
-        <figure className="ml-react-col" data-who="donna">
-          <figcaption className="label">{r.donna.k}</figcaption>
-          <blockquote>“{r.donna.q}”</blockquote>
-          <span className="ml-react-src">{r.donna.src}</span>
-        </figure>
+    <Section label={b.label} id="ml-build" className="ml-build">
+      <h2 className="cs-h2">{b.title}</h2>
+      <p className="cs-body cs-measure">{b.text}</p>
+      <div className="ml-build-pair">
+        {b.pair.map((p) => (
+          <figure key={p.k}>
+            <span className="ml-build-pic">
+              <img src={p.src} alt={p.alt} width={p.w} height={p.h} loading="lazy" decoding="async" />
+            </span>
+            <figcaption className="label">{p.k}</figcaption>
+          </figure>
+        ))}
       </div>
-      <p className="ml-react-note">{r.note}</p>
-
-      <h3 className="cs-h3 ml-h3">{r.nextTitle}</h3>
-      <ol className="ml-next">
-        {r.next.map((n) => (
-          <li key={n.k}>
-            <span className="label">{n.k}</span>
-            <b>{n.v}</b>
+      <h3 className="cs-h3 ml-h3">{b.brokeTitle}</h3>
+      <ol className="ml-build-broke">
+        {b.broke.map((t, i) => (
+          <li key={i} data-pending={isTodo(t) || undefined}>
+            <span className="ml-ch-n">0{i + 1}</span>
+            <span>
+              <Todo s={t} />
+            </span>
           </li>
         ))}
       </ol>
-      <p className="ml-close">
-        <Lines lines={r.close} />
+      <div className="ml-stack">
+        <ToolChips tools={b.stack} />
+        <p>
+          {b.stackNote} <Todo s={b.link} />
+        </p>
+      </div>
+    </Section>
+  );
+}
+
+/* ───────────── 08 Validation ───────────── */
+
+function Validation() {
+  const v = C.valid;
+  return (
+    <Section label={v.label} id="ml-valid">
+      <h2 className="cs-h2">{v.title}</h2>
+      <p className="ml-methods-note ml-valid-setup">
+        <Todo s={v.setup} />
+      </p>
+      <ul className="ml-methods ml-methods--3 ml-nums">
+        {v.results.map((r, i) => (
+          <li key={i} data-pending={isTodo(r.n) || undefined}>
+            <span className="ml-method-n">
+              <Todo s={r.n} />
+            </span>
+            <span>
+              <Todo s={r.v} />
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="ml-photo-slot" role="img" aria-label="Photo to come">
+        <Todo s={v.photo} />
+      </div>
+      <figure className="ml-pull">
+        <blockquote>“{v.quote.q}”</blockquote>
+        <figcaption>
+          {v.quote.who} · <Todo s={v.quote.check} />
+        </figcaption>
+      </figure>
+      <h3 className="cs-h3 ml-h3">{v.openTitle}</h3>
+      <ul className="ml-openqs">
+        {v.open.map((o) => (
+          <li key={o.h}>
+            <b>{o.h}</b>
+            <span>{o.v}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="cs-body ml-pilot">
+        <Todo s={v.pilot} />
       </p>
     </Section>
   );
