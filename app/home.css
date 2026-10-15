@@ -396,19 +396,44 @@ html[data-motion="reduced"] .shader-drift {
   padding: 0 var(--gutter);
   scroll-margin-top: var(--space-xl);
 }
+/* Play is a section of its own: more room after the work than between any two cards, then a
+   hairline across and a title row (“Play” in the page-title voice, what it is in a label) */
 .nh-play {
-  margin-top: 104px;
-}
-/* “Play is where I try things.”: what separates the play pieces from the work is a sentence, not a rule */
-.nh-play .nh-play-h {
-  margin-bottom: var(--space-md);
+  margin-top: 128px;
 }
 @media (min-width: 800px) {
   .nh-play {
-    margin-top: 160px;
+    margin-top: 200px;
   }
-  .nh-play .nh-play-h {
-    margin-bottom: 22px;
+}
+.nh-sec {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+}
+.nh-sec-title {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+}
+@media (min-width: 800px) {
+  /* the label starts where the second column of cards does, on the title's line */
+  .nh-sec {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: baseline;
+    column-gap: var(--space-xl);
+    margin-bottom: 32px;
+  }
+}
+@media (max-width: 799px) {
+  .nh-sec-title {
+    font-size: 23px;
   }
 }
 .nh-grid {
@@ -727,23 +752,6 @@ html[data-motion="reduced"] .nh *::after {
   .nh *::before,
   .nh *::after {
     transition: none !important;
-  }
-}
-
-/* “Play is where I try things.”: the sentence that turns the page to play, in the voice of the
-   greeting (one ink, like it) */
-.nh-say {
-  margin: 0;
-  color: var(--text);
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.5;
-}
-@media (max-width: 799px) {
-  .nh-say {
-    font-size: 23px;
   }
 }
 

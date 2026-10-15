@@ -74,9 +74,15 @@ export function Home({ hidden }: { hidden: boolean }) {
         </ul>
       </section>
 
-      <section className="nh-play" id="play" aria-label="Play">
-        {/* no rule, no label: one line in the voice of the introduction turns the page to play (all in one ink, like the greeting) */}
-        <h2 className="nh-say nh-play-h">Play is where I try things.</h2>
+      <section className="nh-play" id="play" aria-labelledby="play-h">
+        {/* a section of its own: a hairline across, the title on the left, what it is in a label where
+            the second column of cards starts */}
+        <header className="nh-sec">
+          <h2 className="nh-sec-title" id="play-h">
+            Play
+          </h2>
+          <p className="label nh-sec-note">Where I try things</p>
+        </header>
         <ul className="nh-grid nh-grid--play">
           {fun.map((p) => (
             <li key={p.id}>
