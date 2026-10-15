@@ -10,6 +10,7 @@ import { WordCocktail } from "../cocktail/WordCocktail";
 import { JellycatOfTheDay } from "../jellycat/JellycatOfTheDay";
 import { BakeryStage, LabStage, WishStage } from "../Stages";
 import { SiteAsk, SiteNav } from "./Nav";
+import { SiteFoot } from "../SiteFoot";
 import { holdTitle } from "@/lib/title";
 
 const stages: Record<Exclude<PlayId, "cocktail" | "jellycat">, () => React.ReactElement> = {
@@ -71,6 +72,7 @@ export function PlayPage({ id }: { id: PlayId }) {
           <WordCocktail active near />
         )}
       </main>
+      <SiteFoot />
     </div>
   );
 }

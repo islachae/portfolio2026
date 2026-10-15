@@ -17189,13 +17189,11 @@ html[data-motion="reduced"] .wc-hl {
    On a touch screen each of these is shorter than a fingertip (17–23px tall). An invisible box
    around it takes the tap without moving anything, so it is at least 44px tall. */
 @media (pointer: coarse) {
-  .nh-foot-l a,
   .pb-try button,
   .pb-limits li a,
   .ab-link {
     position: relative;
   }
-  .nh-foot-l a::after,
   .pb-try button::after,
   .pb-limits li a::after,
   .ab-link::after {

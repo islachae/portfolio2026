@@ -9,6 +9,7 @@ import { reducedMotion, useShell } from "../shell-context";
 import { ChevronLeft, ExtArrow, MenuIcon } from "../icons";
 import { ChatToggle, useChat } from "../ChaeLLM";
 import { SiteAsk, SiteNav } from "../home/Nav";
+import { SiteFoot } from "../SiteFoot";
 import { SplitHero } from "./SplitHero";
 import { TippingCase } from "./TippingCase";
 import { PebboCase } from "./PebboCase";
@@ -391,6 +392,7 @@ export function CasePage({ id }: { id: LongId }) {
           </div>
           )}
         </footer>
+        <SiteFoot />
       </div>
     </ScrollRoot.Provider>
   );

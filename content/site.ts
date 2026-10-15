@@ -141,9 +141,10 @@ export const pages: Page[] = [
     meta: "Communication • Team project 2026",
     year: "2026",
     group: "work",
-    thumb: "/work/melon/meet-mellon.webp",
-    tone: "#f8d9d5",
-    clip: { mp4: "/work/melon/meet-mellon.mp4", webm: "/work/melon/meet-mellon.webm", sm: { mp4: "/work/melon/meet-mellon-sm.mp4", webm: "/work/melon/meet-mellon-sm.webm" } },
+    // the project brief film (9.5s, looping): Mellon asks, the panel answers, the advisor's overview
+    thumb: "/work/melon/mellon-card.webp",
+    tone: "#cfe585",
+    clip: { mp4: "/work/melon/mellon-card.mp4", webm: "/work/melon/mellon-card.webm", loop: true, sm: { mp4: "/work/melon/mellon-card-sm.mp4", webm: "/work/melon/mellon-card-sm.webm" } },
     headline: "Gmail side panel for school email",
     title: "CMU Mellon",
     ticker: "MELN",

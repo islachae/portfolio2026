@@ -6,18 +6,20 @@ import { pages, profile, type Page } from "@/content/site";
 import { isCaseId, longHash } from "@/content/cases/ids";
 import { isPlayId, playHash } from "@/content/routes";
 import { reducedMotion, useShell } from "../shell-context";
-import { Hello, formatNY, useNow } from "../HomePage";
+import { Hello } from "../HomePage";
 import { ShaderHero } from "../ShaderHero";
 import { loadCase } from "../case/load";
 import { loadPlay } from "./play-load";
 import { NameChip, PhoneBar, SiteAsk, SiteNav } from "./Nav";
+import { SiteFoot } from "../SiteFoot";
 
 /**
  * Home: who she is, then the work.
- * The first screen is the introduction (the sentence, with her photo in it, and four facts), as
+ * The first screen is the introduction (the sentence, with her photo in it, and three facts), as
  * tall as the window minus a strip at the bottom where the tops of the first two cards show:
  * the work is one scroll away, and it says so. Below: four projects as large cards (each opens
- * its case study), four play pieces the same way (two to a row), and a way to say hi.
+ * its case study), four play pieces the same way (two to a row), and the footer every page ends on
+ * (components/SiteFoot.tsx; here it is #hi).
  */
 /** The card that opened the page now on screen: focus goes back to it when that page closes. */
 let opener: HTMLElement | null = null;
@@ -48,11 +50,11 @@ export function Home({ hidden }: { hidden: boolean }) {
 
   return (
     <main className="nh" id="main" data-hidden={hidden || undefined} aria-hidden={hidden || undefined} inert={hidden ? true : undefined}>
-      <PhoneBar />
+      <PhoneBar name={false} />
       <section className="nh-hero" ref={hero} aria-label="Introduction">
         <ShaderHero active={seen && !hidden} />
         <div className="nh-top">
-          <NameChip />
+          <NameChip mark />
           <SiteNav at="work" />
           <SiteAsk />
         </div>
@@ -73,10 +75,8 @@ export function Home({ hidden }: { hidden: boolean }) {
       </section>
 
       <section className="nh-play" id="play" aria-label="Play">
-        {/* no rule, no label: one line in the voice of the introduction turns the page to play */}
-        <h2 className="nh-say nh-play-h">
-          Play <span className="nh-dim">is where I try things.</span>
-        </h2>
+        {/* no rule, no label: one line in the voice of the introduction turns the page to play (all in one ink, like the greeting) */}
+        <h2 className="nh-say nh-play-h">Play is where I try things.</h2>
         <ul className="nh-grid nh-grid--play">
           {fun.map((p) => (
             <li key={p.id}>
@@ -86,15 +86,15 @@ export function Home({ hidden }: { hidden: boolean }) {
         </ul>
       </section>
 
-      <SayHi />
-      <Foot />
+      <SiteFoot id="hi" />
       <CursorTag off={hidden} />
     </main>
   );
 }
 
-/* Now / Before / Where (Pittsburgh, with its time: the same zone as New York) and what she is open to: the right half of the
-   introduction, lined up with the second column of cards under it. */
+/* Now / Before and what she is open to (the dot): the right half of the introduction, lined up with
+   the second column of cards under it. No rules between the rows. (Pittsburgh and its time are in
+   the footer.) */
 function Facts() {
   const rows = profile.facts.filter((f) => f.label !== "Next");
   return (
@@ -106,12 +106,6 @@ function Facts() {
         </div>
       ))}
       <div>
-        <dt>Where</dt>
-        <dd>
-          {profile.meta[1]} <span aria-hidden>·</span> <Clock />
-        </dd>
-      </div>
-      <div>
         <dt>
           <span className="nh-dot" aria-hidden />
           <span className="sr-only">Status</span>
@@ -119,15 +113,6 @@ function Facts() {
         <dd>{profile.status}</dd>
       </div>
     </dl>
-  );
-}
-
-function Clock() {
-  const now = useNow();
-  return (
-    <span className="nh-clock" suppressHydrationWarning title="Pittsburgh time">
-      {now ? formatNY(now) : "00:00:00"}
-    </span>
   );
 }
 
@@ -470,86 +455,5 @@ function CursorTag({ off }: { off: boolean }) {
       <span />
       <span className="nh-cursor-arrow">→</span>
     </div>
-  );
-}
-
-/**
- * The page closes the way it opens: a sentence on the left, facts on the right.
- * 안녕 is both hello and goodbye (the greeting at the top says it too). The facts are the ways to
- * reach her: the address copies itself on a click, the résumé and LinkedIn open in a new tab.
- */
-function SayHi() {
-  const { copyEmail } = useShell();
-  return (
-    <section className="nh-hi" id="hi" aria-label="Say hi">
-      <h2 className="nh-say">
-        <span lang="ko">안녕</span> <span className="nh-dim">means hi.</span>
-        <br />
-        <span className="nh-dim">It also means</span> bye<span className="nh-dim">.</span>
-      </h2>
-      <dl className="nh-facts nh-facts--hi">
-        <div>
-          <dt>Email</dt>
-          <dd>
-            <button type="button" className="nh-mail" onClick={copyEmail} aria-label={`Copy email address: ${profile.email}`}>
-              {profile.email}
-              <span className="label nh-copy" aria-hidden>
-                Copy
-              </span>
-            </button>
-          </dd>
-        </div>
-        <div>
-          <dt>Resume</dt>
-          <dd>
-            <a className="nh-out" href={profile.links.resume} target="_blank" rel="noreferrer">
-              PDF
-            </a>
-          </dd>
-        </div>
-        <div>
-          <dt>LinkedIn</dt>
-          <dd>
-            <a className="nh-out" href={profile.links.linkedin} target="_blank" rel="noreferrer">
-              chaewon-lim
-            </a>
-          </dd>
-        </div>
-        <div>
-          <dt>
-            <span className="nh-dot" aria-hidden />
-            <span className="sr-only">Status</span>
-          </dt>
-          <dd>{profile.status}</dd>
-        </div>
-      </dl>
-    </section>
-  );
-}
-
-/** What the site was built with (Next.js, and the drink that kept her going: it links to HEYTEA),
- * the keys for the surprise, the year and when the site was last updated. */
-function Foot() {
-  return (
-    <footer className="nh-foot">
-      <div className="nh-foot-l">
-        <p>
-          Built with Next.js &amp;{" "}
-          <a href="https://www.heytea.com/products" target="_blank" rel="noreferrer">
-            heytea’s crisp grape boom
-          </a>{" "}
-          <span aria-hidden>🍇</span>
-        </p>
-        {/* the keys start ChaeLLM's run (components/Site.tsx); no keys on a touch screen, so no line */}
-        <p className="nh-foot-keys">
-          Press the <kbd>P</kbd> and <kbd>Space</kbd> keys for a surprise
-        </p>
-      </div>
-      <div className="nh-foot-r">
-        <p suppressHydrationWarning>© {new Date().getFullYear()} Chaewon Lim</p>
-        {/* the day the site was last built (next.config.ts) */}
-        <p>Last updated on {process.env.LAST_UPDATED}</p>
-      </div>
-    </footer>
   );
 }

@@ -31,10 +31,11 @@ html[data-over] {
   --peek: 84px;
   --gutter: var(--space-xl);
 }
-/* wide screens: the introduction sits higher and about half of the first thumbnails show */
+/* wide screens: the introduction sits higher and about half of the first thumbnails show
+   (280px: everything 100px higher than it was, so the middle of the first screen isn't empty) */
 @media (min-width: 800px) {
   .nh {
-    --peek: 180px;
+    --peek: 280px;
   }
 }
 .nh[data-hidden],
@@ -96,6 +97,17 @@ html[data-booting] .nh {
   .nh-top .me-chip-main {
     color: inherit;
     text-decoration: none;
+  }
+  /* just the black square: no box, no name, no role (they stay in the link's label) */
+  .nh-top .me-chip.me-chip--mark {
+    height: 30px;
+    border: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .nh-top .me-chip--mark .me-chip-main {
+    padding: 0;
   }
 }
 
@@ -162,13 +174,12 @@ html[data-booting] .nh {
 .sn-link[aria-current="page"] {
   color: var(--text);
 }
-/* where you are: the small violet square */
+/* where you are: in square brackets, [WORK] */
 .sn-link[aria-current="page"]::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  margin-right: 12px;
-  background: var(--accent-1);
+  content: "[";
+}
+.sn-link[aria-current="page"]::after {
+  content: "]";
 }
 .sn-link .ext-arrow {
   margin-left: 0.45em;
@@ -264,10 +275,14 @@ html[data-motion="reduced"] .shader-drift {
 .nh-intro .hello-block {
   min-width: 0;
 }
+/* the whole sentence in one ink: the connecting words are no longer grey */
+.nh-intro .hello-sub {
+  color: var(--text);
+}
 /* her photo, in the greeting: it stands on the line and rises above it (the negative top margin
    keeps it from pushing the next line down) */
 .hello-me {
-  --me: 2.72em;
+  --me: 3.8em;
   display: inline-block;
   width: var(--me);
   height: var(--me);
@@ -303,6 +318,22 @@ html[data-motion="reduced"] .shader-drift {
 .nh-facts dd {
   margin: 0;
   line-height: 30px;
+}
+/* the introduction's facts: Now, Before and the dot, with no rules */
+.nh-intro .nh-facts {
+  border-top: 0;
+}
+.nh-intro .nh-facts > div {
+  border-bottom: 0;
+  /* a value that wraps (a narrow phone) keeps its label, or the dot, on its first line */
+  align-items: start;
+}
+.nh-intro .nh-facts dt {
+  min-height: 30px;
+}
+.nh-intro .nh-facts dd {
+  padding-block: 3px;
+  line-height: 24px;
 }
 .nh-clock {
   font-variant-numeric: tabular-nums;
@@ -655,27 +686,8 @@ html[data-motion="reduced"] .nh *::after {
   }
 }
 
-/* ───────── Say hi: the page closes the way it opens (a sentence, then facts) ───────── */
-/* no rule above it: like “Play is where I try things.”, room is what sets it apart */
-.nh-hi {
-  display: grid;
-  gap: 28px;
-  margin: 72px var(--gutter) 0;
-  padding: 0 0 48px;
-  scroll-margin-top: var(--space-xl);
-}
-@media (min-width: 800px) {
-  .nh-hi {
-    /* two halves, like the cards above it */
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: end;
-    gap: var(--space-xl);
-    margin-top: 104px;
-    padding: 0 0 64px;
-  }
-}
-/* the same voice as the sentence at the top: key words in ink, the rest pale
-   (“Play is where I try things.” above the play pieces, and the goodbye here) */
+/* “Play is where I try things.”: the sentence that turns the page to play, in the voice of the
+   greeting (one ink, like it) */
 .nh-say {
   margin: 0;
   color: var(--text);
@@ -685,117 +697,181 @@ html[data-motion="reduced"] .nh *::after {
   letter-spacing: -0.02em;
   line-height: 1.5;
 }
-.nh-dim {
-  color: color-mix(in srgb, var(--text-muted) 65%, var(--bg));
+@media (max-width: 799px) {
+  .nh-say {
+    font-size: 23px;
+  }
 }
-.nh-mail,
-.nh-out {
-  display: inline-flex;
-  /* a very narrow phone: “Copy” drops under the address instead of pushing the page wide */
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 14px;
-  max-width: 100%;
-  overflow-wrap: anywhere;
+
+/* ───────── the footer at the end of every page (components/SiteFoot.tsx) ─────────
+   Three columns on the page's own background, under a hairline: her mark and name with the time;
+   Work / Play / About; “Let's chat!”, the address and two icons. The places start where the second
+   column of cards does (the halves of the page), and the small print sits centred under it all. */
+.sf {
+  margin: 104px var(--gutter, var(--space-xl)) 0;
+  padding: 40px 0 calc(28px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--hairline);
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.sf p {
+  margin: 0;
+}
+.sf a,
+.sf button {
   padding: 0;
   border: 0;
   background: none;
   color: inherit;
   font: inherit;
-  line-height: inherit;
-  text-align: left;
   text-decoration: none;
   cursor: pointer;
+  transition: color 0.15s;
 }
-.nh-mail:hover,
-.nh-out:hover {
-  color: var(--accent-1);
+.sf a:hover,
+.sf button:hover {
+  color: var(--text);
 }
-.nh-out {
-  column-gap: 0;
-}
-.nh-mail:focus-visible,
-.nh-out:focus-visible {
+.sf a:focus-visible,
+.sf button:focus-visible {
   outline: 2px solid var(--accent-1);
   outline-offset: 3px;
 }
-/* a plain label on the row's own line: a boxed tag filled the row and sat off its margins */
-.nh-copy {
-  color: var(--text-muted);
-  line-height: inherit;
-  transition: color 0.2s;
+.sf-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xl);
 }
-.nh-mail:hover .nh-copy {
-  color: var(--accent-1);
+/* the right half: the places, then how to reach her */
+.sf-nav,
+.sf-chat {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 8px;
 }
-@media (max-width: 799px) {
-  .nh-say {
-    font-size: 23px;
+@media (min-width: 800px) {
+  .sf-cols {
+    /* the first column is half the page less half a gap: the places start where the second card does */
+    grid-template-columns: calc(50% - var(--space-xl) / 2) minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-xl);
   }
-  /* no room for the “Copy” tag beside the address: a tap on the address still copies it */
-  .nh-copy {
-    display: none;
-  }
 }
-
-/* ───────── the last line: what it was built with ───────── */
-.nh-foot {
+.sf-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.sf-name svg {
+  flex: none;
+}
+.sf-when {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 6px var(--space-xl);
-  margin: 0 var(--gutter);
-  padding: 0 0 28px;
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.5;
+  gap: 4px 14px;
+  margin-top: 10px !important;
 }
-.nh-foot p {
-  margin: 0;
+.sf-when-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.nh-foot-r {
-  text-align: right;
+.sf-clock {
+  font-variant-numeric: tabular-nums;
 }
-/* the two keys: filled, in the accent */
-.nh-foot kbd {
-  padding: 1px 5px;
-  background: var(--accent-1);
-  color: var(--bg);
-  font: inherit;
-}
-.nh-foot-l {
+.sf .sf-mail {
   color: var(--text);
+  overflow-wrap: anywhere;
+  text-align: left;
 }
-/* no keys on a touch screen: no line about them */
-@media (hover: none) {
-  .nh-foot-keys {
-    display: none;
-  }
+.sf .sf-mail:hover {
+  color: var(--accent-1);
 }
-@media (max-width: 799px) {
-  .nh-foot-r {
-    text-align: left;
-  }
+.sf-icons {
+  display: flex;
+  gap: 18px;
+  margin-top: 6px !important;
 }
-.nh-foot a {
+.sf-icons svg {
+  display: block;
+}
+.sf-fine {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin-top: 56px;
+  font-size: 13px;
+  text-align: center;
+}
+.sf .sf-fine a {
   color: var(--accent-1);
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 3px;
   transition: text-decoration-color 0.15s;
 }
-.nh-foot a:hover {
+.sf .sf-fine a:hover {
   text-decoration-color: currentColor;
 }
-.nh-foot a:focus-visible {
-  outline: 2px solid var(--accent-1);
-  outline-offset: 3px;
+/* the two keys: filled, in the accent */
+.sf-fine kbd {
+  padding: 1px 5px;
+  background: var(--accent-1);
+  color: var(--bg);
+  font: inherit;
 }
+/* no keys on a touch screen: no line about them */
+@media (hover: none) {
+  .sf-keys {
+    display: none;
+  }
+}
+/* phones: name and time, then the places in one row, then how to reach her */
 @media (max-width: 799px) {
-  .nh-foot {
+  .sf {
+    margin-top: 72px;
     padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
   }
+  .sf-cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .sf-name {
+    font-size: 23px;
+  }
+  .sf-nav {
+    display: flex;
+    gap: 28px;
+  }
+  .sf-fine {
+    margin-top: 40px;
+  }
+}
+/* touch: the places and icons answer to a fingertip (44px) without moving */
+@media (pointer: coarse) {
+  .sf-nav a,
+  .sf-icons a,
+  .sf-fine a {
+    position: relative;
+  }
+  .sf-nav a::after,
+  .sf-icons a::after,
+  .sf-fine a::after {
+    content: "";
+    position: absolute;
+    inset: -12px -8px;
+  }
+}
+/* a case study ends on its own “next project” box (80px under it already): the footer follows closer */
+.cs .sf {
+  margin-top: 0;
 }
 
 /* ───────── phones: the bar and the menu ───────── */
@@ -876,13 +952,12 @@ html[data-motion="reduced"] .nh *::after {
   letter-spacing: -0.02em;
   text-decoration: none;
 }
+/* where you are: in square brackets, as in the bar on wide screens */
 .pm-links a[aria-current="page"]::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  margin-right: 10px;
-  background: var(--accent-1);
+  content: "[";
+}
+.pm-links a[aria-current="page"]::after {
+  content: "]";
 }
 .pm-links a[aria-current="page"] {
   justify-content: flex-start;
