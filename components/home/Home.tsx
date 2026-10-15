@@ -27,6 +27,8 @@ let opener: HTMLElement | null = null;
  * stays, and opens from ⌘K and the phone menu. `true` brings the buttons back.
  */
 const SHOW_ASK = false;
+/** The facts' WHERE row (Pittsburgh and its time). Out of the first screen for now; `true` brings it back. */
+const SHOW_WHERE = false;
 
 export function Home({ hidden }: { hidden: boolean }) {
   // Back from a case study or a play page: the card it was opened from has the focus again
@@ -100,15 +102,31 @@ export function Home({ hidden }: { hidden: boolean }) {
 }
 
 /**
- * Her photo, then the greeting in three lines (content/site.ts, profile.greeting): the left half of
+ * Her photo (a link to About), then the greeting in three lines (content/site.ts, profile.greeting): the left half of
  * the introduction, lined up with the first card under it. Each line is a block of its own, so
  * wide screens break exactly there and never inside a line; phones may wrap a long one.
  */
 function Greeting() {
   const lines = profile.greeting;
+  const { openCase } = useShell();
   return (
     <div className="nh-hello-block">
-      <img className="nh-me" src={profile.photo} alt={profile.name} width={120} height={120} draggable={false} />
+      {/* the photo is the way to her story: “About me” over it on hover or focus, and a click opens it */}
+      <a
+        className="nh-me-link"
+        href="/#about/story"
+        aria-label="About me"
+        onClick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+          e.preventDefault();
+          openCase("about");
+        }}
+      >
+        <img className="nh-me" src={profile.photo} alt={profile.name} width={120} height={120} draggable={false} />
+        <span className="nh-me-tag" aria-hidden>
+          About me
+        </span>
+      </a>
       <h1 className="nh-hello">
         {lines.map((line, i) => (
           <span key={line} className="nh-hello-line">
@@ -133,12 +151,14 @@ function Facts() {
           <dd>{f.value}</dd>
         </div>
       ))}
-      <div>
-        <dt>Where</dt>
-        <dd>
-          {profile.meta[1]} <span aria-hidden>·</span> <Clock />
-        </dd>
-      </div>
+      {SHOW_WHERE && (
+        <div>
+          <dt>Where</dt>
+          <dd>
+            {profile.meta[1]} <span aria-hidden>·</span> <Clock />
+          </dd>
+        </div>
+      )}
       <div>
         <dt>
           <span className="nh-dot" aria-hidden />

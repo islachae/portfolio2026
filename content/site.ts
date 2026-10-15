@@ -69,7 +69,7 @@ export const profile = {
   /** Her photo on Home's first screen, over the greeting (120px square; 88px on phones) */
   photo: "/about/me.webp",
   /** Home's greeting: three lines, each its own line on wide screens (Redaction, components/home/Home.tsx) */
-  greeting: ["Hi! I’m Chaewon,", "a designer with an artist’s curiosity,", "prototyping AI people can trust."],
+  greeting: ["hi! I’m Chaewon,", "a designer with an artist’s curiosity", "who prototypes AI people can trust"],
   links: {
     // (the same file is also at /resume.pdf, for links shared before it was renamed)
     resume: "/Chaewon-Lim-Resume.pdf",
