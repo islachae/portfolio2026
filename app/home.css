@@ -748,12 +748,12 @@ html[data-motion="reduced"] .nh *::after {
 }
 
 /* ───────── the footer at the end of every page (components/SiteFoot.tsx) ─────────
-   Three columns on the page's own background, under a hairline: her mark and name with the time;
-   Work / Play / About; “Let's chat!”, the address and two icons. The places start where the second
-   column of cards does (the halves of the page), and the small print sits centred under it all. */
+   In the site's own voice: the name in the page-title voice (Satoshi Bold 28), everything small in
+   the label voice (mono caps, muted), the address in body type; left-aligned, hairline above, no
+   icons, violet only on hover. The places start where the second column of cards does. */
 .sf {
   margin: 104px var(--gutter, var(--space-xl)) 0;
-  padding: 40px 0 calc(28px + env(safe-area-inset-bottom, 0px));
+  padding: 48px 0 calc(32px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--hairline);
   color: var(--text-muted);
   font-size: 15px;
@@ -762,38 +762,10 @@ html[data-motion="reduced"] .nh *::after {
 .sf p {
   margin: 0;
 }
-.sf a,
-.sf button {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.15s;
-}
-.sf a:hover,
-.sf button:hover {
-  color: var(--text);
-}
-.sf a:focus-visible,
-.sf button:focus-visible {
-  outline: 2px solid var(--accent-1);
-  outline-offset: 3px;
-}
 .sf-cols {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-xl);
-}
-/* the right half: the places, then how to reach her */
-.sf-nav,
-.sf-chat {
-  display: grid;
-  align-content: start;
-  justify-items: start;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
 }
 @media (min-width: 800px) {
   .sf-cols {
@@ -808,68 +780,93 @@ html[data-motion="reduced"] .nh *::after {
   gap: 12px;
   color: var(--text);
   font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 500;
+  font-size: 28px;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.5;
 }
 .sf-name svg {
   flex: none;
 }
 .sf-when {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin-top: 10px !important;
+  margin-top: 8px !important;
 }
-.sf-when-time {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* every row in the columns is 24px: the labels, the menu's links and the address line up across them */
+.sf .label {
+  line-height: 24px;
 }
 .sf-clock {
   font-variant-numeric: tabular-nums;
 }
-.sf .sf-mail {
+/* the places: the menu's own links (.sn-link), one under another */
+.sf-nav,
+.sf-chat {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 8px;
+}
+.sf-nav .sn-link,
+.sf-chat .sn-link {
+  height: 24px;
+}
+.sf-mail {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 14px;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--text);
+  font: inherit;
+  line-height: 24px;
   overflow-wrap: anywhere;
   text-align: left;
+  cursor: pointer;
+  transition: color 0.15s;
 }
-.sf .sf-mail:hover {
+.sf-mail:hover {
   color: var(--accent-1);
 }
-.sf-icons {
-  display: flex;
-  gap: 18px;
-  margin-top: 6px !important;
+.sf-mail:hover .sf-copy {
+  color: var(--accent-1);
 }
-.sf-icons svg {
-  display: block;
+.sf-mail:focus-visible,
+.sf-fine a:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 3px;
 }
+/* the small print: one row under the columns, left to right */
 .sf-fine {
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-  margin-top: 56px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px var(--space-xl);
+  margin-top: 48px;
   font-size: 13px;
-  text-align: center;
 }
-.sf .sf-fine a {
-  color: var(--accent-1);
+.sf-fine a {
+  color: var(--text);
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 3px;
-  transition: text-decoration-color 0.15s;
+  transition: color 0.15s, text-decoration-color 0.15s;
 }
-.sf .sf-fine a:hover {
+.sf-fine a:hover {
+  color: var(--accent-1);
   text-decoration-color: currentColor;
 }
-/* the two keys: filled, in the accent */
+/* the two keys: key caps drawn with a hairline, in the label face */
 .sf-fine kbd {
-  padding: 1px 5px;
-  background: var(--accent-1);
-  color: var(--bg);
-  font: inherit;
+  display: inline-block;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-code);
+  font-size: 12px;
+  line-height: 18px;
 }
 /* no keys on a touch screen: no line about them */
 @media (hover: none) {
@@ -877,40 +874,37 @@ html[data-motion="reduced"] .nh *::after {
     display: none;
   }
 }
-/* phones: name and time, then the places in one row, then how to reach her */
+/* phones: name and time, then the places in one row, then Say hi; the small print one line under another */
 @media (max-width: 799px) {
   .sf {
     margin-top: 72px;
-    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
-  }
-  .sf-cols {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
+    padding: 40px 0 calc(40px + env(safe-area-inset-bottom, 0px));
   }
   .sf-name {
     font-size: 23px;
   }
   .sf-nav {
     display: flex;
-    gap: 28px;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+  }
+  .sf-copy {
+    display: none;
   }
   .sf-fine {
+    flex-direction: column;
     margin-top: 40px;
   }
 }
-/* touch: the places and icons answer to a fingertip (44px) without moving */
+/* touch: the small print's link answers to a fingertip (44px) without moving */
 @media (pointer: coarse) {
-  .sf-nav a,
-  .sf-icons a,
   .sf-fine a {
     position: relative;
   }
-  .sf-nav a::after,
-  .sf-icons a::after,
   .sf-fine a::after {
     content: "";
     position: absolute;
-    inset: -12px -8px;
+    inset: -12px -6px;
   }
 }
 /* a case study ends on its own “next project” box (80px under it already): the footer follows closer */
