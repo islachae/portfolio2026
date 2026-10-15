@@ -17886,3 +17886,88 @@ li[data-pending] .ml-method-n .ml-todo,
     aspect-ratio: 4 / 3;
   }
 }
+
+/* ═════════ Mellon: the wireframe's reading layout ═════════
+   Each section is a row: its number and name in a left column (it stays put while the section
+   scrolls), everything else in the right one, a hairline on top. Headlines are a step darker and
+   heavier than the body, and the column is wider so the pictures read at full size. The table of
+   contents stays; the column is sized so the two never meet. */
+.cs[data-case="melon"] {
+  --ml-head: #121920;
+  --ml-label-col: 168px;
+}
+:root[data-theme="dark"] .cs[data-case="melon"] {
+  --ml-head: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cs[data-case="melon"] {
+    --ml-head: #ffffff;
+  }
+}
+@media (min-width: 1200px) {
+  .cs[data-case="melon"] {
+    --cs-col: min(1040px, max(720px, calc(100vw - 480px)));
+  }
+}
+@media (min-width: 800px) and (max-width: 1199px) {
+  .cs[data-case="melon"] {
+    --cs-col: 960px;
+  }
+}
+.ml {
+  counter-reset: ml-sec;
+}
+.ml > .cs-sec {
+  margin-top: 112px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.ml > .cs-sec > .cs-eyebrow::before {
+  counter-increment: ml-sec;
+  content: counter(ml-sec, decimal-leading-zero) " · ";
+}
+.ml .cs-h2 {
+  color: var(--ml-head);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.ml .cs-h2 .cs-l {
+  display: inline;
+}
+.ml .cs-take-h,
+.ml .ml-dec-h {
+  color: var(--ml-head);
+  font-weight: 600;
+}
+@media (min-width: 800px) {
+  .ml > .cs-sec {
+    display: grid;
+    grid-template-columns: var(--ml-label-col) minmax(0, 1fr);
+    column-gap: 40px;
+    align-items: start;
+  }
+  .ml > .cs-sec > * {
+    grid-column: 2;
+  }
+  .ml > .cs-sec > .cs-eyebrow {
+    position: sticky;
+    top: 96px;
+    grid-row: 1 / span 40;
+    grid-column: 1;
+    margin: 6px 0 0;
+  }
+  .ml > .cs-sec > .cs-h2 {
+    margin-top: 0;
+  }
+  /* the impact strip lines up with the sections' right column */
+  .ml > .ml-impact {
+    margin-left: calc(var(--ml-label-col) + 40px);
+  }
+}
+/* decisions: the label above the call, one left edge under the picture */
+.ml .ml-dec-text {
+  display: block;
+}
+.ml .ml-dec-n {
+  margin: 0 0 6px;
+}
