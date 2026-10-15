@@ -1256,10 +1256,16 @@ html[data-motion="reduced"] .nh *::after {
 }
 @media (min-width: 800px) {
   .pp .page {
-    flex: 1 1 0;
+    /* the piece keeps the whole window under the bar (56px), as before the footer came: the
+       footer follows it, a scroll away, instead of squeezing it */
+    flex: 0 0 calc(100vh - 56px);
+    flex-basis: calc(100svh - 56px);
     min-height: 0;
     padding: 40px var(--space-xxl) var(--space-xl);
   }
+}
+.pp .sf {
+  flex: none;
 }
 
 /* ───────── page titles speak in the voice of Home's introduction ─────────
