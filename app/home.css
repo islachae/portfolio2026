@@ -281,15 +281,59 @@ html[data-motion="reduced"] .shader-drift {
 }
 /* her photo, in the greeting: it stands on the line and rises above it (the negative top margin
    keeps it from pushing the next line down) */
-.hello-me {
+.hello-me-link {
   --me: 3.8em;
+  position: relative;
   display: inline-block;
   width: var(--me);
   height: var(--me);
   margin: calc(1.3em - var(--me)) 0.06em 0 0.32em;
-  object-fit: cover;
+  overflow: hidden;
+  color: var(--text);
+  text-decoration: none;
   vertical-align: -0.3em;
+}
+.hello-me {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   user-select: none;
+  transition: filter 0.15s, transform 0.15s;
+}
+/* the photo itself blurs (a backdrop blur clamps at the edges and left a dark line there); it grows a
+   little so the blur's soft edge stays outside the box */
+.hello-me-link:hover .hello-me,
+.hello-me-link:focus-visible .hello-me {
+  filter: blur(5px);
+  transform: scale(1.15);
+}
+/* over the photo on hover (or keyboard focus): “About me” on the frost of the name chip and the
+   pointer tag, in the label voice, over the photo blurred; a click opens About */
+.hello-me-tag {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--frost-strong);
+  box-shadow: inset 0 0 0 1px var(--frost-line);
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  font-weight: 400;
+  letter-spacing: var(--label-tracking);
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.hello-me-link:hover .hello-me-tag,
+.hello-me-link:focus-visible .hello-me-tag {
+  opacity: 1;
+}
+.hello-me-link:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 3px;
 }
 
 .nh-facts {

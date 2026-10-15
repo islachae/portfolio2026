@@ -114,6 +114,7 @@ function JumpBox() {
    `now`: the line under the sentence (school, New York time); Home shows those in its own list. */
 export function Hello({ me = false, now = true }: { me?: boolean; now?: boolean } = {}) {
   const { bio } = profile;
+  const { openCase } = useShell();
   const [korean, setKorean] = useState(false);
   const [widths, setWidths] = useState<[number, number] | null>(null);
   const [word, setWord] = useState<HelloWord>(DEFAULT_HELLO);
@@ -188,7 +189,25 @@ export function Hello({ me = false, now = true }: { me?: boolean; now?: boolean 
         </span>
         <span className="sr-only">Hi!</span> I&rsquo;m{" "}
         <em>{profile.firstName}</em>
-        {me && <img className="hello-me" src={profile.photo} alt="" width={38} height={38} draggable={false} />},
+        {/* her photo opens About: “About me” shows over it on hover or keyboard focus */}
+        {me && (
+          <a
+            className="hello-me-link"
+            href="/#about/story"
+            aria-label="About me"
+            onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+              e.preventDefault();
+              openCase("about");
+            }}
+          >
+            <img className="hello-me" src={profile.photo} alt="" width={38} height={38} draggable={false} />
+            <span className="hello-me-tag" aria-hidden>
+              About me
+            </span>
+          </a>
+        )}
+        ,
       </span>
     </h1>
     <p className="hello-sub">
