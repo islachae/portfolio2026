@@ -397,11 +397,11 @@ html[data-motion="reduced"] .shader-drift {
    title row (“Play” in the page-title voice, what it is in a label). No rule: the room and the
    title do it. */
 .nh-play {
-  margin-top: 128px;
+  margin-top: 168px;
 }
 @media (min-width: 800px) {
   .nh-play {
-    margin-top: 200px;
+    margin-top: 280px;
   }
 }
 .nh-sec {
