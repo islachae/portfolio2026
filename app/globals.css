@@ -18497,17 +18497,17 @@ li[data-pending] .ml-method-n .ml-todo,
   font-size: 12px;
 }
 
-/* three key moments in a warm frame (the email read two ways, the loop, Figma vs the real inbox);
+/* three key moments in Mellon's lime (the email read two ways, the loop, Figma vs the real inbox);
    every other picture stays on the neutral grey */
 .cs[data-case="melon"] {
-  --wf-warm: #f1e2c4;
+  --wf-warm: #e3efc4; /* Mellon's own lime (its buttons, and the loop film's ground) */
 }
 :root[data-theme="dark"] .cs[data-case="melon"] {
-  --wf-warm: #2c2518;
+  --wf-warm: #222a17;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .cs[data-case="melon"] {
-    --wf-warm: #2c2518;
+    --wf-warm: #222a17;
   }
 }
 .ml .ml-read {
