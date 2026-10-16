@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { pages, profile } from "@/content/site";
 import { useShell } from "./shell-context";
 import { useChat } from "./ChaeLLM";
-import { ArrowUpRight, DocIcon, Logo, MailIcon, PageIcon, SearchIcon, SunIcon } from "./icons";
+import { ArrowRight, DocIcon, Logo, MailIcon, PageIcon, SearchIcon, SunIcon } from "./icons";
 import { PixelFace } from "./PixelFace";
 import { Monogram } from "./Monogram";
 
@@ -79,7 +79,7 @@ export function CommandPalette() {
         id: "linkedin",
         group: "Actions",
         title: "Open LinkedIn",
-        icon: <ArrowUpRight size={18} />,
+        icon: <ArrowRight size={18} />,
         terms: "linkedin profile social",
         run: () => window.open(profile.links.linkedin, "_blank", "noopener"),
       },

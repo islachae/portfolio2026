@@ -181,9 +181,6 @@ html[data-booting] .nh {
 .sn-link[aria-current="page"]::after {
   content: "]";
 }
-.sn-link .ext-arrow {
-  margin-left: 0.45em;
-}
 .sn-link:focus-visible {
   outline: 2px solid var(--accent-1);
   outline-offset: 3px;
@@ -755,13 +752,12 @@ html[data-motion="reduced"] .nh *::after {
 }
 
 /* ───────── the footer at the end of every page (components/SiteFoot.tsx) ─────────
-   In the site's own voice: the name in the page-title voice (Satoshi Bold 28), everything small in
-   the label voice (mono caps, muted), the address in body type; left-aligned, hairline above, no
-   icons, violet only on hover. The places start where the second column of cards does. */
+   The page signs off in her hand: the signature from the intro (ink, with the violet full stop),
+   Pittsburgh's time under it in a label, and EMAIL / RESUME / LINKEDIN in the menu's own links where
+   the second column of cards starts. Then one left-to-right row of small print. No rules, no icons. */
 .sf {
-  margin: 104px var(--gutter, var(--space-xl)) 0;
-  padding: 48px 0 calc(32px + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--hairline);
+  margin: 160px var(--gutter, var(--space-xl)) 0;
+  padding: 0 0 calc(32px + env(safe-area-inset-bottom, 0px));
   color: var(--text-muted);
   font-size: 15px;
   line-height: 1.5;
@@ -769,89 +765,58 @@ html[data-motion="reduced"] .nh *::after {
 .sf p {
   margin: 0;
 }
-.sf-cols {
+.sf .label {
+  line-height: 24px;
+}
+.sf-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
   gap: 32px;
 }
 @media (min-width: 800px) {
-  .sf-cols {
-    /* the first column is half the page less half a gap: the places start where the second card does */
-    grid-template-columns: calc(50% - var(--space-xl) / 2) minmax(0, 1fr) minmax(0, 1fr);
+  .sf-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
     column-gap: var(--space-xl);
   }
 }
-.sf-name {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.sf-sig {
+  display: block;
+  width: min(300px, 70vw);
+  height: auto;
   color: var(--text);
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.5;
-}
-.sf-name svg {
-  flex: none;
 }
 .sf-when {
-  margin-top: 8px !important;
-}
-/* every row in the columns is 24px: the labels, the menu's links and the address line up across them */
-.sf .label {
-  line-height: 24px;
+  margin-top: 20px !important;
 }
 .sf-clock {
   font-variant-numeric: tabular-nums;
 }
-/* the places: the menu's own links (.sn-link), one under another */
-.sf-nav,
-.sf-chat {
+/* the menu's own links (.sn-link), one under another */
+.sf-links {
   display: grid;
-  align-content: start;
   justify-items: start;
   gap: 8px;
 }
-.sf-nav .sn-link,
-.sf-chat .sn-link {
+.sf-links .sn-link {
   height: 24px;
 }
-.sf-mail {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 14px;
-  max-width: 100%;
-  padding: 0;
+button.sn-link {
   border: 0;
   background: none;
-  color: var(--text);
   font: inherit;
-  line-height: 24px;
-  overflow-wrap: anywhere;
-  text-align: left;
   cursor: pointer;
-  transition: color 0.15s;
 }
-.sf-mail:hover {
-  color: var(--accent-1);
-}
-.sf-mail:hover .sf-copy {
-  color: var(--accent-1);
-}
-.sf-mail:focus-visible,
-.sf-fine a:focus-visible {
+.sf a:focus-visible {
   outline: 2px solid var(--accent-1);
   outline-offset: 3px;
 }
-/* the small print: one row under the columns, left to right */
+/* the small print: one row, left to right */
 .sf-fine {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 4px var(--space-xl);
-  margin-top: 48px;
+  margin-top: 56px;
   font-size: 13px;
 }
 .sf-fine a {
@@ -881,22 +846,10 @@ html[data-motion="reduced"] .nh *::after {
     display: none;
   }
 }
-/* phones: name and time, then the places in one row, then Say hi; the small print one line under another */
 @media (max-width: 799px) {
   .sf {
-    margin-top: 72px;
-    padding: 40px 0 calc(40px + env(safe-area-inset-bottom, 0px));
-  }
-  .sf-name {
-    font-size: 23px;
-  }
-  .sf-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 28px;
-  }
-  .sf-copy {
-    display: none;
+    margin-top: 104px;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
   }
   .sf-fine {
     flex-direction: column;
@@ -916,7 +869,7 @@ html[data-motion="reduced"] .nh *::after {
 }
 /* a case study ends on its own “next project” box (80px under it already): the footer follows closer */
 .cs .sf {
-  margin-top: 0;
+  margin-top: 72px;
 }
 
 /* ───────── phones: the bar and the menu ───────── */
@@ -1006,9 +959,6 @@ html[data-motion="reduced"] .nh *::after {
 }
 .pm-links a[aria-current="page"] {
   justify-content: flex-start;
-}
-.pm-links .ext-arrow {
-  color: var(--text-muted);
 }
 .pm-ask {
   display: flex;

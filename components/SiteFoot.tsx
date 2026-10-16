@@ -1,10 +1,9 @@
 "use client";
 
 import { profile } from "@/content/site";
+import { SIGNATURE } from "@/lib/signature";
 import { useShell } from "./shell-context";
 import { formatNY, useNow } from "./HomePage";
-import { Monogram } from "./Monogram";
-import { ExtArrow } from "./icons";
 
 /** Pittsburgh time, as the site writes it everywhere else (New York's zone, 24-hour, with seconds). */
 function Clock() {
@@ -16,64 +15,54 @@ function Clock() {
   );
 }
 
-/** A link that moves inside the site without a page load; ⌘/Ctrl/middle click still open the address. */
-const inApp = (run: () => void) => (e: React.MouseEvent) => {
-  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
-  e.preventDefault();
-  run();
-};
+/**
+ * Her signature, “Curiously, Chaewon.”, the same strokes the loader writes (lib/signature.ts), in ink,
+ * with the full stop in violet where she put hers.
+ */
+function Signature() {
+  const S = SIGNATURE;
+  return (
+    <svg className="sf-sig" viewBox={`0 0 ${S.w} ${S.h}`} role="img" aria-label="Curiously, Chaewon.">
+      <g fill="none" stroke="currentColor" strokeWidth={S.pen} strokeLinecap="round" strokeLinejoin="round">
+        {S.strokes.map((st, i) => (
+          <path key={i} d={st[0] as string} />
+        ))}
+      </g>
+      <circle cx={S.stop[0]} cy={S.stop[1]} r={S.pen * 0.62} fill="var(--accent-1)" />
+    </svg>
+  );
+}
 
 /**
  * The footer at the end of every page: Home (where it is #hi), the case studies, About and the play pages.
- * Three columns, after Michelle Liu's, in the site's own voice: her mark and name (the page-title voice)
- * with Pittsburgh's time in a label; the same four places as the menu at the top, in its mono caps;
- * “Say hi” as a label over the address (a click copies it) and LinkedIn. The places start where the
- * second column of cards does. Under them, left-aligned like everything else, the small print: what the
- * site was built with, the keys for the surprise, the year and the last build.
- * On a phone the three stack, and the places sit in one row.
+ * The page signs off in her hand: the signature from the intro, with Pittsburgh's time under it in a
+ * label; on the right, where the second column of cards starts, EMAIL (a click copies the address),
+ * RESUME and LINKEDIN in the menu's own mono caps. Under them, one left-to-right row of small print:
+ * what the site was built with, the keys for the surprise, the year and the last build.
+ * No rules, no icons; violet only in the full stop and on hover. Phones stack it all.
  */
 export function SiteFoot({ id }: { id?: string }) {
-  const { copyEmail, goHome, openCase } = useShell();
+  const { copyEmail } = useShell();
   return (
     <footer className="sf" id={id}>
-      <div className="sf-cols">
-        <div className="sf-who">
-          <p className="sf-name">
-            <Monogram size={30} tile />
-            {profile.name}
-          </p>
+      <div className="sf-row">
+        <div>
+          <Signature />
           <p className="label sf-when">
             Pittsburgh, PA <span aria-hidden>·</span> <Clock />
           </p>
         </div>
-        <nav className="sf-nav" aria-label="Footer">
-          <a className="sn-link" href="/#work" onClick={inApp(() => goHome("work"))}>
-            Work
-          </a>
-          <a className="sn-link" href="/#play" onClick={inApp(() => goHome("play"))}>
-            Play
-          </a>
-          <a className="sn-link" href="/#about/story" onClick={inApp(() => openCase("about"))}>
-            About
-          </a>
+        <nav className="sf-links" aria-label="Contact">
+          <button type="button" className="sn-link" onClick={copyEmail} aria-label={`Copy email address: ${profile.email}`}>
+            Email
+          </button>
           <a className="sn-link" href={profile.links.resume} target="_blank" rel="noreferrer">
             Resume
-            <ExtArrow />
           </a>
-        </nav>
-        <div className="sf-chat">
-          <p className="label">Say hi</p>
-          <button type="button" className="sf-mail" onClick={copyEmail} aria-label={`Copy email address: ${profile.email}`}>
-            {profile.email}
-            <span className="label sf-copy" aria-hidden>
-              Copy
-            </span>
-          </button>
           <a className="sn-link" href={profile.links.linkedin} target="_blank" rel="noreferrer">
             LinkedIn
-            <ExtArrow />
           </a>
-        </div>
+        </nav>
       </div>
       <div className="sf-fine">
         <p>

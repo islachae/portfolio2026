@@ -6,7 +6,6 @@ import { pages, profile, type Page, type PageId } from "@/content/site";
 import { useShell } from "./shell-context";
 import { DisplaySettings } from "./Sidebar";
 import { Monogram } from "./Monogram";
-import { ExtArrow } from "./icons";
 
 /**
  * The project index, without a sidebar (wide screens).
@@ -160,12 +159,10 @@ export function ContactLinks({ compact = false }: { compact?: boolean }) {
       )}
       <a className="top-link top-link--resume" href={profile.links.resume} target="_blank" rel="noreferrer">
         Resume
-        <ExtArrow />
       </a>
       {!compact && (
         <a className="top-link top-link--li" href={profile.links.linkedin} target="_blank" rel="noreferrer">
           LinkedIn
-          <ExtArrow />
         </a>
       )}
     </>

@@ -1983,12 +1983,6 @@ html[data-motion="reduced"] .phrase .emoji {
   transform: rotate(-6deg);
   pointer-events: none;
 }
-.pebbo-hint::after {
-  content: "↗";
-  margin-left: 4px;
-  font-family: var(--font-ui);
-  font-style: normal;
-}
 .pebbo-bubble {
   position: absolute;
   left: 34%;
@@ -10221,30 +10215,7 @@ html[data-motion="reduced"] .pb-board-head {
   color: var(--text-muted);
   transition: color 0.15s;
 }
-/* The ↗ after a link that leaves the site (icons.tsx: ExtArrow). It is drawn: Geist and Geist Mono
-   have no ↗, so the typed character came from a system font and sat small beside the label.
-   Sized in em, it follows the text it sits in. */
-.ext-arrow {
-  display: inline-block;
-  flex: none;
-  width: 0.8em;
-  height: 0.8em;
-  margin-left: 0.4em;
-  vertical-align: -0.065em;
-}
-/* inside a flex link or button, its gap does the spacing (a button's gap is wider than a space) */
-.top-link .ext-arrow {
-  margin-left: 0;
-}
-.btn .ext-arrow {
-  margin-left: -0.25em;
-}
-.top-link .ext-arrow {
-  color: var(--text-muted);
-  transition: color 0.15s;
-}
-/* Plain links (Résumé, LinkedIn): one underline under the word and the ↗ together, drawn in
-   from the left (text-decoration broke at the gap between them) */
+/* Plain links (Résumé, LinkedIn): one underline under the word, drawn in from the left */
 .top-link:not(.top-link--box) {
   position: relative;
 }

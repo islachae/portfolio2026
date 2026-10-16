@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { pages, profile, type Page } from "@/content/site";
 import { useShell } from "./shell-context";
-import { Chevron, CloseIcon, ExtArrow, PageIcon, PanelIcon, SearchIcon, SlidersIcon } from "./icons";
+import { Chevron, CloseIcon, PageIcon, PanelIcon, SearchIcon, SlidersIcon } from "./icons";
 
 const groups: { key: Page["group"]; label: string }[] = [
   { key: "work", label: "Selected work" },
@@ -126,11 +126,9 @@ function ProfileFooter() {
           <span className="profile-links">
             <a href={profile.links.resume} target="_blank" rel="noreferrer">
               Resume
-              <ExtArrow />
             </a>
             <a href={profile.links.linkedin} target="_blank" rel="noreferrer">
               LinkedIn
-              <ExtArrow />
             </a>
           </span>
         </span>

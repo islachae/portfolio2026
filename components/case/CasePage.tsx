@@ -6,7 +6,7 @@ import { caseStudies, isCaseId, type LongId } from "@/content/cases";
 import { aboutPage } from "@/content/cases/about";
 import { pageById, profile } from "@/content/site";
 import { reducedMotion, useShell } from "../shell-context";
-import { ChevronLeft, ExtArrow, MenuIcon } from "../icons";
+import { ChevronLeft, MenuIcon } from "../icons";
 import { ChatToggle, useChat } from "../ChaeLLM";
 import { SiteAsk, SiteNav } from "../home/Nav";
 import { SiteFoot } from "../SiteFoot";
@@ -380,7 +380,6 @@ export function CasePage({ id }: { id: LongId }) {
             <div className="cs-foot-actions">
               <a className="btn btn--ghost" href={profile.links.resume} target="_blank" rel="noreferrer">
                 Resume
-                <ExtArrow />
               </a>
               <button className="btn btn--primary" onClick={copyEmail}>
                 Copy email

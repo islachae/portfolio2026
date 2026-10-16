@@ -7,7 +7,6 @@ import { pebboCase as C } from "@/content/cases/pebbo";
 import { askPebbo, endpointReady, FACE_COLOR, faceSrc, getLive, type Face, type PebboAnswer, type Turn } from "@/content/cases/pebbo-brain";
 import { reducedMotion } from "./shell-context";
 import { useInView } from "./case/kit";
-import { ExtArrow } from "./icons";
 
 const HOLD_MS = 450;
 
@@ -318,7 +317,6 @@ export function PebboPhone({
                             <li key={h.href}>
                               <a href={h.href} target="_blank" rel="noopener noreferrer">
                                 {h.label}
-                                <ExtArrow />
                               </a>
                             </li>
                           ))}

@@ -181,7 +181,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span>WORK</span>
               <span>PLAY</span>
               <span>ABOUT</span>
-              <span>RESUME ↗</span>
+              <span>RESUME</span>
             </span>
           </div>
           {/* a case study: its split first screen */}

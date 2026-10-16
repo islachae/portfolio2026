@@ -8,7 +8,7 @@ import { ChatToggle, useChat } from "../ChaeLLM";
 import { DisplaySettings } from "../Sidebar";
 import { Monogram } from "../Monogram";
 import { PixelFace } from "../PixelFace";
-import { CloseIcon, ExtArrow, MenuIcon } from "../icons";
+import { CloseIcon, MenuIcon } from "../icons";
 
 /** Which of the nav's places the page on screen belongs to (written in square brackets: [WORK]). */
 export type NavPlace = "work" | "play" | "about" | null;
@@ -155,7 +155,6 @@ export function PhoneMenu({ at }: { at: NavPlace }) {
             ))}
             <a href={profile.links.resume} target="_blank" rel="noreferrer" onClick={() => setNavOpen(false)}>
               Resume
-              <ExtArrow />
             </a>
           </nav>
           <button

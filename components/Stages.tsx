@@ -9,7 +9,6 @@ import { reducedMotion, useShell } from "./shell-context";
 import {
   ChevronLeft,
   ChevronRight,
-  ExtArrow,
   EyeIcon,
   MailIcon,
   PageIcon,
@@ -1220,11 +1219,9 @@ export function HiStage() {
           <p className="hi-links">
             <a href={profile.links.linkedin} target="_blank" rel="noreferrer">
               LinkedIn
-              <ExtArrow />
             </a>
             <a href={profile.links.resume} target="_blank" rel="noreferrer">
               Resume
-              <ExtArrow />
             </a>
           </p>
         </div>
