@@ -262,7 +262,7 @@ function Research() {
           <li key={b.a}>
             <p className="ml-broke-a">
               <span className="label">{r.brokeLabels.a}</span>
-              {b.a}
+              <s>{b.a}</s>
             </p>
             <figure className="ml-broke-q">
               <span className="label">{r.brokeLabels.q}</span>

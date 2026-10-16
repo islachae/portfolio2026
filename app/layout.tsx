@@ -69,6 +69,28 @@ const inconsolata = localFont({
   preload: false,
 });
 
+// Instrument Sans + JetBrains Mono (SIL OFL): the Mellon case study's reading type, taken from its
+// wireframe. Only that page uses them, so they are not preloaded.
+const instrument = localFont({
+  src: [
+    { path: "./fonts/InstrumentSans-400.woff2", weight: "400" },
+    { path: "./fonts/InstrumentSans-500.woff2", weight: "500" },
+    { path: "./fonts/InstrumentSans-600.woff2", weight: "600" },
+  ],
+  variable: "--font-instrument",
+  display: "swap",
+  preload: false,
+});
+const jbmono = localFont({
+  src: [
+    { path: "./fonts/JetBrainsMono-400.woff2", weight: "400" },
+    { path: "./fonts/JetBrainsMono-500.woff2", weight: "500" },
+  ],
+  variable: "--font-jbmono",
+  display: "swap",
+  preload: false,
+});
+
 const mono = localFont({
   src: "./fonts/GeistMono.woff2",
   variable: "--font-mono",
@@ -130,7 +152,7 @@ try{${introScript}}catch(e){d.removeAttribute("data-boot")}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable} ${inconsolata.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${display.variable} ${mono.variable} ${barlow.variable} ${barlowSC.variable} ${hand.variable} ${inconsolata.variable} ${instrument.variable} ${jbmono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: lean(bootScript) }} />
         {/* Inline, so the loader and the outline can paint before the stylesheet arrives */}
