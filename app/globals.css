@@ -18496,3 +18496,43 @@ li[data-pending] .ml-method-n .ml-todo,
 .cs[data-case="melon"] .csx .tool {
   font-size: 12px;
 }
+
+/* three key moments in a warm frame (the email read two ways, the loop, Figma vs the real inbox);
+   every other picture stays on the neutral grey */
+.cs[data-case="melon"] {
+  --wf-warm: #f1e2c4;
+}
+:root[data-theme="dark"] .cs[data-case="melon"] {
+  --wf-warm: #2c2518;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cs[data-case="melon"] {
+    --wf-warm: #2c2518;
+  }
+}
+.ml .ml-read {
+  padding: 32px;
+  background: var(--wf-warm);
+}
+.ml .ml-read .ml-read-note {
+  color: color-mix(in srgb, var(--wf-ink) 60%, var(--wf-warm));
+}
+.ml .ml-loopvid {
+  padding: 32px;
+  border: 0;
+  background: var(--wf-warm);
+  aspect-ratio: auto !important;
+}
+.ml .ml-loopvid video {
+  height: auto;
+}
+.ml .ml-build-pic {
+  border: 0;
+  background: var(--wf-warm);
+}
+@media (max-width: 640px) {
+  .ml .ml-read,
+  .ml .ml-loopvid {
+    padding: 16px;
+  }
+}
