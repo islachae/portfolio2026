@@ -397,7 +397,8 @@ html[data-motion="reduced"] .shader-drift {
   scroll-margin-top: var(--space-xl);
 }
 /* Play is a section of its own: more room after the work than between any two cards, then a
-   hairline across and a title row (“Play” in the page-title voice, what it is in a label) */
+   title row (“Play” in the page-title voice, what it is in a label). No rule: the room and the
+   title do it. */
 .nh-play {
   margin-top: 128px;
 }
@@ -410,8 +411,6 @@ html[data-motion="reduced"] .shader-drift {
   display: grid;
   gap: 4px;
   margin-bottom: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--hairline);
 }
 .nh-sec-title {
   margin: 0;
