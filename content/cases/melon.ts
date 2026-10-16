@@ -170,7 +170,7 @@ export const melonCase = {
         id: "ml-decision-1",
         n: "Decision 1",
         h: "Why not just a chatbot?",
-        v: "Students had two problems: too many emails to sort, and questions about the ones they did read. One feature couldn’t solve both. A chatbot only helps with the second, and only once you know what to ask. So the panel sorts updates into cards first, with chat underneath for whatever a card leaves unclear, and every answer links back to the email it came from.",
+        v: "Students had two problems: too many emails to sort, and questions about the ones they did read. One feature couldn’t solve both. A chatbot only helps with the second, and only once you know what to ask. So I designed the panel to sort updates into cards first, with chat underneath for whatever a card leaves unclear, and every answer links back to the email it came from.",
         img: { src: img("decision-1"), w: 2240, h: 1220, alt: "Two side panels. Left, greyed out: a chat-only panel with an empty “Ask me anything” screen. Right: Mellon, with update cards on top and, underneath, a question about funding answered from Donna’s email of Aug 31" },
       },
       {
@@ -224,7 +224,7 @@ export const melonCase = {
   build: {
     label: "Build",
     title: "Building the real panel changed the design.",
-    text: "In Figma, we designed around 8 emails we picked ourselves. The extension reads a real inbox, about 100 emails a week, and most of them were messier than anything we had mocked up.",
+    text: "In Figma, we designed around 8 emails we picked ourselves. Then I built the panel as a Chrome extension with Claude Code and ran it on my own inbox: about 100 emails a week, most of them messier than anything we had mocked up.",
     pair: [
       { src: img("build-figma"), w: 640, h: 1552, k: "Figma", alt: "The Figma design of the Mellon panel: All 9 updates, two cards under Action needed, one under Today, and suggested questions above Ask Mellon" },
       { src: img("build-real"), w: 746, h: 1714, k: "Real build, live inbox", alt: "The working Mellon extension on a real inbox: All 71 updates and 30 unread, long titles wrapping onto three lines, and a new Check first section warning that a sender imitates CMU from another address" },

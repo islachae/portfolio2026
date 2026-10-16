@@ -18454,3 +18454,45 @@ li[data-pending] .ml-method-n .ml-todo,
 .ml *::after {
   border-radius: 0;
 }
+
+/* the first screen keeps its layout, in the same type and colours as the page under it */
+.cs[data-case="melon"] .csx {
+  font-family: var(--wf-sans);
+  color: var(--wf-ink);
+}
+.cs[data-case="melon"] .csx .cs-h1 {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.cs[data-case="melon"] .csx .cs-sub {
+  color: var(--wf-body);
+  font-family: var(--wf-sans);
+}
+.cs[data-case="melon"] .csx .cs-eyebrow,
+.cs[data-case="melon"] .csx .cs-meta dt,
+.cs[data-case="melon"] .csx .tool,
+.cs[data-case="melon"] .csx .csx-cue,
+.cs[data-case="melon"] .csx .stage-caption {
+  color: var(--wf-sm);
+  font-family: var(--wf-mono);
+}
+.cs[data-case="melon"] .csx .cs-meta dd {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+}
+.cs[data-case="melon"] .csx .tool {
+  border-color: var(--wf-ph-line);
+  border-radius: 0;
+}
+.cs[data-case="melon"] .csx .cs-eyebrow,
+.cs[data-case="melon"] .csx .cs-meta dt,
+.cs[data-case="melon"] .csx .csx-cue,
+.cs[data-case="melon"] .csx .stage-caption {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.cs[data-case="melon"] .csx .tool {
+  font-size: 12px;
+}
