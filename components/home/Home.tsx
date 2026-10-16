@@ -75,8 +75,7 @@ export function Home({ hidden }: { hidden: boolean }) {
       </section>
 
       <section className="nh-play" id="play" aria-labelledby="play-h">
-        {/* a section of its own: a hairline across, the title on the left, what it is in a label where
-            the second column of cards starts */}
+        {/* a section of its own: the title, and what it is in a label right beside it */}
         <header className="nh-sec">
           <h2 className="nh-sec-title" id="play-h">
             Play
