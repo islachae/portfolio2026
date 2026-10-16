@@ -18536,3 +18536,25 @@ li[data-pending] .ml-method-n .ml-todo,
     padding: 16px;
   }
 }
+
+/* Mellon's mascot coral for every mark on the page (the email's highlights and numbers, the pins on
+   the dashboard), in place of the old crimson: it sits with the lime the way it does in the app.
+   Text in it is a step darker so it keeps 4.5:1 on white. */
+.cs[data-case="melon"] {
+  --cs-accent: #e0533f;
+  --cs-ink: #c03b28;
+  --ml-bar: #e0533f;
+}
+.ml .ml-pin,
+.ml .ml-shot-pin {
+  background: #e0533f;
+}
+.ml .ml-mail-line[data-mark],
+.ml .ml-mail-subject[data-mark] {
+  background: #fde8e3;
+  box-shadow: inset 2px 0 0 #e0533f;
+}
+:root[data-theme="dark"] .ml .ml-mail-line[data-mark],
+:root[data-theme="dark"] .ml .ml-mail-subject[data-mark] {
+  background: #fde8e3;
+}
