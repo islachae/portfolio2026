@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { melonCase as C, type Shot } from "@/content/cases/melon";
 import { reducedMotion } from "../shell-context";
 import { ToolChips } from "../ProjectBrief";
-import { Lines, Section, Takeaways } from "./kit";
+import { Lines, Section, Takeaways, useStickyProgress } from "./kit";
 import { useScrollRoot } from "./scroll-root";
 import { MelonPanelClip } from "../Stages";
 
@@ -139,15 +139,56 @@ function EmailText({ t }: { t: string }) {
   );
 }
 
+type Reader = "donna" | "student";
+
+/**
+ * One email, two readers. Where the whole frame fits under the bar, it is pinned while the page
+ * scrolls: the first half of the scroll shows it as Donna sent it, the second half as a student
+ * read it, then it lets go. The two buttons stay, and pressing one scrolls to its half, so the scroll
+ * is the one source of truth. With reduced motion, or a window too short to hold it, nothing is
+ * pinned and the buttons simply switch.
+ */
 function Gap() {
   const g = C.gap;
-  const [mode, setMode] = useState<"donna" | "student">("donna");
+  const root = useScrollRoot();
+  const scene = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
+  const p = useStickyProgress(scene, frame);
+  const [still, setStill] = useState(false);
+  const [picked, setPicked] = useState<Reader>("donna");
+  useEffect(() => {
+    if (reducedMotion()) return setStill(true);
+    const sc = scene.current;
+    const fr = frame.current;
+    if (!sc || !fr || !root) return;
+    const check = () => {
+      sc.removeAttribute("data-still"); // measured as it would be pinned
+      const fits = (parseFloat(getComputedStyle(fr).top) || 0) + fr.offsetHeight <= root.clientHeight;
+      if (!fits) sc.setAttribute("data-still", "");
+      setStill(!fits);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [root]);
+  const mode: Reader = still ? picked : p < 0.5 ? "donna" : "student";
+  const choose = (r: Reader) => {
+    setPicked(r);
+    const sc = scene.current;
+    const fr = frame.current;
+    if (still || !sc || !fr || !root) return;
+    // scroll to the middle of that reader's half
+    const top = sc.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop;
+    const stick = parseFloat(getComputedStyle(fr).top) || 0;
+    const travel = sc.offsetHeight - fr.offsetHeight;
+    root.scrollTo({ top: top - stick + travel * (r === "donna" ? 0.2 : 0.75), behavior: reducedMotion() ? "auto" : "smooth" });
+  };
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const onKey = (e: React.KeyboardEvent, i: number) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
     const next = (i + 1) % 2;
-    setMode(g.modes[next].id as "donna" | "student");
+    choose(g.modes[next].id as Reader);
     tabs.current[next]?.focus();
   };
   const mark = (m?: { donna?: number; student?: number }) => m?.[mode];
@@ -159,8 +200,11 @@ function Gap() {
         <Lines lines={g.title} />
       </h2>
 
-      <div className="ml-read" data-mode={mode}>
+      <div className="ml-readscene" ref={scene} data-still={still || undefined}>
+      <div className="ml-read" data-mode={mode} ref={frame}>
         <p className="ml-ftitle">{g.frame}</p>
+        <div className="ml-read-switch">
+        <span className="ml-read-k">{g.readAs}</span>
         <div className="ml-read-tabs" role="tablist" aria-label="Read the email as">
           {g.modes.map((m, i) => (
             <button
@@ -174,12 +218,20 @@ function Gap() {
               aria-controls="ml-read-panel"
               tabIndex={mode === m.id ? 0 : -1}
               className="ml-read-tab"
-              onClick={() => setMode(m.id as "donna" | "student")}
+              onClick={() => choose(m.id as Reader)}
               onKeyDown={(e) => onKey(e, i)}
             >
               {m.label}
             </button>
           ))}
+        </div>
+        {!still && (
+          <span className="ml-read-hint" aria-hidden>
+            <i data-on={mode === "donna" || undefined} />
+            <i data-on={mode === "student" || undefined} />
+            {mode === "donna" ? g.hintNext : g.hintDone}
+          </span>
+        )}
         </div>
         <div className="ml-read-body" id="ml-read-panel" role="tabpanel" aria-labelledby={`ml-tab-${mode}`}>
           <div className="ml-mail">
@@ -218,6 +270,7 @@ function Gap() {
         </div>
         <p className="ml-read-note">{g.note}</p>
       </div>
+      </div>
 
       {/* the two readings, then what flows back to Donna: nothing */}
       <dl className="ml-reads">
@@ -234,6 +287,21 @@ function Gap() {
 
 /* ───────────── 03 Research: the map, three numbers, two broken beliefs, the survey ───────────── */
 
+/** One step of the research: what we did (small), then what it showed (the heading). */
+function RStep({ n, k, h }: { n: number; k: string; h: string }) {
+  return (
+    <header className="ml-rstep-h">
+      <span className="ml-rstep-n" aria-hidden>
+        {n}
+      </span>
+      <div>
+        <p className="ml-rstep-k">{k}</p>
+        <h3 className="ml-rstep-t">{h}</h3>
+      </div>
+    </header>
+  );
+}
+
 function Research() {
   const r = C.research;
   const v = C.survey;
@@ -244,55 +312,64 @@ function Research() {
       </h2>
       <p className="cs-body cs-measure">{r.text}</p>
 
-      <figure className="ml-frame" id="ml-map" tabIndex={-1}>
-        <figcaption className="ml-ftitle">{r.map.frame}</figcaption>
-        <div className="ml-mapvid" style={{ aspectRatio: `${r.map.w} / ${r.map.h}` }}>
-          <LoopVideo mp4={r.map.mp4} poster={r.map.poster} label={r.map.alt} w={r.map.w} h={r.map.h} />
-        </div>
-      </figure>
-      <ul className="ml-methods ml-methods--3 ml-nums">
-        {r.numbers.map((m) => (
-          <li key={m.v}>
-            <span className="ml-method-n">{m.n}</span>
-            <span>{m.v}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="ml-methods-note">{r.numbersNote}</p>
+      <ol className="ml-rsteps">
+        {/* Step 1: the map */}
+        <li className="ml-rstep">
+          <RStep n={1} k={r.steps[0].k} h={r.steps[0].h} />
+          <figure className="ml-frame" id="ml-map" tabIndex={-1}>
+            <figcaption className="ml-ftitle">{r.map.frame}</figcaption>
+            <div className="ml-mapvid" style={{ aspectRatio: `${r.map.w} / ${r.map.h}` }}>
+              <LoopVideo mp4={r.map.mp4} poster={r.map.poster} label={r.map.alt} w={r.map.w} h={r.map.h} />
+            </div>
+          </figure>
+          <ul className="ml-methods ml-methods--3 ml-nums">
+            {r.numbers.map((m) => (
+              <li key={m.v}>
+                <span className="ml-method-n">{m.n}</span>
+                <span>{m.v}</span>
+              </li>
+            ))}
+          </ul>
+        </li>
 
-      <h3 className="cs-h3 ml-h3">{r.brokeTitle}</h3>
-      <ol className="ml-broke">
-        {r.broke.map((b) => (
-          <li key={b.a}>
-            <p className="ml-broke-a">
-              <span className="label">{r.brokeLabels.a}</span>
-              <s>{b.a}</s>
-            </p>
-            <figure className="ml-broke-q">
-              <span className="label">{r.brokeLabels.q}</span>
-              <blockquote>“{b.q}”</blockquote>
-              <figcaption>{b.who}</figcaption>
-            </figure>
-            <p className="ml-broke-area">
-              <span className="label">{r.brokeLabels.area}</span>
-              <b>{b.area}</b>
-            </p>
-          </li>
-        ))}
+        {/* Step 2: the interviews */}
+        <li className="ml-rstep">
+          <RStep n={2} k={r.steps[1].k} h={r.steps[1].h} />
+          <ol className="ml-broke">
+            {r.broke.map((b) => (
+              <li key={b.a}>
+                <p className="ml-broke-a">
+                  <span className="label">{r.brokeLabels.a}</span>
+                  <s>{b.a}</s>
+                </p>
+                <figure className="ml-broke-q">
+                  <span className="label">{r.brokeLabels.q}</span>
+                  <blockquote>“{b.q}”</blockquote>
+                  <figcaption>{b.who}</figcaption>
+                </figure>
+                <p className="ml-broke-area">
+                  <span className="label">{r.brokeLabels.area}</span>
+                  <b>{b.area}</b>
+                </p>
+              </li>
+            ))}
+          </ol>
+        </li>
+
+        {/* Step 3: the survey */}
+        <li className="ml-rstep" id="ml-survey">
+          <RStep n={3} k={r.steps[2].k} h={r.steps[2].h} />
+          <ul className="ml-openqs ml-openqs--3">
+            {v.findings.map((f, i) => (
+              <li key={f.h}>
+                <span className="ml-openq-n">{String(i + 1).padStart(2, "0")}</span>
+                <b>{f.h}</b>
+                <span>{f.v}</span>
+              </li>
+            ))}
+          </ul>
+        </li>
       </ol>
-
-      {/* The survey in three findings */}
-      <div className="ml-survey" id="ml-survey">
-        <h3 className="cs-h3 ml-survey-h">{v.label}</h3>
-        <ul className="ml-openqs ml-openqs--3">
-          {v.findings.map((f) => (
-            <li key={f.h}>
-              <b>{f.h}</b>
-              <span>{f.v}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
     </Section>
   );
 }

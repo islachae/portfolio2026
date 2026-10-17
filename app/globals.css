@@ -18685,3 +18685,153 @@ li[data-pending] .ml-method-n .ml-todo,
     padding: 14px 14px 16px;
   }
 }
+
+/* ── Mellon: research in three steps, and the two readers pinned on scroll ── */
+.ml .ml-rsteps {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+.ml .ml-rstep {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 32px;
+  border-top: 1px solid var(--wf-line);
+}
+.ml .ml-rstep-h {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.ml .ml-rstep-n {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--wf-ink);
+  color: var(--bg, #fff);
+  font: 500 15px/1 var(--font-jbmono), ui-monospace, monospace;
+}
+.ml .ml-rstep-k {
+  margin: 0 0 6px;
+  font: 500 11px/1.4 var(--font-jbmono), ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wf-lab);
+}
+.ml .ml-rstep-t {
+  margin: 0;
+  font: 600 22px/1.3 var(--font-instrument), system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  color: var(--wf-ink);
+  text-wrap: balance;
+}
+.ml .ml-rstep .ml-nums,
+.ml .ml-rstep .ml-broke,
+.ml .ml-rstep .ml-openqs {
+  margin-top: 0;
+}
+.ml .ml-openqs li {
+  position: relative;
+}
+.ml .ml-openq-n {
+  display: block;
+  margin-bottom: 10px;
+  font: 500 12px/1 var(--font-jbmono), ui-monospace, monospace;
+  color: var(--wf-lab);
+}
+@media (max-width: 640px) {
+  .ml .ml-rstep-h { grid-template-columns: 32px 1fr; gap: 12px; }
+  .ml .ml-rstep-n { width: 32px; height: 32px; font-size: 13px; }
+  .ml .ml-rstep-t { font-size: 19px; }
+  .ml .ml-rsteps { gap: 56px; }
+}
+
+/* Two readers: a tall scene, the frame pinned inside it */
+.ml .ml-readscene {
+  position: relative;
+  height: 220vh;
+}
+.ml .ml-readscene .ml-read {
+  position: sticky;
+  top: 72px;
+}
+.ml .ml-readscene[data-still] {
+  height: auto;
+}
+.ml .ml-readscene[data-still] .ml-read {
+  position: static;
+}
+.ml .ml-read-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin: 4px 0 20px;
+}
+.ml .ml-read-k {
+  font: 500 11px/1 var(--font-jbmono), ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wf-body);
+}
+.ml .ml-read-tabs {
+  display: inline-flex;
+  padding: 0;
+  gap: 0;
+  border: 1.5px solid var(--wf-ink);
+  border-radius: 0;
+  background: var(--bg, #fff);
+}
+.ml .ml-read-tab {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--wf-ink);
+  font: 500 15px/1.2 var(--font-instrument), system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.ml .ml-read-tab + .ml-read-tab {
+  border-left: 1.5px solid var(--wf-ink);
+}
+.ml .ml-read-tab:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.ml .ml-read-tab[aria-selected="true"] {
+  background: var(--wf-ink);
+  color: var(--bg, #fff);
+}
+.ml .ml-read-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 400 13px/1.3 var(--font-instrument), system-ui, sans-serif;
+  color: var(--wf-body);
+}
+.ml .ml-read-hint i {
+  width: 18px;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.18);
+  transition: background 0.25s;
+}
+.ml .ml-read-hint i[data-on] {
+  background: var(--wf-ink);
+}
+.ml .ml-read-hint i:last-of-type {
+  margin-right: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ml .ml-read-tab:hover { background: rgba(255, 255, 255, 0.08); }
+  :root:not([data-theme="light"]) .ml .ml-read-hint i { background: rgba(255, 255, 255, 0.2); }
+}
+:root[data-theme="dark"] .ml .ml-read-tab:hover { background: rgba(255, 255, 255, 0.08); }
+:root[data-theme="dark"] .ml .ml-read-hint i { background: rgba(255, 255, 255, 0.2); }
+.ml .ml-rstep .ml-broke { border-top-width: 1px; border-bottom: 0; }
+.ml .ml-rstep .ml-broke li:last-child { border-bottom: 0; }

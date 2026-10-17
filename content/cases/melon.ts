@@ -75,6 +75,9 @@ export const melonCase = {
     ],
     note: "Illustrative email, composed from the kinds of messages we studied.",
     frame: "Problem: “Important” means two different things",
+    readAs: "Read it as",
+    hintNext: "Keep scrolling to read it as a student ↓",
+    hintDone: "Same email, a different reading",
     email: {
       from: "Donna · Graduate Academic Advisor",
       subject: "Important: Spring registration + resources",
@@ -128,8 +131,11 @@ export const melonCase = {
       { n: "7", v: "people sending it, from faculty to career services" },
       { n: "1", v: "advisor relaying most of it" },
     ],
-    numbersNote: "What the map showed. Then 3 student interviews, 1 advisor interview and a 12-person survey.",
-    brokeTitle: "From the interviews: two assumptions the system runs on, and what broke them",
+    steps: [
+      { k: "Step 1 · System map · one event traced", h: "Orientation reached students 16 ways, mostly through one person." },
+      { k: "Step 2 · Interviews · 3 students, 1 advisor", h: "Two assumptions the system runs on didn’t hold." },
+      { k: "Step 3 · Survey · 12 students", h: "Three things the survey added." },
+    ],
     brokeLabels: { a: "We assumed", q: "We heard", area: "So the problem is" },
     broke: [
       { a: "Students recognize urgency.", q: "It doesn’t feel that important to me. But from Donna’s perspective, I guess it’s important.", who: "Graduate student", area: "Different ideas of importance" },
