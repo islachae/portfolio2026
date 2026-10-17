@@ -53,7 +53,7 @@ export const melonCase = {
     label: "Impact",
     items: [
       { n: "14s vs 71s", v: "to find the next action, Mellon vs Gmail · 6 of 6 students found it" },
-      { q: "I’d see the pulse of what’s going on with the students. It would be great to have this.", v: "Donna, Graduate Academic Advisor" },
+      { q: "I’d see the pulse of what’s going on with the students. Now I can spend less time on what they don’t need.", v: "Donna, Graduate Academic Advisor" },
       { n: "Real Chrome extension", v: "built with Claude Code", wide: true },
     ] as { n?: string; q?: string; v: string; wide?: boolean }[],
   },
@@ -262,7 +262,7 @@ export const melonCase = {
       { n: "6/6", v: "got handed to Donna when Mellon wasn’t sure" },
     ],
     photo: "", // presenting to Donna and the studio: hidden until there’s a photo
-    quote: { q: "I’d see the pulse of what’s going on with the students. It would be great to have this.", who: "Donna, after the final presentation", check: "" },
+    quote: { q: "I’d see the pulse of what’s going on with the students. Now I can spend less time on what they don’t need.", who: "Donna, after the final presentation", check: "" },
     showQuote: false, // already the quote under the first screen
     openTitle: "Open questions from the review",
     open: [
