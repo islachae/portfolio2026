@@ -186,7 +186,7 @@ export const melonCase = {
         frame: "The question, next to the email it’s about",
         n: "Decision 2",
         h: "Stay inside email, even though the survey said website.",
-        v: "12 of 18 students said they’d expect a chatbot on the school website, probably because that’s where they’d seen one before. But their questions came up while reading email, so we put Mellon next to the inbox. It also suited Donna. In 17 years she has seen plenty of tools come and go, including AI assistants that didn’t last, so we didn’t want to hand her a new one to learn. She keeps writing email as she always has, and Mellon works from those emails.",
+        v: "7 of 12 students said they’d expect a chatbot on the school website, probably because that’s where they’d seen one before. But their questions came up while reading email, so we put Mellon next to the inbox. It also suited Donna. In 17 years she has seen plenty of tools come and go, including AI assistants that didn’t last, so we didn’t want to hand her a new one to learn. She keeps writing email as she always has, and Mellon works from those emails.",
         img: { src: img("decision-2"), w: 2240, h: 1160, alt: "Donna’s funding email open in the inbox, with Mellon beside it. The panel knows which email is open and answers “When do I have to apply by?” with the dates from that email" },
       },
       {
