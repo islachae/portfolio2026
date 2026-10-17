@@ -17976,10 +17976,6 @@ li[data-pending] .ml-method-n .ml-todo,
   font-size: 11px;
   letter-spacing: 0.08em;
 }
-.ml > .cs-sec > .cs-eyebrow::before {
-  counter-increment: ml-sec;
-  content: counter(ml-sec, decimal-leading-zero) " · ";
-}
 .ml > .cs-sec {
   display: flex;
   flex-direction: column;
