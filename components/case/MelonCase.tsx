@@ -160,6 +160,7 @@ function Gap() {
       </h2>
 
       <div className="ml-read" data-mode={mode}>
+        <p className="ml-ftitle">{g.frame}</p>
         <div className="ml-read-tabs" role="tablist" aria-label="Read the email as">
           {g.modes.map((m, i) => (
             <button
@@ -243,8 +244,11 @@ function Research() {
       </h2>
       <p className="cs-body cs-measure">{r.text}</p>
 
-      <figure className="ml-mapvid" id="ml-map" tabIndex={-1} style={{ aspectRatio: `${r.map.w} / ${r.map.h}` }}>
-        <LoopVideo mp4={r.map.mp4} poster={r.map.poster} label={r.map.alt} w={r.map.w} h={r.map.h} />
+      <figure className="ml-frame" id="ml-map" tabIndex={-1}>
+        <figcaption className="ml-ftitle">{r.map.frame}</figcaption>
+        <div className="ml-mapvid" style={{ aspectRatio: `${r.map.w} / ${r.map.h}` }}>
+          <LoopVideo mp4={r.map.mp4} poster={r.map.poster} label={r.map.alt} w={r.map.w} h={r.map.h} />
+        </div>
       </figure>
       <ul className="ml-methods ml-methods--3 ml-nums">
         {r.numbers.map((m) => (
@@ -313,10 +317,16 @@ function Directions() {
           </li>
         ))}
       </ul>
-      <figure className="ml-fig ml-fig--sketch">
-        <img src={d.sketch.src} alt={d.sketch.alt} width={d.sketch.w} height={d.sketch.h} loading="lazy" />
-        <figcaption>{d.sketchCap}</figcaption>
-      </figure>
+      <div className="ml-side">
+        <figure className="ml-frame">
+          <span className="ml-ftitle">{d.sketchTitle}</span>
+          <img className="ml-frame-img" src={d.sketch.src} alt={d.sketch.alt} width={d.sketch.w} height={d.sketch.h} loading="lazy" />
+        </figure>
+        <div className="ml-side-text">
+          <b>{d.sketchTitle}</b>
+          <p>{d.sketchCap}</p>
+        </div>
+      </div>
     </Section>
   );
 }
@@ -332,9 +342,10 @@ function Decisions() {
       </h2>
       <ol className="ml-decs">
         {d.items.map((it) => (
-          <li className="ml-dec" id={it.id} key={it.id} tabIndex={-1}>
-            <figure className="ml-dec-fig">
-              <img src={it.img.src} alt={it.img.alt} width={it.img.w} height={it.img.h} loading="lazy" decoding="async" />
+          <li className="ml-dec ml-side" id={it.id} key={it.id} tabIndex={-1}>
+            <figure className="ml-frame">
+              <span className="ml-ftitle">{it.frame}</span>
+              <img className="ml-frame-img" src={it.img.src} alt={it.img.alt} width={it.img.w} height={it.img.h} loading="lazy" decoding="async" />
             </figure>
             <div className="ml-dec-text">
               <p className="label ml-dec-n">{it.n}</p>
@@ -355,11 +366,12 @@ function Decisions() {
 /* ───────────── 06 Solution: the loop, then the student side and the advisor side ───────────── */
 
 /** A screenshot with numbered marks on it and, beside or under it, what each mark points at. */
-function ShotFig({ shot, kind }: { shot: Shot; kind: "panel" | "wide" }) {
+function ShotFig({ shot, kind, title }: { shot: Shot; kind: "panel" | "wide"; title?: string }) {
   return (
     <figure className="ml-shot" data-kind={kind}>
       {/* a wide screen keeps a readable size on a phone and scrolls sideways inside this box */}
       <span className="ml-shot-scroll" data-scroll-label={`${shot.alt} (scrolls sideways)`}>
+        {title ? <span className="ml-ftitle">{title}</span> : null}
         <span className="ml-shot-pic">
           <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} loading="lazy" decoding="async" />
           {shot.pins.map((p, i) => (
@@ -394,14 +406,19 @@ function Solution() {
         <Lines lines={m.title} />
       </h2>
 
-      <figure className="ml-mapvid ml-loopvid" style={{ aspectRatio: `${m.loop.w} / ${m.loop.h}` }}>
-        <LoopVideo mp4={m.loop.mp4} poster={m.loop.poster} label={m.loop.alt} w={m.loop.w} h={m.loop.h} />
+      <figure className="ml-frame" data-tone="warm">
+        <figcaption className="ml-ftitle">{m.loop.frame}</figcaption>
+        <div className="ml-loopvid" style={{ aspectRatio: `${m.loop.w} / ${m.loop.h}` }}>
+          <LoopVideo mp4={m.loop.mp4} poster={m.loop.poster} label={m.loop.alt} w={m.loop.w} h={m.loop.h} />
+        </div>
       </figure>
 
       {/* the student side: the working extension, recorded, with what each part shows */}
       <div className="ml-clip ml-half">
-        <p className="label ml-half-k">{m.student.label}</p>
-        <MelonPanelClip />
+        <div className="ml-frame">
+          <span className="ml-ftitle">{m.student.label}</span>
+          <MelonPanelClip />
+        </div>
         <ol className="ml-callouts">
           {m.chapters.map((c, i) => (
             <li key={c}>
@@ -414,9 +431,8 @@ function Solution() {
 
       {/* the advisor side: a design prototype, marked */}
       <div className="ml-half">
-        <p className="label ml-half-k">{m.advisor.label}</p>
         <div className="ml-shots ml-shots--wide">
-          <ShotFig shot={m.advisor.shot} kind="wide" />
+          <ShotFig shot={m.advisor.shot} kind="wide" title={m.advisor.label} />
         </div>
       </div>
     </Section>
@@ -435,9 +451,9 @@ function Build() {
         {b.pair.map((p) => (
           <figure key={p.k}>
             <span className="ml-build-pic">
+              <span className="ml-ftitle">{p.k}</span>
               <img src={p.src} alt={p.alt} width={p.w} height={p.h} loading="lazy" decoding="async" />
             </span>
-            <figcaption className="label">{p.k}</figcaption>
           </figure>
         ))}
       </div>

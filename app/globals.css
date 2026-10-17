@@ -18558,3 +18558,130 @@ li[data-pending] .ml-method-n .ml-todo,
 :root[data-theme="dark"] .ml .ml-mail-subject[data-mark] {
   background: #fde8e3;
 }
+
+/* ── titled frames (Rachel Chen's Notion case: a short title inside each picture's frame, top left;
+   explorations with their name and a line beside the picture) ── */
+.ml .ml-frame {
+  margin: 0;
+  padding: 18px 24px 24px;
+  border: 1px solid var(--wf-ph-line);
+  background: var(--wf-ph);
+}
+.ml .ml-frame[data-tone="warm"] {
+  border: 0;
+  background: var(--wf-warm);
+}
+.ml .ml-ftitle {
+  display: block;
+  margin: 0 0 14px;
+  color: var(--wf-body);
+  font-family: var(--wf-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+}
+.ml .ml-frame .ml-mapvid,
+.ml .ml-frame .ml-loopvid {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #fff;
+  overflow: hidden;
+}
+.ml .ml-frame .ml-loopvid {
+  background: none;
+}
+.ml .ml-frame .ml-mapvid video,
+.ml .ml-frame .ml-loopvid video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ml .ml-frame-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* the student recording sits inside its frame without a second box */
+.ml .ml-clip .ml-frame .melon-clip {
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+.ml .ml-clip .ml-frame .melon-demo {
+  border: 0;
+  background: none;
+}
+/* the dashboard screenshot: its frame is the scroll box */
+.ml .ml-shot-scroll {
+  padding: 18px 24px 24px;
+  border: 1px solid var(--wf-ph-line);
+  background: var(--wf-ph);
+}
+.ml .ml-shot-pic {
+  border: 0;
+  background: none;
+}
+/* Figma vs real inbox: title above each panel, inside the frame */
+.ml .ml-build-pic {
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 24px 24px;
+}
+.ml .ml-build-pic .ml-ftitle {
+  align-self: flex-start;
+}
+.ml .ml-build-pic img {
+  min-height: 0;
+  flex: 1;
+}
+/* exploration rows: picture left, its name and a line on the right */
+.ml .ml-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+}
+.ml .ml-side-text,
+.ml .ml-dec .ml-dec-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+.ml .ml-side-text b {
+  color: var(--wf-ink);
+  font-size: 16px;
+  font-weight: 600;
+}
+.ml .ml-side-text p {
+  margin: 0;
+  color: var(--wf-sm);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ml .ml-dec .ml-dec-text .cs-body {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.ml .ml-dec .ml-dec-n {
+  margin: 0;
+}
+.ml .ml-decs {
+  gap: 40px;
+}
+@media (max-width: 799px) {
+  .ml .ml-side {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .ml .ml-frame,
+  .ml .ml-shot-scroll {
+    padding: 14px 14px 16px;
+  }
+}

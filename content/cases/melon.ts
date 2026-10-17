@@ -74,6 +74,7 @@ export const melonCase = {
       { id: "student", label: "As a student read it" },
     ],
     note: "Illustrative email, composed from the kinds of messages we studied.",
+    frame: "Problem: “Important” means two different things",
     email: {
       from: "Donna · Graduate Academic Advisor",
       subject: "Important: Spring registration + resources",
@@ -115,6 +116,7 @@ export const melonCase = {
     title: ["Students had too much email, and their advisor", "had no way to know what landed."],
     text: "We traced one event, grad orientation, through the whole school. Students were drowning in information with no way to sort it. Donna had no way to know what landed, so her effort went where she guessed it was needed.",
     map: {
+      frame: "Grad orientation, traced through the school",
       mp4: "/work/melon-case/map-anim.mp4",
       poster: img("map-anim"),
       w: 1742,
@@ -158,6 +160,7 @@ export const melonCase = {
       { src: img("concept-5"), name: "SoD event website", keep: false, why: "Set aside. Every update goes through the web admin and a yearly review." },
     ],
     sketch: { src: img("first-sketch"), alt: "First sketch: a side panel beside the Mail inbox with tabs for primary info and calendar, cards for calendar events, priority info and to-dos, an AI summary that links to the exact email, and chat with quick action buttons", w: 1700, h: 925 },
+    sketchTitle: "First sketch",
     sketchCap: "Our first sketch: a panel beside the inbox, with every update in one place. Each one opens into a summary, and the summary links back to the email it came from.",
   },
 
@@ -168,6 +171,7 @@ export const melonCase = {
     items: [
       {
         id: "ml-decision-1",
+        frame: "Chat only vs. sort first, ask second",
         n: "Decision 1",
         h: "Why not just a chatbot?",
         v: "Students had two problems: too many emails to sort, and questions about the ones they did read. One feature couldn’t solve both. A chatbot only helps with the second, and only once you know what to ask. So I designed the panel to sort updates into cards first, with chat underneath for whatever a card leaves unclear, and every answer links back to the email it came from.",
@@ -175,6 +179,7 @@ export const melonCase = {
       },
       {
         id: "ml-decision-2",
+        frame: "The question, next to the email it’s about",
         n: "Decision 2",
         h: "Stay inside email, even though the survey said website.",
         v: "{{N of 12}} students said they’d expect a chatbot on the school website, probably because that’s where they’d seen one before. But their questions came up while reading email, so we put Mellon next to the inbox. It also suited Donna. In 17 years she has seen plenty of tools come and go, including AI assistants that didn’t last, so we didn’t want to hand her a new one to learn. She keeps writing email as she always has, and Mellon works from those emails.",
@@ -182,6 +187,7 @@ export const melonCase = {
       },
       {
         id: "ml-decision-3",
+        frame: "Every answer dated · reuse is Donna’s call",
         n: "Decision 3",
         h: "Donna stays the author.",
         v: "Mellon answers students from Donna’s past emails, so in a way it speaks for her. She was wary of that. She wanted “strong controls at first,” and she worried that “old information could be stored and shared in error,” like last year’s deadline reaching this year’s students. So every answer shows which of her emails it came from and when she sent it. And when she answers a new question, it only gets reused for other students if she says so.",
@@ -196,6 +202,7 @@ export const melonCase = {
     title: ["Mellon sorts updates by what needs doing, answers from Donna’s own emails,", "and shows her what students are still asking."],
     /** The two sides in one loop: a student asks, interest shows up, the advisor invests, support comes back. */
     loop: {
+      frame: "Solution: a question becomes support",
       mp4: "/work/melon-case/loop.mp4",
       poster: img("loop"),
       w: 1920,
@@ -203,10 +210,10 @@ export const melonCase = {
       alt: "The loop between the two screens: a student asks in the panel, the question shows up on Donna’s dashboard as rising interest, she invests where students are asking, and her answer comes back to students as a new update",
     },
     /** The student side is the working extension, recorded; the advisor side is a design prototype. */
-    student: { label: "Student side · working build" },
+    student: { label: "Student panel · working build" },
     chapters: ["Action needed comes first", "Summary first, source one tap away", "Ask next to the email", "Clear in bulk"],
     advisor: {
-      label: "Advisor side · design prototype",
+      label: "Advisor dashboard · design prototype",
       shot: {
         src: img("donna-overview"), w: 2194, h: 1080,
         alt: "Donna’s Overview: questions by category for the last seven days with arrows on the ones that are rising, 19 questions waiting for her answer, 41 answered by Mellon, two topics that need her answer, and two topics no Graduate Programs email covers yet",
@@ -226,8 +233,8 @@ export const melonCase = {
     title: "Building the real panel changed the design.",
     text: "In Figma, we designed around 8 emails we picked ourselves. Then I built the panel as a Chrome extension with Claude Code and ran it on my own inbox: about 100 emails a week, most of them messier than anything we had mocked up.",
     pair: [
-      { src: img("build-figma"), w: 640, h: 1552, k: "Figma", alt: "The Figma design of the Mellon panel: All 9 updates, two cards under Action needed, one under Today, and suggested questions above Ask Mellon" },
-      { src: img("build-real"), w: 746, h: 1714, k: "Real build, live inbox", alt: "The working Mellon extension on a real inbox: All 71 updates and 30 unread, long titles wrapping onto three lines, and a new Check first section warning that a sender imitates CMU from another address" },
+      { src: img("build-figma"), w: 640, h: 1552, k: "Figma · 8 sample emails", alt: "The Figma design of the Mellon panel: All 9 updates, two cards under Action needed, one under Today, and suggested questions above Ask Mellon" },
+      { src: img("build-real"), w: 746, h: 1714, k: "Real build · my inbox, about 100 a week", alt: "The working Mellon extension on a real inbox: All 71 updates and 30 unread, long titles wrapping onto three lines, and a new Check first section warning that a sender imitates CMU from another address" },
     ],
     brokeTitle: "What broke, what changed",
     broke: [
