@@ -17497,3 +17497,1390 @@ html[data-motion="reduced"] .wc-hl {
     font-size: 26px;
   }
 }
+
+/* ═════════ CMU Mellon, nine sections (Oct 2026) ═════════
+   The case study follows one headline per section: brief, problem, research, exploration,
+   decisions, solution, build, validation, reflection. What is new here: the impact strip under the
+   first screen, the two readings under the email, the map as a silent loop, the three decisions
+   (picture first), the student / advisor halves, design × build, the test, and the placeholders. */
+
+/* the first screen is the working extension now (4:3), not the 16:9 film */
+.melon-hero-box {
+  aspect-ratio: 1600 / 1190;
+  background: #fff;
+}
+
+/* placeholders: anything not known yet ({{ }} in content/cases/melon.ts). Dashed and muted, so it
+   can't pass for a real number or a real quote. */
+.ml-todo {
+  padding: 0 4px;
+  border: 1px dashed var(--line-2);
+  color: var(--text-muted);
+  font-style: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+li[data-pending] .ml-method-n .ml-todo,
+.ml-impact-n .ml-todo {
+  border-color: var(--ink-4);
+}
+
+/* impact: three cells between hairlines, right under the first screen */
+.ml-impact {
+  margin: 0 0 8px;
+}
+.ml-impact-k {
+  margin: 0 0 10px;
+}
+.ml-impact-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--border);
+  list-style: none;
+}
+.ml-impact-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px 20px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ml-impact-list li[data-pending] {
+  background: repeating-linear-gradient(135deg, var(--bg) 0 8px, var(--surface) 8px 16px);
+}
+.ml-impact-n {
+  color: var(--cs-ink);
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.ml-impact-n[data-wide] {
+  font-size: 22px;
+  line-height: 1.25;
+}
+.ml-impact-q {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+/* under the email: the two readings, then what comes back (nothing) */
+.ml-reads {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  margin: 28px 0 0;
+}
+.ml-reads > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.ml-reads > div[data-last] {
+  border-top-color: var(--cs-accent);
+}
+.ml-reads dd {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+/* the map, as a silent loop */
+.ml-mapvid {
+  margin: 32px 0 0;
+  border: 1px solid var(--border);
+  background: #fff;
+  overflow: hidden;
+  scroll-margin-top: 88px;
+}
+.ml-mapvid video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ml-nums {
+  margin-top: 16px;
+}
+.ml-nums li {
+  font-size: 14.5px;
+}
+.ml-find-v {
+  margin: -4px 0 0;
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+/* decisions: the picture first, then the call (number on the left, words on the right) */
+.ml-decs {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  margin: 36px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-dec {
+  scroll-margin-top: 88px;
+}
+.ml-dec-fig {
+  margin: 0;
+  border: 1px solid var(--border);
+  background: #f3f3ef;
+}
+.ml-dec-fig img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ml-dec-text {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 20px;
+}
+.ml-dec-n {
+  align-self: start;
+  margin: 4px 0 0;
+  color: var(--cs-ink);
+}
+.ml-dec-h {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+.ml-dec-text .cs-body {
+  max-width: 640px;
+}
+
+/* solution: the student half (working build) and the advisor half (design prototype) */
+.ml-half {
+  margin-top: 64px;
+}
+.ml-half-k {
+  margin: 0 0 4px;
+}
+.ml-callouts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-callouts li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ml-callouts b {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* design × build: Figma beside the real inbox, the same height */
+.ml-build-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 32px 0 0;
+}
+.ml-build-pair figure {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+.ml-build-pic {
+  display: flex;
+  justify-content: center;
+  height: min(620px, 80svh);
+  padding: 24px;
+  border: 1px solid var(--border);
+  background: #f3f3ef;
+}
+.ml-build-pic img {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.ml-build-broke {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-build-broke li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.ml-stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-top: 32px;
+}
+.ml-stack p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* validation */
+.ml-valid-setup {
+  margin-top: 8px;
+}
+.ml-photo-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 7;
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px dashed var(--line-2);
+  background: repeating-linear-gradient(135deg, var(--bg) 0 8px, var(--surface) 8px 16px);
+  text-align: center;
+  font-size: 14px;
+}
+.ml-pull figcaption {
+  margin-top: 10px;
+}
+.ml-openqs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-openqs li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.ml-openqs b {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+}
+.ml-pilot {
+  margin-top: 28px;
+}
+.ml-openqs--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.ml-loopvid {
+  background: #fff;
+}
+.cs-sec--takeaways > .cs-h2 {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1023px) {
+  /* three tool chips (Mellon's) wrap instead of running off a phone */
+  .cs-meta .tools {
+    flex-wrap: wrap;
+  }
+  .ml-callouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .ml-impact-list,
+  .ml-reads,
+  .ml-build-broke,
+  .ml-openqs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ml-reads {
+    gap: 20px;
+  }
+  .ml-dec-text {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .ml-build-pair {
+    gap: 12px;
+  }
+  .ml-build-pic {
+    height: min(420px, 70svh);
+    padding: 12px;
+  }
+  .ml-callouts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .ml-photo-slot {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ═════════ Mellon: the wireframe, as the page ═════════
+   Below the first screen (which keeps the site's own split hero), the Mellon case study reads like
+   its wireframe: Instrument Sans for reading and JetBrains Mono for labels, near-black on white with
+   greys, and the wireframe's measurements: an 800px column, 88px above and below each section, a
+   hairline on top, the section's number and name above its headline, every block 24px apart.
+   Square corners, like the rest of the site; the table of contents stays in the left margin.
+   Dark mode keeps the layout and type and swaps the greys. */
+.cs[data-case="melon"] {
+  --wf-ink: #1a1a1a;
+  --wf-body: #3d3d3d;
+  --wf-sm: #6b6b6b;
+  --wf-lab: #8a8a8a;
+  --wf-line: #e6e6e6;
+  --wf-ph: #f3f3f1;
+  --wf-ph-line: #e3e3e0;
+  --wf-kept: #1d7a46;
+  --wf-todo: #d4591c;
+  --wf-bg: #ffffff;
+  --wf-sans: var(--font-instrument), "Instrument Sans", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --wf-mono: var(--font-jbmono), "JetBrains Mono", ui-monospace, monospace;
+  --cs-col: 800px;
+  background: var(--wf-bg);
+  /* the page's own tokens, cleaned up to the wireframe's (clearer than the site's blue-grey) */
+  --text: var(--wf-ink);
+  --text-muted: var(--wf-sm);
+  --border: var(--wf-line);
+  --bg: var(--wf-bg);
+}
+:root[data-theme="dark"] .cs[data-case="melon"] {
+  --wf-ink: #f4f4f4;
+  --wf-body: #cfcfcf;
+  --wf-sm: #a3a3a3;
+  --wf-lab: #8e8e8e;
+  --wf-line: #333333;
+  --wf-ph: #1b1b1b;
+  --wf-ph-line: #333333;
+  --wf-kept: #4fc985;
+  --wf-todo: #ff8a4c;
+  --wf-bg: #0f0f0f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cs[data-case="melon"] {
+    --wf-ink: #f4f4f4;
+    --wf-body: #cfcfcf;
+    --wf-sm: #a3a3a3;
+    --wf-lab: #8e8e8e;
+    --wf-line: #333333;
+    --wf-ph: #1b1b1b;
+    --wf-ph-line: #333333;
+    --wf-kept: #4fc985;
+    --wf-todo: #ff8a4c;
+    --wf-bg: #0f0f0f;
+  }
+}
+
+/* the column: the wireframe's 800px body; the table of contents sits in the margin on the left */
+.ml {
+  counter-reset: ml-sec;
+  font-family: var(--wf-sans);
+  color: var(--wf-ink);
+}
+@media (min-width: 1200px) {
+  .ml {
+    margin-left: max(208px, calc(50% - 400px));
+  }
+}
+.ml .label,
+.ml .cs-eyebrow,
+.ml .ml-ch-n,
+.ml .ml-dec-n {
+  font-family: var(--wf-mono);
+}
+
+/* a section = label column + body */
+.ml > .cs-sec {
+  margin: 0;
+  padding: 88px 0;
+  border-top: 1px solid var(--wf-line);
+}
+.ml > .cs-sec > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.ml > .cs-sec > .cs-eyebrow {
+  padding-top: 6px;
+  color: var(--wf-lab);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+.ml > .cs-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.ml > .cs-sec > .cs-eyebrow {
+  padding-top: 0;
+  margin-bottom: -12px;
+}
+@media (max-width: 799px) {
+  .ml > .cs-sec {
+    gap: 20px;
+    padding: 64px 0;
+  }
+}
+
+/* type */
+.ml .cs-h2 {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.ml .cs-h2 .cs-l {
+  display: inline;
+}
+.ml .cs-body,
+.ml .cs-sec > p.cs-body {
+  max-width: 640px;
+  color: var(--wf-body);
+  font-family: var(--wf-sans);
+  font-size: 17px;
+  line-height: 1.55;
+}
+/* sub-heads inside a section are the wireframe's small mono labels */
+.ml .ml-h3,
+.ml .ml-survey-h,
+.ml .ml-half-k,
+.ml .ml-impact-k {
+  display: block;
+  margin: 8px 0 0;
+  color: var(--wf-sm);
+  font-family: var(--wf-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+.ml .label {
+  color: var(--wf-sm);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.ml .ml-methods-note,
+.ml .ml-read-note,
+.ml .ml-survey-foot,
+.ml figcaption {
+  color: var(--wf-sm);
+  font-family: var(--wf-sans);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ml .ml-todo {
+  padding: 0;
+  border: 0;
+  color: var(--wf-todo);
+  font-weight: 500;
+}
+
+/* pictures: the wireframe's placeholders, filled */
+.ml .ml-mapvid,
+.ml .ml-dec-fig,
+.ml .ml-fig--sketch,
+.ml .ml-build-pic,
+.ml .ml-concept-shot,
+.ml .ml-shot-pic,
+.ml .ml-photo-slot,
+.ml .melon-demo {
+  border: 1px solid var(--wf-ph-line);
+  border-radius: 0;
+  background: var(--wf-ph);
+  overflow: hidden;
+}
+.ml .ml-mapvid,
+.ml .ml-loopvid {
+  background: #fff;
+}
+.ml .ml-fig--sketch {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.ml .ml-fig--sketch img {
+  border: 1px solid var(--wf-ph-line);
+  border-radius: 0;
+}
+.ml .ml-photo-slot {
+  border-style: dashed;
+  background: var(--wf-ph);
+}
+
+/* impact: a box with a dark hairline, its label on the left */
+.ml > .ml-impact {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin: 0 0 88px;
+  padding: 20px 24px;
+  border: 1px solid var(--wf-ink);
+  border-radius: 0;
+}
+.ml .ml-impact-k {
+  margin: 0;
+  color: var(--wf-ink);
+}
+.ml .ml-impact-list {
+  flex: 1;
+  gap: 20px;
+  border: 0;
+  background: none;
+}
+.ml .ml-impact-list li,
+.ml .ml-impact-list li[data-pending] {
+  padding: 0;
+  background: none;
+  color: var(--wf-sm);
+  font-size: 13px;
+}
+.ml .ml-impact-n {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.ml .ml-impact-n[data-wide] {
+  font-size: 20px;
+  line-height: 1.3;
+}
+.ml .ml-impact-q {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.45;
+}
+
+/* problem: the two readings and what comes back, three columns */
+.ml .ml-reads {
+  gap: 40px;
+  margin: 0;
+}
+.ml .ml-reads > div,
+.ml .ml-reads > div[data-last] {
+  padding: 0;
+  border: 0;
+}
+.ml .ml-reads dd {
+  color: var(--wf-body);
+  font-family: var(--wf-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+/* numbers: four (or three) side by side, no boxes */
+.ml .ml-methods,
+.ml .ml-nums {
+  gap: 24px;
+  margin: 0;
+  border: 0;
+  background: none;
+}
+.ml .ml-methods li,
+.ml .ml-methods li[data-pending] {
+  padding: 0;
+  background: none;
+  color: var(--wf-sm);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ml .ml-method-n {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* the two assumptions: a table between a dark rule and hairlines */
+.ml .ml-broke {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--wf-ink);
+}
+.ml .ml-broke li {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 180px;
+  gap: 32px;
+  align-items: center;
+  padding: 28px 0;
+  border: 0;
+  border-bottom: 1px solid var(--wf-ph-line);
+  background: none;
+}
+.ml .ml-broke li:last-child {
+  border-bottom-color: var(--wf-ink);
+}
+.ml .ml-broke,
+.ml .ml-broke li {
+  gap: 0 32px;
+  background: none;
+}
+.ml .ml-broke-a {
+  color: var(--wf-lab);
+  font-size: 18px;
+}
+.ml .ml-broke-a s {
+  text-decoration: line-through;
+}
+.ml .ml-survey {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ml .ml-survey .ml-openqs {
+  margin-top: 12px;
+}
+.ml .ml-broke-a .label,
+.ml .ml-broke-q .label,
+.ml .ml-broke-area .label {
+  display: block;
+  margin-bottom: 6px;
+  text-decoration: none;
+}
+.ml .ml-broke-q blockquote {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 22px;
+  font-style: italic;
+  line-height: 1.3;
+}
+.ml .ml-broke-area b {
+  color: var(--wf-ink);
+  font-size: 16px;
+  font-weight: 600;
+  background: none;
+  text-decoration: none;
+}
+
+/* cards without boxes: a bold line, then small grey text */
+.ml .ml-openqs,
+.ml .ml-build-broke {
+  gap: 20px;
+  margin: 0;
+}
+.ml .ml-openqs li,
+.ml .ml-build-broke li {
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  color: var(--wf-sm);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ml .ml-openqs b {
+  color: var(--wf-ink);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* concepts: kept in green, set aside in grey */
+.ml .ml-concepts {
+  gap: 12px;
+  margin: 0;
+}
+.ml .ml-concepts li {
+  gap: 10px;
+}
+.ml .ml-concepts li[data-keep] .ml-concept-shot {
+  border-color: var(--wf-ph-line);
+  box-shadow: none;
+}
+.ml .ml-concepts b {
+  margin: 0;
+  color: var(--wf-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+.ml .ml-concepts li:not([data-keep]) b {
+  color: var(--wf-lab);
+}
+.ml .ml-concept-why {
+  color: var(--wf-lab);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ml .ml-concepts li[data-keep] .ml-concept-why {
+  color: var(--wf-kept);
+  font-weight: 500;
+}
+
+/* decisions: picture, then a 120px number column and the call */
+.ml .ml-decs {
+  gap: 56px;
+  margin: 8px 0 0;
+}
+.ml .ml-dec-text {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 16px;
+}
+.ml .ml-dec-n {
+  margin: 4px 0 0;
+  color: var(--wf-lab);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ml .ml-dec-h {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 19px;
+  font-weight: 600;
+}
+.ml .ml-dec-text .cs-body {
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+/* solution: the two halves */
+.ml .ml-half,
+.ml .ml-clip {
+  margin-top: 16px;
+}
+.ml .ml-callouts {
+  gap: 16px;
+}
+.ml .ml-callouts li {
+  flex-direction: row;
+  gap: 8px;
+  color: var(--wf-sm);
+  font-size: 13px;
+}
+.ml .ml-callouts b {
+  color: var(--wf-sm);
+  font-size: 13px;
+  font-weight: 400;
+}
+.ml .ml-ch-n {
+  color: var(--wf-lab);
+  font-size: 12px;
+}
+
+/* build: on a light grey band, like the wireframe */
+.ml > .cs-sec.ml-build {
+  margin: 0 -40px;
+  padding: 88px 40px;
+  background: color-mix(in srgb, var(--wf-ph) 45%, var(--wf-bg));
+}
+.ml .ml-build-pair {
+  margin: 0;
+}
+.ml .ml-build-pic {
+  height: 600px;
+}
+.ml .ml-stack .tool {
+  border-radius: 0;
+  font-family: var(--wf-mono);
+  font-size: 11px;
+}
+
+/* validation */
+.ml .ml-pull {
+  margin: 0;
+  padding: 8px 0 8px 24px;
+  border-left: 3px solid var(--wf-ink);
+  background: none;
+}
+.ml .ml-pull blockquote {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+}
+.ml .ml-pilot {
+  margin: 0;
+  font-size: 15px;
+}
+
+/* reflection: three cards in a row */
+@media (min-width: 800px) {
+  .ml > .cs-sec--takeaways {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 20px;
+    align-items: start;
+  }
+  .ml > .cs-sec--takeaways > .cs-eyebrow,
+  .ml > .cs-sec--takeaways > .cs-h2 {
+    grid-column: 1 / -1;
+  }
+  .ml > .cs-sec--takeaways > .cs-eyebrow {
+    margin-bottom: -12px;
+  }
+  .ml > .cs-sec--takeaways > .cs-take {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+}
+.ml .cs-take + .cs-take {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.ml .cs-take-h {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.ml .cs-take .cs-body {
+  margin-top: 10px;
+  color: var(--wf-sm);
+  font-size: 13px;
+}
+.ml .cs-take-link {
+  margin-top: 10px;
+  color: var(--wf-sm);
+  font-family: var(--wf-mono);
+  font-size: 11px;
+}
+
+@media (max-width: 799px) {
+  .ml > .ml-impact {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 64px;
+  }
+  .ml .cs-h2 {
+    font-size: 28px;
+  }
+  .ml .ml-broke li,
+  .ml .ml-dec-text {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .ml > .cs-sec.ml-build {
+    margin: 0 calc(-1 * var(--space-xl));
+    padding: 64px var(--space-xl);
+  }
+  .ml .ml-build-pic {
+    height: min(420px, 70svh);
+  }
+}
+
+/* square corners everywhere on this page, like the rest of the site */
+.ml *,
+.ml *::before,
+.ml *::after {
+  border-radius: 0;
+}
+
+/* the first screen keeps its layout, in the same type and colours as the page under it */
+.cs[data-case="melon"] .csx {
+  font-family: var(--wf-sans);
+  color: var(--wf-ink);
+}
+.cs[data-case="melon"] .csx .cs-h1 {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.cs[data-case="melon"] .csx .cs-sub {
+  color: var(--wf-body);
+  font-family: var(--wf-sans);
+}
+.cs[data-case="melon"] .csx .cs-eyebrow,
+.cs[data-case="melon"] .csx .cs-meta dt,
+.cs[data-case="melon"] .csx .tool,
+.cs[data-case="melon"] .csx .csx-cue,
+.cs[data-case="melon"] .csx .stage-caption {
+  color: var(--wf-sm);
+  font-family: var(--wf-mono);
+}
+.cs[data-case="melon"] .csx .cs-meta dd {
+  color: var(--wf-ink);
+  font-family: var(--wf-sans);
+}
+.cs[data-case="melon"] .csx .tool {
+  border-color: var(--wf-ph-line);
+  border-radius: 0;
+}
+.cs[data-case="melon"] .csx .cs-eyebrow,
+.cs[data-case="melon"] .csx .cs-meta dt,
+.cs[data-case="melon"] .csx .csx-cue,
+.cs[data-case="melon"] .csx .stage-caption {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.cs[data-case="melon"] .csx .tool {
+  font-size: 12px;
+}
+
+/* three key moments in Mellon's lime (the email read two ways, the loop, Figma vs the real inbox);
+   every other picture stays on the neutral grey */
+.cs[data-case="melon"] {
+  --wf-warm: #e3efc4; /* Mellon's own lime (its buttons, and the loop film's ground) */
+}
+:root[data-theme="dark"] .cs[data-case="melon"] {
+  --wf-warm: #222a17;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cs[data-case="melon"] {
+    --wf-warm: #222a17;
+  }
+}
+.ml .ml-read {
+  padding: 32px;
+  background: var(--wf-warm);
+}
+.ml .ml-read .ml-read-note {
+  color: color-mix(in srgb, var(--wf-ink) 60%, var(--wf-warm));
+}
+.ml .ml-loopvid {
+  padding: 32px;
+  border: 0;
+  background: var(--wf-warm);
+  aspect-ratio: auto !important;
+}
+.ml .ml-loopvid video {
+  height: auto;
+}
+.ml .ml-build-pic {
+  border: 0;
+  background: var(--wf-warm);
+}
+@media (max-width: 640px) {
+  .ml .ml-read,
+  .ml .ml-loopvid {
+    padding: 16px;
+  }
+}
+
+/* Mellon's mascot coral for every mark on the page (the email's highlights and numbers, the pins on
+   the dashboard), in place of the old crimson: it sits with the lime the way it does in the app.
+   Text in it is a step darker so it keeps 4.5:1 on white. */
+.cs[data-case="melon"] {
+  --cs-accent: #e0533f;
+  --cs-ink: #c03b28;
+  --ml-bar: #e0533f;
+}
+.ml .ml-pin,
+.ml .ml-shot-pin {
+  background: #e0533f;
+}
+.ml .ml-mail-line[data-mark],
+.ml .ml-mail-subject[data-mark] {
+  background: #fde8e3;
+  box-shadow: inset 2px 0 0 #e0533f;
+}
+:root[data-theme="dark"] .ml .ml-mail-line[data-mark],
+:root[data-theme="dark"] .ml .ml-mail-subject[data-mark] {
+  background: #fde8e3;
+}
+
+/* ── titled frames (Rachel Chen's Notion case: a short title inside each picture's frame, top left;
+   explorations with their name and a line beside the picture) ── */
+.ml .ml-frame {
+  margin: 0;
+  padding: 18px 24px 24px;
+  border: 1px solid var(--wf-ph-line);
+  background: var(--wf-ph);
+}
+.ml .ml-frame[data-tone="warm"] {
+  border: 0;
+  background: var(--wf-warm);
+}
+.ml .ml-ftitle {
+  display: block;
+  margin: 0 0 14px;
+  color: var(--wf-body);
+  font-family: var(--wf-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+}
+.ml .ml-frame .ml-mapvid,
+.ml .ml-frame .ml-loopvid {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #fff;
+  overflow: hidden;
+}
+.ml .ml-frame .ml-loopvid {
+  background: none;
+}
+.ml .ml-frame .ml-mapvid video,
+.ml .ml-frame .ml-loopvid video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ml .ml-frame-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* the student recording sits inside its frame without a second box */
+.ml .ml-clip .ml-frame .melon-clip {
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+.ml .ml-clip .ml-frame .melon-demo {
+  border: 0;
+  background: none;
+}
+/* the dashboard screenshot: its frame is the scroll box */
+.ml .ml-shot-scroll {
+  padding: 18px 24px 24px;
+  border: 1px solid var(--wf-ph-line);
+  background: var(--wf-ph);
+}
+.ml .ml-shot-pic {
+  border: 0;
+  background: none;
+}
+/* Figma vs real inbox: title above each panel, inside the frame */
+.ml .ml-build-pic {
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 24px 24px;
+}
+.ml .ml-build-pic .ml-ftitle {
+  align-self: flex-start;
+}
+.ml .ml-build-pic img {
+  min-height: 0;
+  flex: 1;
+}
+/* exploration rows: picture left, its name and a line on the right */
+.ml .ml-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+}
+.ml .ml-side-text,
+.ml .ml-dec .ml-dec-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+.ml .ml-side-text b {
+  color: var(--wf-ink);
+  font-size: 16px;
+  font-weight: 600;
+}
+.ml .ml-side-text p {
+  margin: 0;
+  color: var(--wf-sm);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ml .ml-dec .ml-dec-text .cs-body {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.ml .ml-dec .ml-dec-n {
+  margin: 0;
+}
+.ml .ml-decs {
+  gap: 40px;
+}
+@media (max-width: 799px) {
+  .ml .ml-side {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .ml .ml-frame,
+  .ml .ml-shot-scroll {
+    padding: 14px 14px 16px;
+  }
+}
+
+/* ── Mellon: research in three steps, and the two readers pinned on scroll ── */
+.ml .ml-rsteps {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+.ml .ml-rstep {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 32px;
+  border-top: 1px solid var(--wf-line);
+}
+.ml .ml-rstep-h {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.ml .ml-rstep-n {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--wf-ink);
+  color: var(--bg, #fff);
+  font: 500 15px/1 var(--font-jbmono), ui-monospace, monospace;
+}
+.ml .ml-rstep-k {
+  margin: 0 0 6px;
+  font: 500 11px/1.4 var(--font-jbmono), ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wf-lab);
+}
+.ml .ml-rstep-t {
+  margin: 0;
+  font: 600 22px/1.3 var(--font-instrument), system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  color: var(--wf-ink);
+  text-wrap: balance;
+}
+.ml .ml-rstep .ml-nums,
+.ml .ml-rstep .ml-broke,
+.ml .ml-rstep .ml-openqs {
+  margin-top: 0;
+}
+.ml .ml-openqs li {
+  position: relative;
+}
+.ml .ml-openq-n {
+  display: block;
+  margin-bottom: 10px;
+  font: 500 12px/1 var(--font-jbmono), ui-monospace, monospace;
+  color: var(--wf-lab);
+}
+@media (max-width: 640px) {
+  .ml .ml-rstep-h { grid-template-columns: 32px 1fr; gap: 12px; }
+  .ml .ml-rstep-n { width: 32px; height: 32px; font-size: 13px; }
+  .ml .ml-rstep-t { font-size: 19px; }
+  .ml .ml-rsteps { gap: 56px; }
+}
+
+/* Two readers: a tall scene, the frame pinned inside it */
+.ml .ml-readscene {
+  position: relative;
+  height: 220vh;
+}
+.ml .ml-readscene .ml-read {
+  position: sticky;
+  top: 72px;
+}
+.ml .ml-readscene[data-still] {
+  height: auto;
+}
+.ml .ml-readscene[data-still] .ml-read {
+  position: static;
+}
+.ml .ml-read-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin: 4px 0 20px;
+}
+.ml .ml-read-k {
+  font: 500 11px/1 var(--font-jbmono), ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wf-body);
+}
+.ml .ml-read-tabs {
+  display: inline-flex;
+  padding: 0;
+  gap: 0;
+  border: 1.5px solid var(--wf-ink);
+  border-radius: 0;
+  background: var(--bg, #fff);
+}
+.ml .ml-read-tab {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--wf-ink);
+  font: 500 15px/1.2 var(--font-instrument), system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.ml .ml-read-tab + .ml-read-tab {
+  border-left: 1.5px solid var(--wf-ink);
+}
+.ml .ml-read-tab:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.ml .ml-read-tab[aria-selected="true"] {
+  background: var(--wf-ink);
+  color: var(--bg, #fff);
+}
+.ml .ml-read-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 400 13px/1.3 var(--font-instrument), system-ui, sans-serif;
+  color: var(--wf-body);
+}
+.ml .ml-read-hint i {
+  width: 18px;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.18);
+  transition: background 0.25s;
+}
+.ml .ml-read-hint i[data-on] {
+  background: var(--wf-ink);
+}
+.ml .ml-read-hint i:last-of-type {
+  margin-right: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ml .ml-read-tab:hover { background: rgba(255, 255, 255, 0.08); }
+  :root:not([data-theme="light"]) .ml .ml-read-hint i { background: rgba(255, 255, 255, 0.2); }
+}
+:root[data-theme="dark"] .ml .ml-read-tab:hover { background: rgba(255, 255, 255, 0.08); }
+:root[data-theme="dark"] .ml .ml-read-hint i { background: rgba(255, 255, 255, 0.2); }
+.ml .ml-rstep .ml-broke { border-top-width: 1px; border-bottom: 0; }
+.ml .ml-rstep .ml-broke li:last-child { border-bottom: 0; }
+
+/* Research steps: a large light numeral beside the method and the finding */
+.ml .ml-rstep-h {
+  grid-template-columns: 96px 1fr;
+  gap: 8px;
+}
+.ml .ml-rstep-n {
+  width: auto;
+  height: auto;
+  display: block;
+  background: none;
+  color: #cfcfcb;
+  font: 300 64px/0.85 var(--font-instrument), system-ui, sans-serif;
+  letter-spacing: -0.04em;
+}
+@media (max-width: 640px) {
+  .ml .ml-rstep-h { grid-template-columns: 56px 1fr; }
+  .ml .ml-rstep-n { width: auto; height: auto; font-size: 40px; }
+}
+
+/* Two readers: a two-step stepper, its lines fill with the scroll */
+.ml .ml-steps2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 4px 0 24px;
+}
+.ml .ml-step2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0 16px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+.ml .ml-step2-bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  margin-bottom: 14px;
+  background: rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+.ml .ml-step2 + .ml-step2 { padding: 0; }
+.ml .ml-step2:first-child .ml-step2-bar { width: calc(100% + 16px); }
+.ml .ml-step2-bar i {
+  display: block;
+  height: 100%;
+  background: var(--wf-ink);
+  transform-origin: left;
+  transition: transform 0.12s linear;
+}
+.ml .ml-step2-k {
+  font: 500 11px/1.4 var(--font-jbmono), ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wf-lab);
+  transition: color 0.25s;
+}
+.ml .ml-step2-t {
+  margin-top: 6px;
+  font: 600 17px/1.3 var(--font-instrument), system-ui, sans-serif;
+  color: var(--wf-lab);
+  transition: color 0.25s;
+}
+.ml .ml-step2[aria-selected="true"] .ml-step2-k,
+.ml .ml-step2[aria-selected="true"] .ml-step2-t {
+  color: var(--wf-ink);
+}
+.ml .ml-step2:hover .ml-step2-t { color: var(--wf-ink); }
+.ml .ml-step2:focus-visible { outline: 2px solid var(--wf-ink); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .ml .ml-step2-bar i { transition: none; }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ml .ml-step2-bar { background: rgba(255, 255, 255, 0.16); }
+  :root:not([data-theme="light"]) .ml .ml-rstep-n { color: #4a4a47; }
+}
+:root[data-theme="dark"] .ml .ml-step2-bar { background: rgba(255, 255, 255, 0.16); }
+:root[data-theme="dark"] .ml .ml-rstep-n { color: #4a4a47; }

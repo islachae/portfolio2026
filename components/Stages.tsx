@@ -408,16 +408,10 @@ export function PebboStage() {
 
 /* ───────────────────── MELN · the inbox that knows you ───────────────────── */
 
-/* The team's concept film (2:13, its words burned into the picture): the first screen plays it
-   without sound, from "Student" (the problem is what the case study opens with anyway), and comes
-   back round to "Student" at the end; chapters jump through it, and "Sound on" brings the voice
-   and music in. */
-const MELON_FILM_CHAPTERS = [
-  { t: 0, label: "The problem" },
-  { t: 23.5, label: "Student" },
-  { t: 71, label: "Advisor" },
-  { t: 110, label: "The loop" },
-];
+/* The first screen: the working extension in Gmail, a 13-second loop with no sound (a card opens,
+   its source email opens beside it, a question is answered with its source). The team's concept
+   film (public/work/melon/mellon-concept*.mp4) used to play here; it is still in the repo. */
+const MELON_HERO = [{ t: 0 }];
 
 /* The Mellon prototype, as recorded (now in the case study's Solution): chapters jump through the
    38-second walkthrough. */
@@ -516,50 +510,32 @@ function PlayIcon({ playing }: { playing: boolean }) {
 
 export function MelonStage() {
   const active = useActive("melon");
-  const r = useRecording(MELON_FILM_CHAPTERS, active, 1);
-  const [sound, setSound] = useState(false);
-  const toggleSound = () => {
-    const v = r.video.current;
-    if (!v) return;
-    v.muted = !v.muted;
-    setSound(!v.muted);
-    if (!v.muted && v.paused) r.toggle();
-  };
+  const r = useRecording(MELON_HERO, active);
 
   return (
     <>
       <div className="stage-visual melon-stage">
-        <div className="melon-film-box">
+        <div className="melon-film-box melon-hero-box">
           <video
             ref={r.video}
             className="melon-film"
-            poster="/work/melon/mellon-concept.webp"
+            poster="/work/melon/mellon-hero.webp"
             muted
+            loop
             playsInline
             preload="metadata"
-            aria-label="The team's concept film for Mellon, 2 minutes 13, with captions: a week of school email getting lost, then Mellon in Gmail for the student, the advisor seeing what students ask, and the guide that comes back to them"
+            aria-label="The working Mellon extension beside Gmail: an update card opens, its source email opens on the left, and a question about it gets an answer with its source"
             {...r.events}
           >
-            {/* phones get the 720p file (8.8 MB), wider screens the 1080p one (19 MB); H.264 plays everywhere */}
-            <source src="/work/melon/mellon-concept-sm.mp4" type="video/mp4" media="(max-width: 799px)" />
-            <source src="/work/melon/mellon-concept.mp4" type="video/mp4" />
+            <source src="/work/melon/mellon-hero.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
       <StageControls>
-        <Pills
-          name="Jump to a part of the film"
-          value={r.chapter}
-          onChange={r.seek}
-          options={MELON_FILM_CHAPTERS.map((c, i) => ({ value: i, label: c.label }))}
-        />
-        <button className="stage-btn" onClick={r.toggle} aria-label={r.playing ? "Pause the film" : "Play the film"}>
+        <button className="stage-btn" onClick={r.toggle} aria-label={r.playing ? "Pause the recording" : "Play the recording"}>
           <PlayIcon playing={r.playing} />
         </button>
-        <button className="stage-btn stage-btn--label" onClick={toggleSound} aria-pressed={sound}>
-          {sound ? "Sound off" : "Sound on"}
-        </button>
-        <span className="stage-caption">Concept film · 2:13</span>
+        <span className="stage-caption">Real build · in Gmail</span>
       </StageControls>
     </>
   );

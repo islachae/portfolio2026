@@ -296,6 +296,8 @@ export const Check = () => (
 
 export type TakeawaysData = {
   label: string;
+  /** an optional headline over the takeaways (Mellon's) */
+  title?: string;
   items: readonly { title: string; text: string; evidence: { id: string; label: string } }[];
   back: string;
 };
@@ -353,6 +355,7 @@ export function Takeaways({ t }: { t: TakeawaysData }) {
   return (
     <section className="cs-sec cs-sec--takeaways" id="cs-takeaways" ref={sec} aria-label={t.label}>
       <p className="cs-eyebrow">{t.label}</p>
+      {t.title ? <h2 className="cs-h2">{t.title}</h2> : null}
       {t.items.map((it, i) => (
         <div className="cs-take" key={it.title}>
           <h3 className="cs-take-h">{it.title}</h3>
