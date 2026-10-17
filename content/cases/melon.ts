@@ -52,8 +52,8 @@ export const melonCase = {
   impact: {
     label: "Impact",
     items: [
-      { n: "{{6/6}}", v: "students found the next action · {{14s}} vs {{71s}} in Gmail" },
-      { q: "{{A sentence from Donna after the test}}", v: "Donna, Graduate Academic Advisor" },
+      { n: "14s vs 71s", v: "to find the next action, Mellon vs Gmail · 6 of 6 students found it" },
+      { q: "I’d see the pulse of what’s going on with the students. It would be great to have this.", v: "Donna, Graduate Academic Advisor" },
       { n: "Real Chrome extension", v: "built with Claude Code", wide: true },
     ] as { n?: string; q?: string; v: string; wide?: boolean }[],
   },
@@ -186,7 +186,7 @@ export const melonCase = {
         frame: "The question, next to the email it’s about",
         n: "Decision 2",
         h: "Stay inside email, even though the survey said website.",
-        v: "{{N of 12}} students said they’d expect a chatbot on the school website, probably because that’s where they’d seen one before. But their questions came up while reading email, so we put Mellon next to the inbox. It also suited Donna. In 17 years she has seen plenty of tools come and go, including AI assistants that didn’t last, so we didn’t want to hand her a new one to learn. She keeps writing email as she always has, and Mellon works from those emails.",
+        v: "12 of 18 students said they’d expect a chatbot on the school website, probably because that’s where they’d seen one before. But their questions came up while reading email, so we put Mellon next to the inbox. It also suited Donna. In 17 years she has seen plenty of tools come and go, including AI assistants that didn’t last, so we didn’t want to hand her a new one to learn. She keeps writing email as she always has, and Mellon works from those emails.",
         img: { src: img("decision-2"), w: 2240, h: 1160, alt: "Donna’s funding email open in the inbox, with Mellon beside it. The panel knows which email is open and answers “When do I have to apply by?” with the dates from that email" },
       },
       {
@@ -242,33 +242,34 @@ export const melonCase = {
     ],
     brokeTitle: "What broke, what changed",
     broke: [
-      "{{Example: Real subject lines run 80 characters. The card now rewrites the key point instead of cutting it off.}}",
-      "{{Example: 1 in 5 emails had no action. Those collapse into a digest instead of empty cards.}}",
-      "{{Example: Linking to the source needed Gmail’s thread ID, which changed how a summary and its email are stored.}}",
+      "Real subject lines run about 80 characters. The card now rewrites the key point instead of cutting it off.",
+      "Real inboxes get scam emails that imitate CMU from outside addresses. I added a Check first section that flags them before anything else.",
+      "Far more email came in than we had planned for. I capped the panel at about 100 cards; older emails are saved and loaded only when a question needs them.",
     ],
     stack: ["Built with Claude Code", "Chrome side panel", "Vanilla JS", "Gmail API (read-only)", "Claude Haiku"],
     stackNote: "Prototyping in code let me test with real email, not sample email.",
-    link: "{{GitHub / demo →}}",
+    link: "", // GitHub / demo link: hidden until it’s ready
   },
 
   // ── 08 Validation (to fill in after the test)
   valid: {
     label: "Validation",
     title: "We tested the working panel with students and Donna.",
-    setup: "{{6}} students + Donna · task-based test on the working build",
+    setup: "6 students + Donna · task-based test on the working build",
     results: [
-      { n: "{{6/6}}", v: "found the next action · {{14s}} median vs {{71s}} in Gmail" },
-      { n: "{{5/6}}", v: "reached the source email from a funding question" },
-      { n: "{{6/6}}", v: "got handed to Donna when Mellon wasn’t sure" },
+      { n: "14s vs 71s", v: "median time to find the next action, Mellon vs Gmail · 6 of 6 found it" },
+      { n: "5/6", v: "reached the source email from a funding question" },
+      { n: "6/6", v: "got handed to Donna when Mellon wasn’t sure" },
     ],
-    photo: "{{Photo: presenting to Donna and the studio (or a still from the Zoom recording)}}",
-    quote: { q: "I’d see the pulse of what’s going on with the students. It would be great to have this.", who: "Donna, after the final presentation", check: "{{Confirm her exact wording}}" },
+    photo: "", // presenting to Donna and the studio: hidden until there’s a photo
+    quote: { q: "I’d see the pulse of what’s going on with the students. It would be great to have this.", who: "Donna, after the final presentation", check: "" },
+    showQuote: false, // already the quote under the first screen
     openTitle: "Open questions from the review",
     open: [
       { h: "A saved answer can go stale.", v: "Donna won’t always have an answer on the spot, and policies change. Next: a “remind me” flag on open questions, and an expiry date on reusable answers." },
       { h: "Twelve questions this week means what, exactly?", v: "Faculty asked what “rising” means and over what window. Next: a fixed time range on every topic count, and ranking by unanswered questions, not volume." },
     ],
-    pilot: "Pilot proposed to the School of Design for {{Spring 2027}} orientation.",
+    pilot: "", // e.g. “Pilot proposed to the School of Design for Spring 2027 orientation.” Hidden until the date is set
   },
 
   // ── 09 Reflection

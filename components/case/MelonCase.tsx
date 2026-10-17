@@ -548,7 +548,13 @@ function Build() {
       <div className="ml-stack">
         <ToolChips tools={b.stack} />
         <p>
-          {b.stackNote} <Todo s={b.link} />
+          {b.stackNote}
+          {b.link ? (
+            <>
+              {" "}
+              <Todo s={b.link} />
+            </>
+          ) : null}
         </p>
       </div>
     </Section>
@@ -577,15 +583,25 @@ function Validation() {
           </li>
         ))}
       </ul>
-      <div className="ml-photo-slot" role="img" aria-label="Photo to come">
-        <Todo s={v.photo} />
-      </div>
-      <figure className="ml-pull">
-        <blockquote>“{v.quote.q}”</blockquote>
-        <figcaption>
-          {v.quote.who} · <Todo s={v.quote.check} />
-        </figcaption>
-      </figure>
+      {v.photo ? (
+        <div className="ml-photo-slot" role="img" aria-label="Photo to come">
+          <Todo s={v.photo} />
+        </div>
+      ) : null}
+      {v.showQuote ? (
+        <figure className="ml-pull">
+          <blockquote>“{v.quote.q}”</blockquote>
+          <figcaption>
+            {v.quote.who}
+            {v.quote.check ? (
+              <>
+                {" · "}
+                <Todo s={v.quote.check} />
+              </>
+            ) : null}
+          </figcaption>
+        </figure>
+      ) : null}
       <h3 className="cs-h3 ml-h3">{v.openTitle}</h3>
       <ul className="ml-openqs">
         {v.open.map((o) => (
@@ -595,9 +611,11 @@ function Validation() {
           </li>
         ))}
       </ul>
-      <p className="cs-body ml-pilot">
-        <Todo s={v.pilot} />
-      </p>
+      {v.pilot ? (
+        <p className="cs-body ml-pilot">
+          <Todo s={v.pilot} />
+        </p>
+      ) : null}
     </Section>
   );
 }
