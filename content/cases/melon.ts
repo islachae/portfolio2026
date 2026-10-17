@@ -70,14 +70,12 @@ export const melonCase = {
     label: "Problem",
     title: ["The same email,", "read two ways."],
     modes: [
-      { id: "donna", label: "As Donna sent it" },
-      { id: "student", label: "As a student read it" },
+      { id: "donna", k: "01 · Sender", label: "As Donna sent it" },
+      { id: "student", k: "02 · Reader", label: "As a student read it" },
     ],
     note: "Illustrative email, composed from the kinds of messages we studied.",
     frame: "Problem: “Important” means two different things",
-    readAs: "Read it as",
-    hintNext: "Keep scrolling to read it as a student ↓",
-    hintDone: "Same email, a different reading",
+    scrollHint: "scroll ↓",
     email: {
       from: "Donna · Graduate Academic Advisor",
       subject: "Important: Spring registration + resources",
@@ -132,9 +130,9 @@ export const melonCase = {
       { n: "1", v: "advisor relaying most of it" },
     ],
     steps: [
-      { k: "Step 1 · System map · one event traced", h: "Orientation reached students 16 ways, mostly through one person." },
-      { k: "Step 2 · Interviews · 3 students, 1 advisor", h: "Two assumptions the system runs on didn’t hold." },
-      { k: "Step 3 · Survey · 12 students", h: "Three things the survey added." },
+      { k: "System map · one event traced", h: "Orientation reached students 16 ways, mostly through one person." },
+      { k: "Interviews · 3 students, 1 advisor", h: "Two assumptions the system runs on didn’t hold." },
+      { k: "Survey · 12 students", h: "Three things the survey added." },
     ],
     brokeLabels: { a: "We assumed", q: "We heard", area: "So the problem is" },
     broke: [

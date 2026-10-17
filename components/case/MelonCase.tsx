@@ -203,35 +203,36 @@ function Gap() {
       <div className="ml-readscene" ref={scene} data-still={still || undefined}>
       <div className="ml-read" data-mode={mode} ref={frame}>
         <p className="ml-ftitle">{g.frame}</p>
-        <div className="ml-read-switch">
-        <span className="ml-read-k">{g.readAs}</span>
-        <div className="ml-read-tabs" role="tablist" aria-label="Read the email as">
-          {g.modes.map((m, i) => (
-            <button
-              key={m.id}
-              ref={(el) => {
-                tabs.current[i] = el;
-              }}
-              role="tab"
-              id={`ml-tab-${m.id}`}
-              aria-selected={mode === m.id}
-              aria-controls="ml-read-panel"
-              tabIndex={mode === m.id ? 0 : -1}
-              className="ml-read-tab"
-              onClick={() => choose(m.id as Reader)}
-              onKeyDown={(e) => onKey(e, i)}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-        {!still && (
-          <span className="ml-read-hint" aria-hidden>
-            <i data-on={mode === "donna" || undefined} />
-            <i data-on={mode === "student" || undefined} />
-            {mode === "donna" ? g.hintNext : g.hintDone}
-          </span>
-        )}
+        <div className="ml-steps2" role="tablist" aria-label="Read the email as">
+          {g.modes.map((m, i) => {
+            // each step's line fills over its half of the scroll; when nothing is pinned, the chosen one is full
+            const fill = still ? (mode === m.id ? 1 : 0) : Math.min(1, Math.max(0, (p - i * 0.5) / 0.5));
+            return (
+              <button
+                key={m.id}
+                ref={(el) => {
+                  tabs.current[i] = el;
+                }}
+                role="tab"
+                id={`ml-tab-${m.id}`}
+                aria-selected={mode === m.id}
+                aria-controls="ml-read-panel"
+                tabIndex={mode === m.id ? 0 : -1}
+                className="ml-step2"
+                onClick={() => choose(m.id as Reader)}
+                onKeyDown={(e) => onKey(e, i)}
+              >
+                <span className="ml-step2-bar" aria-hidden>
+                  <i style={{ transform: `scaleX(${i === 0 && !still ? Math.max(fill, 0.04) : fill})` }} />
+                </span>
+                <span className="ml-step2-k">
+                  {m.k}
+                  {i === 1 && !still && mode === "donna" ? <span className="ml-step2-hint"> · {g.scrollHint}</span> : null}
+                </span>
+                <span className="ml-step2-t">{m.label}</span>
+              </button>
+            );
+          })}
         </div>
         <div className="ml-read-body" id="ml-read-panel" role="tabpanel" aria-labelledby={`ml-tab-${mode}`}>
           <div className="ml-mail">
@@ -292,7 +293,7 @@ function RStep({ n, k, h }: { n: number; k: string; h: string }) {
   return (
     <header className="ml-rstep-h">
       <span className="ml-rstep-n" aria-hidden>
-        {n}
+        {String(n).padStart(2, "0")}
       </span>
       <div>
         <p className="ml-rstep-k">{k}</p>
@@ -360,9 +361,8 @@ function Research() {
         <li className="ml-rstep" id="ml-survey">
           <RStep n={3} k={r.steps[2].k} h={r.steps[2].h} />
           <ul className="ml-openqs ml-openqs--3">
-            {v.findings.map((f, i) => (
+            {v.findings.map((f) => (
               <li key={f.h}>
-                <span className="ml-openq-n">{String(i + 1).padStart(2, "0")}</span>
                 <b>{f.h}</b>
                 <span>{f.v}</span>
               </li>

@@ -18835,3 +18835,87 @@ li[data-pending] .ml-method-n .ml-todo,
 :root[data-theme="dark"] .ml .ml-read-hint i { background: rgba(255, 255, 255, 0.2); }
 .ml .ml-rstep .ml-broke { border-top-width: 1px; border-bottom: 0; }
 .ml .ml-rstep .ml-broke li:last-child { border-bottom: 0; }
+
+/* Research steps: a large light numeral beside the method and the finding */
+.ml .ml-rstep-h {
+  grid-template-columns: 96px 1fr;
+  gap: 8px;
+}
+.ml .ml-rstep-n {
+  width: auto;
+  height: auto;
+  display: block;
+  background: none;
+  color: #cfcfcb;
+  font: 300 64px/0.85 var(--font-instrument), system-ui, sans-serif;
+  letter-spacing: -0.04em;
+}
+@media (max-width: 640px) {
+  .ml .ml-rstep-h { grid-template-columns: 56px 1fr; }
+  .ml .ml-rstep-n { width: auto; height: auto; font-size: 40px; }
+}
+
+/* Two readers: a two-step stepper, its lines fill with the scroll */
+.ml .ml-steps2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 4px 0 24px;
+}
+.ml .ml-step2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0 16px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+.ml .ml-step2-bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  margin-bottom: 14px;
+  background: rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+.ml .ml-step2 + .ml-step2 { padding: 0; }
+.ml .ml-step2:first-child .ml-step2-bar { width: calc(100% + 16px); }
+.ml .ml-step2-bar i {
+  display: block;
+  height: 100%;
+  background: var(--wf-ink);
+  transform-origin: left;
+  transition: transform 0.12s linear;
+}
+.ml .ml-step2-k {
+  font: 500 11px/1.4 var(--font-jbmono), ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wf-lab);
+  transition: color 0.25s;
+}
+.ml .ml-step2-t {
+  margin-top: 6px;
+  font: 600 17px/1.3 var(--font-instrument), system-ui, sans-serif;
+  color: var(--wf-lab);
+  transition: color 0.25s;
+}
+.ml .ml-step2[aria-selected="true"] .ml-step2-k,
+.ml .ml-step2[aria-selected="true"] .ml-step2-t {
+  color: var(--wf-ink);
+}
+.ml .ml-step2:hover .ml-step2-t { color: var(--wf-ink); }
+.ml .ml-step2:focus-visible { outline: 2px solid var(--wf-ink); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .ml .ml-step2-bar i { transition: none; }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ml .ml-step2-bar { background: rgba(255, 255, 255, 0.16); }
+  :root:not([data-theme="light"]) .ml .ml-rstep-n { color: #4a4a47; }
+}
+:root[data-theme="dark"] .ml .ml-step2-bar { background: rgba(255, 255, 255, 0.16); }
+:root[data-theme="dark"] .ml .ml-rstep-n { color: #4a4a47; }
