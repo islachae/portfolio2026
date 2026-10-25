@@ -162,3 +162,20 @@ export function suspicionOf(item) {
   if (item.action_required && /\b(pay|payment|wire|gift ?cards?|bank|deposit|invoice)\b/i.test(text)) return { type: 'payment', domain, evidence: '' };
   return null;
 }
+
+// ---------- CMU mail ----------
+// The CMU toggle keeps mail from cmu.edu addresses plus the services CMU courses and jobs run
+// on. Career sites like Handshake are left out on purpose.
+export const SCHOOL_SERVICES = {
+  'instructure.com': 'Canvas',
+  'myworkday.com': 'Workday',
+  'gradescope.com': 'Gradescope',
+  'piazza.com': 'Piazza',
+};
+
+export function isSchoolSender(from) {
+  const domain = senderDomain(from);
+  if (!domain) return false;
+  if (isCmu(domain)) return true;
+  return Object.keys(SCHOOL_SERVICES).some((d) => domain === d || domain.endsWith('.' + d));
+}

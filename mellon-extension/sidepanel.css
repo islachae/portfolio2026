@@ -263,10 +263,10 @@ button.ck:hover svg { opacity: .35; stroke: var(--ink); }
 .root.selecting .dock { display: none; }
 .sugs { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: 10px; }
 .sugs:empty { display: none; }
-.inp { height: 44px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 6px; background: var(--card); display: flex; align-items: center; gap: 8px; padding: 0 7px 0 13px; margin: 0; transition: border-color 120ms ease; }
+.inp { min-height: 44px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 6px; background: var(--card); display: flex; align-items: flex-end; gap: 8px; padding: 6px 7px 6px 13px; margin: 0; transition: border-color 120ms ease; }
 .inp:focus-within { border-color: #B9BCAF; }
-.inp input { flex: 1; min-width: 0; border: none; background: none; outline: none; font: inherit; font-size: 14px; color: var(--ink); }
-.inp input::placeholder { color: var(--mute); }
+.inp textarea { flex: 1; min-width: 0; border: none; background: none; outline: none; font: inherit; font-size: 14px; line-height: 20px; color: var(--ink); resize: none; padding: 5px 0; margin: 0; height: 30px; overflow-y: hidden; box-sizing: border-box; scrollbar-width: thin; }
+.inp textarea::placeholder { color: var(--mute); }
 .go { width: 30px; height: 30px; flex: none; border-radius: 99px; border: none; padding: 0; background: var(--acc); color: var(--accink); display: flex; align-items: center; justify-content: center; transition: transform 190ms var(--out); }
 .go:active { transform: scale(0.92); transition-duration: 45ms; }
 .go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -360,3 +360,17 @@ button.ck:hover svg { opacity: .35; stroke: var(--ink); }
 .ebtns { display: flex; align-items: center; gap: 8px; }
 .ebtns .ab { height: 30px; }
 .toast button[hidden] { display: none; }
+
+/* CMU toggle at the right end of the All / Unread row */
+.cmuTgl { margin-left: auto; height: 28px; border: none; background: none; padding: 0 2px 0 6px; display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--mute); }
+.cmuTgl .sw { position: relative; width: 30px; height: 18px; border-radius: 99px; background: var(--line2); transition: background 160ms ease-out; }
+.cmuTgl .sw i { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 99px; background: #fff; box-shadow: 0 1px 2px rgba(30, 33, 27, .25); transition: transform 180ms var(--out); }
+.cmuTgl.on { color: var(--ink); }
+.cmuTgl.on .sw { background: var(--acc); }
+.cmuTgl.on .sw i { transform: translateX(12px); }
+.cmuTgl:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+
+/* The card being read, at the top of its detail view: a light melon, set apart from the
+   melon buttons below it. A phishing card keeps its amber. */
+.detail .tk.still:not(.suspect), .detail .tk.still.rd:not(.suspect) { background: #EEF6D6; border-color: #C5E57A; }
+.detail .tk.still:not(.suspect) .ab:not(.hot) { background: #FFFFFF; }

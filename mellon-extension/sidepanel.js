@@ -3,11 +3,12 @@ import { getProfile, getMessageFull } from './gmail.js';
 import { getClaudeKey, CATEGORIES } from './claude.js';
 import { getDone, setDone, getHidden, setHidden, getSafe, setSafe } from './done.js';
 import { loadUpdates } from './updates.js';
-import { rankUpdates, senderName, receivedLabel, parseDeadline, detailList } from './rank.js';
+import { rankUpdates, senderName, receivedLabel, parseDeadline, detailList, isSchoolSender, suspicionOf } from './rank.js';
 import { loadLang, t, getLang, locale, catLabel, applyStatic } from './i18n.js';
 import { ensureKorean, applyKorean, translateEmail } from './translate.js';
 import { newChat, ask } from './chat.js';
 import { getEdits, saveEdit, clearEdit, applyEdit, rereadEmail } from './edits.js';
+import { remember, pickChips } from './suggest.js';
 import { calendarPlan, addToCalendar, removeFromCalendar, getAdded, downloadIcs } from './calendar.js';
 
 const app = document.getElementById('app');
@@ -228,6 +229,7 @@ async function load() {
     state.done = await getDone();
     state.hidden = await getHidden();
     state.safe = await getSafe();
+    state.cmuOnly = (await chrome.storage.local.get('cmuOnly')).cmuOnly === true;
     state.edits = await getEdits();
     // Let the caption finish typing before the list deals in, as in the design.
     await new Promise((r) => setTimeout(r, Math.max(0, 1900 - (Date.now() - started))));
@@ -282,13 +284,21 @@ const isHidden = (it) => markAt(state.hidden, it) >= (it.date || 0) && markAt(st
 const safeMap = () => Object.fromEntries(state.items.filter((it) => markAt(state.safe || {}, it) > 0).map((it) => [it.id, 1]));
 const activeItems = () => state.items.filter((it) => !isDone(it) && !isHidden(it));
 
+// CMU toggle: only school mail. Possible phishing stays visible either way, since a fake
+// "CMU" email comes from somewhere else and is exactly what should not disappear.
+function inScope(it) {
+  if (!state.cmuOnly || isSchoolSender(it.from)) return true;
+  return !!suspicionOf(it) && !(markAt(state.safe || {}, it) > 0);
+}
+const scopedActive = () => activeItems().filter(inScope);
+
 function visibleItems() {
-  const active = activeItems();
+  const active = scopedActive();
   return state.filter === 'unread' ? active.filter((it) => it.unread) : active;
 }
 
 function doneItems() {
-  return state.items.filter((it) => isDone(it) && !isHidden(it)).sort((a, b) => markAt(state.done, b) - markAt(state.done, a));
+  return state.items.filter((it) => isDone(it) && !isHidden(it) && inScope(it)).sort((a, b) => markAt(state.done, b) - markAt(state.done, a));
 }
 
 // "💬 3": this card stands for a conversation of 3 messages.
@@ -383,8 +393,8 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
   if (detailKeyHandler) document.removeEventListener('keydown', detailKeyHandler);
   detailKeyHandler = null;
   const groups = rankUpdates(visibleItems(), await interests(), new Date(), { safe: safeMap() });
-  const countAll = activeItems().length;
-  const countUnread = activeItems().filter((it) => it.unread).length;
+  const countAll = scopedActive().length;
+  const countUnread = scopedActive().filter((it) => it.unread).length;
   const done = doneItems();
   const doneSection = done.length
     ? `<button class="sh shBtn ${state.showDone ? 'open' : ''}" id="doneToggle" aria-expanded="${state.showDone}">${esc(t('group.done'))} <small>${done.length}</small>${ICON.chevron}</button>` +
@@ -418,6 +428,9 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
         <span class="pill" id="pill" aria-hidden="true"></span>
         <button class="tab ${state.filter === 'all' ? 'on' : ''}" data-filter="all" role="tab">${esc(t('list.all'))} ${countAll}</button>
         <button class="tab ${state.filter === 'unread' ? 'on' : ''}" data-filter="unread" role="tab">${esc(t('list.unread'))} ${countUnread}</button>
+        <button class="cmuTgl ${state.cmuOnly ? 'on' : ''}" id="cmuTgl" role="switch" aria-checked="${!!state.cmuOnly}" title="${esc(t('list.cmuHint'))}">
+          <span>CMU</span><span class="sw" aria-hidden="true"><i></i></span>
+        </button>
       </div>
       ${groups.length ? sections : empty}
       ${doneSection}
@@ -452,6 +465,12 @@ async function renderList({ arrive = false, scrollTop = 0 } = {}) {
   placePill(false);
 
   document.getElementById('retry')?.addEventListener('click', () => load());
+  document.getElementById('cmuTgl').addEventListener('click', async () => {
+    state.cmuOnly = !state.cmuOnly;
+    await chrome.storage.local.set({ cmuOnly: state.cmuOnly });
+    if (state.cal.open) renderCalendar();
+    renderList({ scrollTop: 0 });
+  });
   document.getElementById('selectToggle')?.addEventListener('click', () => setSelecting(!state.selecting));
   document.getElementById('selDone').addEventListener('click', () => setSelecting(false));
   document.getElementById('selAll').addEventListener('click', toggleSelectAll);
@@ -532,7 +551,7 @@ const calBtn = document.getElementById('calendar');
 // Updates that have a deadline, keyed by local day "YYYY-M-D".
 function deadlinesByDay() {
   const map = {};
-  for (const it of activeItems()) {
+  for (const it of scopedActive()) {
     const d = parseDeadline(it.deadline);
     if (!d) continue;
     const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
@@ -743,8 +762,24 @@ function updateDock() {
   document.getElementById('askSend').setAttribute('aria-label', t('chat.send'));
   const key = chatKey();
   const started = state.chats[key]?.display.length;
-  const list = state.screen === 'detail' ? [t('chat.sugTodo'), t('chat.sugDraft')] : [t('chat.sugDue'), t('chat.sugFind')];
+  const card = state.screen === 'detail';
+  const defaults = card ? [t('chat.sugTodo'), t('chat.sugDraft')] : [t('chat.sugDue'), t('chat.sugFind')];
+  const list = pickChips(asks.on ? asks.history : [], card ? 'card' : 'list', defaults);
   sugs.innerHTML = started ? '' : list.map((q) => `<button class="q" type="button" data-ask="${esc(q)}">${esc(q)}</button>`).join('');
+}
+
+// Typed questions, kept only in Chrome on this computer. Settings can turn this off or forget them.
+const asks = { on: true, history: [] };
+async function loadAsks() {
+  const s = await chrome.storage.local.get(['rememberAsks', 'askHistory']);
+  asks.on = s.rememberAsks !== false;
+  asks.history = s.askHistory || [];
+}
+loadAsks();
+async function rememberAsk(question, key) {
+  if (!asks.on) return;
+  asks.history = key === 'all' ? remember(asks.history, question, 'list') : remember(asks.history, question, 'card', key);
+  await chrome.storage.local.set({ askHistory: asks.history });
 }
 
 sugs.addEventListener('click', (e) => {
@@ -755,6 +790,24 @@ askForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const q = askInput.value.trim();
   if (q) handleAsk(q);
+});
+
+// The box grows with what is typed, up to five lines, then scrolls inside.
+const MAX_LINES = 5;
+function fitAskInput() {
+  askInput.style.height = 'auto';
+  const line = parseFloat(getComputedStyle(askInput).lineHeight) || 20;
+  const max = line * MAX_LINES;
+  askInput.style.height = `${Math.min(askInput.scrollHeight, max)}px`;
+  askInput.style.overflowY = askInput.scrollHeight > max ? 'auto' : 'hidden';
+}
+askInput.addEventListener('input', fitAskInput);
+// Enter sends, Shift+Enter adds a line. An Enter that finishes Korean (IME) composition only
+// finishes the syllable, so it must not send.
+askInput.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || e.shiftKey || e.isComposing || e.keyCode === 229) return;
+  e.preventDefault();
+  askForm.requestSubmit();
 });
 
 // A question asked from the list opens its own screen, under a stack tile back to the updates.
@@ -832,9 +885,11 @@ async function handleAsk(question) {
   const key = chatKey();
   state.asking = true;
   askInput.value = '';
+  fitAskInput();
   askInput.disabled = true;
   const entry = (state.chats[key] ||= { chat: null, display: [] });
   entry.display.push({ role: 'user', text: question });
+  rememberAsk(question, key);
   updateDock();
   renderMessages(t('chat.thinking'));
   try {
@@ -1178,6 +1233,7 @@ async function openInGmail(threadId) {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local') return;
   if (changes.lang && !state.loading) return switchLanguage();
+  if (changes.askHistory || changes.rememberAsks) loadAsks().then(updateDock);
   if (state.loading) return;
   const lst = document.getElementById('lst');
   if (changes.hidden && lst) state.hidden = changes.hidden.newValue || {};

@@ -1,6 +1,6 @@
 # Mellon privacy policy
 
-_Last updated: October 10, 2026_
+_Last updated: October 25, 2026_
 
 Mellon is a Chrome extension that shows your recent email as a short, ranked list of updates in a side panel next to Gmail. This page explains what Mellon reads, where that data goes, and how to remove it.
 
@@ -27,13 +27,15 @@ Everything Mellon stores stays in Chrome's local storage on your computer (`chro
 - Mellon's notes on each email: title, one-line summary, action, deadline, category, key details, sender, subject and date. Translations of those notes if you use Korean.
 - What you did: which updates you marked done, discarded, marked safe or corrected, and which events you added to your calendar.
 - A running count of Claude tokens used, so Settings can estimate cost.
+- The last 50 short questions you typed in Ask Mellon, so it can suggest the ones you ask often. You can turn this off in Settings.
 
-Google sign-in tokens are kept in memory only and are cleared when Chrome closes. The full text of your emails is not stored. It is fetched from Gmail when needed and kept on screen only. Ask Mellon conversations are also kept in memory only.
+Google sign-in tokens are kept in memory only and are cleared when Chrome closes. The full text of your emails is not stored. It is fetched from Gmail when needed and kept on screen only. Ask Mellon conversations, including Mellon's answers, are kept in memory only. Only your typed questions are saved, as described above.
 
 ## How to remove your data
 
 - **Settings → Forget saved results** deletes Mellon's notes and translations.
 - **Settings → Sign out** clears your Google sign-in.
+- **Settings → Ask Mellon suggestions → Forget them** deletes the questions Mellon remembered. Untick **Remember my questions** to stop saving them.
 - **Removing the extension** from Chrome deletes everything Mellon stored.
 - To remove Mellon's access to your Google account, go to [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
 

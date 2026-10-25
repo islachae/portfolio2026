@@ -40,6 +40,8 @@ async function load() {
       })
     : t('opt.usageNone');
   $('hiddenCount').textContent = t('opt.hiddenCount', { n: Object.keys(all.hidden || {}).length });
+  $('rememberAsks').checked = all.rememberAsks !== false;
+  $('asksCount').textContent = t('opt.asksCount', { n: (all.askHistory || []).length });
 }
 
 // The language applies right away (no Save needed), here and in the open panel.
@@ -68,6 +70,16 @@ $('clearCache').addEventListener('click', async () => {
 
 $('unhide').addEventListener('click', async () => {
   await chrome.storage.local.set({ hidden: {} });
+  load();
+});
+
+// Applies right away, like the language. Turning it off stops learning; Forget clears what was kept.
+$('rememberAsks').addEventListener('change', async (e) => {
+  await chrome.storage.local.set({ rememberAsks: e.target.checked });
+});
+
+$('forgetAsks').addEventListener('click', async () => {
+  await chrome.storage.local.remove('askHistory');
   load();
 });
 

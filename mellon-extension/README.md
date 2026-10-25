@@ -124,9 +124,12 @@ Mellon is in **testing mode** on Google Cloud. Only Google accounts listed as **
 | Mark something done | Hover an Action card and click **✓ Done** under its button, or open any card → **Mark as done** |
 | Bring it back | Click **Undo** in the message at the bottom, or open **Done** → **Undo** |
 | See only unopened mail | **Unread** tab |
+| See only school mail (cmu.edu, Canvas, Workday, Gradescope, Piazza) | **CMU** switch next to the tabs. Phishing warnings still show. |
 | Scan again | The refresh icon, or the Mellon logo |
 | Ask about one email | Open its card → type in **Ask Mellon…** at the bottom |
 | Ask about all your mail | From the list → type in **Ask Mellon…**, or tap a suggested question |
+| Write a longer question | **Shift+Enter** adds a line; **Enter** sends |
+| Get your own questions as suggestions | Ask the same question twice (or on two emails). Turn off or forget in **Settings → Ask Mellon suggestions** |
 | Use a drafted reply | Click **Copy** under Mellon's answer and paste it into Gmail (Mellon can't send mail) |
 | See what Mellon has cost | Settings → **Claude usage** |
 | Hide updates you don't need | **Select** → tap cards → **Discard** (to-dos can't be selected; mark them done instead) |
@@ -168,6 +171,7 @@ Plain JavaScript, with no build step and no dependencies. Edit a file, then clic
 | `done.js` | Which updates are done or discarded (kept 30 days) |
 | `i18n.js` | All interface text in English and Korean |
 | `calendar.js` | Put in my calendar: Google Calendar event (on click only), `.ics` file, remembers what was added |
+| `suggest.js` | Learned suggestion chips from your past questions (kept only in `chrome.storage.local`) |
 | `chat.js` | Ask Mellon: one-email chats, and all-mail chats with read-only `search_mail` / `read_email` tools |
 | `translate.js` | Korean versions of Mellon's notes (cached) and of original emails (in memory only) |
 | `sidepanel.*` | The panel: welcome, loading, list, card detail, Done, Undo |
