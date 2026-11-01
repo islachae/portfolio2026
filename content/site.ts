@@ -3,7 +3,7 @@
  * Lines marked TODO need your input before launch.
  */
 
-export type PageId = "home" | "tipping" | "zipflow" | "pebbo" | "melon" | "wish" | "cocktail" | "jellycat" | "bakery" | "lab" | "about" | "hi";
+export type PageId = "home" | "tipping" | "zipflow" | "pebbo" | "melon" | "squiggle" | "wish" | "cocktail" | "jellycat" | "bakery" | "lab" | "about" | "hi";
 
 export type Page = {
   id: PageId;
@@ -115,6 +115,7 @@ export const handoff = {
   title: "How I design with AI",
   line: "Automate the repetitive.\nKeep the judgment human.",
   rows: [
+    { page: "squiggle" as PageId, ai: "Log the moments", human: "Make the call" },
     { page: "tipping" as PageId, ai: "Do the math", human: "What it's worth" },
     { page: "zipflow" as PageId, ai: "Reformat listings", human: "The relationship" },
     { page: "pebbo" as PageId, ai: "Spot patterns", human: "Name the feeling" },
@@ -135,6 +136,39 @@ export const pages: Page[] = [
     // "Now" (CMU) is already in the cover bar; the panel keeps Before and Next
     facts: profile.facts.filter((f) => f.label !== "Now"),
     keywords: ["home", "start"],
+  },
+  {
+    id: "squiggle",
+    meta: "AI tool • Team project 2026",
+    year: "2026",
+    group: "work",
+    // the submission demo, cropped for the card: ask a question, the record answers
+    thumb: "/work/squiggle-card.webp",
+    tone: "#e9f18e",
+    clip: { mp4: "/work/squiggle-card.mp4", webm: "/work/squiggle-card.webm", loop: true, sm: { mp4: "/work/squiggle-card-sm.mp4", webm: "/work/squiggle-card-sm.webm" } },
+    headline: "A record of the why behind AI-chat decisions",
+    title: "Squiggle",
+    ticker: "SQGL",
+    kind: "AI tool · Team project",
+    tagline: "Keeps the why behind decisions made in AI chats.",
+    summary: [
+      "Designers at early-stage startups work alone, think with AI, and pivot fast. The decisions survive; the reasoning stays buried in the chats, and an AI recap of it can’t be trusted.",
+      "In a 6-day competition, our team of three built Squiggle: a Claude connector that logs each decision with its reason while you talk, and an app that answers “why” with the words from your actual chat. We used it on our own project from day 1.",
+    ],
+    handoff: {
+      automated: ["Logging decisions, ideas and drops", "Finding the reason when you ask"],
+      yours: ["Every decision", "What gets shared, and when"],
+    },
+    challenge: "Designers make their decisions in AI chats, and the reasoning stays buried there.",
+    didLabel: "My part",
+    did: "Built the Claude connector on day 1 and designed the app: the ask-first home, the thinking map and the summary.",
+    facts: [
+      { label: "Role", value: "Product designer · built the connector, designed the app" },
+      { label: "Timeline", value: "6 days · Oct 2026" },
+      { label: "Team", value: "Pragya Srivastava, Jamie Chung, Chaewon Lim" },
+    ],
+    tools: ["Claude", "MCP", "Cloudflare Workers", "Figma"],
+    keywords: ["ai", "decisions", "record", "why", "mcp", "connector", "startup", "designer", "memory", "documentation", "hackathon"],
   },
   {
     id: "melon",

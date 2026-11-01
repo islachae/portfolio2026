@@ -14,6 +14,7 @@ import { SplitHero } from "./SplitHero";
 import { TippingCase } from "./TippingCase";
 import { PebboCase } from "./PebboCase";
 import { MelonCase } from "./MelonCase";
+import { SquiggleCase } from "./SquiggleCase";
 import { AboutCase } from "./AboutCase";
 import { ScrollRoot } from "./scroll-root";
 
@@ -371,7 +372,7 @@ export function CasePage({ id }: { id: LongId }) {
         </nav>
 
         <main className="cs-main">
-          {id === "about" ? <AboutCase /> : id === "pebbo" ? <PebboCase /> : id === "melon" ? <MelonCase /> : <TippingCase />}
+          {id === "about" ? <AboutCase /> : id === "pebbo" ? <PebboCase /> : id === "melon" ? <MelonCase /> : id === "squiggle" ? <SquiggleCase /> : <TippingCase />}
         </main>
 
         <footer className="cs-foot">

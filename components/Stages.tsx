@@ -541,6 +541,61 @@ export function MelonStage() {
   );
 }
 
+/** Squiggle: the submission demo, looping. Plays while the case study's first screen is on view. */
+export function SquiggleStage() {
+  const active = useActive("squiggle");
+  const v = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const held = useRef(false);
+  useEffect(() => {
+    const el = v.current;
+    if (!el) return;
+    if (active && !held.current && !reducedMotion()) el.play().catch(() => {});
+    else el.pause();
+  }, [active]);
+  return (
+    <>
+      <div className="stage-visual sq-stage">
+        <div className="sq-stage-box">
+          <video
+            ref={v}
+            poster="/work/squiggle/demo-poster.webp"
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label="The Squiggle demo: ask a question, get an answer from your own record, open the chat it came from, read the project summary"
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+          >
+            <source src="/work/squiggle/demo.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+      <StageControls>
+        <button
+          className="stage-btn"
+          onClick={() => {
+            const el = v.current;
+            if (!el) return;
+            if (el.paused) {
+              held.current = false;
+              el.play().catch(() => {});
+            } else {
+              held.current = true;
+              el.pause();
+            }
+          }}
+          aria-label={playing ? "Pause the demo" : "Play the demo"}
+        >
+          <PlayIcon playing={playing} />
+        </button>
+        <span className="stage-caption">Working build · demo</span>
+      </StageControls>
+    </>
+  );
+}
+
 /** The panel prototype as recorded, in the case study: plays while it's on screen. */
 export function MelonPanelClip() {
   const box = useRef<HTMLDivElement>(null);
