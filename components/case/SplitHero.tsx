@@ -4,13 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { caseStudies, type CaseId } from "@/content/cases";
 import { pageById } from "@/content/site";
 import { ToolChips } from "../ProjectBrief";
-import { MelonStage, PebboStage, StageLive, TippingStage } from "../Stages";
+import { MelonStage, PebboStage, SquiggleStage, StageLive, TippingStage } from "../Stages";
 import { useScrollRoot } from "./scroll-root";
 
 const stages: Record<CaseId, () => React.ReactElement> = {
   tipping: TippingStage,
   pebbo: PebboStage,
   melon: MelonStage,
+  squiggle: SquiggleStage,
 };
 
 /**
